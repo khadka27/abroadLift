@@ -1,7 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+﻿/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { CA, US, AU, GB, DE, IE, NL } from "country-flag-icons/react/3x2";
 import {
   GraduationCap,
@@ -20,8 +20,6 @@ import {
   AlignLeft,
   ExternalLink,
   ChevronLeft,
-  Calculator,
-  RefreshCw,
 } from "lucide-react";
 
 /* ─────────────── Flag component ─────────────── */
@@ -304,7 +302,6 @@ function SearchSelect({
     </div>
   );
 }
-
 function MatchCard({
   match: m,
   currency: c,
@@ -313,6 +310,33 @@ function MatchCard({
   currency: string;
 }) {
   const [showDetails, setShowDetails] = useState(false);
+  const [activeTab, setActiveTab] = useState<"info" | "costs">("info");
+  const [costData, setCostData] = useState<any>(null);
+  const [costLoading, setCostLoading] = useState(false);
+
+  const fetchCosts = async () => {
+    if (costData || costLoading) return;
+    setCostLoading(true);
+    try {
+      const city = m.location?.split(",")[0].trim() || "";
+      const query = new URLSearchParams({
+        city,
+        country: m.countryCode || "USA",
+        tuition_usd: (m.tuitionFee || 0).toString(),
+        currency: c,
+      });
+      const res = await fetch(`/api/cost-estimate?${query}`);
+      if (res.ok) setCostData(await res.json());
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setCostLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (showDetails && activeTab === "costs") fetchCosts();
+  }, [showDetails, activeTab]);
   const fmt = (n: number) =>
     new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -355,7 +379,7 @@ function MatchCard({
               {m.location}
             </p>
           </div>
-          {m.rankingWorld != null && !isNaN(Number(m.rankingWorld)) && (
+          {m.rankingWorld && (
             <span className="flex-shrink-0 bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wide">
               #{m.rankingWorld} World
             </span>
@@ -368,7 +392,7 @@ function MatchCard({
               💰 {fmt(m.tuitionFee)}/yr
             </span>
           )}
-          {m.admissionRate != null && !isNaN(Number(m.admissionRate)) && (
+          {m.admissionRate != null && (
             <span className="text-xs bg-gray-50 border border-gray-100 px-2 py-1 rounded text-gray-700 font-semibold">
               📈 {m.admissionRate}% Accept
             </span>
@@ -395,195 +419,200 @@ function MatchCard({
         </div>
       </div>
       {showDetails && (
-        <div className="bg-gray-50 p-5 border-t border-gray-100 text-sm">
-          <p className="text-gray-600 mb-4 text-xs leading-relaxed">
-            {m.description ||
-              "A highly prestigious institution renowned for academic excellence and innovation."}
-          </p>
-          <div className="grid grid-cols-2 gap-3 mb-4">
-            <div className="bg-white p-2.5 rounded-xl border border-gray-100 flex flex-col gap-1">
-              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-                Founded
-              </span>
-              <span className="text-xs font-bold text-gray-700">
-                {m.founded ||
-                  (String(m.id).length > 2
-                    ? 1880 + (String(m.id).length % 100)
-                    : 1920)}
-              </span>
-            </div>
-            <div className="bg-white p-2.5 rounded-xl border border-gray-100 flex flex-col gap-1">
-              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-                Students
-              </span>
-              <span className="text-xs font-bold text-gray-700">
-                {(
-                  m.studentPopulation ||
-                  ((String(m.id).length * 1500) % 30000) + 5000
-                ).toLocaleString()}
-                +
-              </span>
-            </div>
-            <div className="bg-white p-2.5 rounded-xl border border-gray-100 flex flex-col gap-1 col-span-2">
-              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-                Campus Type
-              </span>
-              <span className="text-xs font-bold text-gray-700">
-                {m.type || "Public Research University"}
-              </span>
-            </div>
-            <div className="bg-white p-2.5 rounded-xl border border-gray-100 flex flex-col gap-1 col-span-2">
-              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-                Popular Programs
-              </span>
-              <span className="text-xs font-bold text-gray-700">
-                {(m.popularPrograms || ["Business", "Tech"]).join(", ")}
-              </span>
-            </div>
-            <div className="p-2.5 rounded-xl flex flex-col gap-1 col-span-2 text-indigo-600 bg-indigo-50/20 border border-indigo-100 shadow-xs">
-              <span className="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">
-                Deadline
-              </span>
-              <span className="text-xs font-black">
-                {(m as any).deadline || "Rolling Admissions"}
-              </span>
-            </div>
+        <div className="bg-gray-50 border-t border-gray-100 flex flex-col">
+          {/* Tabs */}
+          <div className="flex border-b border-gray-100 px-4 bg-white/50 backdrop-blur-sm">
+            <button
+              onClick={() => setActiveTab("info")}
+              className={`px-4 py-3 text-[11px] font-black uppercase tracking-widest transition-all relative ${
+                activeTab === "info" ? "text-indigo-600" : "text-gray-400"
+              }`}
+            >
+              University Info
+              {activeTab === "info" && (
+                <div className="absolute bottom-0 left-4 right-4 h-0.5 bg-indigo-600 rounded-full" />
+              )}
+            </button>
+            <button
+              onClick={() => setActiveTab("costs")}
+              className={`px-4 py-3 text-[11px] font-black uppercase tracking-widest transition-all relative ${
+                activeTab === "costs" ? "text-indigo-600" : "text-gray-400"
+              }`}
+            >
+              Cost Estimator (NPR)
+              {activeTab === "costs" && (
+                <div className="absolute bottom-0 left-4 right-4 h-0.5 bg-indigo-600 rounded-full" />
+              )}
+            </button>
           </div>
-          {m.scholarships && m.scholarships.length > 0 && (
-            <div className="mt-4">
-              <p className="text-xs font-bold text-gray-900 mb-2 uppercase tracking-wider">
-                Scholarships
-              </p>
-              <div className="space-y-1">
-                {m.scholarships.map((s, i) => (
-                  <div
-                    key={i}
-                    className="flex justify-between items-center text-xs bg-white p-2 rounded border border-gray-100"
-                  >
-                    <span className="font-medium text-gray-700">{s.name}</span>
-                    <span className="font-bold text-emerald-600">
-                      {s.value}
+
+          <div className="p-5 overflow-hidden">
+            {activeTab === "info" ? (
+              <div className="animate-in fade-in slide-in-from-left-2 duration-300">
+                <p className="text-gray-600 mb-4 text-xs leading-relaxed">
+                  {m.description ||
+                    "A highly prestigious institution renowned for academic excellence and innovation."}
+                </p>
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                  <div className="bg-white p-2.5 rounded-xl border border-gray-100 flex flex-col gap-1">
+                    <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                      Founded
+                    </span>
+                    <span className="text-xs font-bold text-gray-700">
+                      {m.founded || 1850 + ((m.id as any) % 150)}
                     </span>
                   </div>
-                ))}
+                  <div className="bg-white p-2.5 rounded-xl border border-gray-100 flex flex-col gap-1">
+                    <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                      Students
+                    </span>
+                    <span className="text-xs font-bold text-gray-700">
+                      {(
+                        m.studentPopulation || ((m.id as any) % 30000) + 5000
+                      ).toLocaleString()}
+                      +
+                    </span>
+                  </div>
+                  <div className="bg-white p-2.5 rounded-xl border border-gray-100 flex flex-col gap-3 col-span-2">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                        Campus Type
+                      </span>
+                      <span className="text-xs font-bold text-gray-700">
+                        {m.type || "Public Research University"}
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                        Popular Programs
+                      </span>
+                      <span className="text-xs font-bold text-gray-700">
+                        {(m.popularPrograms || ["Business", "Tech"]).join(", ")}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="p-2.5 rounded-xl flex flex-col gap-1 col-span-2 text-indigo-600 bg-indigo-50/20 border border-indigo-100 shadow-xs">
+                    <span className="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">
+                      Deadline
+                    </span>
+                    <span className="text-xs font-black">
+                      {(m as any).deadline || "Rolling Admissions"}
+                    </span>
+                  </div>
+                </div>
+                {m.scholarships && m.scholarships.length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-xs font-bold text-gray-900 mb-2 uppercase tracking-wider">
+                      Scholarships
+                    </p>
+                    <div className="space-y-1">
+                      {m.scholarships.map((s, i) => (
+                        <div
+                          key={i}
+                          className="flex justify-between items-center text-xs bg-white p-2 rounded border border-gray-100"
+                        >
+                          <span className="font-medium text-gray-700">
+                            {s.name}
+                          </span>
+                          <span className="font-bold text-emerald-600">
+                            {s.value}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="animate-in fade-in slide-in-from-right-2 duration-300">
+                {costLoading ? (
+                  <div className="py-10 flex flex-col items-center justify-center gap-3">
+                    <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                      Calculating NPR costs...
+                    </span>
+                  </div>
+                ) : costData ? (
+                  <div className="space-y-4">
+                    <div className="bg-indigo-600 rounded-2xl p-4 text-white shadow-lg shadow-indigo-200">
+                      <span className="text-[10px] font-black uppercase tracking-widest opacity-80">
+                        Total Annual Estimate
+                      </span>
+                      <div className="text-2xl font-black mt-1 text-white flex items-baseline gap-1">
+                        Rs. {(costData.total_annual_npr / 100000).toFixed(2)}{" "}
+                        <span className="text-xs opacity-80 font-bold">
+                          Lakhs
+                        </span>
+                      </div>
+                    </div>
 
-          {/* Cost Estimator Section */}
-          <MatchCostEstimator match={m} />
-        </div>
-      )}
-    </div>
-  );
-}
+                    <div className="grid grid-cols-1 gap-2">
+                      {[
+                        {
+                          label: "Tuition (Annual)",
+                          val: costData.breakdown_npr.tuition,
+                          icon: "🎓",
+                        },
+                        {
+                          label: "Living Expenses (Monthly)",
+                          val: costData.total_monthly_npr,
+                          icon: "🏠",
+                        },
+                      ].map((item, i) => (
+                        <div
+                          key={i}
+                          className="bg-white p-3 rounded-xl border border-gray-100 flex justify-between items-center group hover:border-indigo-200 transition-colors"
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="text-lg">{item.icon}</span>
+                            <span className="text-xs font-bold text-gray-600">
+                              {item.label}
+                            </span>
+                          </div>
+                          <span className="text-sm font-black text-gray-900">
+                            Rs. {item.val.toLocaleString()}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
 
-function MatchCostEstimator({ match: m }: { match: Match }) {
-  const [data, setData] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
-  const [expanded, setExpanded] = useState(false);
-
-  const fetchEstimate = async () => {
-    if (data) {
-      setExpanded(!expanded);
-      return;
-    }
-    setLoading(true);
-    try {
-      // Extract city from location "City, State"
-      const city = m.location?.split(",")[0] || "New York";
-      const country = m.countryCode || "US";
-      const res = await fetch(
-        `/api/cost-estimate?city=${city}&country=${country}&tuition_usd=${m.tuitionFee || 20000}`,
-      );
-      const json = await res.json();
-      setData(json);
-      setExpanded(true);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const formatNPR = (val: number) => {
-    return new Intl.NumberFormat("en-NP", {
-      style: "currency",
-      currency: "NPR",
-      maximumFractionDigits: 0,
-    }).format(val);
-  };
-
-  return (
-    <div className="mt-6 border-t border-dashed border-gray-200 pt-5">
-      <button
-        onClick={fetchEstimate}
-        disabled={loading}
-        className="w-full py-3 bg-linear-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-100 rounded-xl flex items-center justify-center gap-2 text-emerald-700 font-bold text-xs hover:from-emerald-500/20 hover:to-teal-500/20 transition-all disabled:opacity-50"
-      >
-        {loading ? (
-          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-        ) : (
-          <Calculator className="w-3.5 h-3.5" />
-        )}
-        {expanded ? "Hide Cost Estimate" : "Estimate Total Cost in NPR"}
-      </button>
-
-      {expanded && data && (
-        <div className="mt-4 animate-in fade-in slide-in-from-top-2 duration-300">
-          <div className="bg-white rounded-2xl p-4 border border-emerald-50 shadow-sm space-y-3">
-            <div className="flex justify-between items-end border-b border-gray-50 pb-3">
-              <div>
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
-                  Total Annual (NPR)
-                </p>
-                <p className="text-xl font-black text-slate-900">
-                  {formatNPR(data.total_npr)}
-                </p>
+                    <div className="bg-amber-50 rounded-xl p-3 border border-amber-100">
+                      <p className="text-[10px] text-amber-700 font-bold uppercase tracking-wider mb-2">
+                        Monthly Breakdown (NPR)
+                      </p>
+                      <div className="space-y-1.5">
+                        {[
+                          { l: "Rent/Housing", v: costData.breakdown_npr.rent },
+                          { l: "Food/Dining", v: costData.breakdown_npr.food },
+                          {
+                            l: "Transport",
+                            v: costData.breakdown_npr.transport,
+                          },
+                          {
+                            l: "Utilities",
+                            v: costData.breakdown_npr.utilities,
+                          },
+                        ].map((b, j) => (
+                          <div
+                            key={j}
+                            className="flex justify-between text-[11px] font-medium text-amber-900/70"
+                          >
+                            <span>{b.l}</span>
+                            <span>Rs. {b.v.toLocaleString()}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-10">
+                    <p className="text-gray-400 text-xs font-bold">
+                      Failed to load cost estimates.
+                    </p>
+                  </div>
+                )}
               </div>
-              <div className="bg-emerald-50 px-2 py-1 rounded text-[10px] font-bold text-emerald-700">
-                1 USD ≈ {data.exchange_rate.toFixed(1)} NPR
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2">
-              <div className="bg-gray-50/50 p-2.5 rounded-xl border border-gray-100/50">
-                <p className="text-[9px] font-bold text-gray-400 uppercase">
-                  Education
-                </p>
-                <p className="text-[11px] font-bold text-gray-700">
-                  {formatNPR(data.tuition_npr)}
-                </p>
-              </div>
-              <div className="bg-gray-50/50 p-2.5 rounded-xl border border-gray-100/50">
-                <p className="text-[9px] font-bold text-gray-400 uppercase">
-                  Housing
-                </p>
-                <p className="text-[11px] font-bold text-gray-700">
-                  {formatNPR(data.housing_npr)}
-                </p>
-              </div>
-              <div className="bg-gray-50/50 p-2.5 rounded-xl border border-gray-100/50">
-                <p className="text-[9px] font-bold text-gray-400 uppercase">
-                  Food
-                </p>
-                <p className="text-[11px] font-bold text-gray-700">
-                  {formatNPR(data.food_npr)}
-                </p>
-              </div>
-              <div className="bg-gray-50/50 p-2.5 rounded-xl border border-gray-100/50">
-                <p className="text-[9px] font-bold text-gray-400 uppercase">
-                  Pocket Money
-                </p>
-                <p className="text-[11px] font-bold text-gray-700">
-                  {formatNPR(data.monthly_npr)}/mo
-                </p>
-              </div>
-            </div>
-            <p className="text-[9px] text-gray-400 italic text-center">
-              *Estimates include living expenses in {data.city} converted using
-              live rates.
-            </p>
+            )}
           </div>
         </div>
       )}

@@ -1,4 +1,11 @@
 import Link from "next/link";
+import {
+  GraduationCap,
+  ShieldCheck,
+  Globe2,
+  Building2,
+  Zap,
+} from "lucide-react";
 
 const FOOTER_LINKS = {
   Platform: [
@@ -7,14 +14,14 @@ const FOOTER_LINKS = {
     { href: "/#countries", label: "Destinations" },
     { href: "/#how-it-works", label: "How It Works" },
   ],
-  Countries: [
-    { href: "/matches?country=USA", label: "🇺🇸 United States" },
-    { href: "/matches?country=UK", label: "🇬🇧 United Kingdom" },
-    { href: "/matches?country=AU", label: "🇦🇺 Australia" },
-    { href: "/matches?country=CA", label: "🇨🇦 Canada" },
-    { href: "/matches?country=DE", label: "🇩🇪 Germany" },
-    { href: "/matches?country=IE", label: "🇮🇪 Ireland" },
-    { href: "/matches?country=NL", label: "🇳🇱 Netherlands" },
+  Destinations: [
+    { href: "/matches?country=USA", label: "United States" },
+    { href: "/matches?country=UK", label: "United Kingdom" },
+    { href: "/matches?country=AU", label: "Australia" },
+    { href: "/matches?country=CA", label: "Canada" },
+    { href: "/matches?country=DE", label: "Germany" },
+    { href: "/matches?country=IE", label: "Ireland" },
+    { href: "/matches?country=NL", label: "Netherlands" },
   ],
   "Data Sources": [
     { href: "https://collegescorecard.ed.gov", label: "US College Scorecard" },
@@ -23,192 +30,100 @@ const FOOTER_LINKS = {
   ],
 };
 
+const BADGES = [
+  { icon: ShieldCheck, label: "No Login Required" },
+  { icon: Globe2, label: "7 Countries" },
+  { icon: Building2, label: "Government Data" },
+  { icon: Zap, label: "Real-Time Matches" },
+];
+
 export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <>
-      <style>{`
-        .nd-footer {
-          background: #050510;
-          border-top: 1px solid rgba(255,255,255,0.07);
-          padding: 72px 24px 36px;
-          font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-        }
-        .nd-footer-inner {
-          max-width: 1160px;
-          margin: 0 auto;
-        }
-        .nd-footer-top {
-          display: grid;
-          grid-template-columns: 2fr repeat(3, 1fr);
-          gap: 48px;
-          margin-bottom: 64px;
-        }
-        @media (max-width: 900px) {
-          .nd-footer-top { grid-template-columns: 1fr 1fr; }
-        }
-        @media (max-width: 560px) {
-          .nd-footer-top { grid-template-columns: 1fr; gap: 36px; }
-        }
+    <footer className="relative bg-white border-t border-gray-100 overflow-hidden pt-20 pb-10">
+      <div className="absolute top-0 left-0 right-0 w-full h-1 bg-linear-to-r from-[#17a38b] via-[#3366FF] to-[#bba5d9] opacity-80" />
 
-        /* Brand column */
-        .nd-footer-brand-logo {
-          font-size: 22px;
-          font-weight: 900;
-          text-decoration: none;
-          background: linear-gradient(135deg, #818cf8, #c084fc);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          margin-bottom: 16px;
-        }
-        .nd-footer-dot {
-          width: 8px; height: 8px; border-radius: 50%;
-          background: #6366f1; box-shadow: 0 0 10px #6366f1;
-          display: inline-block;
-        }
-        .nd-footer-tagline {
-          font-size: 14px;
-          color: #475569;
-          line-height: 1.7;
-          max-width: 260px;
-          margin-bottom: 28px;
-        }
-        .nd-footer-cta {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          background: linear-gradient(135deg, #6366f1, #8b5cf6);
-          color: #fff;
-          font-size: 13px;
-          font-weight: 700;
-          padding: 10px 20px;
-          border-radius: 10px;
-          text-decoration: none;
-          transition: transform 0.15s, box-shadow 0.15s;
-          box-shadow: 0 4px 14px rgba(99,102,241,0.3);
-        }
-        .nd-footer-cta:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 24px rgba(99,102,241,0.5);
-        }
+      {/* Soft Glow */}
+      <div className="absolute bottom-[-100px] left-1/2 -translate-x-1/2 w-[800px] h-[300px] rounded-full bg-blue-50 blur-[100px] pointer-events-none" />
 
-        /* Column */
-        .nd-col-title {
-          font-size: 11px;
-          font-weight: 800;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-          color: #6366f1;
-          margin-bottom: 18px;
-        }
-        .nd-col-links {
-          list-style: none;
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
-        .nd-col-link {
-          font-size: 14px;
-          color: #64748b;
-          text-decoration: none;
-          transition: color 0.2s;
-        }
-        .nd-col-link:hover { color: #c7d2fe; }
-
-        /* Bottom bar */
-        .nd-footer-bottom {
-          border-top: 1px solid rgba(255,255,255,0.06);
-          padding-top: 32px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          flex-wrap: wrap;
-          gap: 12px;
-        }
-        .nd-footer-copy {
-          font-size: 13px;
-          color: #334155;
-        }
-        .nd-footer-badges {
-          display: flex;
-          gap: 10px;
-          flex-wrap: wrap;
-        }
-        .nd-badge {
-          font-size: 11px;
-          font-weight: 600;
-          color: #475569;
-          background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.07);
-          padding: 5px 12px;
-          border-radius: 999px;
-        }
-      `}</style>
-
-      <footer className="nd-footer">
-        <div className="nd-footer-inner">
-          {/* Top grid */}
-          <div className="nd-footer-top">
-            {/* Brand */}
-            <div>
-              <Link href="/" className="nd-footer-brand-logo">
-                <span className="nd-footer-dot" />
-                NextDegree
-              </Link>
-              <p className="nd-footer-tagline">
-                Real-time university matching powered by government-grade
-                education APIs. No login. No fees. Just results.
-              </p>
-              <Link href="/matches" className="nd-footer-cta">
-                🎓 Find Universities →
-              </Link>
-            </div>
-
-            {/* Link columns */}
-            {Object.entries(FOOTER_LINKS).map(([group, links]) => (
-              <div key={group}>
-                <div className="nd-col-title">{group}</div>
-                <ul className="nd-col-links">
-                  {links.map((l) => (
-                    <li key={l.href}>
-                      <Link
-                        href={l.href}
-                        className="nd-col-link"
-                        target={
-                          l.href.startsWith("http") ? "_blank" : undefined
-                        }
-                        rel={
-                          l.href.startsWith("http") ? "noreferrer" : undefined
-                        }
-                      >
-                        {l.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+      <div className="relative max-w-[1200px] mx-auto px-6">
+        {/* Top grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[2.5fr_1fr_1fr_1fr] gap-12 lg:gap-8 mb-16">
+          {/* Brand column */}
+          <div className="max-w-xs">
+            <Link
+              href="/"
+              className="flex items-center gap-2.5 group mb-5 w-fit no-underline"
+            >
+              <div className="w-10 h-10 rounded-[14px] bg-linear-to-br from-[#17a38b] to-[#128a7e] flex items-center justify-center shadow-lg shadow-teal-500/20 group-hover:scale-[1.05] transition-transform duration-300">
+                <span className="text-white font-black text-lg">N</span>
               </div>
-            ))}
+              <span className="font-black text-2xl tracking-tight text-gray-900 group-hover:text-teal-700 transition-colors">
+                NextDegree
+              </span>
+            </Link>
+
+            <p className="text-sm text-gray-500 leading-relaxed font-medium mb-8 pr-4">
+              Real-time university matching powered by government-grade
+              education APIs. No login locks. No hidden fees. Just immediate
+              results.
+            </p>
+
+            <Link
+              href="/matches"
+              className="inline-flex items-center gap-2 text-[14px] font-bold text-white px-6 py-3.5 rounded-2xl bg-[#3366FF] hover:bg-[#2952CC] hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 shadow-md"
+            >
+              <GraduationCap className="w-5 h-5" /> Start Matching Now
+            </Link>
           </div>
 
-          {/* Bottom bar */}
-          <div className="nd-footer-bottom">
-            <p className="nd-footer-copy">
-              © {year} NextDegree — Built for students, by students.
-            </p>
-            <div className="nd-footer-badges">
-              <span className="nd-badge">✅ No Login Required</span>
-              <span className="nd-badge">🌍 7 Countries</span>
-              <span className="nd-badge">🏛️ Government Data</span>
-              <span className="nd-badge">⚡ Real-Time</span>
+          {/* Link columns */}
+          {Object.entries(FOOTER_LINKS).map(([group, links]) => (
+            <div key={group}>
+              <div className="text-[11px] font-black tracking-[0.15em] uppercase text-gray-400 mb-6">
+                {group}
+              </div>
+              <ul className="flex flex-col gap-4 list-none m-0 p-0">
+                {links.map((l) => (
+                  <li key={l.href}>
+                    <Link
+                      href={l.href}
+                      className="text-[15px] font-medium text-gray-600 hover:text-[#3366FF] transition-colors duration-200"
+                      target={l.href.startsWith("http") ? "_blank" : undefined}
+                      rel={l.href.startsWith("http") ? "noreferrer" : undefined}
+                    >
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </div>
+          ))}
+        </div>
+
+        {/* Bottom bar */}
+        <div className="border-t border-gray-200 pt-8 flex flex-col md:flex-row items-center justify-between gap-6">
+          <p className="text-[13px] font-medium text-gray-400 text-center md:text-left">
+            © {year} NextDegree — Built for students attempting to change the
+            world.
+          </p>
+
+          <div className="flex flex-wrap justify-center gap-3">
+            {BADGES.map((b) => {
+              const Icon = b.icon;
+              return (
+                <span
+                  key={b.label}
+                  className="flex items-center gap-1.5 text-[12px] font-bold text-gray-500 bg-gray-50 border border-gray-200 px-3.5 py-2 rounded-xl hover:border-gray-300 hover:bg-gray-100 transition-colors shadow-sm"
+                >
+                  <Icon className="w-4 h-4 text-gray-400" /> {b.label}
+                </span>
+              );
+            })}
           </div>
         </div>
-      </footer>
-    </>
+      </div>
+    </footer>
   );
 }

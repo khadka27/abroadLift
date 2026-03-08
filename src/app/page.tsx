@@ -1,15 +1,59 @@
 import Link from "next/link";
 import CountryCard from "@/components/CountryCard";
+import {
+  GraduationCap,
+  ArrowRight,
+  Globe2,
+  Wallet,
+  Zap,
+  Brain,
+  BadgeCheck,
+  FileSearch,
+  Sparkles,
+  TrendingUp,
+  Search,
+  CheckCircle2,
+  Calculator,
+} from "lucide-react";
 
 /* ─────────────────────────────────────────────
    Static Data
 ───────────────────────────────────────────── */
 const STATS = [
-  { value: "65+", label: "API Endpoints" },
-  { value: "7", label: "Countries" },
-  { value: "6K+", label: "Universities" },
-  { value: "100%", label: "Free to Use" },
+  { value: "65+", label: "API Endpoints", icon: Zap },
+  { value: "7", label: "Countries", icon: Globe2 },
+  { value: "6K+", label: "Universities", icon: BuildingIcon },
+  { value: "Free", label: "Forever", icon: BadgeCheck },
 ];
+
+function BuildingIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <rect width="16" height="20" x="4" y="2" rx="2" ry="2" />
+      <path d="M9 22v-4h6v4" />
+      <path d="M8 6h.01" />
+      <path d="M16 6h.01" />
+      <path d="M12 6h.01" />
+      <path d="M12 10h.01" />
+      <path d="M12 14h.01" />
+      <path d="M16 10h.01" />
+      <path d="M16 14h.01" />
+      <path d="M8 10h.01" />
+      <path d="M8 14h.01" />
+    </svg>
+  );
+}
 
 const COUNTRIES = [
   {
@@ -31,54 +75,10 @@ const COUNTRIES = [
   { flag: "🇳🇱", name: "Netherlands", universities: "80+", color: "#ec4899" },
 ];
 
-const FEATURES = [
-  {
-    icon: "🎯",
-    title: "Smart Matching",
-    desc: "Our engine scores thousands of universities against your budget, IELTS score, degree level, and preferred country — instantly.",
-    color: "#6366f1",
-  },
-  {
-    icon: "💰",
-    title: "Budget-Aware",
-    desc: "Set your maximum yearly tuition and get only universities you can actually afford. No surprises, no gatekeeping.",
-    color: "#10b981",
-  },
-  {
-    icon: "🌐",
-    title: "Multi-Country Data",
-    desc: "Powered by government-grade APIs covering 7 countries and 6,000+ institutions — always fresh, always accurate.",
-    color: "#f59e0b",
-  },
-  {
-    icon: "⚡",
-    title: "Instant Results",
-    desc: "No waiting. Type your profile, hit search, and see a curated list of matching universities in under 2 seconds.",
-    color: "#ec4899",
-  },
-];
-
-const HOW_IT_WORKS = [
-  {
-    step: "01",
-    title: "Fill Your Profile",
-    desc: "Enter your name, degree level, GPA and intended field of study.",
-  },
-  {
-    step: "02",
-    title: "Add Academic Scores",
-    desc: "Tell us your IELTS, TOEFL or PTE score — we check it against each university's requirement.",
-  },
-  {
-    step: "03",
-    title: "Set Your Budget",
-    desc: "Pick your destination country and yearly tuition limit. Toggle scholarship interest.",
-  },
-  {
-    step: "04",
-    title: "Get Matches",
-    desc: "We scan thousands of programs and surface only the ones that truly fit you.",
-  },
+const TRUST_BADGES = [
+  { icon: Globe2, label: "College Scorecard API" },
+  { icon: FileSearch, label: "WorqNow Education API" },
+  { icon: BadgeCheck, label: "Data.gov Verified" },
 ];
 
 /* ─────────────────────────────────────────────
@@ -86,571 +86,357 @@ const HOW_IT_WORKS = [
 ───────────────────────────────────────────── */
 export default function HomePage() {
   return (
-    <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-          font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-          background: #080818;
-          color: #f1f5f9;
-          overflow-x: hidden;
-        }
-
-        /* Utility */
-        .gradient-text {
-          background: linear-gradient(135deg, #818cf8, #c084fc, #fb7185);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-
-        /* Animations */
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50%       { transform: translateY(-18px); }
-        }
-        @keyframes pulse-ring {
-          0%   { transform: scale(0.9); opacity: 1; }
-          100% { transform: scale(1.8); opacity: 0; }
-        }
-        @keyframes gradient-shift {
-          0%   { background-position: 0% 50%; }
-          50%  { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        @keyframes fade-up {
-          from { opacity: 0; transform: translateY(30px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-
-        .fade-up { animation: fade-up 0.7s ease both; }
-        .delay-1 { animation-delay: 0.1s; }
-        .delay-2 { animation-delay: 0.2s; }
-        .delay-3 { animation-delay: 0.3s; }
-        .delay-4 { animation-delay: 0.45s; }
-        .delay-5 { animation-delay: 0.6s; }
-
-        .hero-badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          background: rgba(99,102,241,0.12);
-          border: 1px solid rgba(99,102,241,0.35);
-          border-radius: 999px;
-          padding: 6px 16px;
-          font-size: 13px;
-          font-weight: 600;
-          color: #a5b4fc;
-          margin-bottom: 28px;
-        }
-        .hero-badge span {
-          width: 8px; height: 8px; border-radius: 50%;
-          background: #6366f1;
-          box-shadow: 0 0 8px #6366f1;
-          display: inline-block;
-        }
-
-        .cta-primary {
-          display: inline-flex;
-          align-items: center;
-          gap: 10px;
-          background: linear-gradient(135deg, #6366f1, #8b5cf6);
-          color: #fff;
-          font-size: 17px;
-          font-weight: 700;
-          padding: 16px 36px;
-          border-radius: 14px;
-          text-decoration: none;
-          box-shadow: 0 8px 30px rgba(99,102,241,0.45);
-          transition: transform 0.2s, box-shadow 0.2s;
-          position: relative;
-        }
-        .cta-primary:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 12px 40px rgba(99,102,241,0.6);
-        }
-        .cta-primary::after {
-          content: '';
-          position: absolute;
-          inset: 0;
-          border-radius: 14px;
-          background: linear-gradient(135deg, #6366f1, #8b5cf6);
-          animation: pulse-ring 2s ease-out infinite;
-          z-index: -1;
-        }
-
-        .cta-secondary {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          color: #94a3b8;
-          font-size: 16px;
-          font-weight: 600;
-          padding: 16px 28px;
-          border-radius: 14px;
-          border: 1px solid rgba(255,255,255,0.12);
-          text-decoration: none;
-          background: rgba(255,255,255,0.04);
-          transition: background 0.2s, color 0.2s, border-color 0.2s;
-        }
-        .cta-secondary:hover {
-          background: rgba(255,255,255,0.09);
-          color: #f1f5f9;
-          border-color: rgba(255,255,255,0.25);
-        }
-
-        /* Sections */
-        section { padding: 100px 24px; }
-
-        .section-inner {
-          max-width: 1160px;
-          margin: 0 auto;
-        }
-
-        .section-label {
-          font-size: 12px;
-          font-weight: 700;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-          color: #6366f1;
-          margin-bottom: 14px;
-        }
-
-        .section-title {
-          font-size: clamp(28px, 4vw, 44px);
-          font-weight: 800;
-          line-height: 1.1;
-          color: #f1f5f9;
-          margin-bottom: 16px;
-        }
-
-        .section-sub {
-          font-size: 17px;
-          color: #64748b;
-          max-width: 560px;
-          line-height: 1.7;
-        }
-
-        /* Feature Cards */
-        .feature-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-          gap: 20px;
-          margin-top: 56px;
-        }
-
-        .feature-card {
-          background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.08);
-          border-radius: 20px;
-          padding: 28px;
-          transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
-        }
-        .feature-card:hover {
-          transform: translateY(-5px);
-          border-color: rgba(99,102,241,0.3);
-          box-shadow: 0 12px 40px rgba(0,0,0,0.3);
-        }
-        .feature-icon {
-          font-size: 32px;
-          margin-bottom: 16px;
-          display: block;
-        }
-        .feature-title {
-          font-size: 18px;
-          font-weight: 700;
-          color: #e2e8f0;
-          margin-bottom: 10px;
-        }
-        .feature-desc {
-          font-size: 14px;
-          color: #64748b;
-          line-height: 1.7;
-        }
-
-        /* Country Grid */
-        .country-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-          gap: 16px;
-          margin-top: 48px;
-        }
-        .country-card {
-          background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.08);
-          border-radius: 18px;
-          padding: 24px 16px;
-          text-align: center;
-          text-decoration: none;
-          transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
-          cursor: default;
-        }
-        .country-card:hover {
-          transform: translateY(-4px);
-        }
-        .country-flag { font-size: 36px; display: block; margin-bottom: 10px; }
-        .country-name { font-size: 14px; font-weight: 700; color: #e2e8f0; }
-        .country-unis { font-size: 12px; color: #64748b; margin-top: 4px; }
-
-        /* Stats bar */
-        .stats-bar {
-          display: flex;
-          flex-wrap: wrap;
-          justify-content: center;
-          gap: 0;
-          background: rgba(255,255,255,0.03);
-          border-top: 1px solid rgba(255,255,255,0.08);
-          border-bottom: 1px solid rgba(255,255,255,0.08);
-        }
-        .stat-item {
-          flex: 1;
-          min-width: 140px;
-          padding: 36px 24px;
-          text-align: center;
-          border-right: 1px solid rgba(255,255,255,0.07);
-        }
-        .stat-item:last-child { border-right: none; }
-        .stat-value {
-          font-size: 42px;
-          font-weight: 900;
-          background: linear-gradient(135deg, #818cf8, #c084fc);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-        .stat-label { font-size: 13px; color: #64748b; margin-top: 6px; font-weight: 500; }
-
-        /* Steps */
-        .steps-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-          gap: 20px;
-          margin-top: 56px;
-          position: relative;
-        }
-        .step-card {
-          position: relative;
-          padding: 28px;
-          background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.08);
-          border-radius: 20px;
-        }
-        .step-number {
-          font-size: 11px;
-          font-weight: 800;
-          letter-spacing: 0.08em;
-          color: #6366f1;
-          background: rgba(99,102,241,0.12);
-          border: 1px solid rgba(99,102,241,0.25);
-          display: inline-block;
-          padding: 4px 12px;
-          border-radius: 999px;
-          margin-bottom: 16px;
-        }
-        .step-title {
-          font-size: 17px;
-          font-weight: 700;
-          color: #e2e8f0;
-          margin-bottom: 10px;
-        }
-        .step-desc {
-          font-size: 14px;
-          color: #64748b;
-          line-height: 1.7;
-        }
-
-        /* Nav */
-        nav {
-          position: fixed;
-          top: 0; left: 0; right: 0;
-          z-index: 100;
-          background: rgba(8,8,24,0.7);
-          backdrop-filter: blur(16px);
-          border-bottom: 1px solid rgba(255,255,255,0.07);
-          padding: 0 32px;
-        }
-        .nav-inner {
-          max-width: 1160px;
-          margin: 0 auto;
-          height: 64px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        }
-        .nav-logo {
-          font-size: 20px;
-          font-weight: 900;
-          text-decoration: none;
-          background: linear-gradient(135deg, #818cf8, #c084fc);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-        .nav-links {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-        .nav-link {
-          font-size: 14px;
-          font-weight: 600;
-          color: #94a3b8;
-          text-decoration: none;
-          padding: 8px 16px;
-          border-radius: 10px;
-          transition: color 0.2s, background 0.2s;
-        }
-        .nav-link:hover { color: #f1f5f9; background: rgba(255,255,255,0.06); }
-        .nav-cta {
-          font-size: 14px;
-          font-weight: 700;
-          color: #fff;
-          text-decoration: none;
-          background: linear-gradient(135deg, #6366f1, #8b5cf6);
-          padding: 9px 20px;
-          border-radius: 10px;
-          transition: opacity 0.2s;
-        }
-        .nav-cta:hover { opacity: 0.9; }
-
-        /* Footer */
-        footer {
-          padding: 48px 24px;
-          border-top: 1px solid rgba(255,255,255,0.07);
-          text-align: center;
-          color: #475569;
-          font-size: 14px;
-        }
-
-        /* CTA Section */
-        .cta-section {
-          background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.1));
-          border-top: 1px solid rgba(99,102,241,0.2);
-          border-bottom: 1px solid rgba(99,102,241,0.2);
-          text-align: center;
-        }
-
-        /* Mobile */
-        @media (max-width: 640px) {
-          .nav-link { display: none; }
-          .hero-actions { flex-direction: column; }
-          .stats-bar { flex-direction: column; }
-          .stat-item { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.07); }
-          section { padding: 72px 20px; }
-        }
-      `}</style>
-
-      {/* ── NAV ── */}
-      <nav>
-        <div className="nav-inner">
-          <Link href="/" className="nav-logo">
-            NextDegree
-          </Link>
-          <div className="nav-links">
-            <Link href="#features" className="nav-link">
-              Features
-            </Link>
-            <Link href="#countries" className="nav-link">
-              Countries
-            </Link>
-            <Link href="#how-it-works" className="nav-link">
-              How it works
-            </Link>
-            <Link href="/matches" className="nav-cta">
-              Find Universities →
-            </Link>
-          </div>
-        </div>
-      </nav>
-
+    <div className="w-full bg-[#f8f9fc] text-[#0f172a] font-sans selection:bg-[#3366FF]/20 selection:text-[#3366FF] overflow-hidden">
       {/* ── HERO ── */}
-      <section
-        style={{
-          paddingTop: 160,
-          paddingBottom: 120,
-          textAlign: "center",
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        {/* Background blobs */}
-        <div
-          style={{
-            position: "absolute",
-            top: "-10%",
-            left: "50%",
-            transform: "translateX(-50%)",
-            width: 800,
-            height: 500,
-            background:
-              "radial-gradient(ellipse, rgba(99,102,241,0.2) 0%, transparent 70%)",
-            pointerEvents: "none",
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            top: "30%",
-            left: "5%",
-            width: 350,
-            height: 350,
-            borderRadius: "50%",
-            background:
-              "radial-gradient(circle, rgba(139,92,246,0.15) 0%, transparent 70%)",
-            pointerEvents: "none",
-            animation: "float 8s ease-in-out infinite",
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            top: "20%",
-            right: "5%",
-            width: 300,
-            height: 300,
-            borderRadius: "50%",
-            background:
-              "radial-gradient(circle, rgba(16,185,129,0.12) 0%, transparent 70%)",
-            pointerEvents: "none",
-            animation: "float 10s ease-in-out infinite reverse",
-          }}
-        />
+      <section className="relative pt-[140px] pb-[100px] px-6 lg:px-8">
+        {/* Background Canvas */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute inset-0 bg-linear-to-b from-[#ffffff] via-[#f8f9fc] to-[#f8f9fc]" />
 
-        <div style={{ maxWidth: 860, margin: "0 auto", position: "relative" }}>
-          <div className="hero-badge fade-up">
-            <span /> Powered by real government university data
-          </div>
-
-          <h1
-            className="fade-up delay-1"
+          {/* Subtle grid pattern */}
+          <div
+            className="absolute inset-0 opacity-[0.3] mix-blend-multiply"
             style={{
-              fontSize: "clamp(40px, 6vw, 76px)",
-              fontWeight: 900,
-              lineHeight: 1.05,
-              marginBottom: 28,
-              letterSpacing: "-0.02em",
+              backgroundImage: "radial-gradient(#cbd5e1 1px, transparent 1px)",
+              backgroundSize: "32px 32px",
+              maskImage:
+                "linear-gradient(to bottom, black 30%, transparent 100%)",
+              WebkitMaskImage:
+                "linear-gradient(to bottom, black 30%, transparent 100%)",
             }}
+          />
+
+          {/* Glowing Orbs */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[800px] bg-linear-to-b from-[#3366FF]/[0.06] to-transparent rounded-full blur-[120px]" />
+          <div className="absolute top-[20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-[#17a38b]/[0.05] blur-[150px] animate-float" />
+          <div className="absolute top-[30%] right-[-10%] w-[500px] h-[500px] rounded-full bg-[#8b5cf6]/[0.05] blur-[140px] animate-float-slow" />
+        </div>
+
+        <div className="relative max-w-[1240px] mx-auto text-center z-10">
+          {/* Release Badge */}
+          <Link
+            href="/matches"
+            className="fade-up inline-flex items-center gap-2.5 bg-white border border-[#3366FF]/20 rounded-full px-4 py-2 text-[13px] font-bold text-[#3366FF] mb-10 shadow-sm shadow-[#3366FF]/10 transition-all hover:shadow-[#3366FF]/20 hover:border-[#3366FF]/40 hover:-translate-y-0.5"
           >
-            Find universities that{" "}
-            <span className="gradient-text">actually fit you</span>
+            <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#3366FF]/10">
+              <Sparkles className="w-3 h-3 text-[#3366FF] animate-pulse" />
+            </span>
+            Meet the New V2 Matching Engine
+            <ArrowRight className="w-3.5 h-3.5 opacity-70" />
+          </Link>
+
+          {/* Epic Headline */}
+          <h1
+            className="fade-up delay-100 font-extrabold leading-[1.05] tracking-tight mb-8 text-[#0f172a]"
+            style={{ fontSize: "clamp(48px, 7vw, 96px)" }}
+          >
+            Find universities <br className="hidden md:block" />
+            that{" "}
+            <span className="relative inline-block">
+              <span className="relative z-10 bg-linear-to-r from-[#3366FF] to-[#17a38b] bg-clip-text text-transparent">
+                actually fit you.
+              </span>
+              <svg
+                className="absolute w-full h-4 -bottom-1 left-0 text-[#17a38b]/30 z-0"
+                viewBox="0 0 100 10"
+                preserveAspectRatio="none"
+              >
+                <path
+                  d="M0 5 Q 50 10 100 5"
+                  stroke="currentColor"
+                  strokeWidth="8"
+                  fill="none"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </span>
           </h1>
 
+          {/* Subheading */}
           <p
-            className="fade-up delay-2"
+            className="fade-up delay-200 mx-auto mb-12 text-[#64748b] font-medium"
             style={{
-              fontSize: "clamp(16px, 2vw, 20px)",
-              color: "#64748b",
-              lineHeight: 1.7,
-              maxWidth: 600,
-              margin: "0 auto 44px",
+              fontSize: "clamp(18px, 2vw, 22px)",
+              maxWidth: "660px",
+              lineHeight: 1.6,
             }}
           >
             Enter your English score, budget, and dream country. We instantly
-            match you against 6,000+ programs across 7 countries — no guesswork,
-            no forms, no fees.
+            cross-match your credentials against 6,000+ programs worldwide. No
+            bias, no fees.
           </p>
 
-          <div
-            className="hero-actions fade-up delay-3"
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: 14,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Link href="/matches" className="cta-primary">
-              🎓 Find My Match
+          {/* CTA Group */}
+          <div className="fade-up delay-300 flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Link
+              href="/matches"
+              className="relative inline-flex items-center gap-3 bg-[#3366FF] text-white font-bold px-10 py-5 rounded-[20px] text-[17px] shadow-lg shadow-[#3366FF]/25 hover:bg-[#2952cc] transition-all hover:-translate-y-1 w-full sm:w-auto"
+            >
+              <Search className="w-5 h-5 flex-shrink-0" strokeWidth={2.5} />
+              Start Matching Now
             </Link>
-            <Link href="#how-it-works" className="cta-secondary">
-              See How It Works ↓
+            <Link
+              href="/costing"
+              className="inline-flex items-center gap-3 bg-white text-[#475569] font-bold px-9 py-5 rounded-[20px] text-[17px] shadow-sm border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all hover:-translate-y-1 w-full sm:w-auto"
+            >
+              <Calculator
+                className="w-5 h-5 text-emerald-500 flex-shrink-0"
+                strokeWidth={2.5}
+              />
+              Cost Estimator (NPR)
             </Link>
           </div>
 
-          {/* Trust note */}
-          <p
-            className="fade-up delay-4"
-            style={{
-              marginTop: 36,
-              fontSize: 13,
-              color: "#475569",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 16,
-              flexWrap: "wrap",
-            }}
-          >
-            <span>🇺🇸 College Scorecard API</span>
-            <span style={{ color: "#1e293b" }}>|</span>
-            <span>🌍 WorqNow Education API</span>
-            <span style={{ color: "#1e293b" }}>|</span>
-            <span>✅ No account required</span>
+          <p className="fade-up delay-400 mt-8 text-[13px] font-bold text-gray-400 uppercase tracking-widest flex items-center justify-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+            100% Free. No Login Required.
           </p>
+        </div>
+
+        {/* ── HIGH FIDELITY MOCKUP PREVIEW ── */}
+        <div className="fade-up focus-in delay-500 relative max-w-[1000px] mx-auto mt-20 z-20">
+          <div className="absolute -inset-1.5 bg-linear-to-b from-[#3366FF]/20 to-transparent rounded-[32px] blur-xl opacity-70" />
+          <div className="relative rounded-[28px] border border-white/50 bg-white/40 backdrop-blur-2xl shadow-[0_20px_80px_-20px_rgba(0,0,0,0.1)] overflow-hidden">
+            {/* Fake Browser Titlebar */}
+            <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100 bg-white/60">
+              <div className="flex gap-2">
+                <div className="w-3 h-3 rounded-full bg-slate-300" />
+                <div className="w-3 h-3 rounded-full bg-slate-300" />
+                <div className="w-3 h-3 rounded-full bg-slate-300" />
+              </div>
+              <div className="flex items-center gap-1.5 bg-gray-100/80 px-4 py-1.5 rounded-full text-[12px] font-medium text-gray-500">
+                <Globe2 className="w-3 h-3" /> nextdegree.com/matches
+              </div>
+              <div className="w-12" /> {/* spacer for flex centering */}
+            </div>
+
+            {/* Fake Dashboard Content */}
+            <div className="p-4 md:p-8 bg-gray-50/50 flex flex-col md:flex-row gap-6 items-center">
+              {/* Fake form input stack */}
+              <div className="flex-1 w-full space-y-4">
+                <div className="h-4 w-32 bg-gray-200 rounded-full mb-6" />
+                <div className="h-[52px] w-full bg-white rounded-2xl border border-gray-100 shadow-sm flex items-center px-4 gap-3">
+                  <Search className="w-5 h-5 text-blue-500" />
+                  <div className="h-2 w-48 bg-gray-100 rounded-full" />
+                </div>
+                <div className="h-[52px] w-full bg-white rounded-2xl border border-blue-400 ring-4 ring-blue-500/10 shadow-sm flex items-center px-4 gap-3">
+                  <div className="w-6 h-6 rounded-full bg-[#17a38b]/20 flex items-center justify-center">
+                    <div className="w-2 h-2 rounded-full bg-[#17a38b]" />
+                  </div>
+                  <div className="font-bold text-gray-700 text-sm">
+                    Computer Science
+                  </div>
+                </div>
+              </div>
+
+              {/* Fake result card */}
+              <div className="flex-1 w-full bg-white rounded-3xl p-6 shadow-xl shadow-blue-500/5 relative overflow-hidden border border-gray-100">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-[#3366FF]/5 rounded-bl-[100px]" />
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex-1">
+                    <div className="h-5 w-48 bg-gray-800 rounded-lg mb-2" />
+                    <div className="h-3 w-24 bg-gray-300 rounded-full flex gap-1 mb-6"></div>
+                  </div>
+                  <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
+                    <TrendingUp className="w-5 h-5 text-emerald-600" />
+                  </div>
+                </div>
+                <div className="flex gap-3 mt-4">
+                  <div className="px-3 py-1.5 bg-gray-50 rounded-lg text-xs font-bold text-gray-500">
+                    💰 $15,000/yr
+                  </div>
+                  <div className="px-3 py-1.5 bg-gray-50 rounded-lg text-xs font-bold text-gray-500">
+                    📈 45% Accept
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* ── STATS BAR ── */}
-      <div className="stats-bar fade-up delay-5">
-        {STATS.map((s) => (
-          <div className="stat-item" key={s.label}>
-            <div className="stat-value">{s.value}</div>
-            <div className="stat-label">{s.label}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* ── FEATURES ── */}
-      <section id="features">
-        <div className="section-inner">
-          <div className="section-label">Why NextDegree</div>
-          <h2 className="section-title">
-            Built different for students
-            <br />
-            who want real answers
-          </h2>
-          <p className="section-sub">
-            No paywalls. No fake rankings. Just your numbers, matched to real
-            data.
-          </p>
-
-          <div className="feature-grid">
-            {FEATURES.map((f) => (
-              <div
-                className="feature-card"
-                key={f.title}
-                style={{ borderTop: `3px solid ${f.color}22` }}
-              >
-                <span className="feature-icon">{f.icon}</span>
-                <div className="feature-title" style={{ color: f.color }}>
-                  {f.title}
+      {/* ── BRANDING LOGOS ── */}
+      <section className="py-10 border-y border-gray-200/60 bg-white">
+        <div className="max-w-[1240px] mx-auto px-6 flex flex-wrap justify-center gap-8 md:gap-16 items-center flex-col md:flex-row">
+          <span className="text-sm font-bold text-gray-400 uppercase tracking-widest text-center">
+            Powered by live structured intelligence from
+          </span>
+          <div className="flex flex-wrap justify-center gap-8 md:gap-16">
+            {TRUST_BADGES.map((b, i) => {
+              const Icon = b.icon;
+              return (
+                <div
+                  key={i}
+                  className="flex items-center gap-2 group cursor-default"
+                >
+                  <Icon className="w-6 h-6 text-gray-300 group-hover:text-[#3366FF] transition-colors" />
+                  <span className="text-[17px] font-black text-gray-400 group-hover:text-gray-900 transition-colors tracking-tight">
+                    {b.label}
+                  </span>
                 </div>
-                <div className="feature-desc">{f.desc}</div>
-              </div>
-            ))}
+              );
+            })}
           </div>
+        </div>
+      </section>
+
+      {/* ── BENTO GRID FEATURES ── */}
+      <section id="features" className="py-32 px-6 lg:px-8">
+        <div className="max-w-[1240px] mx-auto">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <h2 className="text-[#3366FF] font-black tracking-[0.2em] uppercase text-xs mb-4">
+              The NextDegree Advantage
+            </h2>
+            <h3 className="font-extrabold text-[36px] md:text-[54px] text-[#0f172a] leading-[1.1] tracking-tight mb-6">
+              Smarter matching. <br className="hidden md:block" /> No
+              spreadsheets.
+            </h3>
+            <p className="text-[19px] text-[#64748b] font-medium leading-relaxed">
+              We ditched the biased agency recommendations. Instead, we use live
+              API data to score every program against your exact academic and
+              financial profile.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[300px] md:auto-rows-[340px]">
+            {/* BENTO CARD 1: Large Span */}
+            <div className="md:col-span-2 rounded-[32px] bg-white border border-gray-200 p-8 md:p-12 flex flex-col justify-between overflow-hidden relative group hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300">
+              <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[radial-gradient(circle_at_top_right,#3366FF15,transparent_50%)] opacity-0 group-hover:opacity-100 transition-duration-700 pointer-events-none" />
+              <div className="relative z-10 w-16 h-16 rounded-[20px] bg-blue-50 text-blue-600 flex items-center justify-center mb-6 shadow-sm border border-blue-100">
+                <Brain className="w-8 h-8" />
+              </div>
+              <div className="relative z-10">
+                <h4 className="text-[28px] font-black text-[#0f172a] mb-3 tracking-tight">
+                  Algorithmic Match Scoring
+                </h4>
+                <p className="text-[17px] font-medium text-[#64748b] mb-0 max-w-md leading-relaxed">
+                  Enter your exact budget, IELTS score, and degree timeline. We
+                  run it against 6,000+ data nodes to return precisely what
+                  you&apos;re eligible for.
+                </p>
+              </div>
+              {/* Decor visual inside card */}
+              <div className="absolute -bottom-10 -right-10 w-[60%] h-[70%] bg-gray-50 rounded-tl-3xl border-t border-l border-gray-200 p-6 flex flex-col gap-4 shadow-2xl skew-x-[-10deg] rotate-[-5deg] group-hover:-translate-y-4 group-hover:-translate-x-4 transition-transform duration-500">
+                <div className="w-full bg-white h-12 rounded-xl shadow-sm border border-gray-100 flex items-center px-4 gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                  <div className="w-24 h-2 bg-gray-200 rounded-full" />
+                </div>
+                <div className="w-full bg-white h-12 rounded-xl shadow-sm border border-gray-100 flex items-center px-4 gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                  <div className="w-32 h-2 bg-gray-200 rounded-full" />
+                </div>
+              </div>
+            </div>
+
+            {/* BENTO CARD 2: Vertical */}
+            <div className="md:col-span-1 rounded-[32px] bg-[#0A2540] p-8 md:p-12 flex flex-col justify-between overflow-hidden relative group shadow-lg">
+              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10" />
+              <div className="relative z-10 w-16 h-16 rounded-[20px] bg-white/10 text-emerald-400 flex items-center justify-center mb-6 backdrop-blur-md">
+                <Wallet className="w-8 h-8" />
+              </div>
+              <div className="relative z-10">
+                <h4 className="text-[28px] font-black text-white mb-3 tracking-tight leading-tight">
+                  Strictly Budget-Aware
+                </h4>
+                <p className="text-[17px] font-medium text-blue-100/70 mb-0 leading-relaxed">
+                  Filter out programs you can&apos;t afford. Zero hidden fees.
+                  Know the exact tuition before you apply.
+                </p>
+              </div>
+            </div>
+
+            {/* BENTO CARD 3: Horizontal Half */}
+            <div className="md:col-span-1 rounded-[32px] bg-white border border-gray-200 p-8 md:p-10 flex flex-col justify-between overflow-hidden relative group hover:border-[#17a38b]/50 transition-colors">
+              <div className="relative z-10 w-14 h-14 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center mb-6 border border-teal-100">
+                <Globe2 className="w-7 h-7" />
+              </div>
+              <div className="relative z-10">
+                <h4 className="text-[24px] font-black text-[#0f172a] mb-2 tracking-tight">
+                  7 Countries Included
+                </h4>
+                <p className="text-[15px] font-medium text-[#64748b] leading-relaxed">
+                  US, UK, Australia, Canada, Germany, Ireland, and Netherlands.
+                  All unified in a single flow.
+                </p>
+              </div>
+            </div>
+
+            <div className="md:col-span-2 rounded-[32px] bg-linear-to-br from-emerald-50 to-teal-50 border border-emerald-100 p-8 md:p-10 flex flex-col sm:flex-row items-center justify-between overflow-hidden relative group shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
+              <div className="relative z-10 flex-1 pr-6">
+                <div className="w-14 h-14 rounded-full bg-white text-emerald-600 flex items-center justify-center mb-6 shadow-sm">
+                  <Calculator className="w-7 h-7" />
+                </div>
+                <h4 className="text-[28px] font-black text-[#0f172a] mb-3 tracking-tight">
+                  Cost Estimator in NPR
+                </h4>
+                <p className="text-[17px] font-medium text-[#64748b] leading-relaxed max-w-sm">
+                  Switch from USD to NPR instantly. Use our global living cost
+                  index to calculate rent, food, and tuition in localized
+                  currency.
+                </p>
+                <Link
+                  href="/costing"
+                  className="mt-6 inline-flex items-center gap-2 text-emerald-600 font-bold hover:gap-3 transition-all"
+                >
+                  Try Estimator <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+              {/* Visual decor */}
+              <div className="w-full sm:w-[300px] h-full flex items-center justify-center p-4">
+                <div className="bg-white rounded-3xl shadow-xl p-6 border border-emerald-100 rotate-3 group-hover:rotate-0 transition-transform duration-500">
+                  <div className="w-12 h-2 bg-slate-100 rounded-full mb-4" />
+                  <div className="text-2xl font-black text-slate-900 mb-1">
+                    रू 15,40,000
+                  </div>
+                  <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                    Total Annual Cost (NPR)
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── METRICS (Clean Data Row) ── */}
+      <section className="py-24 border-y border-gray-200 bg-white">
+        <div className="max-w-[1240px] mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-y-12 divide-x divide-gray-100">
+          {STATS.map((s, idx) => (
+            <div
+              key={idx}
+              className="flex flex-col items-center px-4 text-center"
+            >
+              <div className="text-[44px] md:text-[56px] font-black text-[#0f172a] tracking-tighter mb-1">
+                {s.value}
+              </div>
+              <div className="text-[14px] font-bold text-gray-400 uppercase tracking-widest">
+                {s.label}
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* ── COUNTRIES ── */}
-      <section id="countries" style={{ paddingTop: 0 }}>
-        <div className="section-inner">
-          <div className="section-label">Destinations</div>
-          <h2 className="section-title">
-            7 countries,
-            <br />
-            one search
-          </h2>
-          <p className="section-sub">
-            We pull live data for each country — tuition costs, entry
-            requirements, visa guidance, and more.
-          </p>
+      <section id="countries" className="py-32 px-6 lg:px-8 bg-[#FAFBFF]">
+        <div className="max-w-[1240px] mx-auto">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+            <div className="max-w-2xl">
+              <h2 className="text-[#17a38b] font-black tracking-[0.2em] uppercase text-xs mb-4">
+                Destinations
+              </h2>
+              <h3 className="font-extrabold text-[36px] md:text-[54px] text-[#0f172a] leading-[1.1] tracking-tight">
+                7 top countries.
+                <br /> Unified in one seamless flow.
+              </h3>
+            </div>
+            <p className="text-[18px] text-[#64748b] font-medium leading-relaxed max-w-sm pb-2">
+              Access live structured data from world-class global ranking
+              indices and scorecards.
+            </p>
+          </div>
 
-          <div className="country-grid">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-5">
             {COUNTRIES.map((c) => (
               <CountryCard
                 key={c.name}
@@ -664,136 +450,139 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── HOW IT WORKS ── */}
-      <section id="how-it-works">
-        <div className="section-inner">
-          <div className="section-label">Process</div>
-          <h2 className="section-title">
-            From zero to shortlist
-            <br />
-            in under 2 minutes
-          </h2>
-          <p className="section-sub">
-            No account needed. No email required. Just fill in the form and let
-            the engine do the rest.
-          </p>
+      {/* ── HOW IT WORKS (Timeline Grid) ── */}
+      <section
+        id="how-it-works"
+        className="py-32 px-6 relative overflow-hidden bg-white border-t border-gray-100"
+      >
+        <div className="relative max-w-[1240px] mx-auto">
+          <div className="text-center max-w-3xl mx-auto mb-20">
+            <h2 className="text-[#8b5cf6] font-black tracking-[0.2em] uppercase text-xs mb-4">
+              The Process
+            </h2>
+            <h3 className="font-extrabold text-[36px] md:text-[54px] text-[#0f172a] leading-[1.1] tracking-tight mb-6">
+              From zero to shortlist.
+              <br /> Just 4 simple steps.
+            </h3>
+          </div>
 
-          <div className="steps-grid">
-            {HOW_IT_WORKS.map((s, i) => (
-              <div
-                className="step-card"
-                key={s.step}
-                style={{
-                  borderTop:
-                    i === 0
-                      ? "3px solid #6366f1"
-                      : i === 1
-                        ? "3px solid #8b5cf6"
-                        : i === 2
-                          ? "3px solid #10b981"
-                          : "3px solid #f59e0b",
-                }}
-              >
-                <span className="step-number">STEP {s.step}</span>
-                <div className="step-title">{s.title}</div>
-                <div className="step-desc">{s.desc}</div>
+          <div className="relative grid grid-cols-1 md:grid-cols-4 gap-x-8 gap-y-12">
+            {/* Visual Line connector for desktop */}
+            <div className="hidden md:block absolute top-[40px] left-0 w-full h-1 bg-gray-100 rounded-full z-0" />
+            <div className="hidden md:block absolute top-[40px] left-0 w-1/2 h-1 bg-gradient-to-r from-blue-500/50 to-transparent rounded-full z-0" />
+
+            {[
+              {
+                step: "01",
+                icon: GraduationCap,
+                title: "Your Profile",
+                desc: "Enter your degree level, GPA, and intended field of study.",
+                color: "text-blue-600",
+                bg: "bg-blue-50",
+                border: "border-blue-200",
+              },
+              {
+                step: "02",
+                icon: FileSearch,
+                title: "Test Scores",
+                desc: "Add your latest IELTS, TOEFL, or PTE scores for exact matching.",
+                color: "text-teal-600",
+                bg: "bg-teal-50",
+                border: "border-teal-200",
+              },
+              {
+                step: "03",
+                icon: Wallet,
+                title: "Strict Budget",
+                desc: "Set your max yearly tuition limit across any currency.",
+                color: "text-purple-600",
+                bg: "bg-purple-50",
+                border: "border-purple-200",
+              },
+              {
+                step: "04",
+                icon: Sparkles,
+                title: "View Matches",
+                desc: "We scan the database and surface only the ones that fit you.",
+                color: "text-amber-600",
+                bg: "bg-amber-50",
+                border: "border-amber-200",
+              },
+            ].map((s) => {
+              const Icon = s.icon;
+              return (
+                <div
+                  key={s.step}
+                  className="relative z-10 flex flex-col items-start md:items-center md:text-center group"
+                >
+                  <div
+                    className={`w-[80px] h-[80px] rounded-2xl ${s.bg} border ${s.border} flex flex-col items-center justify-center mb-8 shadow-sm group-hover:-translate-y-2 transition-transform duration-300`}
+                  >
+                    <span className={`text-[12px] font-black ${s.color}`}>
+                      {s.step}
+                    </span>
+                    <Icon
+                      className={`w-6 h-6 ${s.color} mt-1`}
+                      strokeWidth={2.5}
+                    />
+                  </div>
+                  <h4 className="text-[22px] font-black text-[#0f172a] mb-3 tracking-tight">
+                    {s.title}
+                  </h4>
+                  <p className="text-[16px] text-[#64748b] font-medium leading-relaxed">
+                    {s.desc}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ── EPIC CTA SECTION ── */}
+      <section className="py-32 px-6 lg:px-8 relative overflow-hidden bg-[#fafbff]">
+        {/* Soft Background Plate */}
+        <div className="absolute inset-x-6 lg:inset-x-auto lg:left-1/2 lg:-translate-x-1/2 lg:w-full lg:max-w-[1240px] inset-y-10 rounded-[48px] bg-linear-to-br from-[#0A2540] via-[#0A2540] to-[#1e3b8a] shadow-2xl overflow-hidden">
+          {/* Abstract glows inside CTA */}
+          <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-500/20 rounded-full blur-[120px]" />
+          <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-teal-500/10 rounded-full blur-[120px]" />
+
+          <div className="relative text-center py-24 px-6 sm:px-12 z-10 h-full flex flex-col justify-center items-center">
+            <div className="w-24 h-24 rounded-[28px] bg-gradient-to-br from-[#3366FF] to-blue-400 p-[2px] mx-auto mb-10 shadow-2xl">
+              <div className="w-full h-full bg-[#0A2540] rounded-[26px] flex items-center justify-center">
+                <GraduationCap
+                  className="w-10 h-10 text-white"
+                  strokeWidth={2}
+                />
               </div>
-            ))}
+            </div>
+
+            <h2
+              className="font-black text-white mb-6 leading-[1.1] tracking-tight drop-shadow-md"
+              style={{ fontSize: "clamp(40px, 5vw, 68px)" }}
+            >
+              Find your absolute <br />
+              best match today.
+            </h2>
+            <p className="text-[20px] md:text-[24px] font-medium text-blue-100/70 mb-14 leading-relaxed max-w-2xl mx-auto">
+              Skip the agency fees and Google stress. Take control of your
+              academic future in less than 2 minutes.
+            </p>
+
+            <Link
+              href="/matches"
+              className="inline-flex items-center justify-center gap-3 bg-white text-[#0A2540] hover:bg-gray-50 font-black px-12 py-6 rounded-2xl text-[18px] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_-10px_rgba(255,255,255,0.2)]"
+            >
+              <Zap className="w-6 h-6 fill-blue-600 text-blue-600" /> Start
+              Matching Free
+            </Link>
+
+            <p className="mt-8 text-[14px] font-bold text-blue-300/50 uppercase tracking-widest flex items-center gap-2">
+              <BadgeCheck className="w-4 h-4" /> No Credit Card Required
+            </p>
           </div>
         </div>
       </section>
-
-      {/* ── CTA SECTION ── */}
-      <section className="cta-section">
-        <div className="section-inner" style={{ textAlign: "center" }}>
-          <div
-            style={{
-              width: 72,
-              height: 72,
-              borderRadius: "50%",
-              background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 32,
-              margin: "0 auto 24px",
-              boxShadow: "0 0 40px rgba(99,102,241,0.4)",
-              animation: "float 4s ease-in-out infinite",
-            }}
-          >
-            🎓
-          </div>
-          <h2
-            style={{
-              fontSize: "clamp(28px, 4vw, 48px)",
-              fontWeight: 900,
-              marginBottom: 16,
-              color: "#f1f5f9",
-            }}
-          >
-            Ready to find your match?
-          </h2>
-          <p
-            style={{
-              fontSize: 17,
-              color: "#64748b",
-              maxWidth: 480,
-              margin: "0 auto 36px",
-              lineHeight: 1.7,
-            }}
-          >
-            Takes under 2 minutes. No login. No credit card. Just real results.
-          </p>
-          <Link
-            href="/matches"
-            className="cta-primary"
-            style={{ display: "inline-flex" }}
-          >
-            🔍 Start Matching Now →
-          </Link>
-        </div>
-      </section>
-
-      {/* ── FOOTER ── */}
-      <footer>
-        <div
-          style={{
-            fontSize: 20,
-            fontWeight: 900,
-            background: "linear-gradient(135deg, #818cf8, #c084fc)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundClip: "text",
-            marginBottom: 12,
-          }}
-        >
-          NextDegree
-        </div>
-        <p style={{ color: "#334155" }}>
-          Powered by{" "}
-          <a
-            href="https://collegescorecard.ed.gov"
-            target="_blank"
-            rel="noreferrer"
-            style={{ color: "#6366f1", textDecoration: "none" }}
-          >
-            U.S. College Scorecard
-          </a>
-          {" & "}
-          <a
-            href="https://api.worqnow.ai"
-            target="_blank"
-            rel="noreferrer"
-            style={{ color: "#8b5cf6", textDecoration: "none" }}
-          >
-            WorqNow Education API
-          </a>
-        </p>
-        <p style={{ marginTop: 8, color: "#1e293b" }}>
-          © {new Date().getFullYear()} NextDegree. Built for students, by
-          students.
-        </p>
-      </footer>
-    </>
+    </div>
   );
 }

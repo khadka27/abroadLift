@@ -1,14 +1,6 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
+import ClientWrapper from "@/components/ClientWrapper";
 
 export const metadata: Metadata = {
   title: "NextDegree — Find Universities That Actually Fit You",
@@ -38,12 +30,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={inter.variable}>
-      <body style={{ margin: 0, background: "#080818", color: "#f1f5f9" }}>
-        <Navbar />
-        {/* push content below the fixed navbar */}
-        <div style={{ paddingTop: 64 }}>{children}</div>
-        <Footer />
+    <html lang="en">
+      <body
+        className="bg-[#07070f] text-slate-100 antialiased"
+        suppressHydrationWarning={true}
+      >
+        <ClientWrapper>{children}</ClientWrapper>
       </body>
     </html>
   );
