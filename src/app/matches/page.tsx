@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import { CA, US, AU, GB, DE, IE, NL } from "country-flag-icons/react/3x2";
 import {
   GraduationCap,
@@ -697,12 +698,43 @@ function MatchCostEstimator({ match: m }: { match: Match }) {
 }
 
 /* ─────────────── Main Component ─────────────── */
-export default function NextDegreeMatchesPage() {
+  const { data: session, status } = useSession();
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<Form>(DEF);
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      const fetchProfileData = async () => {
+        try {
+          const res = await fetch("/api/profile");
+          if (res.ok) {
+            const data = await res.json();
+            const p = data.profile || {};
+            setForm((prev) => ({
+              ...prev,
+              name: data.name || prev.name,
+              email: data.email || prev.email,
+              countries: p.preferredCountry ? [p.preferredCountry] : prev.countries,
+              degree: p.degreeLevel || prev.degree,
+              field: p.fieldOfStudy || prev.field,
+              testType: p.englishTestType || prev.testType,
+              testScore: p.englishScore?.toString() || prev.testScore,
+              budget: p.yearlyBudget?.toString() || prev.budget,
+              currency: p.currency || prev.currency,
+              scholarship: p.scholarshipNeeded || prev.scholarship,
+              gpa: p.gpa?.toString() || prev.gpa,
+            }));
+          }
+        } catch (e) {
+          console.error("Failed to load profile", e);
+        }
+      };
+      fetchProfileData();
+    }
+  }, [status]);
 
   const updateForm = <K extends keyof Form>(k: K, v: Form[K]) =>
     setForm((prev) => ({ ...prev, [k]: v }));

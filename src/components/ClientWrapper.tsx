@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
+import { SessionProvider } from "next-auth/react";
 
 export default function ClientWrapper({
   children,
@@ -12,18 +13,18 @@ export default function ClientWrapper({
   const pathname = usePathname();
 
   // Routes where we DON'T want the Navbar and Footer
-  const isMatchPage = pathname?.startsWith("/matches");
-  const isDashboard = pathname?.startsWith("/dashboard");
+  const noShellRoutes = ["/matches", "/dashboard", "/login", "/register", "/profile"];
+  const hideShell = noShellRoutes.some((r) => pathname?.startsWith(r));
 
-  if (isMatchPage || isDashboard) {
-    return <>{children}</>;
+  if (hideShell) {
+    return <SessionProvider>{children}</SessionProvider>;
   }
 
   return (
-    <>
+    <SessionProvider>
       <Navbar />
       <div className="pt-16">{children}</div>
       <Footer />
-    </>
+    </SessionProvider>
   );
 }
