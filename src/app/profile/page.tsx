@@ -103,7 +103,6 @@ export default function ProfilePage() {
     if (status === "authenticated") {
       fetchProfile();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, router]);
 
   const fetchProfile = async () => {

@@ -51,7 +51,7 @@ function LoginForm() {
       if (result?.error) {
         setError(result.error);
       } else {
-        router.push("/matches");
+        router.push("/");
         router.refresh();
       }
     } catch {
@@ -92,7 +92,7 @@ function LoginForm() {
         {/* Just registered banner */}
         {justRegistered && (
           <div className="mb-5 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 flex items-center gap-3 fade-up">
-            <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+            <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
             <div>
               <p className="text-sm font-bold text-emerald-300">Account created!</p>
               <p className="text-xs text-emerald-500/80">Sign in to start matching universities.</p>
@@ -101,12 +101,12 @@ function LoginForm() {
         )}
 
         {/* Login Card */}
-        <div className="bg-white/[0.03] border border-white/10 rounded-3xl p-8 backdrop-blur-sm shadow-2xl fade-up">
+        <div className="bg-white/3 border border-white/10 rounded-3xl p-8 backdrop-blur-sm shadow-2xl fade-up">
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Error */}
             {error && (
               <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-4 flex items-center gap-3">
-                <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
+                <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
                 <p className="text-sm text-red-300">{error}</p>
               </div>
             )}
@@ -208,7 +208,7 @@ function LoginForm() {
               "Get personalized recommendations",
             ].map((f) => (
               <div key={f} className="flex items-center gap-2.5 text-xs text-slate-500">
-                <div className="w-4 h-4 bg-indigo-500/15 rounded-full flex items-center justify-center flex-shrink-0">
+                <div className="w-4 h-4 bg-indigo-500/15 rounded-full flex items-center justify-center shrink-0">
                   <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full" />
                 </div>
                 {f}
