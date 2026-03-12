@@ -6,9 +6,9 @@ import { useState, useEffect } from "react";
 import { Menu, X, Rocket, GraduationCap } from "lucide-react";
 
 const NAV_LINKS = [
-  { href: "/#features", label: "Features" },
-  { href: "/#countries", label: "Destinations" },
-  { href: "/#how-it-works", label: "How It Works" },
+  { href: "/matches", label: "University Finder" },
+  { href: "/eligibility", label: "Eligibility Hub" },
+  { href: "/costing", label: "Cost Estimator" },
 ];
 
 export default function Navbar() {

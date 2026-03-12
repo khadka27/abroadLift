@@ -52,9 +52,12 @@ export async function fetchSchools(
 
   // The College Scorecard API expects unencoded colons and commas in its query parameters.
   // URLSearchParams automatically encodes them (e.g., ':' to '%3A', ',' to '%2C').
-  // We decode the query string before appending it to the URL to prevent 500 errors.
-  const decodedQueryString = decodeURIComponent(queryParams.toString());
-  const url = `${BASE_URL}/schools?${decodedQueryString}`;
+  // We selectively decode only these characters to prevent 500 errors while preserving others like '&'.
+  const queryString = queryParams.toString()
+    .replace(/%3A/g, ":")
+    .replace(/%2C/g, ",");
+  
+  const url = `${BASE_URL}/schools?${queryString}`;
 
   const response = await fetch(url, {
     method: "GET",

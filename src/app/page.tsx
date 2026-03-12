@@ -172,8 +172,18 @@ export default function HomePage() {
               href="/matches"
               className="relative inline-flex items-center gap-3 bg-[#3366FF] text-white font-bold px-10 py-5 rounded-[20px] text-[17px] shadow-lg shadow-[#3366FF]/25 hover:bg-[#2952cc] transition-all hover:-translate-y-1 w-full sm:w-auto"
             >
-              <Search className="w-5 h-5 flex-shrink-0" strokeWidth={2.5} />
+              <Search className="w-5 h-5 shrink-0" strokeWidth={2.5} />
               Start Matching Now
+            </Link>
+            <Link
+              href="/eligibility"
+              className="inline-flex items-center gap-3 bg-white text-[#475569] font-bold px-9 py-5 rounded-[20px] text-[17px] shadow-sm border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all hover:-translate-y-1 w-full sm:w-auto"
+            >
+              <Sparkles
+                className="w-5 h-5 text-teal-500 shrink-0"
+                strokeWidth={2.5}
+              />
+              Eligibility Hub (AI)
             </Link>
             <Link
               href="/costing"
@@ -346,18 +356,23 @@ export default function HomePage() {
             </div>
 
             {/* BENTO CARD 3: Horizontal Half */}
-            <div className="md:col-span-1 rounded-[32px] bg-white border border-gray-200 p-8 md:p-10 flex flex-col justify-between overflow-hidden relative group hover:border-[#17a38b]/50 transition-colors">
+            <div className="md:col-span-1 rounded-[32px] bg-white border border-gray-200 p-8 md:p-10 flex flex-col justify-between overflow-hidden relative group hover:border-teal-500/50 transition-colors">
               <div className="relative z-10 w-14 h-14 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center mb-6 border border-teal-100">
-                <Globe2 className="w-7 h-7" />
+                <Sparkles className="w-7 h-7" />
               </div>
               <div className="relative z-10">
                 <h4 className="text-[24px] font-black text-[#0f172a] mb-2 tracking-tight">
-                  7 Countries Included
+                  Study Gap Checker
                 </h4>
                 <p className="text-[15px] font-medium text-[#64748b] leading-relaxed">
-                  US, UK, Australia, Canada, Germany, Ireland, and Netherlands.
-                  All unified in a single flow.
+                  Worried about your study gap? Our AI tool checks eligibility for USA, Canada, UK & more.
                 </p>
+                <Link
+                  href="/eligibility"
+                  className="mt-4 inline-flex items-center gap-2 text-teal-600 font-bold hover:gap-3 transition-all text-sm"
+                >
+                  Analyze Gap <ArrowRight className="w-4 h-4" />
+                </Link>
               </div>
             </div>
 

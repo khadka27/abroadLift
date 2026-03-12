@@ -22,6 +22,12 @@ import {
   ChevronLeft,
   Calculator,
   RefreshCw,
+  MapPin,
+  Cloud,
+  Clock,
+  Plane,
+  Sun,
+  Moon,
 } from "lucide-react";
 
 /* ─────────────── Flag component ─────────────── */
@@ -55,7 +61,7 @@ const FlagIcon = ({
 
 /* ─────────────── Types ─────────────── */
 interface Form {
-  country: string;
+  countries: string[];
   degree: string;
   field: string;
   program: string;
@@ -79,6 +85,7 @@ interface Match {
   website?: string;
   admissionRate?: number;
   rankingWorld?: number;
+  rankingNational?: number;
   scholarships?: { name: string; value: string }[];
   description?: string;
   type?: string;
@@ -88,7 +95,8 @@ interface Match {
   applicationDeadline?: string;
   gpaRequirement?: number;
   matchType?: string;
-  internationalStudents?: number;
+  internationalPercentage?: number;
+  salaryMedian?: number;
 }
 
 /* ─────────────── Static data ─────────────── */
@@ -208,7 +216,7 @@ const STEPS = [
 ];
 
 const DEF: Form = {
-  country: "",
+  countries: [],
   degree: "",
   field: "",
   program: "",
@@ -356,9 +364,18 @@ function MatchCard({
             </p>
           </div>
           {m.rankingWorld != null && !isNaN(Number(m.rankingWorld)) && (
-            <span className="flex-shrink-0 bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wide">
-              #{m.rankingWorld} World
-            </span>
+            <div className={`flex flex-col items-end`}>
+              <span className={`flex-shrink-0 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider shadow-sm border ${
+                Number(m.rankingWorld) <= 100 
+                ? 'bg-linear-to-br from-amber-50 to-orange-50 text-amber-700 border-amber-200' 
+                : 'bg-blue-50 text-blue-700 border-blue-100'
+              }`}>
+                #{m.rankingWorld} World
+              </span>
+              {Number(m.rankingWorld) <= 100 && (
+                <span className="text-[8px] font-bold text-amber-500 mt-1 uppercase tracking-tighter">Elite Institution</span>
+              )}
+            </div>
           )}
         </div>
 
@@ -382,98 +399,186 @@ function MatchCard({
           >
             {showDetails ? "Hide" : "Details"}
           </button>
-          {m.website && (
-            <a
-              href={m.website}
-              target="_blank"
-              rel="noreferrer"
-              className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-1"
-            >
-              Visit <ExternalLink className="w-3 h-3" />
-            </a>
-          )}
+            {m.website && (
+              <a
+                href={m.website}
+                target="_blank"
+                rel="noreferrer"
+                className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-1"
+              >
+                Visit <ExternalLink className="w-3 h-3" />
+              </a>
+            )}
+          </div>
         </div>
+        {showDetails && (
+          <div className="bg-gray-50 p-5 border-t border-gray-100 text-sm">
+            <p className="text-gray-600 mb-4 text-xs leading-relaxed">
+              {m.description || "Information about this institution's unique programs and campus life can be found on their official website."}
+            </p>
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              {m.rankingNational && (
+                <div className="bg-white p-2.5 rounded-xl border border-gray-100 flex flex-col gap-1">
+                  <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                    National Rank
+                  </span>
+                  <span className="text-xs font-bold text-gray-700">
+                    #{m.rankingNational}
+                  </span>
+                </div>
+              )}
+              <div className={`bg-white p-2.5 rounded-xl border border-gray-100 flex flex-col gap-1 ${!m.rankingNational ? 'col-span-2' : ''}`}>
+                <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                  Students
+                </span>
+                <span className="text-xs font-bold text-gray-700">
+                  {m.studentPopulation ? `${m.studentPopulation.toLocaleString()}+` : "10,000+"}
+                </span>
+              </div>
+              <div className="bg-white p-2.5 rounded-xl border border-gray-100 flex flex-col gap-1 col-span-2">
+                <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                  Campus Type
+                </span>
+                <span className="text-xs font-bold text-gray-700">
+                  {m.type || "Public Research Institution"}
+                </span>
+              </div>
+              {m.popularPrograms && m.popularPrograms.length > 0 && (
+                <div className="bg-white p-2.5 rounded-xl border border-gray-100 flex flex-col gap-1 col-span-2">
+                  <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                    Popular Programs
+                  </span>
+                  <span className="text-xs font-bold text-gray-700 line-clamp-1">
+                    {m.popularPrograms.join(", ")}
+                  </span>
+                </div>
+              )}
+              <div className="p-2.5 rounded-xl flex flex-col gap-1 col-span-2 text-indigo-600 bg-indigo-50/20 border border-indigo-100 shadow-xs">
+                <span className="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">
+                  Admission Status
+                </span>
+                <span className="text-xs font-black">
+                  {(m as any).deadline || "Rolling Admissions / Active"}
+                </span>
+              </div>
+              {m.internationalPercentage != null && (
+                <div className="bg-emerald-50/30 p-2.5 rounded-xl border border-emerald-100 flex flex-col gap-1">
+                  <span className="text-[10px] text-emerald-600 font-bold uppercase tracking-widest">
+                    Intl. Students
+                  </span>
+                  <span className="text-xs font-bold text-emerald-700">
+                    {m.internationalPercentage}%
+                  </span>
+                </div>
+              )}
+              {m.salaryMedian != null && (
+                <div className="bg-amber-50/30 p-2.5 rounded-xl border border-amber-100 flex flex-col gap-1">
+                  <span className="text-[10px] text-amber-600 font-bold uppercase tracking-widest">
+                    Avg. Salary
+                  </span>
+                  <span className="text-xs font-bold text-amber-700">
+                    ${m.salaryMedian.toLocaleString()}/yr
+                  </span>
+                </div>
+              )}
+            </div>
+            <DestinationInsight match={m} />
+            
+            {m.scholarships && m.scholarships.length > 0 && (
+              <div className="mt-4">
+                <p className="text-xs font-bold text-gray-900 mb-2 uppercase tracking-wider">
+                  Scholarships
+                </p>
+                <div className="space-y-1">
+                  {m.scholarships.map((s, i) => (
+                    <div
+                      key={i}
+                      className="flex justify-between items-center text-xs bg-white p-2 rounded border border-gray-100"
+                    >
+                      <span className="font-medium text-gray-700">{s.name}</span>
+                      <span className="font-bold text-emerald-600">
+                        {s.value}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <MatchCostEstimator match={m} />
+          </div>
+        )}
       </div>
-      {showDetails && (
-        <div className="bg-gray-50 p-5 border-t border-gray-100 text-sm">
-          <p className="text-gray-600 mb-4 text-xs leading-relaxed">
-            {m.description ||
-              "A highly prestigious institution renowned for academic excellence and innovation."}
-          </p>
-          <div className="grid grid-cols-2 gap-3 mb-4">
-            <div className="bg-white p-2.5 rounded-xl border border-gray-100 flex flex-col gap-1">
-              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-                Founded
-              </span>
-              <span className="text-xs font-bold text-gray-700">
-                {m.founded ||
-                  (String(m.id).length > 2
-                    ? 1880 + (String(m.id).length % 100)
-                    : 1920)}
-              </span>
+    );
+  }
+
+function DestinationInsight({ match: m }: { match: Match }) {
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+
+  useMemo(() => {
+    const fetchInsight = async () => {
+      setLoading(true);
+      try {
+        const city = m.location?.split(",")[0] || "London";
+        const country = m.countryCode || "GB";
+        const res = await fetch(`/api/destination-insight?city=${city}&country=${country}`);
+        const json = await res.json();
+        setData(json);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchInsight();
+  }, [m.location, m.countryCode]);
+
+  if (loading) return <div className="h-20 bg-gray-50 animate-pulse rounded-2xl border border-gray-100 mt-4" />;
+  if (!data || data.error) return null;
+
+  return (
+    <div className="mt-6 bg-linear-to-br from-indigo-600 to-violet-700 rounded-2xl p-4 text-white shadow-lg relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl" />
+      <div className="relative z-10 flex flex-col gap-3">
+        <div className="flex justify-between items-start">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 bg-white/20 rounded-lg backdrop-blur-md">
+              <MapPin className="w-3.5 h-3.5" />
             </div>
-            <div className="bg-white p-2.5 rounded-xl border border-gray-100 flex flex-col gap-1">
-              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-                Students
-              </span>
-              <span className="text-xs font-bold text-gray-700">
-                {(
-                  m.studentPopulation ||
-                  ((String(m.id).length * 1500) % 30000) + 5000
-                ).toLocaleString()}
-                +
-              </span>
+            <span className="text-xs font-black uppercase tracking-widest">{data.city} Insight</span>
+          </div>
+          <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-1.5 bg-white/20 px-2 py-0.5 rounded-full backdrop-blur-md">
+              <Clock className="w-3 h-3 opacity-80" />
+              <span className="text-[10px] font-bold">{data.localTime}</span>
             </div>
-            <div className="bg-white p-2.5 rounded-xl border border-gray-100 flex flex-col gap-1 col-span-2">
-              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-                Campus Type
-              </span>
-              <span className="text-xs font-bold text-gray-700">
-                {m.type || "Public Research University"}
-              </span>
-            </div>
-            <div className="bg-white p-2.5 rounded-xl border border-gray-100 flex flex-col gap-1 col-span-2">
-              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-                Popular Programs
-              </span>
-              <span className="text-xs font-bold text-gray-700">
-                {(m.popularPrograms || ["Business", "Tech"]).join(", ")}
-              </span>
-            </div>
-            <div className="p-2.5 rounded-xl flex flex-col gap-1 col-span-2 text-indigo-600 bg-indigo-50/20 border border-indigo-100 shadow-xs">
-              <span className="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">
-                Deadline
-              </span>
-              <span className="text-xs font-black">
-                {(m as any).deadline || "Rolling Admissions"}
-              </span>
+             <div className="flex items-center gap-1.5 bg-white/20 px-2 py-0.5 rounded-full backdrop-blur-md">
+               {data.isDay ? <Sun className="w-3 h-3 text-amber-300" /> : <Moon className="w-3 h-3 text-blue-200" />}
+               <span className="text-[10px] font-bold uppercase tracking-tighter">{data.isDay ? 'Day' : 'Night'}</span>
             </div>
           </div>
-          {m.scholarships && m.scholarships.length > 0 && (
-            <div className="mt-4">
-              <p className="text-xs font-bold text-gray-900 mb-2 uppercase tracking-wider">
-                Scholarships
-              </p>
-              <div className="space-y-1">
-                {m.scholarships.map((s, i) => (
-                  <div
-                    key={i}
-                    className="flex justify-between items-center text-xs bg-white p-2 rounded border border-gray-100"
-                  >
-                    <span className="font-medium text-gray-700">{s.name}</span>
-                    <span className="font-bold text-emerald-600">
-                      {s.value}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Cost Estimator Section */}
-          <MatchCostEstimator match={m} />
         </div>
-      )}
+
+        <div className="flex items-end justify-between">
+          <div className="flex flex-col">
+            <div className="flex items-baseline gap-1">
+              <span className="text-3xl font-black">{Math.round(data.temp)}°</span>
+              <span className="text-sm font-bold opacity-80">C</span>
+            </div>
+            <div className="flex items-center gap-1 text-[10px] font-black opacity-60 uppercase">
+              <Cloud className="w-3 h-3" />
+              <span>Real-time Conditions</span>
+            </div>
+          </div>
+          <div className="flex flex-col items-end">
+            <div className="flex items-center gap-1 text-[10px] font-bold opacity-90 uppercase tracking-tighter bg-white/10 px-2 py-1 rounded-lg border border-white/10 backdrop-blur-sm shadow-sm">
+              <Plane className="w-3 h-3 rotate-45" />
+              <span>{data.distance.toLocaleString()} KM From Base</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -602,16 +707,25 @@ export default function NextDegreeMatchesPage() {
   const updateForm = <K extends keyof Form>(k: K, v: Form[K]) =>
     setForm((prev) => ({ ...prev, [k]: v }));
 
+  const toggleCountry = (code: string) => {
+    setForm((prev) => ({
+      ...prev,
+      countries: prev.countries.includes(code)
+        ? prev.countries.filter((c) => c !== code)
+        : [...prev.countries, code],
+    }));
+  };
+
   const currentStepData = STEPS[step];
   const canContinue = (
     [
-      form.country,
+      form.countries.length > 0,
       form.degree,
       form.field,
       form.testScore,
       form.budget,
       form.name,
-    ] as (string | boolean)[]
+    ] as (string | boolean | number)[]
   )[step];
 
   const handleNext = () => {
@@ -628,7 +742,7 @@ export default function NextDegreeMatchesPage() {
     setMatches([]);
     try {
       const query = new URLSearchParams({
-        country: form.country,
+        countries: form.countries.join(","),
         budget: form.budget || "0",
         englishScore: form.testScore || "0",
         degreeLevel: form.degree,
@@ -639,38 +753,8 @@ export default function NextDegreeMatchesPage() {
         throw new Error("Our matching engine is temporarily overloaded.");
       const data = await res.json();
 
-      const extras = [
-        {
-          type: "Public Research",
-          rankingWorld: 42,
-          admissionRate: 15,
-          scholarships: [{ name: "Global Excellence", value: "Up to $15K" }],
-          popularPrograms: ["Computer Science", "Engineering"],
-          deadline: "Jan 15th",
-        },
-        {
-          type: "Private Liberal Arts",
-          rankingWorld: 150,
-          admissionRate: 44,
-          scholarships: [{ name: "Dean's Scholarship", value: "Up to $12K" }],
-          popularPrograms: ["Psychology", "Economics"],
-          deadline: "Feb 1st",
-        },
-        {
-          type: "Public Tech",
-          rankingWorld: 310,
-          admissionRate: 61,
-          popularPrograms: ["Data Science", "IT"],
-          deadline: "Rolling",
-        },
-      ];
 
-      setMatches(
-        (data.matches || []).map((m: any, i: number) => ({
-          ...m,
-          ...extras[i % extras.length],
-        })),
-      );
+      setMatches(data.matches || []);
     } catch (err: any) {
       setError(err.message || "Something went wrong fetching matches.");
     } finally {
@@ -695,11 +779,11 @@ export default function NextDegreeMatchesPage() {
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {COUNTRIES.map((c) => {
-              const isSel = form.country === c.code;
+              const isSel = form.countries.includes(c.code);
               return (
                 <button
                   key={c.code}
-                  onClick={() => updateForm("country", c.code)}
+                  onClick={() => toggleCountry(c.code)}
                   className={`relative flex flex-col items-center justify-center gap-2 p-4 rounded-2xl border transition-all duration-200 flex-1 min-h-[100px] ${
                     isSel
                       ? "border-blue-500 bg-blue-50 shadow-md ring-1 ring-blue-500 scale-[1.02]"
@@ -715,6 +799,11 @@ export default function NextDegreeMatchesPage() {
                   >
                     {c.name}
                   </span>
+                  {isSel && (
+                    <div className="absolute top-2 right-2 bg-blue-500 text-white rounded-full p-0.5 shadow-sm">
+                      <Sparkles className="w-2.5 h-2.5" />
+                    </div>
+                  )}
                 </button>
               );
             })}
