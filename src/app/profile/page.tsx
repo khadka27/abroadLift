@@ -180,7 +180,7 @@ export default function ProfilePage() {
           </Link>
           <div className="flex items-center gap-2">
             <GraduationCap className="w-5 h-5 text-indigo-400" />
-            <span className="font-black text-white text-sm">NextDegree</span>
+            <span className="font-black text-white text-sm">AbroadLift</span>
           </div>
         </div>
         <div className="flex items-center gap-2">

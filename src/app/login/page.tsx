@@ -88,7 +88,7 @@ function LoginForm() {
             {/* Header */}
             <div className="text-center mb-10">
               <h2 className="text-[24px] font-bold text-gray-800 mb-1">Welcome Back To!</h2>
-              <h1 className="text-[52px] font-black text-[#3366FF] leading-none mb-12">NextDegree</h1>
+              <h1 className="text-[52px] font-black text-[#3366FF] leading-none mb-12">AbroadLift</h1>
             </div>
 
             {/* Just registered banner */}

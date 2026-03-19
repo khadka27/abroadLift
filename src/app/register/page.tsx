@@ -148,7 +148,7 @@ export default function RegisterPage() {
             {/* Header */}
             <div className="mb-10 text-center lg:text-left">
               <h2 className="text-[20px] font-bold text-gray-400 mb-1">Welcome To!</h2>
-              <h1 className="text-[42px] lg:text-[52px] font-black text-[#3366FF] leading-none mb-6">NextDegree</h1>
+              <h1 className="text-[42px] lg:text-[52px] font-black text-[#3366FF] leading-none mb-6">AbroadLift</h1>
               
               {/* Step indicator */}
               <div className="flex items-center gap-3">

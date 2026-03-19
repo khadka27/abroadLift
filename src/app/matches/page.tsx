@@ -713,7 +713,7 @@ function MatchCostEstimator({ match: m }: { match: Match }) {
 }
 
 /* ─────────────── Main Component ─────────────── */
-export default function NextDegreeMatchesPage() {
+export default function AbroadLiftMatchesPage() {
   const { status } = useSession();
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<Form>(DEF);
