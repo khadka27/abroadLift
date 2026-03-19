@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import countryList from 'react-select-country-list';
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
@@ -38,6 +39,7 @@ const DEGREES = ["Bachelors", "Masters", "PhD", "Diploma", "Other"];
 export default function VisaRatePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const options = useMemo(() => countryList().getData(), []);
 
   const [history, setHistory] = useState<VisaCheck[]>([]);
   const [loading, setLoading] = useState(false);
@@ -229,13 +231,19 @@ export default function VisaRatePage() {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-2">
                   <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Nationality</label>
-                  <Input 
-                    placeholder="e.g. Nepal, India, Nigeria" 
+                  <select 
                     value={formData.nationality}
                     onChange={(e) => setFormData({...formData, nationality: e.target.value})}
                     required
-                    className="h-14 rounded-2xl border-slate-100 bg-slate-50/50 focus:bg-white focus:ring-4 focus:ring-blue-500/5 transition-all"
-                  />
+                    className="w-full h-14 rounded-2xl border border-slate-100 bg-slate-50/50 px-4 text-sm font-bold text-slate-900 outline-none focus:bg-white focus:ring-4 focus:ring-blue-500/5 transition-all"
+                  >
+                    <option value="" disabled>Select nationality</option>
+                    {options.map((opt) => (
+                      <option key={opt.value} value={opt.label}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">

@@ -28,6 +28,9 @@ import {
   Instagram,
   Linkedin,
   Youtube,
+  Star,
+  CheckCircle,
+  PlayCircle
 } from "lucide-react";
 
 export default function HomePage() {
@@ -337,84 +340,109 @@ export default function HomePage() {
       </section>
 
       {/* ── TESTIMONIALS SECTION ── */}
-      <section className="py-24 px-6 lg:px-12 bg-white">
+      <section className="py-32 px-6 lg:px-12 bg-[#F8FAFF] relative overflow-hidden">
+        {/* Background Decorative Elements */}
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-100/30 rounded-full blur-[120px] -z-10 translate-x-1/2 -translate-y-1/2" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-indigo-50/50 rounded-full blur-[100px] -z-10 -translate-x-1/2 translate-y-1/2" />
+        
         <div className="max-w-[1280px] mx-auto">
-          <div className="text-center mb-16 fade-up">
-            <h2 className="text-[40px] lg:text-[52px] font-extrabold text-[#0f172a] mb-4">
-              What Our Students Have to Say
+          <div className="text-center mb-20 space-y-4">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 text-blue-600 font-bold text-[11px] uppercase tracking-widest border border-blue-100 shadow-sm">
+              <Star className="w-3 h-3 fill-current" />
+              Student Success Stories
+            </div>
+            <h2 className="text-[44px] lg:text-[64px] font-black text-[#0f172a] leading-tight tracking-tight">
+              What Our Students <br className="hidden md:block" /> 
+              Have to <span className="text-[#3366FF]">Say.</span>
             </h2>
-            <p className="text-gray-500 text-lg font-medium">
-              Hear from real international students about their experience.
+            <p className="text-gray-500 text-lg lg:text-xl font-medium max-w-2xl mx-auto leading-relaxed">
+              Join 5,000+ students who achieved their international education dreams through NextDegree.
             </p>
           </div>
 
-          <div className="relative flex items-center justify-center gap-8 overflow-hidden py-10">
-            {/* Side Card (Hint) */}
-            <div className="hidden lg:block w-[300px] opacity-20 blur-[2px] shrink-0 pointer-events-none">
-              <div className="bg-[#F8FAFF] p-10 rounded-[40px] border border-gray-100 relative">
-                <Quote className="absolute right-10 top-10 w-12 h-12 text-[#3366FF]/20" />
-                <p className="text-gray-400 text-lg leading-relaxed mb-8">
-                  I tried [applying to institutions] and it took months, and months for me to get an answer...
-                </p>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Testimonial 1 */}
+            <div className="bg-white p-10 rounded-[48px] shadow-2xl shadow-blue-500/5 border border-white hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
+               <Quote className="absolute -right-2 -top-2 w-24 h-24 text-blue-50/50 -rotate-12 group-hover:rotate-0 transition-transform duration-700" />
+               <div className="flex items-center gap-1 mb-6">
+                  {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />)}
+               </div>
+               <p className="text-lg text-slate-700 font-medium leading-relaxed mb-10 relative z-10">
+                 &quot;NextDegree didn&apos;t just find me a university; they found me a future. The AI matcher was scary accurate with my GPA and budget constraints.&quot;
+               </p>
+               <div className="flex items-center gap-4 border-t border-slate-50 pt-8">
+                  <div className="relative w-16 h-16 rounded-2xl overflow-hidden shadow-lg">
+                    <Image src="/testimonial-1.png" alt="Maria" fill className="object-cover" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-black text-slate-900 leading-none">Maria Smith</h4>
+                      <CheckCircle className="w-3.5 h-3.5 text-blue-500" />
+                    </div>
+                    <p className="text-[11px] font-bold text-slate-400 uppercase mt-1">Computer Science • UK</p>
+                  </div>
+               </div>
             </div>
 
-            {/* Main Testimonial Card */}
-            <div className="w-full max-w-[900px] bg-[#F8FAFF] rounded-[48px] p-8 lg:p-12 border border-gray-50 shadow-xl shadow-blue-500/5 relative z-10 fade-up">
-              <div className="flex flex-col lg:row gap-12 items-center">
-                <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_2fr] gap-12 items-center">
-                  <div className="relative w-full aspect-square rounded-[32px] overflow-hidden shadow-2xl">
-                    <Image
-                      src="/testimonial-1.png"
-                      alt="Maria Smith"
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  
-                  <div className="relative">
-                    <Quote className="absolute -top-10 right-0 w-16 h-16 text-[#3366FF]/10" />
-                    <p className="text-[20px] lg:text-[24px] text-gray-700 leading-relaxed mb-8 font-medium">
-                      &quot;I tried [applying to institutions] and it took months, and months, and months for me to get an answer from a school. But then I stumbled upon ApplyBoard, and it was like an answer from heaven.&quot;
-                    </p>
-                    <div>
-                      <h4 className="text-[18px] font-black text-gray-900 uppercase tracking-wider">Maria Smith</h4>
-                      <p className="text-gray-400 font-bold text-sm uppercase">Computer Science Student, University of Greenwich</p>
+            {/* Testimonial 2 (Video Styled) */}
+            <div className="bg-slate-900 p-10 rounded-[48px] shadow-2xl shadow-slate-900/10 border border-slate-800 hover:-translate-y-2 transition-all duration-500 group relative">
+               <div className="absolute inset-0 bg-linear-to-br from-blue-600/10 to-transparent pointer-events-none" />
+               <div className="relative aspect-square rounded-[32px] overflow-hidden mb-8 shadow-2xl">
+                  <Image src="https://images.unsplash.com/photo-1544717297-fa154daaf762?auto=format&fit=crop&q=80&w=800" alt="Student Video" fill className="object-cover opacity-80 group-hover:scale-110 transition-transform duration-700" />
+                  <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                    <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white border border-white/30 group-hover:scale-125 transition-all duration-500">
+                      <PlayCircle className="w-8 h-8 fill-current" />
                     </div>
                   </div>
-                </div>
-              </div>
+                  <div className="absolute bottom-4 left-4 right-4 bg-white/10 backdrop-blur-xl p-4 rounded-2xl border border-white/20">
+                    <p className="text-white font-black text-xs uppercase tracking-widest text-center">Video Testimonial</p>
+                  </div>
+               </div>
+               <h4 className="text-white text-xl font-black mb-1 text-center">Chen Wei</h4>
+               <p className="text-blue-400 font-bold text-[10px] uppercase text-center tracking-widest">Masters in Finance • Canada</p>
             </div>
 
-            {/* Side Card (Hint) */}
-            <div className="hidden lg:block w-[300px] opacity-20 blur-[2px] shrink-0 pointer-events-none">
-              <div className="bg-[#F8FAFF] p-10 rounded-[40px] border border-gray-100">
-                 <div className="relative w-full aspect-square rounded-[24px] overflow-hidden mb-6">
+            {/* Testimonial 3 */}
+            <div className="bg-white p-10 rounded-[48px] shadow-2xl shadow-blue-500/5 border border-white hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
+               <Quote className="absolute -right-2 -top-2 w-24 h-24 text-blue-50/50 -rotate-12 group-hover:rotate-0 transition-transform duration-700" />
+               <div className="flex items-center gap-1 mb-6">
+                  {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />)}
+               </div>
+               <p className="text-lg text-slate-700 font-medium leading-relaxed mb-10 relative z-10">
+                 &quot;The scholarship database saved me $15k per year! I was lost in the paperwork until NextDegree streamlined everything into one simple dashboard.&quot;
+               </p>
+               <div className="flex items-center gap-4 border-t border-slate-50 pt-8">
+                  <div className="relative w-16 h-16 rounded-2xl overflow-hidden shadow-lg">
                     <Image src="/testimonial-2.png" alt="Student" fill className="object-cover" />
-                 </div>
-              </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-black text-slate-900 leading-none">Arjun Mehta</h4>
+                      <CheckCircle className="w-3.5 h-3.5 text-blue-500" />
+                    </div>
+                    <p className="text-[11px] font-bold text-slate-400 uppercase mt-1">MBA • Australia</p>
+                  </div>
+               </div>
             </div>
           </div>
 
-          {/* Navigation Controls */}
-          <div className="flex flex-col items-center gap-8 mt-12">
-            <div className="flex items-center gap-6">
-              <button className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center text-[#3366FF] hover:bg-gray-50 transition-all">
-                <ChevronLeft className="w-6 h-6" />
-              </button>
-              
-              <div className="flex gap-2.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-gray-200" />
-                <div className="w-2.5 h-2.5 rounded-full bg-[#3366FF]" />
-                <div className="w-2.5 h-2.5 rounded-full bg-gray-200" />
-                <div className="w-2.5 h-2.5 rounded-full bg-gray-200" />
-                <div className="w-2.5 h-2.5 rounded-full bg-gray-200" />
-              </div>
-
-              <button className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center text-[#3366FF] hover:bg-gray-50 transition-all">
-                <ChevronRight className="w-6 h-6" />
-              </button>
-            </div>
+          <div className="mt-20 flex flex-col items-center gap-8">
+             <div className="flex -space-x-4">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="w-12 h-12 rounded-full border-4 border-white overflow-hidden shadow-lg">
+                    <Image src={`https://i.pravatar.cc/150?u=${i + 20}`} alt="Student" width={48} height={48} />
+                  </div>
+                ))}
+                <div className="w-12 h-12 rounded-full border-4 border-white bg-blue-600 text-white flex items-center justify-center text-[10px] font-black shadow-lg">
+                  +2k
+                </div>
+             </div>
+             <p className="text-slate-400 font-bold text-sm">Join the successful alumni at <span className="text-slate-900">Oxford, Harvard, and Toronto.</span></p>
+             
+             <button className="flex items-center gap-3 bg-white text-slate-900 border border-slate-100 font-black px-8 py-4 rounded-2xl text-[15px] shadow-xl shadow-slate-200/50 hover:bg-slate-50 transition-all hover:scale-105 active:scale-95">
+                View All Success Stories
+                <ArrowRight className="w-4 h-4 text-blue-600" />
+             </button>
           </div>
         </div>
       </section>
