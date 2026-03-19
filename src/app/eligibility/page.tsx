@@ -332,28 +332,6 @@ export default function EligibilityHub() {
 
   return (
     <div className={`min-h-screen bg-[#F8FAFC] pb-20 ${inter.className}`}>
-      {/* Premium Header */}
-      {/* <div className="border-b border-slate-200 sticky top-0 z-50 backdrop-blur-xl bg-white/80">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-[#17a38b] to-[#128a7e] flex items-center justify-center shadow-lg shadow-teal-500/20 group-hover:scale-105 transition-transform">
-              <span className="text-white font-black text-xl">N</span>
-            </div>
-            <span className={`font-black text-2xl tracking-tight text-slate-900 ${outfit.className}`}>
-              NextDegree<span className="text-teal-500">.</span>
-            </span>
-          </Link>
-          <div className="hidden md:flex items-center gap-8">
-            <Link href="/matches" className="text-sm font-bold text-slate-600 hover:text-teal-600 transition-colors">Universities</Link>
-            <Link href="/costing" className="text-sm font-bold text-slate-600 hover:text-teal-600 transition-colors">Cost Estimator</Link>
-            <Link href="/eligibility" className="text-sm font-bold text-teal-600 border-b-2 border-teal-500 pb-1">Eligibility Hub</Link>
-          </div>
-          <button className="bg-slate-900 text-white px-6 py-2.5 rounded-full text-sm font-bold hover:bg-slate-800 transition-all shadow-md active:scale-95">
-            Student Portal
-          </button>
-        </div>
-      </div> */}
-
       <main className="max-w-7xl mx-auto px-6 pt-12">
         <header className="mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-50 border border-teal-100 text-teal-700 text-xs font-black uppercase tracking-widest mb-6">
