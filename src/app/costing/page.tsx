@@ -104,36 +104,7 @@ export default function CostingPage() {
 
   return (
     <div className={`min-h-screen bg-[#f8fafc] ${inter.className}`}>
-      {/* Premium Navbar */}
-      <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md border-b border-slate-200 z-50">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-linear-to-br from-emerald-400 to-teal-600 flex items-center justify-center">
-              <TrendingUp className="text-white w-5 h-5" />
-            </div>
-            <span className="font-black text-xl tracking-tighter text-slate-900">
-              NextDegree<span className="text-emerald-500">.</span>
-            </span>
-          </Link>
-          <div className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
-            <Link
-              href="/matches"
-              className="hover:text-emerald-600 transition-colors"
-            >
-              University Finder
-            </Link>
-            <Link href="/costing" className="text-emerald-600">
-              Cost Estimator
-            </Link>
-          </div>
-          <Link
-            href="/matches"
-            className="bg-slate-900 text-white px-5 py-2 rounded-full text-sm font-bold hover:bg-slate-800 transition-all shadow-lg active:scale-95"
-          >
-            Get Started
-          </Link>
-        </div>
-      </nav>
+
 
       <main className="pt-24 pb-20 px-4 max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-12 items-start">

@@ -30,6 +30,7 @@ model User {
 
     profile      StudentProfile?
     applications Application[]
+    visaChecks   VisaRateCheck[]
 }
 
 model StudentProfile {
@@ -80,4 +81,21 @@ model Application {
     university University @relation(fields: [universityId], references: [id], onDelete: Cascade)
 
     @@unique([studentId, universityId])
+}
+
+model VisaRateCheck {
+    id        String   @id @default(uuid())
+    userId    String
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    
+    nationality    String
+    destination    String
+    degreeLevel    String
+    fundsAvailable Float
+    ieltsScore     Float?
+    pastRejections Int      @default(0)
+    
+    successRate    Int      // Percentage
+    createdAt      DateTime @default(now())
+    updatedAt      DateTime @updatedAt
 }

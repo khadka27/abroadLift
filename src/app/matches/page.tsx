@@ -3,11 +3,13 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import Image from "next/image";
 import { CA, US, AU, GB, DE, IE, NL } from "country-flag-icons/react/3x2";
 import {
   GraduationCap,
   BookOpen,
   Sparkles,
+  CheckCircle2,
   Search,
   Briefcase,
   Monitor,
@@ -29,6 +31,7 @@ import {
   Plane,
   Sun,
   Moon,
+  Globe,
 } from "lucide-react";
 
 /* ─────────────── Flag component ─────────────── */
@@ -51,6 +54,7 @@ const FlagIcon = ({
     DE,
     IE,
     NL,
+    CH: US, // Placeholder for Switzerland if not in lucide icons, but let's check
   };
   const Fl = map[countryCode?.toUpperCase()];
   return Fl ? (
@@ -116,6 +120,7 @@ const COUNTRIES = [
   { code: "FR", name: "France" },
   { code: "ES", name: "Spain" },
   { code: "IT", name: "Italy" },
+  { code: "CH", name: "Switzerland" },
 ];
 
 const DEGREES = [
@@ -193,6 +198,10 @@ const BUDGET_PRESETS = [
 
 const STEPS = [
   {
+    label: "Welcome",
+    question: "Your Global Education Journey Starts Here.",
+  },
+  {
     label: "Destination Country",
     question: "Which countries are you interested in?",
   },
@@ -200,19 +209,25 @@ const STEPS = [
     label: "Degree Level",
     question: "What degree level are you planning to pursue?",
   },
-  { label: "Study Area", question: "Which field of study interests you most?" },
+  {
+    label: "Study Area",
+    question: "Which field of study interests you most?",
+  },
   {
     label: "English Proficiency",
     question: "Do you have an English test score?",
   },
-  { label: "Budget", question: "What is your estimated annual budget?" },
+  {
+    label: "Budget",
+    question: "What is your estimated annual budget?",
+  },
   {
     label: "Student Profile",
-    question: "Tell us a bit about yourself to find the best matches!",
+    question: "Tell us a bit about yourself!",
   },
   {
     label: "Your Matches",
-    question: "Here are your highly recommended universities!",
+    question: "Your highly recommended universities!",
   },
 ];
 
@@ -741,22 +756,23 @@ export default function NextDegreeMatchesPage() {
     }));
   };
 
-  const currentStepData = STEPS[step];
+  // const currentStepData = STEPS[step];
   const canContinue = (
     [
+      form.name.trim().length > 0,
       form.countries.length > 0,
       form.degree,
       form.field,
       form.testScore,
       form.budget,
-      form.name,
+      form.email,
     ] as (string | boolean | number)[]
   )[step];
 
   const handleNext = () => {
-    if (step < 5) setStep(step + 1);
+    if (step < STEPS.length - 2) setStep(step + 1);
     else {
-      setStep(6);
+      setStep(STEPS.length - 1);
       runMatch();
     }
   };
@@ -788,45 +804,107 @@ export default function NextDegreeMatchesPage() {
   };
 
   const renderStep = () => {
-    // 0: Destination
+    // 0: Welcome
     if (step === 0) {
       return (
-        <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-          <div className="w-full h-32 bg-linear-to-r from-[#17a38b] to-[#128a7e] rounded-2xl mb-6 relative overflow-hidden flex flex-col items-center justify-center p-4">
-            {/* Decorative abstract elements */}
-            <div className="absolute top-2 left-4 w-16 h-16 bg-white/10 rounded-full blur-xl" />
-            <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-black/10 rounded-full blur-xl" />
-            <p className="relative z-10 text-white font-bold text-center text-lg leading-tight drop-shadow-md">
-              Explore study destinations
-              <br />
-              across the globe
+        <div className="flex flex-col gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-md">
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-2 bg-blue-50 w-fit px-3 py-1.5 rounded-full text-blue-600 font-bold text-[11px] tracking-wider uppercase">
+              <Globe className="w-3.5 h-3.5" />
+              JOIN 50K+ INTERNATIONAL STUDENTS
+            </div>
+            <h1 className="text-4xl md:text-5xl font-black text-slate-900 leading-[1.1]">
+              Your Global Education <span className="text-blue-600">Journey</span> Starts Here.
+            </h1>
+            <p className="text-gray-500 font-medium text-lg leading-relaxed">
+              We&apos;ll help you find the perfect university based on your goals, budget, and dreams.
             </p>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+
+          <div className="space-y-4">
+            <div className="relative group">
+              <input
+                type="text"
+                value={form.name}
+                onChange={(e) => updateForm("name", e.target.value)}
+                placeholder="What's your name?"
+                className="w-full h-16 bg-white border border-gray-100 rounded-2xl px-6 text-lg font-bold text-gray-900 outline-none shadow-sm focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-gray-300"
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && canContinue) handleNext();
+                }}
+              />
+            </div>
+            
+            <button
+              onClick={handleNext}
+              disabled={!canContinue}
+              className={`w-full h-16 rounded-2xl text-lg font-bold flex items-center justify-center gap-3 transition-all duration-300 ${
+                canContinue 
+                ? "bg-blue-500 hover:bg-blue-600 text-white shadow-xl shadow-blue-500/25 hover:-translate-y-0.5 cursor-pointer"
+                : "bg-blue-100 text-blue-300 cursor-not-allowed"
+              }`}
+            >
+              Get Started
+              <ChevronLeft className="w-5 h-5 rotate-180" strokeWidth={3} />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-3 gap-6 pt-8 border-t border-gray-100">
+             <div>
+               <p className="text-2xl font-black text-slate-900">800+</p>
+               <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Universities</p>
+             </div>
+             <div>
+               <p className="text-2xl font-black text-slate-900">32</p>
+               <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Countries</p>
+             </div>
+             <div>
+               <p className="text-2xl font-black text-slate-900">12k+</p>
+               <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Admissions</p>
+             </div>
+          </div>
+        </div>
+      );
+    }
+
+    // 1: Destination
+    if (step === 1) {
+      return (
+        <div className="animate-in fade-in slide-in-from-bottom-6 duration-700 max-w-2xl">
+           <div className="mb-10">
+              <h2 className="text-3xl lg:text-4xl font-black text-slate-900 mb-2 leading-tight">
+                Hi {form.name.split(" ")[0] || "there"}! Where do you want to study?
+              </h2>
+              <p className="text-gray-400 font-bold text-lg mb-8">Choose one or more countries you&apos;re interested in.</p>
+           </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {COUNTRIES.map((c) => {
               const isSel = form.countries.includes(c.code);
               return (
                 <button
                   key={c.code}
                   onClick={() => toggleCountry(c.code)}
-                  className={`relative flex flex-col items-center justify-center gap-2 p-4 rounded-2xl border transition-all duration-200 flex-1 min-h-[100px] ${
+                  className={`group relative flex flex-col items-center justify-center gap-4 p-5 py-8 rounded-[24px] border-2 transition-all duration-300 ${
                     isSel
-                      ? "border-blue-500 bg-blue-50 shadow-md ring-1 ring-blue-500 scale-[1.02]"
-                      : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm"
+                      ? "border-blue-500 bg-white shadow-2xl shadow-blue-500/10 -translate-y-1"
+                      : "border-gray-50 bg-white hover:border-gray-100 hover:shadow-xl hover:-translate-y-1 shadow-xs"
                   }`}
                 >
-                  <FlagIcon
-                    countryCode={c.code}
-                    className="w-8 h-6 object-cover shadow-sm ring-1 ring-black/5"
-                  />
+                  <div className={`w-12 h-8 rounded-md overflow-hidden shadow-sm transition-transform duration-300 group-hover:scale-110 ${isSel ? 'ring-2 ring-blue-500 ring-offset-2' : ''}`}>
+                    <FlagIcon
+                      countryCode={c.code}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
                   <span
-                    className={`text-xs font-semibold ${isSel ? "text-blue-700" : "text-gray-700"}`}
+                    className={`text-xs font-black tracking-tight text-center ${isSel ? "text-slate-900" : "text-gray-400"}`}
                   >
                     {c.name}
                   </span>
                   {isSel && (
-                    <div className="absolute top-2 right-2 bg-blue-500 text-white rounded-full p-0.5 shadow-sm">
-                      <Sparkles className="w-2.5 h-2.5" />
+                    <div className="absolute top-3 right-3 bg-blue-500 text-white rounded-full p-1 shadow-lg scale-110 animate-in zoom-in">
+                      <CheckCircle2 className="w-2.5 h-2.5" />
                     </div>
                   )}
                 </button>
@@ -837,73 +915,56 @@ export default function NextDegreeMatchesPage() {
       );
     }
 
-    // 1: Degree
-    if (step === 1) {
+    // 2: Degree
+    if (step === 2) {
       return (
-        <div className="grid grid-cols-2 gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
-          {DEGREES.map((d) => {
-            const isSel = form.degree === d.v;
-            const Icon = d.icon;
-            return (
-              <button
-                key={d.v}
-                onClick={() => updateForm("degree", d.v)}
-                className={`flex flex-col items-center justify-center gap-3 p-5 rounded-2xl border transition-all duration-200 text-center ${
-                  isSel
-                    ? "border-blue-500 bg-blue-50 shadow-md ring-1 ring-blue-500 scale-[1.02]"
-                    : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm"
-                }`}
-              >
-                <Icon
-                  className={`w-8 h-8 ${isSel ? "text-blue-600" : "text-gray-400"}`}
-                  strokeWidth={1.5}
-                />
-                <span
-                  className={`text-sm font-bold ${isSel ? "text-blue-800" : "text-gray-700"}`}
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-lg">
+           <div className="mb-8">
+              <h2 className="text-2xl lg:text-3xl font-black text-slate-900 mb-2">Degree Level</h2>
+              <p className="text-gray-500 font-medium">What level of education are you aiming for?</p>
+           </div>
+          <div className="grid grid-cols-2 gap-3">
+            {DEGREES.map((d) => {
+              const isSel = form.degree === d.v;
+              const Icon = d.icon;
+              return (
+                <button
+                  key={d.v}
+                  onClick={() => updateForm("degree", d.v)}
+                  className={`flex flex-col items-center justify-center gap-3 p-6 rounded-2xl border transition-all duration-200 text-center min-h-[120px] ${
+                    isSel
+                      ? "border-blue-500 bg-blue-50 shadow-md ring-1 ring-blue-500 scale-[1.02]"
+                      : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm"
+                  }`}
                 >
-                  {d.l}
-                </span>
-              </button>
-            );
-          })}
+                  <Icon
+                    className={`w-8 h-8 ${isSel ? "text-blue-600" : "text-gray-400"}`}
+                    strokeWidth={1.5}
+                  />
+                  <span
+                    className={`text-sm font-bold ${isSel ? "text-blue-800" : "text-gray-700"}`}
+                  >
+                    {d.l}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       );
     }
 
-    // 2: Field
-    if (step === 2) {
+    // 3: Field
+    if (step === 3) {
       const programsList = form.field ? PROGRAMS[form.field] || [] : [];
       return (
-        <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-          {/* Beautiful Banner matching screenshot */}
-          <div className="w-full h-[140px] rounded-[20px] mb-6 relative overflow-hidden bg-linear-to-r from-[#5a6cf1] to-[#7f5ce6] flex items-center justify-center shadow-md">
-            <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-repeat mix-blend-overlay" />
-
-            <div
-              className="absolute top-0 right-0 w-[55%] h-full bg-cover bg-center z-0 opacity-80 mix-blend-luminosity"
-              style={{
-                backgroundImage:
-                  "url('https://images.unsplash.com/photo-1576091160550-2173ff9e5ee5?q=80&w=2070&auto=format&fit=crop')",
-              }}
-            >
-              {/* Fade mask for the image to blend into the purple bg */}
-              <div className="absolute inset-0 bg-linear-to-r from-[#6b67e9] via-[#6b67e9]/60 to-transparent" />
-            </div>
-
-            {/* Decorative nodes */}
-            <div className="z-10 absolute top-5 left-8 w-11 h-11 rounded-full border-2 border-white/20 flex items-center justify-center bg-white/10 backdrop-blur-md shadow-lg shadow-black/10">
-              <Monitor className="w-[22px] h-[22px] text-white" />
-            </div>
-            <div className="z-10 absolute bottom-4 left-1/3 w-[50px] h-[50px] rounded-full border-2 border-white/20 flex items-center justify-center bg-white/10 backdrop-blur-md shadow-xl shadow-black/20">
-              <Microscope className="w-6 h-6 text-white" />
-            </div>
-            <div className="z-10 absolute bottom-1 right-1/4 w-12 h-12 rounded-full border-2 border-white/20 flex items-center justify-center bg-white/10 backdrop-blur-md">
-              <Briefcase className="w-6 h-6 text-white/90" />
-            </div>
-          </div>
-
-          {/* Stacked Inputs */}
-          <div className="flex flex-col gap-3.5">
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-lg">
+           <div className="mb-8">
+              <h2 className="text-2xl lg:text-3xl font-black text-slate-900 mb-2">Field of Study</h2>
+              <p className="text-gray-500 font-medium">Tell us what you want to study so we can match you perfectly.</p>
+           </div>
+          
+          <div className="flex flex-col gap-4">
             <SearchSelect
               placeholder="Select a field of study"
               options={FIELDS.map((f) => f.v)}
@@ -913,21 +974,28 @@ export default function NextDegreeMatchesPage() {
                 updateForm("program", "");
               }}
             />
-            <SearchSelect
-              placeholder="Select a program of study"
-              options={programsList}
-              value={form.program}
-              onChange={(v) => updateForm("program", v)}
-            />
+            {form.field && (
+              <SearchSelect
+                placeholder="Select a specific program"
+                options={programsList}
+                value={form.program}
+                onChange={(v) => updateForm("program", v)}
+              />
+            )}
           </div>
         </div>
       );
     }
 
-    // 3: English
-    if (step === 3) {
+    // 4: English
+    if (step === 4) {
       return (
-        <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 pt-2">
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-lg">
+           <div className="mb-8">
+              <h2 className="text-2xl lg:text-3xl font-black text-slate-900 mb-2">English Proficiency</h2>
+              <p className="text-gray-500 font-medium">Do you have an English test score? Most universities require one.</p>
+           </div>
+
           <div className="grid grid-cols-2 gap-3 mb-6">
             {TESTS.map((t) => {
               const isSel = form.testType === t.v;
@@ -935,10 +1003,10 @@ export default function NextDegreeMatchesPage() {
                 <button
                   key={t.v}
                   onClick={() => updateForm("testType", t.v)}
-                  className={`p-3 rounded-xl border text-center transition-all ${
+                  className={`p-4 rounded-xl border text-center transition-all ${
                     isSel
                       ? "border-blue-500 bg-blue-50 ring-1 ring-blue-500 shadow-sm"
-                      : "border-gray-200 bg-white hover:bg-gray-50 text-gray-700"
+                      : "border-gray-200 bg-white hover:bg-gray-50 text-gray-700 font-bold"
                   }`}
                 >
                   <div
@@ -951,8 +1019,8 @@ export default function NextDegreeMatchesPage() {
             })}
           </div>
 
-          <div className="bg-white rounded-2xl border border-gray-200 p-6 transition-all focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 mb-4 text-center">
-            <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">
+          <div className="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm transition-all focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/5 mb-4 text-center">
+            <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">
               Your {form.testType} Score
             </label>
             <input
@@ -963,8 +1031,8 @@ export default function NextDegreeMatchesPage() {
               }
               value={form.testScore}
               onChange={(e) => updateForm("testScore", e.target.value)}
-              placeholder={`e.g. ${TESTS.find((x) => x.v === form.testType)?.eg || "6.5"}`}
-              className="w-full text-5xl font-black text-center text-gray-900 outline-none bg-transparent placeholder:text-gray-200"
+              placeholder={`${TESTS.find((x) => x.v === form.testType)?.eg || "6.5"}`}
+              className="w-full text-6xl font-black text-center text-gray-900 outline-none bg-transparent placeholder:text-gray-100"
               autoFocus
             />
           </div>
@@ -972,19 +1040,24 @@ export default function NextDegreeMatchesPage() {
       );
     }
 
-    // 4: Budget
-    if (step === 4) {
+    // 5: Budget
+    if (step === 5) {
       return (
-        <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 pt-2">
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-lg">
+           <div className="mb-8">
+              <h2 className="text-2xl lg:text-3xl font-black text-slate-900 mb-2">Estimated Budget</h2>
+              <p className="text-gray-500 font-medium">What is your estimated annual budget for tuition and fees?</p>
+           </div>
+
           <div className="flex justify-center flex-wrap gap-2 mb-6">
             {CURRENCIES.map((c) => (
               <button
                 key={c}
                 onClick={() => updateForm("currency", c)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
                   form.currency === c
-                    ? "border-blue-500 bg-blue-50 text-blue-700 ring-1 ring-blue-500"
-                    : "border-gray-200 bg-white text-gray-500 hover:bg-gray-50"
+                    ? "border-blue-500 bg-blue-50 text-blue-700 shadow-sm"
+                    : "border-gray-100 bg-white text-gray-500 hover:bg-gray-50 shadow-xs"
                 }`}
               >
                 {c}
@@ -992,12 +1065,12 @@ export default function NextDegreeMatchesPage() {
             ))}
           </div>
 
-          <div className="bg-white rounded-2xl border border-gray-200 p-6 transition-all focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 mb-4 text-center">
-            <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">
+          <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8 transition-all focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/5 mb-6 text-center">
+            <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">
               Annual Budget
             </label>
             <div className="flex items-center justify-center gap-2">
-              <span className="text-3xl font-bold text-gray-300">
+              <span className="text-4xl font-black text-gray-200 uppercase">
                 {form.currency}
               </span>
               <input
@@ -1005,7 +1078,8 @@ export default function NextDegreeMatchesPage() {
                 value={form.budget}
                 onChange={(e) => updateForm("budget", e.target.value)}
                 placeholder="25000"
-                className="w-48 text-5xl font-black text-gray-900 outline-none bg-transparent placeholder:text-gray-200"
+                className="w-56 text-6xl font-black text-gray-900 outline-none bg-transparent placeholder:text-gray-100"
+                autoFocus
               />
             </div>
           </div>
@@ -1015,7 +1089,11 @@ export default function NextDegreeMatchesPage() {
               <button
                 key={p.v}
                 onClick={() => updateForm("budget", p.v)}
-                className="py-2.5 px-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300 font-bold text-xs text-gray-600 transition-all text-center"
+                className={`py-3 px-2 rounded-2xl border font-bold text-xs transition-all text-center flex flex-col items-center justify-center gap-1 ${
+                  form.budget === p.v 
+                  ? "border-blue-500 bg-blue-50 text-blue-700 shadow-sm"
+                  : "border-gray-100 bg-white text-gray-500 hover:bg-gray-50 shadow-xs"
+                }`}
               >
                 {p.l}
               </button>
@@ -1025,25 +1103,18 @@ export default function NextDegreeMatchesPage() {
       );
     }
 
-    // 5: Profile
-    if (step === 5) {
+    // 6: Profile
+    if (step === 6) {
       return (
-        <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300 pt-2">
-          <div className="bg-white rounded-xl border border-gray-200 p-4 transition-all focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
-            <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">
-              First & Last Name <span className="text-red-400">*</span>
-            </label>
-            <input
-              type="text"
-              value={form.name}
-              onChange={(e) => updateForm("name", e.target.value)}
-              placeholder="Jane Doe"
-              className="w-full text-lg font-bold text-gray-900 outline-none bg-transparent placeholder:text-gray-300"
-            />
-          </div>
-          <div className="bg-white rounded-xl border border-gray-200 p-4 transition-all focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
-            <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">
-              Email
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-lg">
+           <div className="mb-4">
+              <h2 className="text-2xl lg:text-3xl font-black text-slate-900 mb-2">Final Details</h2>
+              <p className="text-gray-500 font-medium">Just a few more things before we reveal your matches.</p>
+           </div>
+          
+          <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm transition-all focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/5">
+            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">
+              Email Address <span className="text-red-400">*</span>
             </label>
             <input
               type="email"
@@ -1053,10 +1124,9 @@ export default function NextDegreeMatchesPage() {
               className="w-full text-lg font-bold text-gray-900 outline-none bg-transparent placeholder:text-gray-300"
             />
           </div>
-          <div className="bg-white rounded-xl border border-gray-200 p-4 transition-all focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
-            <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">
-              Current GPA{" "}
-              <span className="normal-case font-normal">(Optional)</span>
+          <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm transition-all focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/5">
+            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">
+              Current GPA <span className="normal-case font-normal">(Optional)</span>
             </label>
             <input
               type="number"
@@ -1071,75 +1141,75 @@ export default function NextDegreeMatchesPage() {
       );
     }
 
-    // 6: Results
-    if (step === 6) {
+    // 7: Results
+    if (step === 7) {
       return (
         <div className="animate-in fade-in duration-500">
-          <div className="text-center mb-6">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4 rotate-3">
               <Sparkles className="w-8 h-8 text-blue-600" />
             </div>
-            <h3 className="text-xl font-black text-gray-900">
+            <h3 className="text-3xl font-black text-slate-900 mb-2">
               {loading
                 ? "Matching..."
                 : error
-                  ? "Error"
+                  ? "Oh no!"
                   : matches.length === 0
-                    ? "No Matches"
+                    ? "No exact matches"
                     : `${matches.length} Universities Found`}
             </h3>
-            <p className="text-sm text-gray-500 font-medium px-4">
-              Based on your background and preferences.
+            <p className="text-gray-500 font-medium max-w-sm mx-auto">
+              {loading ? "Our AI is curating the best institutions for your profile." : "Based on your background and preferences."}
             </p>
           </div>
 
           {loading && (
-            <div className="py-12 flex flex-col items-center justify-center text-center space-y-4">
-              <div className="relative w-12 h-12">
-                <div className="absolute inset-0 rounded-full border-4 border-gray-100" />
-                <div className="absolute inset-0 rounded-full border-4 border-blue-500 border-t-transparent animate-spin" />
+            <div className="py-20 flex flex-col items-center justify-center text-center space-y-4">
+              <div className="relative w-16 h-16">
+                 <div className="absolute inset-0 rounded-2xl border-4 border-blue-50 w-full h-full shadow-inner" />
+                 <div className="absolute inset-0 rounded-2xl border-4 border-blue-500 border-t-transparent animate-spin w-full h-full" />
               </div>
             </div>
           )}
 
           {error && (
-            <div className="bg-red-50 border border-red-100 text-red-600 p-6 rounded-2xl text-center">
-              <p className="font-bold mb-2">Could not find universities</p>
-              <p className="text-xs">{error}</p>
+            <div className="bg-red-50 border border-red-100 text-red-600 p-8 rounded-3xl text-center">
+              <p className="font-bold mb-2">Match engine failed</p>
+              <p className="text-xs mb-6 opacity-75">{error}</p>
               <button
                 onClick={() => runMatch()}
-                className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-bold"
+                className="px-6 py-3 bg-red-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-red-200 transition-all hover:-translate-y-0.5"
               >
-                Retry
+                Try Again
               </button>
             </div>
           )}
 
           {!loading && !error && matches.length === 0 && (
-            <div className="bg-white border text-center border-gray-200 p-8 rounded-3xl shadow-sm">
-              <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Search className="w-8 h-8 text-gray-300" />
+            <div className="bg-white border text-center border-gray-100 p-10 rounded-[32px] shadow-sm">
+              <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Search className="w-10 h-10 text-gray-200" />
               </div>
-              <p className="font-bold text-gray-900 mb-2 text-lg">
+              <p className="font-black text-gray-900 mb-2 text-xl">
                 No direct matches
               </p>
-              <p className="text-sm text-gray-500 mb-6 leading-relaxed">
+              <p className="text-sm text-gray-500 mb-8 leading-relaxed max-w-xs mx-auto">
                 We couldn&apos;t find an exact match for your specific criteria.
-                Try increasing your budget or choosing a different field.
+                Try adjusting your budget or study field.
               </p>
               <div className="flex flex-col gap-3">
                 <button
-                  onClick={() => setStep(4)}
-                  className="w-full py-3 bg-gray-900 text-white rounded-xl text-sm font-bold hover:bg-black transition-colors"
+                  onClick={() => setStep(5)}
+                  className="w-full py-4 bg-slate-900 text-white rounded-2xl text-[15px] font-bold hover:bg-black transition-all shadow-xl shadow-slate-200"
                 >
-                  Adjust Filters
+                  Adjust Budget
                 </button>
                 <button
                   onClick={() => {
                     setForm({ ...form, budget: "100000", field: "" });
                     runMatch();
                   }}
-                  className="w-full py-3 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-50 transition-colors"
+                  className="w-full py-4 bg-white border border-gray-200 text-gray-700 rounded-2xl text-[15px] font-bold hover:bg-gray-50 transition-all"
                 >
                   Broaden My Search
                 </button>
@@ -1148,7 +1218,7 @@ export default function NextDegreeMatchesPage() {
           )}
 
           {!loading && matches.length > 0 && (
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {matches.map((m) => (
                 <MatchCard key={m.id} match={m} currency={form.currency} />
               ))}
@@ -1163,98 +1233,142 @@ export default function NextDegreeMatchesPage() {
 
   /* ─────────────── RENDER ─────────────── */
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4 lg:p-6 bg-linear-to-br from-[#e0eaf5] to-[#cae5df] relative overflow-hidden font-sans selection:bg-indigo-500/30 selection:text-indigo-900">
-      {/* Background Decor (Simulating the illustration from the screenshot) */}
-      <div className="absolute bottom-0 left-0 w-full h-[40vh] bg-linear-to-t from-[#c5e4d2] to-transparent bg-opacity-60 -z-10" />
-      <div className="absolute -bottom-24 -left-20 w-96 h-96 bg-emerald-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 -z-10" />
-      <div className="absolute top-20 right-10 w-72 h-72 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 -z-10" />
-
-      {/* Main Container - The Modal */}
-      <div className="w-full max-w-[460px] bg-white rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] flex flex-col overflow-hidden h-[85vh] max-h-[850px] border border-gray-100 relative z-10 transition-all duration-300">
-        {/* Header */}
-        <div className="px-5 py-4 flex-shrink-0 bg-white shadow-sm z-20">
-          <div className="flex items-center justify-between mb-4 relative">
-            {/* Back Button Placeholder/Render */}
-            <div className="w-10 flex items-center justify-start">
-              {step > 0 && (
-                <button
-                  onClick={() => setStep(step - 1)}
-                  className="w-9 h-9 rounded-full bg-[#f1f5f9] hover:bg-[#e2e8f0] flex items-center justify-center transition-colors"
-                >
-                  <ChevronLeft
-                    className="w-5 h-5 text-[#64748b]"
-                    strokeWidth={2.5}
-                  />
-                </button>
-              )}
-            </div>
-
-            {/* Center Title */}
-            <h2 className="text-[#1e293b] font-medium text-[17px] tracking-tight text-center flex-1">
-              {currentStepData.label}
-            </h2>
-
-            {/* Right Pill */}
-            <div className="w-10 flex items-center justify-end">
-              <span className="bg-[#f1f5f9] text-[#64748b] px-3.5 py-1.5 rounded-full text-[13px] font-bold">
-                {step + 1}/{STEPS.length}
-              </span>
-            </div>
+    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-white relative overflow-hidden font-sans selection:bg-blue-500/30 selection:text-blue-900">
+      {/* Left Panel - Hero Image & Testimonial */}
+      <div className="relative w-full lg:w-[45%] h-[35vh] lg:h-screen bg-slate-100 overflow-hidden">
+        <Image
+          src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=2070&auto=format&fit=crop"
+          alt="Student Graduation"
+          fill
+          className="object-cover"
+          priority
+        />
+        {/* Blue Gradient Overlay */}
+        <div className="absolute inset-0 bg-linear-to-br from-blue-600/40 via-blue-800/60 to-slate-900/80 mix-blend-multiply" />
+        
+        {/* Logo and Brand */}
+        <div className="absolute top-8 left-8 lg:top-12 lg:left-12 z-20 flex items-center gap-3">
+          <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-500/20 rotate-3">
+            <GraduationCap className="w-7 h-7 text-blue-600" />
           </div>
-          {/* Segmented Progress Bar */}
-          <div className="flex gap-1.5 w-full bg-white">
-            {STEPS.map((_, i) => (
-              <div
-                key={i}
-                className={`flex-1 h-1 rounded-full transition-all duration-500 ${i <= step ? "bg-[#3b82f6]" : "bg-[#e2e8f0]"}`}
-              />
-            ))}
+          <span className="text-2xl font-black text-white tracking-tight">NextDegree</span>
+        </div>
+
+        {/* Floating Testimonial Card */}
+        <div className="absolute bottom-12 left-8 right-8 lg:left-12 lg:right-12 z-20 hidden md:block">
+           <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-[32px] shadow-2xl max-w-md animate-in fade-in slide-in-from-bottom-8 duration-700">
+             <p className="text-white text-lg font-medium leading-relaxed italic mb-8">
+               &ldquo;NextDegree made my application to Yale so simple. The personalized roadmap was exactly what I needed to navigate the complex visa process.&rdquo;
+             </p>
+             <div className="flex items-center gap-4">
+               <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-white/40 shadow-lg">
+                 <Image 
+                   src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1974&auto=format&fit=crop" 
+                   alt="Sarah Jenkins" 
+                   fill
+                   className="object-cover"
+                 />
+               </div>
+               <div>
+                  <h4 className="text-white font-bold text-sm">Sarah Jenkins</h4>
+                  <p className="text-white/60 text-[11px] font-bold uppercase tracking-widest">Masters in CS, Class of 2025</p>
+               </div>
+             </div>
+           </div>
+        </div>
+      </div>
+
+      {/* Right Panel - Form Flow */}
+      <div className="relative flex-1 h-[65vh] lg:h-screen flex flex-col bg-white overflow-hidden">
+        {/* Top Nav */}
+        <div className="px-8 py-6 lg:px-12 lg:py-8 flex justify-between items-center z-30">
+          <div className="flex items-center gap-1.5">
+             {step > 0 && (
+               <button 
+                 onClick={() => setStep(step - 1)}
+                 className="group flex items-center gap-2 text-gray-400 hover:text-gray-900 transition-colors font-bold text-sm"
+               >
+                 <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                 Back
+               </button>
+             )}
+          </div>
+          <div className="flex items-center gap-4">
+             <span className="text-slate-400 text-xs font-bold tracking-widest hidden sm:inline">NEED HELP?</span>
+             <button className="px-6 py-2.5 bg-white border border-slate-200 rounded-full text-xs font-black text-slate-900 hover:bg-slate-50 transition-all shadow-sm">
+               SUPPORT
+             </button>
           </div>
         </div>
 
-        {/* Body (Scrollable) */}
-        <div className="flex-1 overflow-y-auto override-scroll bg-[#f4f7fb] p-6 pb-28 relative">
-          {/* Header Question / Chat bubble */}
-          <div className="flex gap-4 mb-7 items-center">
-            {/* Mascot / Avatar placeholder */}
-            <div className="w-[50px] h-[50px] lg:w-[54px] lg:h-[54px] flex-shrink-0 relative overflow-visible flex items-center justify-center drop-shadow-sm text-[36px]">
-              🤓
+        {/* Progress Bar (Visible after Welcome) */}
+        {step > 0 && (
+          <div className="px-8 lg:px-12 mb-4">
+            <div className="flex gap-1.5 w-full max-w-sm">
+              {STEPS.slice(1).map((_, i) => {
+                const stepIdx = i + 1;
+                return (
+                  <div
+                    key={i}
+                    className={`flex-1 h-1.5 rounded-full transition-all duration-500 ${
+                      stepIdx <= step ? (stepIdx === step ? "bg-blue-500 scale-y-125" : "bg-blue-200") : "bg-gray-100"
+                    }`}
+                  />
+                );
+              })}
             </div>
-
-            {/* Chat bubble */}
-            <div className="flex-1 bg-white rounded-2xl rounded-tl-md px-5 py-4 text-[#1e293b] font-medium text-[16px] shadow-sm relative border border-gray-100">
-              {currentStepData.question}
-            </div>
+            <p className="mt-3 text-[10px] font-black text-blue-500 uppercase tracking-widest">
+              Step {step} of {STEPS.length - 1}: {STEPS[step].label}
+            </p>
           </div>
+        )}
 
-          {/* Dynamic Step Content */}
+        {/* Main Content Area */}
+        <div className="flex-1 overflow-y-auto override-scroll px-8 lg:px-12 py-4 pb-32">
           {renderStep()}
         </div>
 
-        {/* Fixed Footer with absolute overlay at bottom inside the modal */}
-        <div className="absolute bottom-0 left-0 w-full p-5 bg-[#f4f7fb] rounded-b-3xl border-t border-[#f4f7fb] flex-shrink-0 z-20">
-          <button
-            onClick={handleNext}
-            disabled={!canContinue}
-            className={`w-full py-4 rounded-[18px] font-bold text-[16px] flex items-center justify-center gap-2 transition-all duration-300 border border-transparent ${
-              canContinue
-                ? "bg-[#c1b2e2] hover:bg-[#a99fc9] text-white shadow-md shadow-[#c1b2e2]/40 hover:-translate-y-0.5"
-                : "bg-[#c1b2e2] opacity-80 text-white cursor-not-allowed"
-            }`}
-          >
-            <Sparkles className="w-5 h-5" strokeWidth={2.5} />
-            Continue
-          </button>
-        </div>
+        {/* Fixed Footer Actions (Optional Overlay) */}
+        {step > 0 && step < STEPS.length - 1 && (
+          <div className="absolute bottom-0 left-0 w-full p-8 lg:px-12 bg-white/80 backdrop-blur-md border-t border-gray-50 flex items-center justify-between z-30">
+            <div className="flex flex-col">
+               <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Next Up</span>
+               <span className="text-gray-900 font-black text-sm">{STEPS[step+1]?.label || "Finish"}</span>
+            </div>
+            <button
+               onClick={handleNext}
+               disabled={!canContinue}
+               className={`px-10 h-14 rounded-2xl font-black text-sm flex items-center justify-center gap-3 transition-all duration-300 ${
+                 canContinue
+                   ? "bg-slate-900 text-white shadow-2xl shadow-slate-900/20 hover:-translate-y-0.5"
+                   : "bg-gray-100 text-gray-400 cursor-not-allowed"
+               }`}
+             >
+               Continue
+               <ChevronLeft className="w-5 h-5 rotate-180" strokeWidth={3} />
+             </button>
+          </div>
+        )}
+
+        {/* Branding Footer (Only on Welcome) */}
+        {step === 0 && (
+          <div className="absolute bottom-6 left-8 lg:left-12 flex items-center gap-8 text-[10px] font-black text-gray-400 uppercase tracking-widest z-30">
+            <span>© 2026 NEXTDEGREE GLOBAL</span>
+            <div className="flex gap-4">
+              <button className="hover:text-gray-900 transition-colors">PRIVACY</button>
+              <button className="hover:text-gray-900 transition-colors">TERMS</button>
+            </div>
+          </div>
+        )}
       </div>
 
       <style
         dangerouslySetInnerHTML={{
           __html: `
-        .override-scroll::-webkit-scrollbar { width: 5px; }
+        .override-scroll::-webkit-scrollbar { width: 4px; }
         .override-scroll::-webkit-scrollbar-track { background: transparent; }
-        .override-scroll::-webkit-scrollbar-thumb { background: rgba(200,200,200,0.5); border-radius: 10px; }
-        .override-scroll:hover::-webkit-scrollbar-thumb { background: rgba(150,150,150,0.5); }
+        .override-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.05); border-radius: 10px; }
+        .override-scroll:hover::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); }
       `,
         }}
       />
