@@ -292,7 +292,7 @@ export default function AdminPanel() {
                      </div>
                      <div className="space-y-4">
                         {selectedStudent.applications.map((app) => (
-                           <div key={app.id} className="flex items-center justify-between bg-white/[0.03] p-4 rounded-2xl border border-white/5 group hover:bg-white/[0.05] transition-colors">
+                           <div key={app.id} className="flex items-center justify-between bg-white/5 p-4 rounded-2xl border border-white/5 group hover:bg-white/5 transition-colors">
                               <div>
                                  <p className="font-bold text-sm leading-tight group-hover:text-blue-400 transition-colors">{app.university.name}</p>
                                  <p className="text-[10px] text-white/40 font-bold mt-1 uppercase">{app.university.country}</p>
@@ -317,7 +317,7 @@ export default function AdminPanel() {
                      </div>
                      <div className="space-y-4">
                         {selectedStudent.visaChecks.map((check) => (
-                           <div key={check.id} className="flex items-center justify-between bg-white/[0.03] p-4 rounded-2xl border border-white/5">
+                           <div key={check.id} className="flex items-center justify-between bg-white/5 p-4 rounded-2xl border border-white/5">
                               <div className="flex items-center gap-3">
                                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black ${check.successRate >= 70 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>
                                     {check.successRate}%

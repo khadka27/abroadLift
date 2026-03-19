@@ -14,6 +14,7 @@ import {
   Edit2,
 } from "lucide-react";
 import Link from "next/link";
+import NextImage from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -141,12 +142,15 @@ export default function VisaRatePage() {
           {/* Left Column - Success Visualization */}
           <div className="flex-1 space-y-8">
             <div className="space-y-4">
-              <Badge className="bg-blue-50 text-blue-600 border-none px-4 py-1.5 rounded-full font-bold text-xs tracking-widest uppercase">
-                Visa AI Predictor
-              </Badge>
-              <h1 className="text-4xl lg:text-5xl font-black text-slate-900 leading-tight">
-                Check Your <span className="text-blue-600">Approval Rate.</span>
-              </h1>
+            <div className="w-40 h-10 relative mb-4">
+              <NextImage src="/logo.png" alt="AbroadLift Logo" fill className="object-contain object-left" />
+            </div>
+            <Badge className="bg-blue-50 text-blue-600 border-none px-4 py-1.5 rounded-full font-bold text-xs tracking-widest uppercase">
+              Visa AI Predictor
+            </Badge>
+            <h1 className="text-4xl lg:text-5xl font-black text-slate-900 leading-tight">
+              Check Your <span className="text-blue-600">Approval Rate.</span>
+            </h1>
               <p className="text-slate-500 text-lg max-w-lg leading-relaxed font-medium">
                 Our rule-based engine factors in funds, destination risk, and academic history to estimate your visa success chances.
               </p>

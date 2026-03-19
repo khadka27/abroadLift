@@ -1307,12 +1307,14 @@ export default function AbroadLiftMatchesPage() {
 
         {/* Logo and Brand */}
         <div className="absolute top-8 left-8 lg:top-12 lg:left-12 z-20 flex items-center gap-3">
-          <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-500/20 rotate-3">
-            <GraduationCap className="w-7 h-7 text-blue-600" />
+          <div className="w-32 h-16 relative flex items-center justify-center">
+            <Image
+              src="/logo.png"
+              alt="AbroadLift Logo"
+              fill
+              className="object-contain"
+            />
           </div>
-          <span className="text-2xl font-black text-white tracking-tight">
-            AbroadLift
-          </span>
         </div>
 
         {/* Floating Testimonial Card */}
@@ -1428,7 +1430,10 @@ export default function AbroadLiftMatchesPage() {
         {/* Branding Footer (Only on Welcome) */}
         {step === 0 && (
           <div className="absolute bottom-6 left-8 lg:left-12 flex items-center gap-8 text-[10px] font-black text-gray-400 uppercase tracking-widest z-30">
-            <span>© 2026 AbroadLift GLOBAL</span>
+            <div className="flex items-center gap-2">
+              <Image src="/logo.png" alt="AbroadLift" width={80} height={24} className="object-contain" />
+              <span>© 2026 AbroadLift GLOBAL</span>
+            </div>
             <div className="flex gap-4">
               <button className="hover:text-gray-900 transition-colors">
                 PRIVACY

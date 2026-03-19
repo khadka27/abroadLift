@@ -18,7 +18,13 @@ export async function GET() {
       email: true,
       role: true,
       createdAt: true,
-      profile: true,
+      profile: {
+        select: {
+          nationality: true,
+          currentCountry: true,
+          gpa: true,
+        },
+      },
     },
   });
 

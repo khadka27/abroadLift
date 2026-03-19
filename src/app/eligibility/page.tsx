@@ -23,6 +23,7 @@ import { CA, US, AU, GB, DE, IE, NL } from "country-flag-icons/react/3x2";
 import Link from "next/link";
 import { Inter, Outfit } from "next/font/google";
 import { RECOMMENDED_UNIVERSITIES } from "@/lib/data/universityMetaData";
+import NextImage from "next/image";
 
 const inter = Inter({ subsets: ["latin"] });
 const outfit = Outfit({ subsets: ["latin"] });
@@ -334,8 +335,13 @@ export default function EligibilityHub() {
     <div className={`min-h-screen bg-[#F8FAFC] pb-20 ${inter.className}`}>
       <main className="max-w-7xl mx-auto px-6 pt-12">
         <header className="mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-50 border border-teal-100 text-teal-700 text-xs font-black uppercase tracking-widest mb-6">
-            <Sparkles className="w-4 h-4" /> AI-Powered Admissions Assistant
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+            <div className="w-40 h-10 relative">
+              <NextImage src="/logo.png" alt="AbroadLift Logo" fill className="object-contain object-left" />
+            </div>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-50 border border-teal-100 text-teal-700 text-xs font-black uppercase tracking-widest">
+              <Sparkles className="w-4 h-4" /> AI-Powered Admissions Assistant
+            </div>
           </div>
           <h1 className={`text-5xl font-black text-slate-900 mb-4 max-w-3xl leading-tight ${outfit.className}`}>
             Check Your <span className="text-transparent bg-clip-text bg-linear-to-r from-teal-600 to-emerald-500">Eligibility</span> for International Universities
