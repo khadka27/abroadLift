@@ -743,7 +743,7 @@ export default function HomePage() {
               Choose Your Path
             </div>
             <h2 className="text-[40px] font-extrabold text-[#0f172a] mb-6">
-              Get Started With NextDegree
+              Get Started With AbroadLift
             </h2>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -842,7 +842,7 @@ function TestimonialCarousel() {
       degree: "Computer Science",
       country: "UK",
       avatar: "/testimonial-1.png",
-      text: "NextDegree didn't just find me a university; they found me a future. The AI matcher was scary accurate with my GPA and budget constraints.",
+      text: "AbroadLift didn't just find me a university; they found me a future. The AI matcher was scary accurate with my GPA and budget constraints.",
       stars: 5,
       verified: true,
     },
@@ -852,7 +852,7 @@ function TestimonialCarousel() {
       country: "Canada",
       avatar:
         "https://images.unsplash.com/photo-1544717297-fa154daaf762?auto=format&fit=crop&q=80&w=800",
-      text: "Coming from Asia, the application process seemed daunting. NextDegree's platform was like having a personal counselor available 24/7. Highly recommend!",
+      text: "Coming from Asia, the application process seemed daunting. AbroadLift's platform was like having a personal counselor available 24/7. Highly recommend!",
       stars: 5,
       type: "video",
     },
@@ -861,7 +861,7 @@ function TestimonialCarousel() {
       degree: "MBA",
       country: "Australia",
       avatar: "/testimonial-2.png",
-      text: "The scholarship database saved me $15k per year! I was lost in the paperwork until NextDegree streamlined everything into one simple dashboard.",
+      text: "The scholarship database saved me $15k per year! I was lost in the paperwork until AbroadLift streamlined everything into one simple dashboard.",
       stars: 5,
       verified: true,
     },
@@ -981,12 +981,12 @@ function FAQAccordion() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
   const faqs = [
     {
-      q: "How does NextDegree help students?",
-      a: "NextDegree simplifies the entire study abroad journey.",
+      q: "How does AbroadLift help students?",
+      a: "AbroadLift simplifies the entire study abroad journey.",
     },
     {
-      q: "Does NextDegree charge students any fees?",
-      a: "Using NextDegree is completely free for students.",
+      q: "Does AbroadLift charge students any fees?",
+      a: "Using AbroadLift is completely free for students.",
     },
     {
       q: "Which countries can I study in?",

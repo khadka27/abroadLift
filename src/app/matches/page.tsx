@@ -381,15 +381,19 @@ function MatchCard({
           </div>
           {m.rankingWorld != null && !isNaN(Number(m.rankingWorld)) && (
             <div className={`flex flex-col items-end`}>
-              <span className={`flex-shrink-0 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider shadow-sm border ${
-                Number(m.rankingWorld) <= 100 
-                ? 'bg-linear-to-br from-amber-50 to-orange-50 text-amber-700 border-amber-200' 
-                : 'bg-blue-50 text-blue-700 border-blue-100'
-              }`}>
+              <span
+                className={`flex-shrink-0 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider shadow-sm border ${
+                  Number(m.rankingWorld) <= 100
+                    ? "bg-linear-to-br from-amber-50 to-orange-50 text-amber-700 border-amber-200"
+                    : "bg-blue-50 text-blue-700 border-blue-100"
+                }`}
+              >
                 #{m.rankingWorld} World
               </span>
               {Number(m.rankingWorld) <= 100 && (
-                <span className="text-[8px] font-bold text-amber-500 mt-1 uppercase tracking-tighter">Elite Institution</span>
+                <span className="text-[8px] font-bold text-amber-500 mt-1 uppercase tracking-tighter">
+                  Elite Institution
+                </span>
               )}
             </div>
           )}
@@ -415,118 +419,123 @@ function MatchCard({
           >
             {showDetails ? "Hide" : "Details"}
           </button>
-            {m.website && (
-              <a
-                href={m.website}
-                target="_blank"
-                rel="noreferrer"
-                className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-1"
-              >
-                Visit <ExternalLink className="w-3 h-3" />
-              </a>
-            )}
-          </div>
+          {m.website && (
+            <a
+              href={m.website}
+              target="_blank"
+              rel="noreferrer"
+              className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-1"
+            >
+              Visit <ExternalLink className="w-3 h-3" />
+            </a>
+          )}
         </div>
-        {showDetails && (
-          <div className="bg-gray-50 p-5 border-t border-gray-100 text-sm">
-            <p className="text-gray-600 mb-4 text-xs leading-relaxed">
-              {m.description || "Information about this institution's unique programs and campus life can be found on their official website."}
-            </p>
-            <div className="grid grid-cols-2 gap-3 mb-4">
-              {m.rankingNational && (
-                <div className="bg-white p-2.5 rounded-xl border border-gray-100 flex flex-col gap-1">
-                  <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-                    National Rank
-                  </span>
-                  <span className="text-xs font-bold text-gray-700">
-                    #{m.rankingNational}
-                  </span>
-                </div>
-              )}
-              <div className={`bg-white p-2.5 rounded-xl border border-gray-100 flex flex-col gap-1 ${!m.rankingNational ? 'col-span-2' : ''}`}>
+      </div>
+      {showDetails && (
+        <div className="bg-gray-50 p-5 border-t border-gray-100 text-sm">
+          <p className="text-gray-600 mb-4 text-xs leading-relaxed">
+            {m.description ||
+              "Information about this institution's unique programs and campus life can be found on their official website."}
+          </p>
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            {m.rankingNational && (
+              <div className="bg-white p-2.5 rounded-xl border border-gray-100 flex flex-col gap-1">
                 <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-                  Students
+                  National Rank
                 </span>
                 <span className="text-xs font-bold text-gray-700">
-                  {m.studentPopulation ? `${m.studentPopulation.toLocaleString()}+` : "10,000+"}
+                  #{m.rankingNational}
                 </span>
               </div>
+            )}
+            <div
+              className={`bg-white p-2.5 rounded-xl border border-gray-100 flex flex-col gap-1 ${!m.rankingNational ? "col-span-2" : ""}`}
+            >
+              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                Students
+              </span>
+              <span className="text-xs font-bold text-gray-700">
+                {m.studentPopulation
+                  ? `${m.studentPopulation.toLocaleString()}+`
+                  : "10,000+"}
+              </span>
+            </div>
+            <div className="bg-white p-2.5 rounded-xl border border-gray-100 flex flex-col gap-1 col-span-2">
+              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                Campus Type
+              </span>
+              <span className="text-xs font-bold text-gray-700">
+                {m.type || "Public Research Institution"}
+              </span>
+            </div>
+            {m.popularPrograms && m.popularPrograms.length > 0 && (
               <div className="bg-white p-2.5 rounded-xl border border-gray-100 flex flex-col gap-1 col-span-2">
                 <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-                  Campus Type
+                  Popular Programs
                 </span>
-                <span className="text-xs font-bold text-gray-700">
-                  {m.type || "Public Research Institution"}
+                <span className="text-xs font-bold text-gray-700 line-clamp-1">
+                  {m.popularPrograms.join(", ")}
                 </span>
-              </div>
-              {m.popularPrograms && m.popularPrograms.length > 0 && (
-                <div className="bg-white p-2.5 rounded-xl border border-gray-100 flex flex-col gap-1 col-span-2">
-                  <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-                    Popular Programs
-                  </span>
-                  <span className="text-xs font-bold text-gray-700 line-clamp-1">
-                    {m.popularPrograms.join(", ")}
-                  </span>
-                </div>
-              )}
-              <div className="p-2.5 rounded-xl flex flex-col gap-1 col-span-2 text-indigo-600 bg-indigo-50/20 border border-indigo-100 shadow-xs">
-                <span className="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">
-                  Admission Status
-                </span>
-                <span className="text-xs font-black">
-                  {(m as any).deadline || "Rolling Admissions / Active"}
-                </span>
-              </div>
-              {m.internationalPercentage != null && (
-                <div className="bg-emerald-50/30 p-2.5 rounded-xl border border-emerald-100 flex flex-col gap-1">
-                  <span className="text-[10px] text-emerald-600 font-bold uppercase tracking-widest">
-                    Intl. Students
-                  </span>
-                  <span className="text-xs font-bold text-emerald-700">
-                    {m.internationalPercentage}%
-                  </span>
-                </div>
-              )}
-              {m.salaryMedian != null && (
-                <div className="bg-amber-50/30 p-2.5 rounded-xl border border-amber-100 flex flex-col gap-1">
-                  <span className="text-[10px] text-amber-600 font-bold uppercase tracking-widest">
-                    Avg. Salary
-                  </span>
-                  <span className="text-xs font-bold text-amber-700">
-                    ${m.salaryMedian.toLocaleString()}/yr
-                  </span>
-                </div>
-              )}
-            </div>
-            <DestinationInsight match={m} />
-            
-            {m.scholarships && m.scholarships.length > 0 && (
-              <div className="mt-4">
-                <p className="text-xs font-bold text-gray-900 mb-2 uppercase tracking-wider">
-                  Scholarships
-                </p>
-                <div className="space-y-1">
-                  {m.scholarships.map((s, i) => (
-                    <div
-                      key={i}
-                      className="flex justify-between items-center text-xs bg-white p-2 rounded border border-gray-100"
-                    >
-                      <span className="font-medium text-gray-700">{s.name}</span>
-                      <span className="font-bold text-emerald-600">
-                        {s.value}
-                      </span>
-                    </div>
-                  ))}
-                </div>
               </div>
             )}
-
-            <MatchCostEstimator match={m} />
+            <div className="p-2.5 rounded-xl flex flex-col gap-1 col-span-2 text-indigo-600 bg-indigo-50/20 border border-indigo-100 shadow-xs">
+              <span className="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">
+                Admission Status
+              </span>
+              <span className="text-xs font-black">
+                {(m as any).deadline || "Rolling Admissions / Active"}
+              </span>
+            </div>
+            {m.internationalPercentage != null && (
+              <div className="bg-emerald-50/30 p-2.5 rounded-xl border border-emerald-100 flex flex-col gap-1">
+                <span className="text-[10px] text-emerald-600 font-bold uppercase tracking-widest">
+                  Intl. Students
+                </span>
+                <span className="text-xs font-bold text-emerald-700">
+                  {m.internationalPercentage}%
+                </span>
+              </div>
+            )}
+            {m.salaryMedian != null && (
+              <div className="bg-amber-50/30 p-2.5 rounded-xl border border-amber-100 flex flex-col gap-1">
+                <span className="text-[10px] text-amber-600 font-bold uppercase tracking-widest">
+                  Avg. Salary
+                </span>
+                <span className="text-xs font-bold text-amber-700">
+                  ${m.salaryMedian.toLocaleString()}/yr
+                </span>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-    );
-  }
+          <DestinationInsight match={m} />
+
+          {m.scholarships && m.scholarships.length > 0 && (
+            <div className="mt-4">
+              <p className="text-xs font-bold text-gray-900 mb-2 uppercase tracking-wider">
+                Scholarships
+              </p>
+              <div className="space-y-1">
+                {m.scholarships.map((s, i) => (
+                  <div
+                    key={i}
+                    className="flex justify-between items-center text-xs bg-white p-2 rounded border border-gray-100"
+                  >
+                    <span className="font-medium text-gray-700">{s.name}</span>
+                    <span className="font-bold text-emerald-600">
+                      {s.value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <MatchCostEstimator match={m} />
+        </div>
+      )}
+    </div>
+  );
+}
 
 function DestinationInsight({ match: m }: { match: Match }) {
   const [data, setData] = useState<any>(null);
@@ -538,7 +547,9 @@ function DestinationInsight({ match: m }: { match: Match }) {
       try {
         const city = m.location?.split(",")[0] || "London";
         const country = m.countryCode || "GB";
-        const res = await fetch(`/api/destination-insight?city=${city}&country=${country}`);
+        const res = await fetch(
+          `/api/destination-insight?city=${city}&country=${country}`,
+        );
         const json = await res.json();
         setData(json);
       } catch (e) {
@@ -550,7 +561,10 @@ function DestinationInsight({ match: m }: { match: Match }) {
     fetchInsight();
   }, [m.location, m.countryCode]);
 
-  if (loading) return <div className="h-20 bg-gray-50 animate-pulse rounded-2xl border border-gray-100 mt-4" />;
+  if (loading)
+    return (
+      <div className="h-20 bg-gray-50 animate-pulse rounded-2xl border border-gray-100 mt-4" />
+    );
   if (!data || data.error) return null;
 
   return (
@@ -562,16 +576,24 @@ function DestinationInsight({ match: m }: { match: Match }) {
             <div className="p-1.5 bg-white/20 rounded-lg backdrop-blur-md">
               <MapPin className="w-3.5 h-3.5" />
             </div>
-            <span className="text-xs font-black uppercase tracking-widest">{data.city} Insight</span>
+            <span className="text-xs font-black uppercase tracking-widest">
+              {data.city} Insight
+            </span>
           </div>
           <div className="flex items-center gap-2.5">
             <div className="flex items-center gap-1.5 bg-white/20 px-2 py-0.5 rounded-full backdrop-blur-md">
               <Clock className="w-3 h-3 opacity-80" />
               <span className="text-[10px] font-bold">{data.localTime}</span>
             </div>
-             <div className="flex items-center gap-1.5 bg-white/20 px-2 py-0.5 rounded-full backdrop-blur-md">
-               {data.isDay ? <Sun className="w-3 h-3 text-amber-300" /> : <Moon className="w-3 h-3 text-blue-200" />}
-               <span className="text-[10px] font-bold uppercase tracking-tighter">{data.isDay ? 'Day' : 'Night'}</span>
+            <div className="flex items-center gap-1.5 bg-white/20 px-2 py-0.5 rounded-full backdrop-blur-md">
+              {data.isDay ? (
+                <Sun className="w-3 h-3 text-amber-300" />
+              ) : (
+                <Moon className="w-3 h-3 text-blue-200" />
+              )}
+              <span className="text-[10px] font-bold uppercase tracking-tighter">
+                {data.isDay ? "Day" : "Night"}
+              </span>
             </div>
           </div>
         </div>
@@ -579,7 +601,9 @@ function DestinationInsight({ match: m }: { match: Match }) {
         <div className="flex items-end justify-between">
           <div className="flex flex-col">
             <div className="flex items-baseline gap-1">
-              <span className="text-3xl font-black">{Math.round(data.temp)}°</span>
+              <span className="text-3xl font-black">
+                {Math.round(data.temp)}°
+              </span>
               <span className="text-sm font-bold opacity-80">C</span>
             </div>
             <div className="flex items-center gap-1 text-[10px] font-black opacity-60 uppercase">
@@ -794,7 +818,6 @@ export default function AbroadLiftMatchesPage() {
         throw new Error("Our matching engine is temporarily overloaded.");
       const data = await res.json();
 
-
       setMatches(data.matches || []);
     } catch (err: any) {
       setError(err.message || "Something went wrong fetching matches.");
@@ -814,10 +837,12 @@ export default function AbroadLiftMatchesPage() {
               JOIN 50K+ INTERNATIONAL STUDENTS
             </div>
             <h1 className="text-4xl md:text-5xl font-black text-slate-900 leading-[1.1]">
-              Your Global Education <span className="text-blue-600">Journey</span> Starts Here.
+              Your Global Education{" "}
+              <span className="text-blue-600">Journey</span> Starts Here.
             </h1>
             <p className="text-gray-500 font-medium text-lg leading-relaxed">
-              We&apos;ll help you find the perfect university based on your goals, budget, and dreams.
+              We&apos;ll help you find the perfect university based on your
+              goals, budget, and dreams.
             </p>
           </div>
 
@@ -835,14 +860,14 @@ export default function AbroadLiftMatchesPage() {
                 }}
               />
             </div>
-            
+
             <button
               onClick={handleNext}
               disabled={!canContinue}
               className={`w-full h-16 rounded-2xl text-lg font-bold flex items-center justify-center gap-3 transition-all duration-300 ${
-                canContinue 
-                ? "bg-blue-500 hover:bg-blue-600 text-white shadow-xl shadow-blue-500/25 hover:-translate-y-0.5 cursor-pointer"
-                : "bg-blue-100 text-blue-300 cursor-not-allowed"
+                canContinue
+                  ? "bg-blue-500 hover:bg-blue-600 text-white shadow-xl shadow-blue-500/25 hover:-translate-y-0.5 cursor-pointer"
+                  : "bg-blue-100 text-blue-300 cursor-not-allowed"
               }`}
             >
               Get Started
@@ -851,18 +876,24 @@ export default function AbroadLiftMatchesPage() {
           </div>
 
           <div className="grid grid-cols-3 gap-6 pt-8 border-t border-gray-100">
-             <div>
-               <p className="text-2xl font-black text-slate-900">800+</p>
-               <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Universities</p>
-             </div>
-             <div>
-               <p className="text-2xl font-black text-slate-900">32</p>
-               <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Countries</p>
-             </div>
-             <div>
-               <p className="text-2xl font-black text-slate-900">12k+</p>
-               <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Admissions</p>
-             </div>
+            <div>
+              <p className="text-2xl font-black text-slate-900">800+</p>
+              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                Universities
+              </p>
+            </div>
+            <div>
+              <p className="text-2xl font-black text-slate-900">32</p>
+              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                Countries
+              </p>
+            </div>
+            <div>
+              <p className="text-2xl font-black text-slate-900">12k+</p>
+              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                Admissions
+              </p>
+            </div>
           </div>
         </div>
       );
@@ -872,12 +903,15 @@ export default function AbroadLiftMatchesPage() {
     if (step === 1) {
       return (
         <div className="animate-in fade-in slide-in-from-bottom-6 duration-700 max-w-2xl">
-           <div className="mb-10">
-              <h2 className="text-3xl lg:text-4xl font-black text-slate-900 mb-2 leading-tight">
-                Hi {form.name.split(" ")[0] || "there"}! Where do you want to study?
-              </h2>
-              <p className="text-gray-400 font-bold text-lg mb-8">Choose one or more countries you&apos;re interested in.</p>
-           </div>
+          <div className="mb-10">
+            <h2 className="text-3xl lg:text-4xl font-black text-slate-900 mb-2 leading-tight">
+              Hi {form.name.split(" ")[0] || "there"}! Where do you want to
+              study?
+            </h2>
+            <p className="text-gray-400 font-bold text-lg mb-8">
+              Choose one or more countries you&apos;re interested in.
+            </p>
+          </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {COUNTRIES.map((c) => {
               const isSel = form.countries.includes(c.code);
@@ -891,7 +925,9 @@ export default function AbroadLiftMatchesPage() {
                       : "border-gray-50 bg-white hover:border-gray-100 hover:shadow-xl hover:-translate-y-1 shadow-xs"
                   }`}
                 >
-                  <div className={`w-12 h-8 rounded-md overflow-hidden shadow-sm transition-transform duration-300 group-hover:scale-110 ${isSel ? 'ring-2 ring-blue-500 ring-offset-2' : ''}`}>
+                  <div
+                    className={`w-12 h-8 rounded-md overflow-hidden shadow-sm transition-transform duration-300 group-hover:scale-110 ${isSel ? "ring-2 ring-blue-500 ring-offset-2" : ""}`}
+                  >
                     <FlagIcon
                       countryCode={c.code}
                       className="w-full h-full object-cover"
@@ -919,10 +955,14 @@ export default function AbroadLiftMatchesPage() {
     if (step === 2) {
       return (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-lg">
-           <div className="mb-8">
-              <h2 className="text-2xl lg:text-3xl font-black text-slate-900 mb-2">Degree Level</h2>
-              <p className="text-gray-500 font-medium">What level of education are you aiming for?</p>
-           </div>
+          <div className="mb-8">
+            <h2 className="text-2xl lg:text-3xl font-black text-slate-900 mb-2">
+              Degree Level
+            </h2>
+            <p className="text-gray-500 font-medium">
+              What level of education are you aiming for?
+            </p>
+          </div>
           <div className="grid grid-cols-2 gap-3">
             {DEGREES.map((d) => {
               const isSel = form.degree === d.v;
@@ -959,11 +999,15 @@ export default function AbroadLiftMatchesPage() {
       const programsList = form.field ? PROGRAMS[form.field] || [] : [];
       return (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-lg">
-           <div className="mb-8">
-              <h2 className="text-2xl lg:text-3xl font-black text-slate-900 mb-2">Field of Study</h2>
-              <p className="text-gray-500 font-medium">Tell us what you want to study so we can match you perfectly.</p>
-           </div>
-          
+          <div className="mb-8">
+            <h2 className="text-2xl lg:text-3xl font-black text-slate-900 mb-2">
+              Field of Study
+            </h2>
+            <p className="text-gray-500 font-medium">
+              Tell us what you want to study so we can match you perfectly.
+            </p>
+          </div>
+
           <div className="flex flex-col gap-4">
             <SearchSelect
               placeholder="Select a field of study"
@@ -991,10 +1035,14 @@ export default function AbroadLiftMatchesPage() {
     if (step === 4) {
       return (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-lg">
-           <div className="mb-8">
-              <h2 className="text-2xl lg:text-3xl font-black text-slate-900 mb-2">English Proficiency</h2>
-              <p className="text-gray-500 font-medium">Do you have an English test score? Most universities require one.</p>
-           </div>
+          <div className="mb-8">
+            <h2 className="text-2xl lg:text-3xl font-black text-slate-900 mb-2">
+              English Proficiency
+            </h2>
+            <p className="text-gray-500 font-medium">
+              Do you have an English test score? Most universities require one.
+            </p>
+          </div>
 
           <div className="grid grid-cols-2 gap-3 mb-6">
             {TESTS.map((t) => {
@@ -1044,10 +1092,14 @@ export default function AbroadLiftMatchesPage() {
     if (step === 5) {
       return (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-lg">
-           <div className="mb-8">
-              <h2 className="text-2xl lg:text-3xl font-black text-slate-900 mb-2">Estimated Budget</h2>
-              <p className="text-gray-500 font-medium">What is your estimated annual budget for tuition and fees?</p>
-           </div>
+          <div className="mb-8">
+            <h2 className="text-2xl lg:text-3xl font-black text-slate-900 mb-2">
+              Estimated Budget
+            </h2>
+            <p className="text-gray-500 font-medium">
+              What is your estimated annual budget for tuition and fees?
+            </p>
+          </div>
 
           <div className="flex justify-center flex-wrap gap-2 mb-6">
             {CURRENCIES.map((c) => (
@@ -1090,9 +1142,9 @@ export default function AbroadLiftMatchesPage() {
                 key={p.v}
                 onClick={() => updateForm("budget", p.v)}
                 className={`py-3 px-2 rounded-2xl border font-bold text-xs transition-all text-center flex flex-col items-center justify-center gap-1 ${
-                  form.budget === p.v 
-                  ? "border-blue-500 bg-blue-50 text-blue-700 shadow-sm"
-                  : "border-gray-100 bg-white text-gray-500 hover:bg-gray-50 shadow-xs"
+                  form.budget === p.v
+                    ? "border-blue-500 bg-blue-50 text-blue-700 shadow-sm"
+                    : "border-gray-100 bg-white text-gray-500 hover:bg-gray-50 shadow-xs"
                 }`}
               >
                 {p.l}
@@ -1107,11 +1159,15 @@ export default function AbroadLiftMatchesPage() {
     if (step === 6) {
       return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-lg">
-           <div className="mb-4">
-              <h2 className="text-2xl lg:text-3xl font-black text-slate-900 mb-2">Final Details</h2>
-              <p className="text-gray-500 font-medium">Just a few more things before we reveal your matches.</p>
-           </div>
-          
+          <div className="mb-4">
+            <h2 className="text-2xl lg:text-3xl font-black text-slate-900 mb-2">
+              Final Details
+            </h2>
+            <p className="text-gray-500 font-medium">
+              Just a few more things before we reveal your matches.
+            </p>
+          </div>
+
           <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm transition-all focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/5">
             <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">
               Email Address <span className="text-red-400">*</span>
@@ -1126,7 +1182,8 @@ export default function AbroadLiftMatchesPage() {
           </div>
           <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm transition-all focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/5">
             <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">
-              Current GPA <span className="normal-case font-normal">(Optional)</span>
+              Current GPA{" "}
+              <span className="normal-case font-normal">(Optional)</span>
             </label>
             <input
               type="number"
@@ -1159,15 +1216,17 @@ export default function AbroadLiftMatchesPage() {
                     : `${matches.length} Universities Found`}
             </h3>
             <p className="text-gray-500 font-medium max-w-sm mx-auto">
-              {loading ? "Our AI is curating the best institutions for your profile." : "Based on your background and preferences."}
+              {loading
+                ? "Our AI is curating the best institutions for your profile."
+                : "Based on your background and preferences."}
             </p>
           </div>
 
           {loading && (
             <div className="py-20 flex flex-col items-center justify-center text-center space-y-4">
               <div className="relative w-16 h-16">
-                 <div className="absolute inset-0 rounded-2xl border-4 border-blue-50 w-full h-full shadow-inner" />
-                 <div className="absolute inset-0 rounded-2xl border-4 border-blue-500 border-t-transparent animate-spin w-full h-full" />
+                <div className="absolute inset-0 rounded-2xl border-4 border-blue-50 w-full h-full shadow-inner" />
+                <div className="absolute inset-0 rounded-2xl border-4 border-blue-500 border-t-transparent animate-spin w-full h-full" />
               </div>
             </div>
           )}
@@ -1245,36 +1304,42 @@ export default function AbroadLiftMatchesPage() {
         />
         {/* Blue Gradient Overlay */}
         <div className="absolute inset-0 bg-linear-to-br from-blue-600/40 via-blue-800/60 to-slate-900/80 mix-blend-multiply" />
-        
+
         {/* Logo and Brand */}
         <div className="absolute top-8 left-8 lg:top-12 lg:left-12 z-20 flex items-center gap-3">
           <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-500/20 rotate-3">
             <GraduationCap className="w-7 h-7 text-blue-600" />
           </div>
-          <span className="text-2xl font-black text-white tracking-tight">NextDegree</span>
+          <span className="text-2xl font-black text-white tracking-tight">
+            AbroadLift
+          </span>
         </div>
 
         {/* Floating Testimonial Card */}
         <div className="absolute bottom-12 left-8 right-8 lg:left-12 lg:right-12 z-20 hidden md:block">
-           <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-[32px] shadow-2xl max-w-md animate-in fade-in slide-in-from-bottom-8 duration-700">
-             <p className="text-white text-lg font-medium leading-relaxed italic mb-8">
-               &ldquo;NextDegree made my application to Yale so simple. The personalized roadmap was exactly what I needed to navigate the complex visa process.&rdquo;
-             </p>
-             <div className="flex items-center gap-4">
-               <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-white/40 shadow-lg">
-                 <Image 
-                   src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1974&auto=format&fit=crop" 
-                   alt="Sarah Jenkins" 
-                   fill
-                   className="object-cover"
-                 />
-               </div>
-               <div>
-                  <h4 className="text-white font-bold text-sm">Sarah Jenkins</h4>
-                  <p className="text-white/60 text-[11px] font-bold uppercase tracking-widest">Masters in CS, Class of 2025</p>
-               </div>
-             </div>
-           </div>
+          <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-[32px] shadow-2xl max-w-md animate-in fade-in slide-in-from-bottom-8 duration-700">
+            <p className="text-white text-lg font-medium leading-relaxed italic mb-8">
+              &ldquo;AbroadLift made my application to Yale so simple. The
+              personalized roadmap was exactly what I needed to navigate the
+              complex visa process.&rdquo;
+            </p>
+            <div className="flex items-center gap-4">
+              <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-white/40 shadow-lg">
+                <Image
+                  src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1974&auto=format&fit=crop"
+                  alt="Sarah Jenkins"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div>
+                <h4 className="text-white font-bold text-sm">Sarah Jenkins</h4>
+                <p className="text-white/60 text-[11px] font-bold uppercase tracking-widest">
+                  Masters in CS, Class of 2025
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1283,21 +1348,23 @@ export default function AbroadLiftMatchesPage() {
         {/* Top Nav */}
         <div className="px-8 py-6 lg:px-12 lg:py-8 flex justify-between items-center z-30">
           <div className="flex items-center gap-1.5">
-             {step > 0 && (
-               <button 
-                 onClick={() => setStep(step - 1)}
-                 className="group flex items-center gap-2 text-gray-400 hover:text-gray-900 transition-colors font-bold text-sm"
-               >
-                 <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                 Back
-               </button>
-             )}
+            {step > 0 && (
+              <button
+                onClick={() => setStep(step - 1)}
+                className="group flex items-center gap-2 text-gray-400 hover:text-gray-900 transition-colors font-bold text-sm"
+              >
+                <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                Back
+              </button>
+            )}
           </div>
           <div className="flex items-center gap-4">
-             <span className="text-slate-400 text-xs font-bold tracking-widest hidden sm:inline">NEED HELP?</span>
-             <button className="px-6 py-2.5 bg-white border border-slate-200 rounded-full text-xs font-black text-slate-900 hover:bg-slate-50 transition-all shadow-sm">
-               SUPPORT
-             </button>
+            <span className="text-slate-400 text-xs font-bold tracking-widest hidden sm:inline">
+              NEED HELP?
+            </span>
+            <button className="px-6 py-2.5 bg-white border border-slate-200 rounded-full text-xs font-black text-slate-900 hover:bg-slate-50 transition-all shadow-sm">
+              SUPPORT
+            </button>
           </div>
         </div>
 
@@ -1311,7 +1378,11 @@ export default function AbroadLiftMatchesPage() {
                   <div
                     key={i}
                     className={`flex-1 h-1.5 rounded-full transition-all duration-500 ${
-                      stepIdx <= step ? (stepIdx === step ? "bg-blue-500 scale-y-125" : "bg-blue-200") : "bg-gray-100"
+                      stepIdx <= step
+                        ? stepIdx === step
+                          ? "bg-blue-500 scale-y-125"
+                          : "bg-blue-200"
+                        : "bg-gray-100"
                     }`}
                   />
                 );
@@ -1332,31 +1403,39 @@ export default function AbroadLiftMatchesPage() {
         {step > 0 && step < STEPS.length - 1 && (
           <div className="absolute bottom-0 left-0 w-full p-8 lg:px-12 bg-white/80 backdrop-blur-md border-t border-gray-50 flex items-center justify-between z-30">
             <div className="flex flex-col">
-               <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Next Up</span>
-               <span className="text-gray-900 font-black text-sm">{STEPS[step+1]?.label || "Finish"}</span>
+              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                Next Up
+              </span>
+              <span className="text-gray-900 font-black text-sm">
+                {STEPS[step + 1]?.label || "Finish"}
+              </span>
             </div>
             <button
-               onClick={handleNext}
-               disabled={!canContinue}
-               className={`px-10 h-14 rounded-2xl font-black text-sm flex items-center justify-center gap-3 transition-all duration-300 ${
-                 canContinue
-                   ? "bg-slate-900 text-white shadow-2xl shadow-slate-900/20 hover:-translate-y-0.5"
-                   : "bg-gray-100 text-gray-400 cursor-not-allowed"
-               }`}
-             >
-               Continue
-               <ChevronLeft className="w-5 h-5 rotate-180" strokeWidth={3} />
-             </button>
+              onClick={handleNext}
+              disabled={!canContinue}
+              className={`px-10 h-14 rounded-2xl font-black text-sm flex items-center justify-center gap-3 transition-all duration-300 ${
+                canContinue
+                  ? "bg-slate-900 text-white shadow-2xl shadow-slate-900/20 hover:-translate-y-0.5"
+                  : "bg-gray-100 text-gray-400 cursor-not-allowed"
+              }`}
+            >
+              Continue
+              <ChevronLeft className="w-5 h-5 rotate-180" strokeWidth={3} />
+            </button>
           </div>
         )}
 
         {/* Branding Footer (Only on Welcome) */}
         {step === 0 && (
           <div className="absolute bottom-6 left-8 lg:left-12 flex items-center gap-8 text-[10px] font-black text-gray-400 uppercase tracking-widest z-30">
-            <span>© 2026 NEXTDEGREE GLOBAL</span>
+            <span>© 2026 AbroadLift GLOBAL</span>
             <div className="flex gap-4">
-              <button className="hover:text-gray-900 transition-colors">PRIVACY</button>
-              <button className="hover:text-gray-900 transition-colors">TERMS</button>
+              <button className="hover:text-gray-900 transition-colors">
+                PRIVACY
+              </button>
+              <button className="hover:text-gray-900 transition-colors">
+                TERMS
+              </button>
             </div>
           </div>
         )}

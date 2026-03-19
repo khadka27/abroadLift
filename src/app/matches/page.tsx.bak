@@ -621,7 +621,7 @@ function MatchCard({
 }
 
 /* ─────────────── Main Component ─────────────── */
-export default function NextDegreeMatchesPage() {
+export default function AbroadLiftMatchesPage() {
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<Form>(DEF);
   const [matches, setMatches] = useState<Match[]>([]);
