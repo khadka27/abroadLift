@@ -44,8 +44,7 @@ export default function Footer() {
     <footer className="relative bg-white border-t border-gray-100 overflow-hidden pt-20 pb-10">
       <div className="absolute top-0 left-0 right-0 w-full h-1 bg-linear-to-r from-[#17a38b] via-[#3366FF] to-[#bba5d9] opacity-80" />
 
-      {/* Soft Glow */}
-      <div className="absolute bottom-[-100px] left-1/2 -translate-x-1/2 w-[800px] h-[300px] rounded-full bg-blue-50 blur-[100px] pointer-events-none" />
+      {/* Soft Glow removed */}
 
       <div className="relative max-w-[1200px] mx-auto px-6">
         {/* Top grid */}
@@ -64,7 +63,7 @@ export default function Footer() {
               </span>
             </Link>
 
-            <p className="text-sm text-gray-500 leading-relaxed font-medium mb-8 pr-4">
+            <p className="text-sm text-blue-900 leading-relaxed font-semibold mb-8 pr-4">
               Real-time university matching powered by government-grade
               education APIs. No login locks. No hidden fees. Just immediate
               results.
@@ -81,7 +80,7 @@ export default function Footer() {
           {/* Link columns */}
           {Object.entries(FOOTER_LINKS).map(([group, links]) => (
             <div key={group}>
-              <div className="text-[11px] font-black tracking-[0.15em] uppercase text-gray-400 mb-6">
+              <div className="text-[11px] font-black tracking-[0.15em] uppercase mb-6" style={{ color: "#1e3a8a" }}>
                 {group}
               </div>
               <ul className="flex flex-col gap-4 list-none m-0 p-0">
@@ -89,7 +88,8 @@ export default function Footer() {
                   <li key={l.href}>
                     <Link
                       href={l.href}
-                      className="text-[15px] font-medium text-gray-600 hover:text-[#3366FF] transition-colors duration-200"
+                      className="text-[15px] font-bold hover:underline transition-all duration-200"
+                      style={{ color: "#1e3a8a" }}
                       target={l.href.startsWith("http") ? "_blank" : undefined}
                       rel={l.href.startsWith("http") ? "noreferrer" : undefined}
                     >
@@ -104,7 +104,7 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="border-t border-gray-200 pt-8 flex flex-col md:flex-row items-center justify-between gap-6">
-          <p className="text-[13px] font-medium text-gray-400 text-center md:text-left">
+          <p className="text-[13px] font-black text-center md:text-left" style={{ color: "#1e3a8a" }}>
             © {year} NextDegree — Built for students attempting to change the
             world.
           </p>
@@ -115,9 +115,9 @@ export default function Footer() {
               return (
                 <span
                   key={b.label}
-                  className="flex items-center gap-1.5 text-[12px] font-bold text-gray-500 bg-gray-50 border border-gray-200 px-3.5 py-2 rounded-xl hover:border-gray-300 hover:bg-gray-100 transition-colors shadow-sm"
+                  className="flex items-center gap-1.5 text-[12px] font-bold text-blue-700 bg-blue-50/80 border border-blue-200 px-3.5 py-2 rounded-xl hover:border-blue-300 hover:bg-blue-100 transition-colors shadow-sm"
                 >
-                  <Icon className="w-4 h-4 text-gray-400" /> {b.label}
+                  <Icon className="w-4 h-4 text-[#3366FF]" /> {b.label}
                 </span>
               );
             })}
