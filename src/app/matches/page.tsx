@@ -2628,7 +2628,7 @@ export default function AbroadLiftMatchesPage() {
                            <Download className="w-5 h-5" />
                            Export Financial PDF
                         </button>
-                        <button onClick={() => setStep(0)} className="w-full h-14 bg-slate-50 text-slate-500 rounded-3xl font-bold text-xs uppercase tracking-[0.2em] hover:bg-slate-100 transition-all border border-slate-100 italic">
+                        <button onClick={() => setStep(0)} className="w-full h-14 bg-slate-50 text-slate-500 rounded-3xl font-bold text-xs uppercase tracking-[0.2em] hover:bg-slate-100 transition-all border border-slate-100 italic print:hidden">
                            START NEW ANALYSIS
                         </button>
                      </div>
@@ -2700,7 +2700,7 @@ export default function AbroadLiftMatchesPage() {
         )}
 
         {/* Top Navbar */}
-        <div className="px-8 py-6 lg:px-12 lg:py-8 flex justify-between items-center z-30">
+        <div className="px-8 py-6 lg:px-12 lg:py-8 flex justify-between items-center z-30 print:hidden">
            <div className="flex items-center gap-6">
               {step >= 8 && (
                  <div className="flex items-center gap-2 group cursor-pointer" onClick={() => setStep(1)}>
@@ -2740,7 +2740,7 @@ export default function AbroadLiftMatchesPage() {
 
               {/* Step Navigation Footer */}
               {step > 0 && step < 8 && (
-                <div className="mt-20 pt-10 border-t border-slate-50 flex items-center justify-between pb-10">
+                <div className="mt-20 pt-10 border-t border-slate-50 flex items-center justify-between pb-10 print:hidden">
                    <div className="flex flex-col">
                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Next Up</span>
                       <span className="text-sm font-bold text-slate-900">{STEPS[step + 1]?.label || "Finish"}</span>
@@ -2760,7 +2760,7 @@ export default function AbroadLiftMatchesPage() {
 
               {/* Analysis Navigation Footer (Post-Match) */}
               {step >= 9 && step <= 13 && (
-                <div className="mt-10 pt-10 border-t border-slate-50 flex items-center justify-between pb-10">
+                <div className="mt-10 pt-10 border-t border-slate-50 flex items-center justify-between pb-10 print:hidden">
                    <div className="flex flex-col">
                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Analysis View</span>
                       <span className="text-sm font-bold text-slate-900">{STEPS[step]?.label}</span>
