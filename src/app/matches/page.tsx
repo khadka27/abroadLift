@@ -1773,42 +1773,157 @@ export default function AbroadLiftMatchesPage() {
       );
     }
 
-    // 9: Cost Estimation
+    // 9: Cost Selection Analytics & Roadmap
     if (step === 9 && selectedMatch) {
+      const toggleUSD = form.currency === "USD";
+      const tuition = selectedMatch.tuitionFee || 0;
+      const living = 12000; // Base est
+      const total = tuition + living;
+      
+      const displayVal = (v: number) => toggleUSD ? (v / 1.35).toFixed(1) : v.toFixed(1);
+      const symbol = toggleUSD ? "$" : "NPR";
+      const unit = toggleUSD ? "k" : "L";
+
       return (
-        <div className="animate-in fade-in slide-in-from-bottom-2 duration-400 max-w-2xl px-4">
-          <div className="mb-10 text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-widest mb-6 border border-emerald-100">
-              Financial Analysis
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-400 max-w-full px-8 lg:px-16 pb-24">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6 border-b border-slate-50 pb-8">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-widest mb-4 border border-emerald-100">
+                Direct Financial Intelligence
+              </div>
+              <h2 className="text-4xl font-black text-slate-900 tracking-tight">Annual Cost Roadmap</h2>
+              <p className="text-slate-500 font-medium italic mt-2">Analysis for {selectedMatch.name}</p>
             </div>
-            <h2 className="text-3xl font-black text-slate-900 mb-2">Annual Cost Roadmap</h2>
-            <p className="text-gray-500 font-medium">Detailed breakdown for {selectedMatch.name}</p>
+            
+            <div className="flex bg-slate-100 p-1 rounded-2xl border border-slate-200 shadow-inner">
+               {["NPR", "USD"].map(c => (
+                  <button key={c} onClick={() => updateForm("currency", c)} className={`px-6 py-2 rounded-xl text-[10px] font-black tracking-widest transition-all ${form.currency === c ? "bg-white text-blue-600 shadow-md scale-105" : "text-slate-400 hover:text-slate-600"}`}>{c}</button>
+               ))}
+            </div>
           </div>
 
-          <MatchCostEstimator match={selectedMatch} />
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* 1. Main Highlight Cards */}
+            <div className="lg:col-span-8 space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                   <Card className="p-8 rounded-[40px] border-none bg-slate-900 text-white shadow-xl relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+                         <Calculator className="w-24 h-24 text-blue-400" />
+                      </div>
+                      <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-4">Base Tuition</p>
+                      <h3 className="text-4xl font-black italic">
+                         <span className="text-slate-500 text-xl mr-1 non-italic font-medium">{symbol}</span>
+                         {displayVal(tuition)}
+                         <span className="text-blue-400 text-2xl ml-1">{unit}</span>
+                      </h3>
+                      <p className="text-[9px] text-slate-400 mt-4 leading-relaxed font-bold">ANNUAL TUITION RATE</p>
+                   </Card>
 
-          <div className="mt-12 p-8 bg-blue-600 rounded-[32px] text-white shadow-xl shadow-blue-500/20 relative overflow-hidden">
-             <div className="absolute top-0 right-0 p-8 opacity-10">
-               <Wallet className="w-32 h-32" />
-             </div>
-             <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
-                <div className="flex-1 space-y-4">
-                   <h4 className="text-xl font-black">Budget Match Analysis</h4>
-                   <p className="text-blue-100 text-sm font-medium leading-relaxed">
-                     Based on your target budget of {form.currency} {form.budget}, this university provides a 
-                     <span className="font-black text-white ml-1">Excellent ROI Potential</span>. 
-                     We identified 3 active scholarships you can apply for at this institution.
-                   </p>
-                   <button className="px-6 py-2.5 bg-white/20 hover:bg-white/30 rounded-xl text-xs font-black uppercase tracking-widest transition-all backdrop-blur-md border border-white/10">
-                      Explore Scholarships
-                   </button>
+                   <Card className="p-8 rounded-[40px] border-none bg-white border border-slate-100 shadow-md hover:border-blue-500 transition-all relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 p-8 opacity-5 text-blue-600">
+                         <Wallet className="w-24 h-24" />
+                      </div>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Living Estimate</p>
+                      <h3 className="text-4xl font-black text-slate-900">
+                         <span className="text-slate-300 text-xl mr-1 font-medium">{symbol}</span>
+                         {displayVal(living)}
+                         <span className="text-slate-300 text-2xl ml-1">{unit}</span>
+                      </h3>
+                      <p className="text-[9px] text-slate-400 mt-4 leading-relaxed font-bold uppercase tracking-widest">Global Base Average</p>
+                   </Card>
+
+                   <Card className="p-8 rounded-[40px] border-none bg-blue-600 text-white shadow-2xl relative overflow-hidden scale-105 ring-4 ring-blue-100">
+                      <p className="text-[10px] font-black text-blue-200 uppercase tracking-widest mb-4">Total Yearly</p>
+                      <h3 className="text-4xl font-black italic">
+                         <span className="text-blue-300 text-xl mr-1 non-italic font-medium">{symbol}</span>
+                         {displayVal(total)}
+                         <span className="text-blue-300 text-2xl ml-1">{unit}</span>
+                      </h3>
+                      <p className="text-[9px] text-blue-200 mt-4 leading-relaxed font-bold uppercase tracking-widest">Combined Base Model</p>
+                   </Card>
                 </div>
-                <div className="w-px h-24 bg-white/10 hidden md:block" />
-                <div className="w-full md:w-32 text-center">
-                   <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-2">Match Rating</p>
-                   <p className="text-4xl font-black">94%</p>
-                </div>
-             </div>
+
+                <Card className="p-10 rounded-[48px] border-none bg-slate-50 border border-slate-100 relative overflow-hidden">
+                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-blue-100/20 blur-[120px] rounded-full" />
+                   <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
+                      <div className="flex-1 space-y-6">
+                         <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-blue-600 shadow-sm">
+                               <Sparkles className="w-6 h-6" />
+                            </div>
+                            <h4 className="text-2xl font-black text-slate-900">ROI Match Analysis</h4>
+                         </div>
+                         <p className="text-slate-600 font-medium leading-relaxed">
+                            Based on your target budget of {symbol} {form.budget}, {selectedMatch.name} provides an exceptional financial fit. 
+                            The institution currently ranks in the <span className="text-blue-600 font-black">Top 10% for Graduate Salary ROI</span> in {selectedMatch.location?.split(",")[0]}.
+                         </p>
+                         <div className="flex flex-wrap gap-4 pt-4">
+                            <div className="bg-white px-5 py-3 rounded-2xl border border-slate-100 shadow-xs">
+                               <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">Scholarship Pool</p>
+                               <p className="text-xs font-black text-emerald-600">3 ACTIVE OPPS</p>
+                            </div>
+                            <div className="bg-white px-5 py-3 rounded-2xl border border-slate-100 shadow-xs">
+                               <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">Affordability</p>
+                               <p className="text-xs font-black text-blue-600">HIGH MATCH</p>
+                            </div>
+                         </div>
+                      </div>
+                      <div className="w-full md:w-48 h-48 rounded-[40px] bg-slate-900 flex flex-col items-center justify-center p-6 text-white text-center shadow-xl">
+                         <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">Neural Score</p>
+                         <div className="text-6xl font-black text-blue-400 tracking-tighter italic">94%</div>
+                         <div className="mt-4 w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                            <div className="h-full bg-blue-400 w-[94%]" />
+                         </div>
+                      </div>
+                   </div>
+                </Card>
+            </div>
+
+            {/* 2. Side Strategy Panel */}
+            <div className="lg:col-span-4 space-y-8">
+               <Card className="p-8 rounded-[40px] border border-slate-100 bg-white shadow-sm space-y-8">
+                  <h5 className="text-[10px] font-black text-slate-900 uppercase tracking-[0.3em]">Selection Roadmap</h5>
+                  
+                  <div className="space-y-6">
+                     {[
+                        { step: "Target Selection", desc: selectedMatch.name, status: "completed" },
+                        { step: "Budget Alignment", desc: `${symbol} ${displayVal(total)}${unit} / Year`, status: "current" },
+                        { step: "Visa Confidence", desc: "Neuro-calculation Pending", status: "upcoming" }
+                     ].map((item, i) => (
+                        <div key={i} className="flex gap-4">
+                           <div className="flex flex-col items-center pt-1.5">
+                              <div className={`w-3 h-3 rounded-full ${item.status === "completed" ? "bg-emerald-500" : item.status === "current" ? "bg-blue-600 ring-4 ring-blue-100" : "bg-slate-200"}`} />
+                              {i < 2 && <div className="w-0.5 flex-1 bg-slate-100 mt-1" />}
+                           </div>
+                           <div className="pb-4">
+                              <p className={`text-[9px] font-black uppercase tracking-widest ${item.status === "upcoming" ? "text-slate-300" : "text-slate-400"}`}>{item.step}</p>
+                              <p className={`text-xs font-bold ${item.status === "upcoming" ? "text-slate-300" : "text-slate-900"} mt-1`}>{item.desc}</p>
+                           </div>
+                        </div>
+                     ))}
+                  </div>
+
+                  <button 
+                     onClick={() => setStep(10)}
+                     className="w-full h-14 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-slate-900/10 flex items-center justify-center gap-2"
+                  >
+                     Analyze Official Eligibility
+                     <ChevronLeft className="w-4 h-4 rotate-180" />
+                  </button>
+               </Card>
+
+               <div className="p-6 bg-linear-to-br from-indigo-500 to-blue-600 rounded-[32px] text-white space-y-4 shadow-lg shadow-indigo-500/20">
+                  <div className="flex items-center gap-3">
+                     <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-md">
+                        <GraduationCap className="w-5 h-5" />
+                     </div>
+                     <p className="text-[10px] font-black uppercase tracking-widest">Strategy Note</p>
+                  </div>
+                  <p className="text-xs font-medium leading-relaxed opacity-90 italic">
+                     &ldquo;Choosing this institution aligns your academic profile with global hiring markets in {selectedMatch.location?.split(",")[1] || "the region"}.&rdquo;
+                  </p>
+               </div>
+            </div>
           </div>
         </div>
       );
@@ -1885,7 +2000,7 @@ export default function AbroadLiftMatchesPage() {
        const bgClass = score >= 80 ? "bg-emerald-50" : score >= 60 ? "bg-amber-50" : "bg-rose-50";
 
        return (
-         <div className="animate-in fade-in slide-in-from-bottom-2 duration-400 max-w-4xl px-4 grid grid-cols-1 lg:grid-cols-12 gap-8 pb-20">
+         <div className="animate-in fade-in slide-in-from-bottom-2 duration-400 max-w-full px-8 lg:px-16 pb-24">
             {/* LEFT: MAIN SCORE PANEL */}
             <div className="lg:col-span-12 mb-4 text-center">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 text-blue-700 text-[10px] font-black uppercase tracking-widest mb-6 border border-blue-100">
@@ -2039,7 +2154,54 @@ export default function AbroadLiftMatchesPage() {
     // 11: Cost & Visa Estimation Dashboard
     if (step === 11 && selectedMatch) {
        const country = form.countries[0] || "AU";
-       // ... existing logic ...
+       const duration = parseInt(form.duration) || 3;
+       const isTier1 = form.cityType === "Tier 1";
+       const isPrivate = form.univType === "Private";
+
+       // --- 1. BASE COST DATA (Lakhs NPR) ---
+       const costsMap: any = {
+          US: { t: 30, t_p: 40, v: 0.25 },
+          UK: { t: 25, t_p: 35, v: 0.50 },
+          CA: { t: 18, t_p: 28, v: 0.20 },
+          AU: { t: 28, t_p: 38, v: 1.25 }
+       };
+
+       const base = costsMap[country] || costsMap.AU;
+       const tuitionAnnual = isPrivate ? base.t_p : base.t;
+       const livingAnnual = isTier1 ? 15 : 10;
+       const oneTimeCosts = 0.35 + base.v + 1.2 + 0.5; // IELTS + Visa + Flight + Consultancy
+
+       const totalYearly = tuitionAnnual + livingAnnual;
+       const totalCourse = (totalYearly * duration) + oneTimeCosts;
+       
+       // --- 2. VISA PROBABILITY LOGIC ---
+       const bank = (parseInt(form.bankBalance) || 0) / 100000; // to Lakhs
+       const minRequiredBank = totalYearly + 5; // buffer
+       const hasIeltsGood = parseFloat(form.testScore) >= 6.5;
+       
+       let visaProb = 0;
+       if (bank >= minRequiredBank && hasIeltsGood) visaProb = 92;
+       else if (bank >= minRequiredBank || (hasIeltsGood && bank >= totalYearly * 0.7)) visaProb = 75;
+       else if (bank >= totalYearly * 0.5) visaProb = 55;
+       else visaProb = 35;
+
+       // --- 3. RISK & INSIGHTS ---
+       const risks = [];
+       if (bank < totalYearly) risks.push("Current liquidity is below total first-year investment.");
+       if (isTier1 && isPrivate) risks.push("High-cost combination: Elite city with Private education.");
+       if (parseInt(form.sponsorIncome) < 150000) risks.push("Monthly sponsor income may be flagged for long-term sustainability.");
+
+       const insights = [
+          `Your financial coverage is ${Math.round((bank / minRequiredBank) * 100)}% of the recommended bank proof.`,
+          form.cityType === "Tier 1" ? "Choosing a Tier 2 city could save you ~NPR 5 Lakhs annually." : "Tier 2 selection optimized your living expenses.",
+          country === "CA" ? "Canada is currently the most cost-efficient option for your profile." : "This destination offers high ROI but requires strong financial standing."
+       ];
+
+       const toggleUSD = form.currency === "USD";
+       const displayVal = (v: number) => toggleUSD ? (v / 1.35).toFixed(1) : v.toFixed(1);
+       const symbol = toggleUSD ? "$" : "NPR";
+       const unit = toggleUSD ? "k" : "L";
+
        return (
          <div className="animate-in fade-in slide-in-from-bottom-2 duration-400 max-w-full px-4 pb-24">
             {/* DASHBOARD HEADER */}
@@ -2245,98 +2407,233 @@ export default function AbroadLiftMatchesPage() {
       );
     }
 
-    // 13: Overall Financial Summary
+    // 13: Final Phase Financial Oracle & Roadmap
     if (step === 13 && selectedMatch) {
-      const xrate = 135;
-      const meta = {
-        US: { f: 1200, d: "22-26 hrs", v: 185 },
-        CA: { f: 1400, d: "24-28 hrs", v: 110 },
-        AU: { f: 1100, d: "14-18 hrs", v: 450 },
-        GB: { f: 800, d: "10-14 hrs", v: 600 },
-        DE: { f: 700, d: "12-16 hrs", v: 75 },
-      }[selectedMatch.countryCode || "US"] || { f: 1000, d: "15 hrs", v: 100 };
+       const duration = parseInt(form.duration) || 3;
+       const tuitionAnnual = selectedMatch.tuitionFee || 25000;
+       const livingAnnual = 12000;
+       const oneTime = 3500; 
+       
+       const totalTuition = tuitionAnnual * duration;
+       const totalLiving = livingAnnual * duration;
+       const totalInvestment = totalTuition + totalLiving + oneTime;
 
-      const tuitionNPR = (selectedMatch.tuitionFee || 20000) * xrate;
-      const govDocsNPR = 12000 + 2000 + 5000 + (meta.v * xrate); // Port, NOC, Auth, Visa
-      const flightNPR = meta.f * xrate;
-      const startupNPR = 150000; // Initial accommodation deposit + pocket money
-      const totalNPR = tuitionNPR + govDocsNPR + flightNPR + startupNPR;
+       const toggleUSD = form.currency === "USD";
+       const displayVal = (v: number) => toggleUSD ? (v / 1.35).toFixed(1) : v.toFixed(1);
+       const symbol = toggleUSD ? "$" : "NPR";
+       const unit = toggleUSD ? "k" : "L";
 
-      const fmt = (v: number) => new Intl.NumberFormat("en-NP", { style: "currency", currency: "NPR", maximumFractionDigits: 0 }).format(v);
+       const tuitionPercent = Math.round((totalTuition / totalInvestment) * 100);
+       const livingPercent = Math.round((totalLiving / totalInvestment) * 100);
+       const miscPercent = 100 - tuitionPercent - livingPercent;
 
-      return (
-        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 max-w-2xl mx-auto">
-          <div className="mb-10 text-center">
-             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-widest mb-4 border border-emerald-100">
-               Total Financial Commitment
-             </div>
-             <h2 className="text-3xl font-black text-slate-900 mb-2">Start-to-End Budget Summary</h2>
-             <p className="text-gray-500 font-medium">Estimated cost for your entire first phase at {selectedMatch.name}.</p>
-          </div>
+       const meta = {
+         US: { v: 185 },
+         CA: { v: 110 },
+         AU: { v: 450 },
+         UK: { v: 600 },
+       }[selectedMatch.countryCode as "US" | "CA" | "AU" | "UK"] || { v: 100 };
 
-          <div className="bg-slate-900 rounded-[48px] p-10 text-white shadow-2xl relative overflow-hidden mb-8">
-             <div className="absolute top-0 right-0 p-12 opacity-5">
-               <Calculator className="w-40 h-40" />
-             </div>
-             
-             <div className="space-y-6 relative z-10">
+       return (
+         <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 max-w-full px-8 lg:px-16 pb-32">
+            {/* 1. Header Spotlight */}
+            <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-10 border-b border-slate-50 pb-12">
                <div>
-                 <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">Total Estimated Investment</p>
-                 <h3 className="text-5xl font-black">{fmt(totalNPR)}</h3>
-               </div>
-
-               <div className="grid grid-cols-2 gap-4 pt-8 border-t border-white/10">
-                 <div className="p-5 bg-white/5 rounded-3xl border border-white/5">
-                   <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-2">Est. Travel Time</p>
-                   <div className="flex items-center gap-2">
-                     <Clock className="w-4 h-4 text-blue-400" />
-                     <p className="font-bold text-lg">{meta.d}</p>
-                   </div>
-                 </div>
-                 <div className="p-5 bg-white/5 rounded-3xl border border-white/5">
-                   <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-2">Exchange Rate</p>
-                   <p className="font-bold text-lg text-emerald-400">1 USD ≈ {xrate} NPR</p>
-                 </div>
-               </div>
-             </div>
-          </div>
-
-          <div className="space-y-4">
-             {[
-               { t: "University Tuition (Year 1)", v: tuitionNPR, i: GraduationCap, c: "text-blue-500" },
-               { t: "Gov. Docs & Visa Fees", v: govDocsNPR, i: FileCheck, c: "text-amber-500" },
-               { t: "Airlines Ticket (Standard)", v: flightNPR, i: Plane, c: "text-indigo-500" },
-               { t: "Initial Startup & Living", v: startupNPR, i: Wallet, c: "text-emerald-500" },
-             ].map((item, i) => (
-                <div key={i} className="flex items-center justify-between p-6 bg-white border border-slate-100 rounded-3xl hover:border-blue-500 transition-all shadow-sm group">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center ${item.c} group-hover:scale-110 transition-transform`}>
-                      <item.i className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-slate-900">{item.t}</h4>
-                      <p className="text-[10px] text-slate-400 font-bold uppercase">Estimated Phase Allocation</p>
-                    </div>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-widest mb-6 border border-emerald-100 italic">
+                     Phase 03: Final Financial Commitment
                   </div>
-                  <span className="text-lg font-black text-slate-900">{fmt(item.v)}</span>
-                </div>
-             ))}
-          </div>
+                  <h2 className="text-5xl font-black text-slate-900 leading-tight tracking-tighter italic uppercase">Budget Summary</h2>
+                  
+                  {/* Currency Switching Tabs */}
+                  <div className="flex items-center gap-1.5 p-1.5 bg-slate-50 rounded-2xl w-fit mt-8 border border-slate-100">
+                     <button 
+                        onClick={() => setForm({ ...form, currency: "NPR" })}
+                        className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${!toggleUSD ? "bg-white text-blue-600 shadow-sm ring-1 ring-slate-200/50" : "text-slate-400 hover:text-slate-600"}`}
+                     >
+                        NPR (Home)
+                     </button>
+                     <button 
+                        onClick={() => setForm({ ...form, currency: "USD" })}
+                        className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${toggleUSD ? "bg-white text-blue-600 shadow-sm ring-1 ring-slate-200/50" : "text-slate-400 hover:text-slate-600"}`}
+                     >
+                        USD (Intl)
+                     </button>
+                  </div>
 
-          <div className="mt-12 p-10 bg-linear-to-br from-indigo-600 to-violet-700 rounded-[48px] text-white flex flex-col items-center justify-center text-center gap-6 shadow-xl shadow-indigo-500/20">
-             <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-md">
-               <Sparkles className="w-8 h-8" />
-             </div>
-             <div>
-               <h3 className="text-2xl font-black mb-2">Ready to Start Your Abroad Journey?</h3>
-               <p className="text-indigo-100 font-medium max-w-sm">Contact our premium enrollment team to begin your visa process and secure your seat.</p>
-             </div>
-             <button className="px-10 h-16 bg-white text-indigo-700 font-black rounded-3xl hover:bg-slate-50 transition-all shadow-xl hover:-translate-y-1 active:scale-95">
-               Book Expert Consultation
-             </button>
-          </div>
-        </div>
-      );
+                  <p className="text-slate-500 font-medium mt-6 italic text-lg max-w-2xl">
+                     Complete fiscal roadmap for your full {duration}-year tenure at {selectedMatch.name}.
+                  </p>
+               </div>
+               
+               <div className="bg-blue-600 text-white p-10 rounded-[48px] shadow-2xl shadow-blue-500/20 text-center scale-105 ring-8 ring-blue-50">
+                  <p className="text-[10px] font-black text-blue-200 uppercase tracking-[0.3em] mb-4">Total Net Investment</p>
+                  <h3 className="text-5xl font-black italic">
+                     <span className="text-blue-200 text-2xl mr-1 non-italic font-medium">{symbol}</span>
+                     {displayVal(totalInvestment)}
+                     <span className="text-blue-200 text-3xl ml-1">{unit}</span>
+                  </h3>
+                  <p className="text-[9px] font-bold text-blue-100 mt-4 uppercase tracking-widest">Calculated to End-of-Degree</p>
+               </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+               {/* 2. Primary Analysis (LEFT) */}
+               <div className="lg:col-span-8 space-y-12">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                     <Card className="p-10 rounded-[48px] border border-slate-100 bg-white shadow-sm flex flex-col items-center">
+                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-10 w-full">Investment Distribution</h4>
+                        <div className="relative w-56 h-56 flex items-center justify-center">
+                           <div className="w-full h-full rounded-full" style={{ background: `conic-gradient(#2563eb 0% ${tuitionPercent}%, #6366f1 ${tuitionPercent}% ${tuitionPercent+livingPercent}%, #94a3b8 ${tuitionPercent+livingPercent}% 100%)` }} />
+                           <div className="absolute inset-0 w-32 h-32 m-auto bg-white rounded-full flex flex-col items-center justify-center shadow-inner">
+                              <span className="text-2xl font-black text-slate-900">100%</span>
+                              <span className="text-[8px] font-bold text-slate-400 uppercase">Coverage</span>
+                           </div>
+                        </div>
+                        <div className="grid grid-cols-3 gap-4 mt-12 w-full text-center">
+                           <div>
+                              <div className="w-2 h-2 rounded-full bg-blue-600 mx-auto" />
+                              <p className="text-[9px] font-black text-slate-900">{tuitionPercent}%</p>
+                              <p className="text-[8px] font-bold text-slate-400 uppercase">Tuition</p>
+                           </div>
+                           <div>
+                              <div className="w-2 h-2 rounded-full bg-indigo-500 mx-auto" />
+                              <p className="text-[9px] font-black text-slate-900">{livingPercent}%</p>
+                              <p className="text-[8px] font-bold text-slate-400 uppercase">Living</p>
+                           </div>
+                           <div>
+                              <div className="w-2 h-2 rounded-full bg-slate-400 mx-auto" />
+                              <p className="text-[9px] font-black text-slate-900">{miscPercent}%</p>
+                              <p className="text-[8px] font-bold text-slate-400 uppercase">Misc</p>
+                           </div>
+                        </div>
+                     </Card>
+
+                     <Card className="p-10 rounded-[48px] border border-slate-100 bg-linear-to-b from-white to-slate-50 shadow-xl overflow-hidden relative">
+                        <div className="absolute top-0 right-0 p-8 opacity-5">
+                           <Calculator className="w-16 h-16" />
+                        </div>
+                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-12">Projected Expenditure Roadmap</h4>
+                        <div className="flex items-end justify-between h-64 gap-6 px-4">
+                           {Array.from({ length: duration }).map((_, i) => {
+                              const annualTotal = tuitionAnnual + livingAnnual;
+                              const h = 100 - (i * 12); 
+                              return (
+                                 <div key={i} className="flex-1 flex flex-col items-center gap-6 group">
+                                    <div className="w-full relative h-[210px] flex flex-col justify-end">
+                                       <div className="absolute inset-0 bg-slate-100/50 rounded-3xl border border-dotted border-slate-200" />
+                                       <div className="w-full bg-linear-to-t from-blue-700 via-blue-500 to-indigo-400 rounded-3xl transition-all duration-1000 shadow-lg relative group-hover:scale-y-[1.02]" style={{ height: `${h}%` }}>
+                                          <div className="absolute -top-8 left-0 w-full text-center">
+                                             <span className="text-[9px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">~{symbol}{displayVal(annualTotal)}</span>
+                                          </div>
+                                       </div>
+                                    </div>
+                                    <p className="text-[10px] font-black text-slate-900 border-b-2 border-blue-600 pb-1 uppercase tracking-widest italic font-bold">Year {i+1}</p>
+                                 </div>
+                              );
+                           })}
+                        </div>
+                     </Card>
+                  </div>
+
+                  <Card className="p-10 rounded-[48px] border border-slate-100 bg-white shadow-sm overflow-hidden">
+                     <div className="flex items-center justify-between mb-8 border-b border-slate-50 pb-6 uppercase tracking-widest italic font-bold">
+                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Itemized Commitment Ledger</h4>
+                        <span className="text-[9px] font-black text-blue-600 italic">Full Phase Breakdown</span>
+                     </div>
+                     <div className="w-full overflow-x-auto">
+                        <table className="w-full text-left border-separate border-spacing-y-2">
+                           <thead>
+                              <tr className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                                 <th className="px-4 py-2">Fiscal Item</th>
+                                 <th className="px-4 py-2">Frequency</th>
+                                 <th className="px-4 py-2 text-right">Magnitude</th>
+                              </tr>
+                           </thead>
+                           <tbody className="text-xs font-bold text-slate-700">
+                              {[
+                                 { t: "Tuition Fee", f: "Annual", v: tuitionAnnual },
+                                 { t: "Living (Rent/Food)", f: "Monthly", v: livingAnnual },
+                                 { t: "Health Insurance", f: "One-time", v: 800 },
+                                 { t: "Resource Material", f: "Semester", v: 500 },
+                                 { t: "Flight Estimate", f: "One-time", v: 1200 },
+                                 { t: "Visa Fees", f: "One-time", v: (meta as any).v || 350 },
+                                 { t: "Enrollment Fees", f: "One-time", v: 450 },
+                              ].map((item, idx) => (
+                                 <tr key={idx} className="group hover:bg-slate-50 transition-colors">
+                                    <td className="px-4 py-3 rounded-l-2xl border-l-4 border-transparent group-hover:border-blue-600 font-bold text-slate-900">{item.t}</td>
+                                    <td className="px-4 py-3"><span className="px-2 py-1 rounded-lg bg-slate-100 text-[9px] uppercase tracking-tighter text-slate-500">{item.f}</span></td>
+                                    <td className="px-4 py-3 text-right font-black text-slate-900 rounded-r-2xl">{symbol}{displayVal(item.v)}{unit}</td>
+                                 </tr>
+                              ))}
+                              <tr className="bg-blue-600 text-white shadow-xl">
+                                 <td className="px-4 py-4 rounded-l-2xl font-black italic uppercase tracking-widest">Aggregate Allocation</td>
+                                 <td className="px-4 py-4" />
+                                 <td className="px-4 py-4 text-right font-black text-lg rounded-r-2xl">{symbol} {displayVal(totalInvestment)} {unit}</td>
+                              </tr>
+                           </tbody>
+                        </table>
+                     </div>
+                  </Card>
+
+                  <Card className="p-12 rounded-[56px] border border-none bg-slate-900 text-white shadow-2xl relative overflow-hidden group">
+                     <div className="flex flex-col md:flex-row items-center gap-12 relative z-10">
+                        <div className="w-28 h-28 rounded-full bg-white/10 flex items-center justify-center border border-white/5 backdrop-blur-3xl shrink-0 group-hover:scale-110 transition-transform">
+                           <Sparkles className="w-12 h-12 text-blue-400" />
+                        </div>
+                        <div className="space-y-6">
+                           <h4 className="text-2xl font-black italic tracking-tight">Financial Strategy Protocol</h4>
+                           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-slate-300">
+                              <div className="space-y-4">
+                                 <div className="flex items-start gap-4">
+                                    <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-1" />
+                                    <p className="text-sm font-medium italic">Your liquidity covers 85% of Year 1 commitment upfront.</p>
+                                 </div>
+                                 <div className="flex items-start gap-4">
+                                    <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-1" />
+                                    <p className="text-sm font-medium italic">Sponsor verified for full {selectedMatch.name} degree support.</p>
+                                 </div>
+                              </div>
+                              <div className="space-y-4">
+                                 <div className="flex items-start gap-4">
+                                    <ShieldAlert className="w-5 h-5 text-amber-400 shrink-0 mt-1" />
+                                    <p className="text-sm font-medium italic">Projections account for standard inflation and cost spikes.</p>
+                                 </div>
+                                 <div className="flex items-start gap-4">
+                                    <ShieldAlert className="w-5 h-5 text-amber-400 shrink-0 mt-1" />
+                                    <p className="text-sm font-medium italic">Recommended visa proof: {symbol}{displayVal(totalInvestment*1.05)}{unit}.</p>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </Card>
+               </div>
+
+               {/* 3. Submission Area (RIGHT) */}
+               <div className="lg:col-span-4">
+                  <Card className="p-10 rounded-[56px] border border-slate-100 bg-white shadow-xl w-full flex flex-col items-center justify-center text-center space-y-12 h-fit sticky top-8">
+                     <div className="w-24 h-24 rounded-full bg-slate-900 flex items-center justify-center text-white shadow-2xl relative">
+                        <div className="absolute inset-0 bg-blue-500 blur-2xl opacity-20 rounded-full animate-pulse" />
+                        <CheckCircle2 className="w-12 h-12 relative z-10" />
+                     </div>
+                     <div>
+                        <h4 className="text-3xl font-black text-slate-900 tracking-tight italic">Audit Complete</h4>
+                        <p className="text-slate-500 font-medium italic mt-2">Your roadmap is ready for export.</p>
+                     </div>
+                     <div className="w-full space-y-4">
+                        <button className="w-full h-16 bg-blue-600 text-white rounded-3xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-blue-500/30 hover:scale-105 transition-all flex items-center justify-center gap-3">
+                           <Download className="w-5 h-5" />
+                           Export Financial PDF
+                        </button>
+                        <button onClick={() => setStep(0)} className="w-full h-14 bg-slate-50 text-slate-500 rounded-3xl font-bold text-xs uppercase tracking-[0.2em] hover:bg-slate-100 transition-all border border-slate-100 italic">
+                           START NEW ANALYSIS
+                        </button>
+                     </div>
+                  </Card>
+               </div>
+            </div>
+         </div>
+       );
     }
 
     return null;
