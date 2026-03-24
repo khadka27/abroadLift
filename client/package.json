@@ -6,8 +6,9 @@
     "node": ">=22.12.0"
   },
   "scripts": {
-    "dev": "next dev --turbo",
+    "dev": "prisma generate && next dev --turbo",
     "build": "prisma generate && next build --turbo",
+    "postinstall": "prisma generate",
     "start": "next start",
     "lint": "eslint"
   },

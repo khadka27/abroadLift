@@ -39,10 +39,9 @@ import {
   ChevronDown,
   ShieldAlert,
   Download,
-  ShieldCheck,
+  Info,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 
 /* ─────────────── Flag component ─────────────── */
 const FlagIcon = ({
@@ -150,7 +149,12 @@ interface Match {
 
 /* ─────────────── Static data ─────────────── */
 const COUNTRIES = [
-  { code: "GB", name: "United Kingdom", rec: "Highly Recommended", badge: "success" },
+  {
+    code: "GB",
+    name: "United Kingdom",
+    rec: "Highly Recommended",
+    badge: "success",
+  },
   { code: "CA", name: "Canada", rec: "Golden Choice", badge: "gold" },
   { code: "US", name: "U.S.A.", rec: "High Competition", badge: "amber" },
   { code: "AU", name: "Australia", rec: "Competitive", badge: "amber" },
@@ -169,36 +173,151 @@ const COUNTRIES = [
 
 const DEGREES = [
   // Undergraduate
-  { v: "undergrad-cert-1", l: "1-Year Post-Secondary Certificate", cat: "Undergraduate", icon: Award },
-  { v: "undergrad-dip-2", l: "2-Year Undergraduate Diploma", cat: "Undergraduate", icon: Award },
-  { v: "undergrad-adv-dip-3", l: "3-Year Undergraduate Advanced Diploma", cat: "Undergraduate", icon: Award },
-  { v: "bachelor-3", l: "3-Year Bachelor's Degree", cat: "Undergraduate", icon: BookOpen },
+  {
+    v: "undergrad-cert-1",
+    l: "1-Year Post-Secondary Certificate",
+    cat: "Undergraduate",
+    icon: Award,
+  },
+  {
+    v: "undergrad-dip-2",
+    l: "2-Year Undergraduate Diploma",
+    cat: "Undergraduate",
+    icon: Award,
+  },
+  {
+    v: "undergrad-adv-dip-3",
+    l: "3-Year Undergraduate Advanced Diploma",
+    cat: "Undergraduate",
+    icon: Award,
+  },
+  {
+    v: "bachelor-3",
+    l: "3-Year Bachelor's Degree",
+    cat: "Undergraduate",
+    icon: BookOpen,
+  },
   { v: "top-up", l: "Top-up Degree", cat: "Undergraduate", icon: RefreshCw },
-  { v: "bachelor-4", l: "4-Year Bachelor's Degree", cat: "Undergraduate", icon: BookOpen },
-  { v: "integrated-masters", l: "Integrated Masters", cat: "Undergraduate", icon: GraduationCap },
+  {
+    v: "bachelor-4",
+    l: "4-Year Bachelor's Degree",
+    cat: "Undergraduate",
+    icon: BookOpen,
+  },
+  {
+    v: "integrated-masters",
+    l: "Integrated Masters",
+    cat: "Undergraduate",
+    icon: GraduationCap,
+  },
 
   // Post-graduate
-  { v: "pg-cert", l: "Postgraduate Certificate", cat: "Post-graduate", icon: FileCheck },
-  { v: "pg-dip", l: "Postgraduate Diploma", cat: "Post-graduate", icon: FileCheck },
-  { v: "masters", l: "Master's Degree", cat: "Post-graduate", icon: GraduationCap },
-  { v: "doctorate", l: "Doctoral / PhD", cat: "Post-graduate", icon: Microscope },
+  {
+    v: "pg-cert",
+    l: "Postgraduate Certificate",
+    cat: "Post-graduate",
+    icon: FileCheck,
+  },
+  {
+    v: "pg-dip",
+    l: "Postgraduate Diploma",
+    cat: "Post-graduate",
+    icon: FileCheck,
+  },
+  {
+    v: "masters",
+    l: "Master's Degree",
+    cat: "Post-graduate",
+    icon: GraduationCap,
+  },
+  {
+    v: "doctorate",
+    l: "Doctoral / PhD",
+    cat: "Post-graduate",
+    icon: Microscope,
+  },
 
   // Schooling
-  { v: "grade-1", l: "Grade 1", cat: "Elementary & High School", icon: AlignLeft },
-  { v: "grade-2", l: "Grade 2", cat: "Elementary & High School", icon: AlignLeft },
-  { v: "grade-3", l: "Grade 3", cat: "Elementary & High School", icon: AlignLeft },
-  { v: "grade-4", l: "Grade 4", cat: "Elementary & High School", icon: AlignLeft },
-  { v: "grade-5", l: "Grade 5", cat: "Elementary & High School", icon: AlignLeft },
-  { v: "grade-6", l: "Grade 6", cat: "Elementary & High School", icon: AlignLeft },
-  { v: "grade-7", l: "Grade 7", cat: "Elementary & High School", icon: AlignLeft },
-  { v: "grade-8", l: "Grade 8", cat: "Elementary & High School", icon: AlignLeft },
-  { v: "grade-9", l: "Grade 9", cat: "Elementary & High School", icon: AlignLeft },
-  { v: "grade-10", l: "Grade 10", cat: "Elementary & High School", icon: AlignLeft },
-  { v: "grade-11", l: "Grade 11", cat: "Elementary & High School", icon: AlignLeft },
-  { v: "grade-12", l: "Grade 12", cat: "Elementary & High School", icon: AlignLeft },
+  {
+    v: "grade-1",
+    l: "Grade 1",
+    cat: "Elementary & High School",
+    icon: AlignLeft,
+  },
+  {
+    v: "grade-2",
+    l: "Grade 2",
+    cat: "Elementary & High School",
+    icon: AlignLeft,
+  },
+  {
+    v: "grade-3",
+    l: "Grade 3",
+    cat: "Elementary & High School",
+    icon: AlignLeft,
+  },
+  {
+    v: "grade-4",
+    l: "Grade 4",
+    cat: "Elementary & High School",
+    icon: AlignLeft,
+  },
+  {
+    v: "grade-5",
+    l: "Grade 5",
+    cat: "Elementary & High School",
+    icon: AlignLeft,
+  },
+  {
+    v: "grade-6",
+    l: "Grade 6",
+    cat: "Elementary & High School",
+    icon: AlignLeft,
+  },
+  {
+    v: "grade-7",
+    l: "Grade 7",
+    cat: "Elementary & High School",
+    icon: AlignLeft,
+  },
+  {
+    v: "grade-8",
+    l: "Grade 8",
+    cat: "Elementary & High School",
+    icon: AlignLeft,
+  },
+  {
+    v: "grade-9",
+    l: "Grade 9",
+    cat: "Elementary & High School",
+    icon: AlignLeft,
+  },
+  {
+    v: "grade-10",
+    l: "Grade 10",
+    cat: "Elementary & High School",
+    icon: AlignLeft,
+  },
+  {
+    v: "grade-11",
+    l: "Grade 11",
+    cat: "Elementary & High School",
+    icon: AlignLeft,
+  },
+  {
+    v: "grade-12",
+    l: "Grade 12",
+    cat: "Elementary & High School",
+    icon: AlignLeft,
+  },
 
   // Language
-  { v: "esl", l: "English as Second Language (ESL)", cat: "Language Proficiency", icon: Globe },
+  {
+    v: "esl",
+    l: "English as Second Language (ESL)",
+    cat: "Language Proficiency",
+    icon: Globe,
+  },
 ];
 
 const FIELDS = [
@@ -348,19 +467,53 @@ const PROGRAMS: Record<string, string[]> = {
 };
 
 const INTAKES = [
-  "Dec 2025 - Mar 2026", "March 2026", "Apr - Jul 2026", "April 2026", "May 2026", 
-  "June 2026", "July 2026", "Aug - Nov 2026", "August 2026", "September 2026", 
-  "October 2026", "November 2026", "Dec 2026 - Mar 2027", "December 2026", 
-  "January 2027", "February 2027", "March 2027", "Apr - Jul 2027", "April 2027", 
-  "May 2027", "June 2027", "July 2027", "Aug - Nov 2027", "August 2027", 
-  "September 2027", "October 2027", "November 2027", "Dec 2027 - Mar 2028", 
-  "December 2027", "January 2028", "February 2028", "March 2028"
+  "Dec 2025 - Mar 2026",
+  "March 2026",
+  "Apr - Jul 2026",
+  "April 2026",
+  "May 2026",
+  "June 2026",
+  "July 2026",
+  "Aug - Nov 2026",
+  "August 2026",
+  "September 2026",
+  "October 2026",
+  "November 2026",
+  "Dec 2026 - Mar 2027",
+  "December 2026",
+  "January 2027",
+  "February 2027",
+  "March 2027",
+  "Apr - Jul 2027",
+  "April 2027",
+  "May 2027",
+  "June 2027",
+  "July 2027",
+  "Aug - Nov 2027",
+  "August 2027",
+  "September 2027",
+  "October 2027",
+  "November 2027",
+  "Dec 2027 - Mar 2028",
+  "December 2027",
+  "January 2028",
+  "February 2028",
+  "March 2028",
 ];
 
 const PROGRAM_TAGS = [
-  "Fast Acceptance", "High Job Demand", "Incentivized", "Instant Offer", 
-  "Instant Submission", "Loan Available", "New Program", "No UK Interview", 
-  "Popular", "Prime", "Scholarships Available", "Top"
+  "Fast Acceptance",
+  "High Job Demand",
+  "Incentivized",
+  "Instant Offer",
+  "Instant Submission",
+  "Loan Available",
+  "New Program",
+  "No UK Interview",
+  "Popular",
+  "Prime",
+  "Scholarships Available",
+  "Top",
 ];
 
 const TESTS = [
@@ -387,11 +540,26 @@ const STEPS = [
   { label: "Budget", question: "What is your annual budget?" },
   { label: "Student Profile", question: "A few final details!" },
   { label: "Your Matches", question: "Choose your future!" },
-  { label: "Cost Estimation", question: "Financial breakdown for your selected choice." },
-  { label: "Admission Probability", question: "How likely are you to be accepted?" },
-  { label: "Visa Eligibility", question: "Success probability for your visa application." },
-  { label: "Document Checklist", question: "Everything you need to prepare for your journey." },
-  { label: "Financial Summary", question: "Total investment for your journey from start to end." },
+  {
+    label: "Cost Estimation",
+    question: "Financial breakdown for your selected choice.",
+  },
+  {
+    label: "Admission Probability",
+    question: "How likely are you to be accepted?",
+  },
+  {
+    label: "Visa Eligibility",
+    question: "Success probability for your visa application.",
+  },
+  {
+    label: "Document Checklist",
+    question: "Everything you need to prepare for your journey.",
+  },
+  {
+    label: "Financial Summary",
+    question: "Total investment for your journey from start to end.",
+  },
 ];
 
 const DEF: Form = {
@@ -537,7 +705,10 @@ function TagSelect({
 
   useEffect(() => {
     const handleClickOutside = (event: any) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
         setOpen(false);
       }
     };
@@ -560,7 +731,9 @@ function TagSelect({
         className="h-10 px-4 bg-white border border-slate-100 rounded-xl text-[11px] font-black uppercase text-slate-500 flex items-center gap-2 hover:bg-slate-50 transition-all min-w-[140px] shadow-xs"
       >
         <span>Program Tag</span>
-        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${open ? "rotate-180" : ""}`} />
+        <ChevronDown
+          className={`w-3.5 h-3.5 transition-transform ${open ? "rotate-180" : ""}`}
+        />
         {selected.length > 0 && (
           <span className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[9px] shrink-0">
             {selected.length}
@@ -579,12 +752,20 @@ function TagSelect({
                   onClick={() => toggle(tag)}
                   className="w-full flex items-center gap-3 p-2 rounded-xl hover:bg-blue-50/50 transition-all text-left"
                 >
-                  <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all ${
-                    isSel ? "bg-blue-600 border-blue-600 shadow-md shadow-blue-500/20" : "border-slate-100"
-                  }`}>
-                    {isSel && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
+                  <div
+                    className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all ${
+                      isSel
+                        ? "bg-blue-600 border-blue-600 shadow-md shadow-blue-500/20"
+                        : "border-slate-100"
+                    }`}
+                  >
+                    {isSel && (
+                      <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                    )}
                   </div>
-                  <span className={`text-[11px] font-bold ${isSel ? "text-slate-900" : "text-slate-500"}`}>
+                  <span
+                    className={`text-[11px] font-bold ${isSel ? "text-slate-900" : "text-slate-500"}`}
+                  >
                     {tag}
                   </span>
                 </button>
@@ -629,84 +810,112 @@ function MatchCard({
         <div className="flex gap-5">
           {/* Logo/Avatar */}
           <div className="shrink-0 w-14 h-14 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center overflow-hidden">
-             {m.logo ? (
-                <Image src={m.logo} alt={m.name} width={56} height={56} className="object-cover" />
-             ) : (
-                <div className="w-full h-full flex items-center justify-center bg-blue-50 text-blue-600 font-black text-xl">
-                   {m.name.charAt(0)}
-                </div>
-             )}
+            {m.logo ? (
+              <Image
+                src={m.logo}
+                alt={m.name}
+                width={56}
+                height={56}
+                className="object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-blue-50 text-blue-600 font-black text-xl">
+                {m.name.charAt(0)}
+              </div>
+            )}
           </div>
 
           {/* Core Info */}
           <div className="flex-1 min-w-0">
-             <div className="flex flex-col mb-4">
-                <h3 className="text-[15px] font-bold text-slate-900 truncate group-hover:text-blue-600 transition-colors">
-                  {m.name}
-                </h3>
-                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
-                   {m.type || "Public Research"} • {m.rankingWorld ? `#${m.rankingWorld} World` : "Top Institution"}
-                </span>
-             </div>
+            <div className="flex flex-col mb-4">
+              <h3 className="text-[15px] font-bold text-slate-900 truncate group-hover:text-blue-600 transition-colors">
+                {m.name}
+              </h3>
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+                {m.type || "Public Research"} •{" "}
+                {m.rankingWorld
+                  ? `#${m.rankingWorld} World`
+                  : "Top Institution"}
+              </span>
+            </div>
 
-             <div className="space-y-1.5">
-                <p className="text-[11px] font-bold text-blue-600/70 uppercase">Master&apos;s Degree</p>
-                <h4 className="text-base font-black text-slate-900 leading-tight line-clamp-2">
-                   {m.popularPrograms?.[0] || "Advanced Curriculum Study Program"}
-                </h4>
-             </div>
+            <div className="space-y-1.5">
+              <p className="text-[11px] font-bold text-blue-600/70 uppercase">
+                Master&apos;s Degree
+              </p>
+              <h4 className="text-base font-black text-slate-900 leading-tight line-clamp-2">
+                {m.popularPrograms?.[0] || "Advanced Curriculum Study Program"}
+              </h4>
+            </div>
 
-             <div className="grid grid-cols-2 gap-4 mt-6">
-                <div className="space-y-1">
-                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Location</p>
-                   <p className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                      {m.countryCode && <FlagIcon countryCode={m.countryCode} className="w-4 h-3 rounded-xs" />}
-                      {m.location}
-                   </p>
-                </div>
-                <div className="space-y-1 text-right">
-                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Admission Rate</p>
-                   <p className="text-xs font-black text-emerald-600">
-                      {m.admissionRate}% Highly Likely
-                   </p>
-                </div>
-             </div>
+            <div className="grid grid-cols-2 gap-4 mt-6">
+              <div className="space-y-1">
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                  Location
+                </p>
+                <p className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                  {m.countryCode && (
+                    <FlagIcon
+                      countryCode={m.countryCode}
+                      className="w-4 h-3 rounded-xs"
+                    />
+                  )}
+                  {m.location}
+                </p>
+              </div>
+              <div className="space-y-1 text-right">
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                  Admission Rate
+                </p>
+                <p className="text-xs font-black text-emerald-600">
+                  {m.admissionRate}% Highly Likely
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Footer-like Info Bar */}
         <div className="mt-6 pt-6 border-t border-slate-50 flex items-center justify-between">
-           <div>
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Tuition per year</p>
-              <p className="text-lg font-black text-slate-900">{fmt(m.tuitionFee || 0)}</p>
-           </div>
-           
-           <div className="flex items-center gap-2">
-              <button
-                onClick={(e) => { e.stopPropagation(); setShowDetails(!showDetails); }}
-                className="h-10 px-4 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-black transition-colors"
+          <div>
+            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
+              Tuition per year
+            </p>
+            <p className="text-lg font-black text-slate-900">
+              {fmt(m.tuitionFee || 0)}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowDetails(!showDetails);
+              }}
+              className="h-10 px-4 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-black transition-colors"
+            >
+              {showDetails ? "Hide" : "Explore"}
+            </button>
+            {m.website && (
+              <a
+                href={m.website}
+                target="_blank"
+                rel="noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="h-10 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-black transition-all flex items-center justify-center gap-1.5 shadow-lg shadow-blue-500/20"
               >
-                {showDetails ? "Hide" : "Explore"}
-              </button>
-              {m.website && (
-                 <a
-                   href={m.website}
-                   target="_blank"
-                   rel="noreferrer"
-                   onClick={(e) => e.stopPropagation()}
-                   className="h-10 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-black transition-all flex items-center justify-center gap-1.5 shadow-lg shadow-blue-500/20"
-                 >
-                    Apply <ExternalLink className="w-3.5 h-3.5" />
-                 </a>
-              )}
-           </div>
+                Apply <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            )}
+          </div>
         </div>
       </div>
 
       {showDetails && (
         <div className="bg-slate-50/50 p-6 border-t border-slate-100 animate-in slide-in-from-top-4 duration-300">
           <p className="text-xs font-medium text-slate-500 leading-relaxed mb-6">
-            {m.description || "This institution offers world-class research facilities and a diverse student community focused on academic excellence."}
+            {m.description ||
+              "This institution offers world-class research facilities and a diverse student community focused on academic excellence."}
           </p>
 
           <div className="grid grid-cols-2 gap-3 mb-6">
@@ -915,16 +1124,22 @@ function MatchCostEstimator({ match: m }: { match: Match }) {
             <div className="flex flex-col md:flex-row gap-6 items-center">
               {/* Pie Chart Simulation */}
               <div className="relative w-32 h-32 shrink-0">
-                 <div className="absolute inset-0 rounded-full border-8 border-slate-50" />
-                 <div className="absolute inset-0 rounded-full border-8 border-emerald-500 transition-all duration-1000" 
-                      style={{ 
-                        clipPath: `polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 50% 0%)`,
-                        rotate: `0deg`
-                      }} />
-                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Total</span>
-                    <span className="text-xs font-black text-slate-900 leading-none">{formatNPR(data.total_npr).split('.')[0]}</span>
-                 </div>
+                <div className="absolute inset-0 rounded-full border-8 border-slate-50" />
+                <div
+                  className="absolute inset-0 rounded-full border-8 border-emerald-500 transition-all duration-1000"
+                  style={{
+                    clipPath: `polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 50% 0%)`,
+                    rotate: `0deg`,
+                  }}
+                />
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">
+                    Total
+                  </span>
+                  <span className="text-xs font-black text-slate-900 leading-none">
+                    {formatNPR(data.total_npr).split(".")[0]}
+                  </span>
+                </div>
               </div>
 
               <div className="flex-1 grid grid-cols-2 gap-3 w-full">
@@ -932,41 +1147,59 @@ function MatchCostEstimator({ match: m }: { match: Match }) {
                   { l: "Education", v: data.tuition_npr, c: "bg-emerald-500" },
                   { l: "Housing", v: data.housing_npr, c: "bg-blue-500" },
                   { l: "Food", v: data.food_npr, c: "bg-amber-500" },
-                  { l: "Others", v: data.monthly_npr * 12, c: "bg-rose-500" }
+                  { l: "Others", v: data.monthly_npr * 12, c: "bg-rose-500" },
                 ].map((item, idx) => (
                   <div key={idx} className="space-y-1.5">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
                         <div className={`w-2 h-2 rounded-full ${item.c}`} />
-                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{item.l}</span>
+                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                          {item.l}
+                        </span>
                       </div>
-                      <span className="text-[10px] font-bold text-slate-700">{Math.round((item.v / data.total_npr) * 100)}%</span>
+                      <span className="text-[10px] font-bold text-slate-700">
+                        {Math.round((item.v / data.total_npr) * 100)}%
+                      </span>
                     </div>
                     <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                       <div className={`h-full ${item.c} transition-all duration-1000`} style={{ width: `${(item.v / data.total_npr) * 100}%` }} />
+                      <div
+                        className={`h-full ${item.c} transition-all duration-1000`}
+                        style={{ width: `${(item.v / data.total_npr) * 100}%` }}
+                      />
                     </div>
-                    <p className="text-[10px] font-black text-slate-900">{formatNPR(item.v)}</p>
+                    <p className="text-[10px] font-black text-slate-900">
+                      {formatNPR(item.v)}
+                    </p>
                   </div>
                 ))}
               </div>
             </div>
 
             <div className="pt-4 border-t border-slate-50">
-               <div className="p-4 rounded-2xl bg-slate-50/50 border border-slate-100 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                     <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
-                        <Calculator className="w-4 h-4" />
-                     </div>
-                     <div>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Exchange Rate</p>
-                        <p className="text-xs font-bold text-slate-900">1 {m.currency || "USD"} = {data.exchange_rate.toFixed(2)} NPR</p>
-                     </div>
+              <div className="p-4 rounded-2xl bg-slate-50/50 border border-slate-100 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
+                    <Calculator className="w-4 h-4" />
                   </div>
-                  <div className="text-right">
-                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Total Annual</p>
-                     <p className="text-sm font-black text-blue-600">{formatNPR(data.total_npr)}</p>
+                  <div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">
+                      Exchange Rate
+                    </p>
+                    <p className="text-xs font-bold text-slate-900">
+                      1 {m.currency || "USD"} = {data.exchange_rate.toFixed(2)}{" "}
+                      NPR
+                    </p>
                   </div>
-               </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">
+                    Total Annual
+                  </p>
+                  <p className="text-sm font-black text-blue-600">
+                    {formatNPR(data.total_npr)}
+                  </p>
+                </div>
+              </div>
             </div>
             <p className="text-[9px] text-gray-400 italic text-center">
               *Estimates include living expenses in {data.city} converted using
@@ -982,7 +1215,14 @@ function MatchCostEstimator({ match: m }: { match: Match }) {
 /* ─────────────── Main Component ─────────────── */
 export default function AbroadLiftMatchesPage() {
   const { status } = useSession();
+  const USD_TO_NPR = 138;
   const [step, setStep] = useState(0);
+  const [costBreakdownTab, setCostBreakdownTab] = useState<
+    "year1" | "perMonth" | "yearByYear"
+  >("year1");
+  const [costDisplayCurrency, setCostDisplayCurrency] = useState<"USD" | "NPR">(
+    "USD",
+  );
   const [form, setForm] = useState<Form>(DEF);
   const [matches, setMatches] = useState<Match[]>([]);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
@@ -1044,7 +1284,8 @@ export default function AbroadLiftMatchesPage() {
   };
 
   const handleNext = () => {
-    if (step === 7) { // This was step 6 before, now it's step 7 (Student Profile)
+    if (step === 7) {
+      // This was step 6 before, now it's step 7 (Student Profile)
       setStep(8); // Move to Matches step
       runMatch();
     } else if (step < STEPS.length - 1) {
@@ -1079,7 +1320,7 @@ export default function AbroadLiftMatchesPage() {
 
   const getEligibilityScore = (f: Form) => {
     let score = 0;
-    
+
     // 1. English (30%)
     const eng = parseFloat(f.testScore) || 0;
     if (f.testType === "IELTS") {
@@ -1094,26 +1335,28 @@ export default function AbroadLiftMatchesPage() {
       else if (eng >= 80) score += 20;
       else score += 10;
     } else {
-      if (eng >= 70) score += 30; // PTE/Duo general
+      if (eng >= 70)
+        score += 30; // PTE/Duo general
       else if (eng >= 60) score += 20;
       else score += 10;
     }
 
     // 2. Aptitude (25%)
     if (f.aptitudeTest === "GRE") {
-      const total = (parseInt(f.greVerbal) || 130) + (parseInt(f.greQuant) || 130);
+      const total =
+        (parseInt(f.greVerbal) || 130) + (parseInt(f.greQuant) || 130);
       if (total >= 320) score += 25;
       else if (total >= 310) score += 20;
       else if (total >= 300) score += 15;
       else score += 5;
     } else if (f.aptitudeTest === "GMAT") {
-       const total = parseInt(f.gmatTotal) || 200;
-       if (total >= 700) score += 25;
-       else if (total >= 650) score += 20;
-       else if (total >= 600) score += 15;
-       else score += 5;
+      const total = parseInt(f.gmatTotal) || 200;
+      if (total >= 700) score += 25;
+      else if (total >= 650) score += 20;
+      else if (total >= 600) score += 15;
+      else score += 5;
     } else {
-       score += 15; // Baseline for no-aptitude programs
+      score += 15; // Baseline for no-aptitude programs
     }
 
     // 3. Academics (25%)
@@ -1123,9 +1366,9 @@ export default function AbroadLiftMatchesPage() {
     else if (gpa >= 3.5) acad = 20;
     else if (gpa >= 3.0) acad = 15;
     else acad = 10;
-    
+
     const bk = parseInt(f.backlogs) || 0;
-    if (bk > 0) acad = Math.max(0, acad - (bk * 2));
+    if (bk > 0) acad = Math.max(0, acad - bk * 2);
     score += acad;
 
     // 4. Finance (20%)
@@ -1136,6 +1379,73 @@ export default function AbroadLiftMatchesPage() {
     else score += 5;
 
     return Math.min(100, score);
+  };
+
+  const getRateBand = (value: number) => {
+    if (value >= 80) {
+      return {
+        label: "High Chance",
+        colorName: "Green",
+        badgeClass: "bg-emerald-50 text-emerald-700",
+      };
+    }
+    if (value >= 50) {
+      return {
+        label: "Moderate Chance",
+        colorName: "Yellow",
+        badgeClass: "bg-amber-50 text-amber-700",
+      };
+    }
+    return {
+      label: "Low Chance",
+      colorName: "Red",
+      badgeClass: "bg-rose-50 text-rose-700",
+    };
+  };
+
+  const getCostBand = (year1Usd: number, budgetUsd: number) => {
+    if (budgetUsd > 0) {
+      const ratio = year1Usd / budgetUsd;
+      if (ratio <= 0.9) {
+        return {
+          label: "Low Cost",
+          colorName: "Green",
+          badgeClass: "bg-emerald-50 text-emerald-700",
+        };
+      }
+      if (ratio <= 1.2) {
+        return {
+          label: "Moderate Cost",
+          colorName: "Yellow",
+          badgeClass: "bg-amber-50 text-amber-700",
+        };
+      }
+      return {
+        label: "High Cost",
+        colorName: "Red",
+        badgeClass: "bg-rose-50 text-rose-700",
+      };
+    }
+
+    if (year1Usd <= 18000) {
+      return {
+        label: "Low Cost",
+        colorName: "Green",
+        badgeClass: "bg-emerald-50 text-emerald-700",
+      };
+    }
+    if (year1Usd <= 28000) {
+      return {
+        label: "Moderate Cost",
+        colorName: "Yellow",
+        badgeClass: "bg-amber-50 text-amber-700",
+      };
+    }
+    return {
+      label: "High Cost",
+      colorName: "Red",
+      badgeClass: "bg-rose-50 text-rose-700",
+    };
   };
 
   const renderStep = () => {
@@ -1227,11 +1537,14 @@ export default function AbroadLiftMatchesPage() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {COUNTRIES.map((c: any) => {
               const isSel = form.countries.includes(c.code);
-              const badgeStyles = {
-                success: "bg-emerald-500 text-white shadow-xl shadow-emerald-500/30",
-                gold: "bg-linear-to-r from-amber-400 to-amber-600 text-white shadow-xl shadow-amber-500/40",
-                amber: "bg-slate-900 text-white shadow-lg",
-              }[c.badge as "success" | "gold" | "amber"] || "bg-slate-100 text-slate-500";
+              const badgeStyles =
+                {
+                  success:
+                    "bg-emerald-500 text-white shadow-xl shadow-emerald-500/30",
+                  gold: "bg-linear-to-r from-amber-400 to-amber-600 text-white shadow-xl shadow-amber-500/40",
+                  amber: "bg-slate-900 text-white shadow-lg",
+                }[c.badge as "success" | "gold" | "amber"] ||
+                "bg-slate-100 text-slate-500";
 
               return (
                 <button
@@ -1245,9 +1558,11 @@ export default function AbroadLiftMatchesPage() {
                 >
                   {/* Floating Pill Badge */}
                   {c.rec && (
-                     <div className={`absolute top-2 right-2 left-2 px-1.5 py-1 rounded-xl text-[7px] font-black uppercase tracking-widest text-center animate-in zoom-in-50 duration-500 ${badgeStyles}`}>
-                        {c.rec}
-                     </div>
+                    <div
+                      className={`absolute top-2 right-2 left-2 px-1.5 py-1 rounded-xl text-[7px] font-black uppercase tracking-widest text-center animate-in zoom-in-50 duration-500 ${badgeStyles}`}
+                    >
+                      {c.rec}
+                    </div>
                   )}
 
                   <div
@@ -1278,7 +1593,7 @@ export default function AbroadLiftMatchesPage() {
 
     // 2: Degree Level (Structured Full List)
     if (step === 2) {
-      const categories = Array.from(new Set(DEGREES.map(d => d.cat)));
+      const categories = Array.from(new Set(DEGREES.map((d) => d.cat)));
       return (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-2xl px-4">
           <div className="mb-10">
@@ -1289,47 +1604,55 @@ export default function AbroadLiftMatchesPage() {
               Precisely define your intended level of education.
             </p>
           </div>
-          
+
           <div className="space-y-12 pb-20">
-             {categories.map((cat) => (
-                <div key={cat} className="space-y-5">
-                   <div className="flex items-center gap-4">
-                      <h3 className="text-xs font-black text-blue-600 uppercase tracking-[0.2em] whitespace-nowrap">{cat}</h3>
-                      <div className="h-px bg-slate-100 w-full" />
-                   </div>
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {DEGREES.filter(d => d.cat === cat).map((d) => {
-                         const isSel = form.degree === d.v;
-                         const Icon = d.icon;
-                         return (
-                            <button
-                              key={d.v}
-                              onClick={() => updateForm("degree", d.v)}
-                              className={`group relative flex items-center gap-4 p-4 rounded-2xl border-2 text-left transition-all duration-300 ${
-                                isSel
-                                  ? "border-blue-500 bg-blue-50/50 shadow-lg shadow-blue-500/10"
-                                  : "border-gray-50 bg-white hover:border-blue-100 hover:bg-slate-50/50"
-                              }`}
-                            >
-                               <div className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
-                                 isSel ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-500"
-                               }`}>
-                                  <Icon className="w-5 h-5" strokeWidth={2.5} />
-                               </div>
-                               <span className={`text-[13px] font-bold leading-tight ${isSel ? "text-blue-900" : "text-slate-600"}`}>
-                                  {d.l}
-                               </span>
-                               {isSel && (
-                                 <div className="ml-auto">
-                                    <CheckCircle2 className="w-4 h-4 text-blue-600" />
-                                 </div>
-                               )}
-                            </button>
-                         );
-                      })}
-                   </div>
+            {categories.map((cat) => (
+              <div key={cat} className="space-y-5">
+                <div className="flex items-center gap-4">
+                  <h3 className="text-xs font-black text-blue-600 uppercase tracking-[0.2em] whitespace-nowrap">
+                    {cat}
+                  </h3>
+                  <div className="h-px bg-slate-100 w-full" />
                 </div>
-             ))}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {DEGREES.filter((d) => d.cat === cat).map((d) => {
+                    const isSel = form.degree === d.v;
+                    const Icon = d.icon;
+                    return (
+                      <button
+                        key={d.v}
+                        onClick={() => updateForm("degree", d.v)}
+                        className={`group relative flex items-center gap-4 p-4 rounded-2xl border-2 text-left transition-all duration-300 ${
+                          isSel
+                            ? "border-blue-500 bg-blue-50/50 shadow-lg shadow-blue-500/10"
+                            : "border-gray-50 bg-white hover:border-blue-100 hover:bg-slate-50/50"
+                        }`}
+                      >
+                        <div
+                          className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
+                            isSel
+                              ? "bg-blue-600 text-white"
+                              : "bg-slate-100 text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-500"
+                          }`}
+                        >
+                          <Icon className="w-5 h-5" strokeWidth={2.5} />
+                        </div>
+                        <span
+                          className={`text-[13px] font-bold leading-tight ${isSel ? "text-blue-900" : "text-slate-600"}`}
+                        >
+                          {d.l}
+                        </span>
+                        {isSel && (
+                          <div className="ml-auto">
+                            <CheckCircle2 className="w-4 h-4 text-blue-600" />
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       );
@@ -1374,30 +1697,40 @@ export default function AbroadLiftMatchesPage() {
 
     // 4: Intake Selection (New)
     if (step === 4) {
-       return (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-xl">
-             <div className="mb-8">
-                <h2 className="text-3xl lg:text-4xl font-black text-slate-900 mb-2">Target Intake</h2>
-                <p className="text-gray-500 font-medium">When do you plan to start your studies?</p>
-             </div>
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pb-12">
-                {INTAKES.map((i) => {
-                   const isSel = form.intake === i;
-                   return (
-                      <button
-                        key={i}
-                        onClick={() => updateForm("intake", i)}
-                        className={`p-4 rounded-xl border-2 text-left transition-all duration-300 ${
-                          isSel ? "border-blue-600 bg-blue-50/50 shadow-lg" : "border-slate-50 bg-white hover:border-blue-100"
-                        }`}
-                      >
-                         <p className={`text-xs font-black ${isSel ? "text-blue-900" : "text-slate-600"}`}>{i}</p>
-                      </button>
-                   );
-                })}
-             </div>
+      return (
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-xl">
+          <div className="mb-8">
+            <h2 className="text-3xl lg:text-4xl font-black text-slate-900 mb-2">
+              Target Intake
+            </h2>
+            <p className="text-gray-500 font-medium">
+              When do you plan to start your studies?
+            </p>
           </div>
-       );
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pb-12">
+            {INTAKES.map((i) => {
+              const isSel = form.intake === i;
+              return (
+                <button
+                  key={i}
+                  onClick={() => updateForm("intake", i)}
+                  className={`p-4 rounded-xl border-2 text-left transition-all duration-300 ${
+                    isSel
+                      ? "border-blue-600 bg-blue-50/50 shadow-lg"
+                      : "border-slate-50 bg-white hover:border-blue-100"
+                  }`}
+                >
+                  <p
+                    className={`text-xs font-black ${isSel ? "text-blue-900" : "text-slate-600"}`}
+                  >
+                    {i}
+                  </p>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      );
     }
 
     // 5: English
@@ -1432,46 +1765,154 @@ export default function AbroadLiftMatchesPage() {
           const co = parseInt(form.duoConversation) || 0;
           const p = parseInt(form.duoProduction) || 0;
           if (l && c && co && p) {
-            updateForm("testScore", Math.round((l + c + co + p) / 4).toString());
+            updateForm(
+              "testScore",
+              Math.round((l + c + co + p) / 4).toString(),
+            );
           }
         }
       };
 
       const getFields = () => {
-        switch(form.testType) {
-          case "IELTS": return [
-            { k: "ielsReading", l: "Reading", placeholder: "6.5", max: 9, step: 0.5 },
-            { k: "ielsWriting", l: "Writing", placeholder: "6.0", max: 9, step: 0.5 },
-            { k: "ielsListening", l: "Listening", placeholder: "7.0", max: 9, step: 0.5 },
-            { k: "ielsSpeaking", l: "Speaking", placeholder: "6.5", max: 9, step: 0.5 }
-          ];
-          case "TOEFL": return [
-            { k: "toeflReading", l: "Reading", placeholder: "25", max: 30, step: 1 },
-            { k: "toeflWriting", l: "Writing", placeholder: "24", max: 30, step: 1 },
-            { k: "toeflListening", l: "Listening", placeholder: "26", max: 30, step: 1 },
-            { k: "toeflSpeaking", l: "Speaking", placeholder: "25", max: 30, step: 1 }
-          ];
-          case "PTE": return [
-            { k: "pteReading", l: "Reading", placeholder: "65", max: 90, step: 1 },
-            { k: "pteWriting", l: "Writing", placeholder: "60", max: 90, step: 1 },
-            { k: "pteListening", l: "Listening", placeholder: "70", max: 90, step: 1 },
-            { k: "pteSpeaking", l: "Speaking", placeholder: "65", max: 90, step: 1 }
-          ];
-          case "Duolingo": return [
-            { k: "duoLiteracy", l: "Literacy", placeholder: "115", max: 160, step: 5 },
-            { k: "duoComprehension", l: "Comprehension", placeholder: "120", max: 160, step: 5 },
-            { k: "duoConversation", l: "Conversation", placeholder: "105", max: 160, step: 5 },
-            { k: "duoProduction", l: "Production", placeholder: "110", max: 160, step: 5 }
-          ];
-          default: return [];
+        switch (form.testType) {
+          case "IELTS":
+            return [
+              {
+                k: "ielsReading",
+                l: "Reading",
+                placeholder: "6.5",
+                max: 9,
+                step: 0.5,
+              },
+              {
+                k: "ielsWriting",
+                l: "Writing",
+                placeholder: "6.0",
+                max: 9,
+                step: 0.5,
+              },
+              {
+                k: "ielsListening",
+                l: "Listening",
+                placeholder: "7.0",
+                max: 9,
+                step: 0.5,
+              },
+              {
+                k: "ielsSpeaking",
+                l: "Speaking",
+                placeholder: "6.5",
+                max: 9,
+                step: 0.5,
+              },
+            ];
+          case "TOEFL":
+            return [
+              {
+                k: "toeflReading",
+                l: "Reading",
+                placeholder: "25",
+                max: 30,
+                step: 1,
+              },
+              {
+                k: "toeflWriting",
+                l: "Writing",
+                placeholder: "24",
+                max: 30,
+                step: 1,
+              },
+              {
+                k: "toeflListening",
+                l: "Listening",
+                placeholder: "26",
+                max: 30,
+                step: 1,
+              },
+              {
+                k: "toeflSpeaking",
+                l: "Speaking",
+                placeholder: "25",
+                max: 30,
+                step: 1,
+              },
+            ];
+          case "PTE":
+            return [
+              {
+                k: "pteReading",
+                l: "Reading",
+                placeholder: "65",
+                max: 90,
+                step: 1,
+              },
+              {
+                k: "pteWriting",
+                l: "Writing",
+                placeholder: "60",
+                max: 90,
+                step: 1,
+              },
+              {
+                k: "pteListening",
+                l: "Listening",
+                placeholder: "70",
+                max: 90,
+                step: 1,
+              },
+              {
+                k: "pteSpeaking",
+                l: "Speaking",
+                placeholder: "65",
+                max: 90,
+                step: 1,
+              },
+            ];
+          case "Duolingo":
+            return [
+              {
+                k: "duoLiteracy",
+                l: "Literacy",
+                placeholder: "115",
+                max: 160,
+                step: 5,
+              },
+              {
+                k: "duoComprehension",
+                l: "Comprehension",
+                placeholder: "120",
+                max: 160,
+                step: 5,
+              },
+              {
+                k: "duoConversation",
+                l: "Conversation",
+                placeholder: "105",
+                max: 160,
+                step: 5,
+              },
+              {
+                k: "duoProduction",
+                l: "Production",
+                placeholder: "110",
+                max: 160,
+                step: 5,
+              },
+            ];
+          default:
+            return [];
         }
       };
 
       return (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-2xl px-4">
           <div className="mb-10 text-center">
-            <h2 className="text-3xl font-black text-slate-900 mb-2">Language Proficiency</h2>
-            <p className="text-gray-500 font-medium">Standardized tests required for international admissions.</p>
+            <h2 className="text-3xl font-black text-slate-900 mb-2">
+              Language Proficiency
+            </h2>
+            <p className="text-gray-500 font-medium">
+              Standardized tests required for international admissions.
+            </p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-10">
@@ -1482,50 +1923,67 @@ export default function AbroadLiftMatchesPage() {
                   key={t.v}
                   onClick={() => updateForm("testType", t.v)}
                   className={`p-4 rounded-2xl border flex flex-col items-center justify-center gap-2 transition-all ${
-                    isSel ? "border-blue-600 bg-blue-50 ring-1 ring-blue-600 shadow-lg shadow-blue-500/10" : "border-slate-100 bg-white hover:bg-slate-50 text-slate-400"
+                    isSel
+                      ? "border-blue-600 bg-blue-50 ring-1 ring-blue-600 shadow-lg shadow-blue-500/10"
+                      : "border-slate-100 bg-white hover:bg-slate-50 text-slate-400"
                   }`}
                 >
-                  <span className={`text-[10px] font-black uppercase tracking-widest ${isSel ? "text-blue-600" : "text-slate-400"}`}>{t.v}</span>
+                  <span
+                    className={`text-[10px] font-black uppercase tracking-widest ${isSel ? "text-blue-600" : "text-slate-400"}`}
+                  >
+                    {t.v}
+                  </span>
                 </button>
               );
             })}
           </div>
 
           <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500">
-             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                {getFields().map((field) => (
-                   <div key={field.k} className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm focus-within:border-blue-500 transition-all text-center">
-                     <label className="block text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">{field.l}</label>
-                     <input 
-                        type="number" 
-                        step={field.step}
-                        min="0"
-                        max={field.max}
-                        value={(form as any)[field.k]}
-                        onChange={(e) => {
-                           updateForm(field.k as keyof Form, e.target.value);
-                           setTimeout(calculateOverall, 50);
-                        }}
-                        placeholder={field.placeholder}
-                        className="w-full text-2xl font-black text-center text-slate-900 outline-none bg-transparent placeholder:text-slate-100"
-                     />
-                   </div>
-                ))}
-             </div>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {getFields().map((field) => (
+                <div
+                  key={field.k}
+                  className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm focus-within:border-blue-500 transition-all text-center"
+                >
+                  <label className="block text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">
+                    {field.l}
+                  </label>
+                  <input
+                    type="number"
+                    step={field.step}
+                    min="0"
+                    max={field.max}
+                    value={(form as any)[field.k]}
+                    onChange={(e) => {
+                      updateForm(field.k as keyof Form, e.target.value);
+                      setTimeout(calculateOverall, 50);
+                    }}
+                    placeholder={field.placeholder}
+                    className="w-full text-2xl font-black text-center text-slate-900 outline-none bg-transparent placeholder:text-slate-100"
+                  />
+                </div>
+              ))}
+            </div>
 
-             <div className="p-8 bg-slate-900 rounded-[32px] text-white flex flex-col md:flex-row items-center gap-8 relative overflow-hidden shadow-2xl shadow-slate-900/40">
-                <div className="absolute top-0 right-0 p-8 opacity-10">
-                   <Sparkles className="w-24 h-24" />
-                </div>
-                <div className="text-center md:text-left flex-1 z-10">
-                   <p className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-400 mb-2">Aggregate Result</p>
-                   <h3 className="text-4xl font-black mb-1 italic">Overall {form.testType}</h3>
-                   <p className="text-slate-400 text-xs font-medium">Automatic conversion enabled for all sectional inputs.</p>
-                </div>
-                <div className="w-24 h-24 rounded-[32px] bg-blue-600 flex items-center justify-center text-3xl font-black shadow-lg shadow-blue-500/20 z-10">
-                   {form.testScore || "0"}
-                </div>
-             </div>
+            <div className="p-8 bg-slate-900 rounded-[32px] text-white flex flex-col md:flex-row items-center gap-8 relative overflow-hidden shadow-2xl shadow-slate-900/40">
+              <div className="absolute top-0 right-0 p-8 opacity-10">
+                <Sparkles className="w-24 h-24" />
+              </div>
+              <div className="text-center md:text-left flex-1 z-10">
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-400 mb-2">
+                  Aggregate Result
+                </p>
+                <h3 className="text-4xl font-black mb-1 italic">
+                  Overall {form.testType}
+                </h3>
+                <p className="text-slate-400 text-xs font-medium">
+                  Automatic conversion enabled for all sectional inputs.
+                </p>
+              </div>
+              <div className="w-24 h-24 rounded-[32px] bg-blue-600 flex items-center justify-center text-3xl font-black shadow-lg shadow-blue-500/20 z-10">
+                {form.testScore || "0"}
+              </div>
+            </div>
           </div>
         </div>
       );
@@ -1536,75 +1994,125 @@ export default function AbroadLiftMatchesPage() {
       return (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-2xl px-4 pb-20">
           <div className="mb-10 text-center">
-             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-widest mb-6 border border-emerald-100">
-                Phase 02: Investment Planning
-             </div>
-             <h2 className="text-3xl font-black text-slate-900 mb-2">Financial Strategy</h2>
-             <p className="text-gray-500 font-medium italic">Configure your investment parameters for total course estimation.</p>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-widest mb-6 border border-emerald-100">
+              Phase 02: Investment Planning
+            </div>
+            <h2 className="text-3xl font-black text-slate-900 mb-2">
+              Financial Strategy
+            </h2>
+            <p className="text-gray-500 font-medium italic">
+              Configure your investment parameters for total course estimation.
+            </p>
           </div>
 
           <div className="space-y-10">
-             {/* 1. Univ & City Type */}
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm hover:border-blue-500 transition-all">
-                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">University Category</p>
-                   <div className="flex bg-slate-100 p-1 rounded-2xl">
-                      {["Public", "Private"].map(t => (
-                        <button key={t} onClick={() => updateForm("univType", t)} className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all ${form.univType === t ? "bg-white text-blue-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>{t}</button>
-                      ))}
-                   </div>
+            {/* 1. Univ & City Type */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm hover:border-blue-500 transition-all">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">
+                  University Category
+                </p>
+                <div className="flex bg-slate-100 p-1 rounded-2xl">
+                  {["Public", "Private"].map((t) => (
+                    <button
+                      key={t}
+                      onClick={() => updateForm("univType", t)}
+                      className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all ${form.univType === t ? "bg-white text-blue-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}
+                    >
+                      {t}
+                    </button>
+                  ))}
                 </div>
-                <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm hover:border-blue-500 transition-all">
-                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Location Tiering</p>
-                   <div className="flex bg-slate-100 p-1 rounded-2xl">
-                      {[
-                        {v: "Tier 1", l: "Elite (Metropolitan)"}, 
-                        {v: "Tier 2", l: "Affordable (Regional)"}
-                      ].map(t => (
-                        <button key={t.v} onClick={() => updateForm("cityType", t.v)} className={`flex-1 py-2.5 rounded-xl text-[10px] font-black transition-all ${form.cityType === t.v ? "bg-white text-blue-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>{t.v}</button>
-                      ))}
-                   </div>
+              </div>
+              <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm hover:border-blue-500 transition-all">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">
+                  Location Tiering
+                </p>
+                <div className="flex bg-slate-100 p-1 rounded-2xl">
+                  {[
+                    { v: "Tier 1", l: "Elite (Metropolitan)" },
+                    { v: "Tier 2", l: "Affordable (Regional)" },
+                  ].map((t) => (
+                    <button
+                      key={t.v}
+                      onClick={() => updateForm("cityType", t.v)}
+                      className={`flex-1 py-2.5 rounded-xl text-[10px] font-black transition-all ${form.cityType === t.v ? "bg-white text-blue-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}
+                    >
+                      {t.v}
+                    </button>
+                  ))}
                 </div>
-             </div>
+              </div>
+            </div>
 
-             {/* 2. Duration */}
-             <div className="bg-white rounded-[32px] border border-slate-100 p-8 shadow-sm text-center">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Estimated Course Duration</p>
-                <div className="flex justify-center flex-wrap gap-4">
-                   {["1", "2", "3", "4"].map(y => (
-                      <button key={y} onClick={() => updateForm("duration", y)} className={`w-16 h-16 rounded-2xl border-2 flex flex-col items-center justify-center transition-all ${form.duration === y ? "border-blue-600 bg-blue-50 text-blue-800 shadow-lg shadow-blue-500/10" : "border-slate-50 bg-slate-50 text-slate-400 hover:border-blue-200"}`}>
-                        <span className="text-xl font-black leading-none">{y}</span>
-                        <span className="text-[8px] font-black uppercase tracking-tighter">Year{y !== "1" && "s"}</span>
+            {/* 2. Duration */}
+            <div className="bg-white rounded-[32px] border border-slate-100 p-8 shadow-sm text-center">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">
+                Estimated Course Duration
+              </p>
+              <div className="flex justify-center flex-wrap gap-4">
+                {["1", "2", "3", "4"].map((y) => (
+                  <button
+                    key={y}
+                    onClick={() => updateForm("duration", y)}
+                    className={`w-16 h-16 rounded-2xl border-2 flex flex-col items-center justify-center transition-all ${form.duration === y ? "border-blue-600 bg-blue-50 text-blue-800 shadow-lg shadow-blue-500/10" : "border-slate-50 bg-slate-50 text-slate-400 hover:border-blue-200"}`}
+                  >
+                    <span className="text-xl font-black leading-none">{y}</span>
+                    <span className="text-[8px] font-black uppercase tracking-tighter">
+                      Year{y !== "1" && "s"}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 3. Annual Budget */}
+            <div className="bg-slate-900 rounded-[40px] p-10 text-white shadow-2xl relative overflow-hidden">
+              <div className="absolute bottom-0 right-0 p-10 opacity-10">
+                <Wallet className="w-40 h-40" />
+              </div>
+              <div className="relative z-10 text-center">
+                <p className="text-[10px] font-black text-blue-400 uppercase tracking-[0.3em] mb-6">
+                  Primary Annual Budget
+                </p>
+                <div className="flex flex-col items-center gap-6">
+                  <div className="flex bg-white/10 p-1 rounded-2xl border border-white/10">
+                    {CURRENCIES.map((c) => (
+                      <button
+                        key={c}
+                        onClick={() => updateForm("currency", c)}
+                        className={`px-4 py-1.5 rounded-xl text-[10px] font-bold transition-all ${form.currency === c ? "bg-white text-blue-600 shadow-sm" : "text-white/40"}`}
+                      >
+                        {c}
                       </button>
-                   ))}
+                    ))}
+                  </div>
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="text-4xl font-black text-white/20 uppercase tracking-tighter">
+                      {form.currency}
+                    </span>
+                    <input
+                      type="number"
+                      value={form.budget}
+                      onChange={(e) => updateForm("budget", e.target.value)}
+                      placeholder="00,000"
+                      className="w-56 text-7xl font-black text-white outline-none bg-transparent placeholder:text-white/5"
+                    />
+                  </div>
+                  <div className="flex flex-wrap justify-center gap-3">
+                    {BUDGET_PRESETS.map((p) => (
+                      <button
+                        key={p.v}
+                        onClick={() => updateForm("budget", p.v)}
+                        className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all ${form.budget === p.v ? "bg-blue-600 border-blue-500 text-white" : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10"}`}
+                      >
+                        {p.l}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-             </div>
-
-             {/* 3. Annual Budget */}
-             <div className="bg-slate-900 rounded-[40px] p-10 text-white shadow-2xl relative overflow-hidden">
-                <div className="absolute bottom-0 right-0 p-10 opacity-10">
-                   <Wallet className="w-40 h-40" />
-                </div>
-                <div className="relative z-10 text-center">
-                   <p className="text-[10px] font-black text-blue-400 uppercase tracking-[0.3em] mb-6">Primary Annual Budget</p>
-                   <div className="flex flex-col items-center gap-6">
-                      <div className="flex bg-white/10 p-1 rounded-2xl border border-white/10">
-                        {CURRENCIES.map(c => (
-                           <button key={c} onClick={() => updateForm("currency", c)} className={`px-4 py-1.5 rounded-xl text-[10px] font-bold transition-all ${form.currency === c ? "bg-white text-blue-600 shadow-sm" : "text-white/40"}`}>{c}</button>
-                        ))}
-                      </div>
-                      <div className="flex items-center justify-center gap-2">
-                         <span className="text-4xl font-black text-white/20 uppercase tracking-tighter">{form.currency}</span>
-                         <input type="number" value={form.budget} onChange={(e) => updateForm("budget", e.target.value)} placeholder="00,000" className="w-56 text-7xl font-black text-white outline-none bg-transparent placeholder:text-white/5" />
-                      </div>
-                      <div className="flex flex-wrap justify-center gap-3">
-                        {BUDGET_PRESETS.map(p => (
-                          <button key={p.v} onClick={() => updateForm("budget", p.v)} className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all ${form.budget === p.v ? "bg-blue-600 border-blue-500 text-white" : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10"}`}>{p.l}</button>
-                        ))}
-                      </div>
-                   </div>
-                </div>
-             </div>
+              </div>
+            </div>
           </div>
         </div>
       );
@@ -1612,126 +2120,245 @@ export default function AbroadLiftMatchesPage() {
 
     // 7: Enhanced Profile & Eligibility Dossier
     if (step === 7) {
-      const isGraduate = form.degree.includes("Master") || form.degree.includes("Doctoral") || form.degree.includes("Postgraduate");
-      
+      const isGraduate =
+        form.degree.includes("Master") ||
+        form.degree.includes("Doctoral") ||
+        form.degree.includes("Postgraduate");
+
       return (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-400 max-w-2xl pb-20">
           <div className="mb-10">
-            <h2 className="text-3xl font-black text-slate-900 mb-2 italic">Academic & Financial Dossier</h2>
-            <p className="text-gray-500 font-medium">Your final profile details power our high-accuracy eligibility engine.</p>
+            <h2 className="text-3xl font-black text-slate-900 mb-2 italic">
+              Academic & Financial Dossier
+            </h2>
+            <p className="text-gray-500 font-medium">
+              Your final profile details power our high-accuracy eligibility
+              engine.
+            </p>
           </div>
 
           <div className="space-y-12">
             {/* 1. Academic Record */}
             <section className="space-y-6">
-               <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600">
-                     <GraduationCap className="w-5 h-5" />
-                  </div>
-                  <h3 className="text-xl font-black text-slate-900">Academic History</h3>
-               </div>
-               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm focus-within:border-blue-500 transition-all">
-                    <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">GPA / Percentage</label>
-                    <input type="number" step="0.01" value={form.gpa} onChange={(e) => updateForm("gpa", e.target.value)} placeholder="3.8" className="w-full text-xl font-black text-slate-900 outline-none bg-transparent" />
-                  </div>
-                  <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm focus-within:border-blue-500 transition-all">
-                    <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Backlogs</label>
-                    <input type="number" value={form.backlogs} onChange={(e) => updateForm("backlogs", e.target.value)} placeholder="0" className="w-full text-xl font-black text-slate-900 outline-none bg-transparent" />
-                  </div>
-                  <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm focus-within:border-blue-500 transition-all">
-                    <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Study Gap (Years)</label>
-                    <input type="number" value={form.studyGap} onChange={(e) => updateForm("studyGap", e.target.value)} placeholder="0" className="w-full text-xl font-black text-slate-900 outline-none bg-transparent" />
-                  </div>
-               </div>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600">
+                  <GraduationCap className="w-5 h-5" />
+                </div>
+                <h3 className="text-xl font-black text-slate-900">
+                  Academic History
+                </h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm focus-within:border-blue-500 transition-all">
+                  <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                    GPA / Percentage
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={form.gpa}
+                    onChange={(e) => updateForm("gpa", e.target.value)}
+                    placeholder="3.8"
+                    className="w-full text-xl font-black text-slate-900 outline-none bg-transparent"
+                  />
+                </div>
+                <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm focus-within:border-blue-500 transition-all">
+                  <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                    Backlogs
+                  </label>
+                  <input
+                    type="number"
+                    value={form.backlogs}
+                    onChange={(e) => updateForm("backlogs", e.target.value)}
+                    placeholder="0"
+                    className="w-full text-xl font-black text-slate-900 outline-none bg-transparent"
+                  />
+                </div>
+                <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm focus-within:border-blue-500 transition-all">
+                  <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                    Study Gap (Years)
+                  </label>
+                  <input
+                    type="number"
+                    value={form.studyGap}
+                    onChange={(e) => updateForm("studyGap", e.target.value)}
+                    placeholder="0"
+                    className="w-full text-xl font-black text-slate-900 outline-none bg-transparent"
+                  />
+                </div>
+              </div>
             </section>
 
             {/* 2. Standardized Tests (Optional) */}
             <section className="space-y-6">
-               <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                     <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600">
-                        <BookOpen className="w-5 h-5" />
-                     </div>
-                     <h3 className="text-xl font-black text-slate-900">Standardized Tests <span className="text-[10px] text-slate-400 font-bold ml-2 uppercase tracking-widest">(Optional)</span></h3>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600">
+                    <BookOpen className="w-5 h-5" />
                   </div>
-                  <div className="flex bg-slate-100 p-1 rounded-xl">
-                     {["GRE", "GMAT", "NONE"].map(t => (
-                        <button key={t} onClick={() => updateForm("aptitudeTest", t)} className={`px-4 py-1.5 rounded-lg text-[10px] font-black tracking-widest transition-all ${form.aptitudeTest === t ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}>
-                           {t}
-                        </button>
-                     ))}
-                  </div>
-               </div>
+                  <h3 className="text-xl font-black text-slate-900">
+                    Standardized Tests{" "}
+                    <span className="text-[10px] text-slate-400 font-bold ml-2 uppercase tracking-widest">
+                      (Optional)
+                    </span>
+                  </h3>
+                </div>
+                <div className="flex bg-slate-100 p-1 rounded-xl">
+                  {["GRE", "GMAT", "NONE"].map((t) => (
+                    <button
+                      key={t}
+                      onClick={() => updateForm("aptitudeTest", t)}
+                      className={`px-4 py-1.5 rounded-lg text-[10px] font-black tracking-widest transition-all ${form.aptitudeTest === t ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-               {form.aptitudeTest === "GRE" && (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 animate-in zoom-in-95 duration-300">
-                     <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm focus-within:border-indigo-500 transition-all">
-                       <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Verbal (130-170)</label>
-                       <input type="number" value={form.greVerbal} onChange={(e) => updateForm("greVerbal", e.target.value)} placeholder="155" className="w-full text-xl font-black text-slate-900 outline-none bg-transparent" />
-                     </div>
-                     <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm focus-within:border-indigo-500 transition-all">
-                       <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Quant (130-170)</label>
-                       <input type="number" value={form.greQuant} onChange={(e) => updateForm("greQuant", e.target.value)} placeholder="165" className="w-full text-xl font-black text-slate-900 outline-none bg-transparent" />
-                     </div>
-                     <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm focus-within:border-indigo-500 transition-all">
-                       <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">AWA (0-6)</label>
-                       <input type="number" step="0.5" value={form.greAwa} onChange={(e) => updateForm("greAwa", e.target.value)} placeholder="4.0" className="w-full text-xl font-black text-slate-900 outline-none bg-transparent" />
-                     </div>
+              {form.aptitudeTest === "GRE" && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 animate-in zoom-in-95 duration-300">
+                  <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm focus-within:border-indigo-500 transition-all">
+                    <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                      Verbal (130-170)
+                    </label>
+                    <input
+                      type="number"
+                      value={form.greVerbal}
+                      onChange={(e) => updateForm("greVerbal", e.target.value)}
+                      placeholder="155"
+                      className="w-full text-xl font-black text-slate-900 outline-none bg-transparent"
+                    />
                   </div>
-               )}
+                  <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm focus-within:border-indigo-500 transition-all">
+                    <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                      Quant (130-170)
+                    </label>
+                    <input
+                      type="number"
+                      value={form.greQuant}
+                      onChange={(e) => updateForm("greQuant", e.target.value)}
+                      placeholder="165"
+                      className="w-full text-xl font-black text-slate-900 outline-none bg-transparent"
+                    />
+                  </div>
+                  <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm focus-within:border-indigo-500 transition-all">
+                    <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                      AWA (0-6)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.5"
+                      value={form.greAwa}
+                      onChange={(e) => updateForm("greAwa", e.target.value)}
+                      placeholder="4.0"
+                      className="w-full text-xl font-black text-slate-900 outline-none bg-transparent"
+                    />
+                  </div>
+                </div>
+              )}
 
-               {form.aptitudeTest === "GMAT" && (
-                  <div className="max-w-xs animate-in zoom-in-95 duration-300">
-                     <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm focus-within:border-indigo-500 transition-all">
-                       <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Total GMAT Score (200-800)</label>
-                       <input type="number" value={form.gmatTotal} onChange={(e) => updateForm("gmatTotal", e.target.value)} placeholder="700" className="w-full text-xl font-black text-slate-900 outline-none bg-transparent" />
-                     </div>
+              {form.aptitudeTest === "GMAT" && (
+                <div className="max-w-xs animate-in zoom-in-95 duration-300">
+                  <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm focus-within:border-indigo-500 transition-all">
+                    <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                      Total GMAT Score (200-800)
+                    </label>
+                    <input
+                      type="number"
+                      value={form.gmatTotal}
+                      onChange={(e) => updateForm("gmatTotal", e.target.value)}
+                      placeholder="700"
+                      className="w-full text-xl font-black text-slate-900 outline-none bg-transparent"
+                    />
                   </div>
-               )}
+                </div>
+              )}
             </section>
 
             <section className="space-y-6">
-               <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600">
-                     <Wallet className="w-5 h-5" />
-                  </div>
-                  <h3 className="text-xl font-black text-slate-900">Financial Capability</h3>
-               </div>
-               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm focus-within:border-emerald-500 transition-all">
-                    <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Bank Balance (NPR)</label>
-                    <input type="number" value={form.bankBalance} onChange={(e) => updateForm("bankBalance", e.target.value)} placeholder="5,000,000" className="w-full text-xl font-black text-slate-900 outline-none bg-transparent" />
-                  </div>
-                  <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm focus-within:border-emerald-500 transition-all">
-                    <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Sponsor Income (Monthly NPR)</label>
-                    <input type="number" value={form.sponsorIncome} onChange={(e) => updateForm("sponsorIncome", e.target.value)} placeholder="150,000" className="w-full text-xl font-black text-slate-900 outline-none bg-transparent" />
-                  </div>
-                  <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm focus-within:border-emerald-500 transition-all">
-                    <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Primary Sponsor</label>
-                    <select value={form.sponsorType} onChange={(e) => updateForm("sponsorType", e.target.value)} className="w-full text-sm font-black text-slate-900 outline-none bg-transparent cursor-pointer py-2">
-                       <option value="Self">Self / Savings</option>
-                       <option value="Parents">Parents / Relatives</option>
-                       <option value="Bank Loan">Bank Education Loan</option>
-                       <option value="Sponsor">Private Sponsor</option>
-                       <option value="Scholarship">Full Scholarship</option>
-                    </select>
-                  </div>
-               </div>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600">
+                  <Wallet className="w-5 h-5" />
+                </div>
+                <h3 className="text-xl font-black text-slate-900">
+                  Financial Capability
+                </h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm focus-within:border-emerald-500 transition-all">
+                  <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                    Bank Balance (NPR)
+                  </label>
+                  <input
+                    type="number"
+                    value={form.bankBalance}
+                    onChange={(e) => updateForm("bankBalance", e.target.value)}
+                    placeholder="5,000,000"
+                    className="w-full text-xl font-black text-slate-900 outline-none bg-transparent"
+                  />
+                </div>
+                <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm focus-within:border-emerald-500 transition-all">
+                  <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                    Sponsor Income (Monthly NPR)
+                  </label>
+                  <input
+                    type="number"
+                    value={form.sponsorIncome}
+                    onChange={(e) =>
+                      updateForm("sponsorIncome", e.target.value)
+                    }
+                    placeholder="150,000"
+                    className="w-full text-xl font-black text-slate-900 outline-none bg-transparent"
+                  />
+                </div>
+                <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm focus-within:border-emerald-500 transition-all">
+                  <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                    Primary Sponsor
+                  </label>
+                  <select
+                    value={form.sponsorType}
+                    onChange={(e) => updateForm("sponsorType", e.target.value)}
+                    className="w-full text-sm font-black text-slate-900 outline-none bg-transparent cursor-pointer py-2"
+                  >
+                    <option value="Self">Self / Savings</option>
+                    <option value="Parents">Parents / Relatives</option>
+                    <option value="Bank Loan">Bank Education Loan</option>
+                    <option value="Sponsor">Private Sponsor</option>
+                    <option value="Scholarship">Full Scholarship</option>
+                  </select>
+                </div>
+              </div>
             </section>
 
             {/* 4. Student Identity */}
             <section className="pt-6 border-t border-slate-100 space-y-6">
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-slate-50 rounded-2xl p-5 border border-slate-200 focus-within:bg-white focus-within:border-blue-600 transition-all">
-                    <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Full Identity Name</label>
-                    <input type="text" value={form.name} onChange={(e) => updateForm("name", e.target.value)} placeholder="Jane Doe" className="w-full text-lg font-black text-slate-900 outline-none bg-transparent" />
-                  </div>
-                  <div className="bg-slate-50 rounded-2xl p-5 border border-slate-200 focus-within:bg-white focus-within:border-blue-600 transition-all">
-                    <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Secure Email Communication</label>
-                    <input type="email" value={form.email} onChange={(e) => updateForm("email", e.target.value)} placeholder="jane@example.com" className="w-full text-lg font-black text-slate-900 outline-none bg-transparent" />
-                  </div>
-               </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-slate-50 rounded-2xl p-5 border border-slate-200 focus-within:bg-white focus-within:border-blue-600 transition-all">
+                  <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                    Full Identity Name
+                  </label>
+                  <input
+                    type="text"
+                    value={form.name}
+                    onChange={(e) => updateForm("name", e.target.value)}
+                    placeholder="Jane Doe"
+                    className="w-full text-lg font-black text-slate-900 outline-none bg-transparent"
+                  />
+                </div>
+                <div className="bg-slate-50 rounded-2xl p-5 border border-slate-200 focus-within:bg-white focus-within:border-blue-600 transition-all">
+                  <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                    Secure Email Communication
+                  </label>
+                  <input
+                    type="email"
+                    value={form.email}
+                    onChange={(e) => updateForm("email", e.target.value)}
+                    placeholder="jane@example.com"
+                    className="w-full text-lg font-black text-slate-900 outline-none bg-transparent"
+                  />
+                </div>
+              </div>
             </section>
           </div>
         </div>
@@ -1746,84 +2373,102 @@ export default function AbroadLiftMatchesPage() {
           <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div className="space-y-2">
               <div className="flex items-center gap-3 text-blue-600 font-black text-[10px] uppercase tracking-[0.2em]">
-                 <span className="px-2 py-0.5 rounded-md bg-blue-50 border border-blue-100 italic">Phase 02</span>
-                 <span>Step 8 of 13</span>
+                <span className="px-2 py-0.5 rounded-md bg-blue-50 border border-blue-100 italic">
+                  Phase 02
+                </span>
+                <span>Step 8 of 13</span>
               </div>
               <h1 className="text-4xl font-black text-slate-900 tracking-tight">
                 Your <span className="text-blue-600">Matches.</span>
               </h1>
               <p className="text-slate-400 font-bold text-sm">
-                We discovered {matches.length} world-class institutions personalized for your profile.
+                We discovered {matches.length} world-class institutions
+                personalized for your profile.
               </p>
             </div>
-            
+
             <div className="hidden md:flex items-center gap-4">
-               <div className="px-4 py-2 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center gap-3">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-xs font-black text-slate-600 uppercase tracking-widest">{matches.length} Found</span>
-               </div>
-               <button onClick={runMatch} className="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center hover:bg-black transition-colors shadow-lg shadow-slate-900/10">
-                  <RefreshCw className="w-5 h-5" />
-               </button>
+              <div className="px-4 py-2 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center gap-3">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-xs font-black text-slate-600 uppercase tracking-widest">
+                  {matches.length} Found
+                </span>
+              </div>
+              <button
+                onClick={runMatch}
+                className="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center hover:bg-black transition-colors shadow-lg shadow-slate-900/10"
+              >
+                <RefreshCw className="w-5 h-5" />
+              </button>
             </div>
           </div>
 
           {/* Advanced Filter Bar (Screenshot Inspired) */}
           <div className="bg-white rounded-[32px] border border-slate-100 shadow-2xl shadow-slate-200/40 p-3 mb-8 space-y-3">
-             {/* Primary Search Row */}
-             <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
-                <div className="relative group flex-1">
-                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-                   <input 
-                     type="text" 
-                     placeholder="What would you like to study? (e.g., Computer Science)" 
-                     className="w-full h-14 pl-11 pr-4 bg-slate-50/50 border border-transparent rounded-2xl text-sm font-bold text-slate-900 focus:bg-white focus:border-blue-200 outline-none transition-all"
-                   />
-                </div>
-                <div className="relative group">
-                   <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                   <select className="w-full h-14 pl-11 pr-10 bg-slate-50/50 border border-transparent rounded-2xl text-sm font-bold text-slate-900 appearance-none outline-none">
-                      <option>Any Destination</option>
-                      {COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
-                   </select>
-                </div>
-                <div className="relative group">
-                   <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                   <select className="w-full h-14 pl-11 pr-10 bg-slate-50/50 border border-transparent rounded-2xl text-sm font-bold text-slate-900 appearance-none outline-none">
-                      <option>Any Institution</option>
-                      <option>Public Research Universities</option>
-                      <option>Private Colleges</option>
-                   </select>
-                </div>
-             </div>
-
-             {/* Secondary Filter Row */}
-             <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-50">
-                <select className="h-10 px-4 bg-white border border-slate-100 rounded-xl text-[11px] font-black uppercase text-slate-500 outline-none hover:bg-slate-50 transition-colors">
-                   <option>Program Level</option>
-                </select>
-                <select className="h-10 px-4 bg-white border border-slate-100 rounded-xl text-[11px] font-black uppercase text-slate-500 outline-none hover:bg-slate-50 transition-colors">
-                   <option>Field of study</option>
-                </select>
-                <select className="h-10 px-4 bg-white border border-slate-100 rounded-xl text-[11px] font-black uppercase text-slate-500 outline-none hover:bg-slate-50 transition-colors">
-                   <option>Intakes</option>
-                   {INTAKES.map(i => <option key={i} value={i}>{i}</option>)}
-                </select>
-                <TagSelect 
-                   tags={PROGRAM_TAGS} 
-                   selected={form.programTags} 
-                   onChange={(val) => updateForm("programTags", val)} 
+            {/* Primary Search Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
+              <div className="relative group flex-1">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                <input
+                  type="text"
+                  placeholder="What would you like to study? (e.g., Computer Science)"
+                  className="w-full h-14 pl-11 pr-4 bg-slate-50/50 border border-transparent rounded-2xl text-sm font-bold text-slate-900 focus:bg-white focus:border-blue-200 outline-none transition-all"
                 />
-                <div className="flex-1" />
-                <button className="h-10 px-4 rounded-xl bg-blue-50 text-blue-600 text-[11px] font-black uppercase tracking-widest flex items-center gap-2 border border-blue-100 hover:bg-blue-100 transition-colors">
-                   <Sparkles className="w-3.5 h-3.5" />
-                   Smart Filters
-                   <span className="bg-blue-600 text-white px-1.5 py-0.5 rounded-md text-[8px]">BETA</span>
-                </button>
-                <button className="h-10 px-6 rounded-xl bg-blue-600 text-white text-[11px] font-black uppercase tracking-widest hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20">
-                   Apply Filters
-                </button>
-             </div>
+              </div>
+              <div className="relative group">
+                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <select className="w-full h-14 pl-11 pr-10 bg-slate-50/50 border border-transparent rounded-2xl text-sm font-bold text-slate-900 appearance-none outline-none">
+                  <option>Any Destination</option>
+                  {COUNTRIES.map((c) => (
+                    <option key={c.code} value={c.code}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="relative group">
+                <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <select className="w-full h-14 pl-11 pr-10 bg-slate-50/50 border border-transparent rounded-2xl text-sm font-bold text-slate-900 appearance-none outline-none">
+                  <option>Any Institution</option>
+                  <option>Public Research Universities</option>
+                  <option>Private Colleges</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Secondary Filter Row */}
+            <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-50">
+              <select className="h-10 px-4 bg-white border border-slate-100 rounded-xl text-[11px] font-black uppercase text-slate-500 outline-none hover:bg-slate-50 transition-colors">
+                <option>Program Level</option>
+              </select>
+              <select className="h-10 px-4 bg-white border border-slate-100 rounded-xl text-[11px] font-black uppercase text-slate-500 outline-none hover:bg-slate-50 transition-colors">
+                <option>Field of study</option>
+              </select>
+              <select className="h-10 px-4 bg-white border border-slate-100 rounded-xl text-[11px] font-black uppercase text-slate-500 outline-none hover:bg-slate-50 transition-colors">
+                <option>Intakes</option>
+                {INTAKES.map((i) => (
+                  <option key={i} value={i}>
+                    {i}
+                  </option>
+                ))}
+              </select>
+              <TagSelect
+                tags={PROGRAM_TAGS}
+                selected={form.programTags}
+                onChange={(val) => updateForm("programTags", val)}
+              />
+              <div className="flex-1" />
+              <button className="h-10 px-4 rounded-xl bg-blue-50 text-blue-600 text-[11px] font-black uppercase tracking-widest flex items-center gap-2 border border-blue-100 hover:bg-blue-100 transition-colors">
+                <Sparkles className="w-3.5 h-3.5" />
+                Smart Filters
+                <span className="bg-blue-600 text-white px-1.5 py-0.5 rounded-md text-[8px]">
+                  BETA
+                </span>
+              </button>
+              <button className="h-10 px-6 rounded-xl bg-blue-600 text-white text-[11px] font-black uppercase tracking-widest hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20">
+                Apply Filters
+              </button>
+            </div>
           </div>
 
           {/* Results Analytics Grid */}
@@ -1831,9 +2476,9 @@ export default function AbroadLiftMatchesPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-8 pb-32">
               {matches.map((m) => (
                 <div key={m.id} className="relative group">
-                  <MatchCard 
-                    match={m} 
-                    currency={form.currency} 
+                  <MatchCard
+                    match={m}
+                    currency={form.currency}
                     selected={selectedMatch?.id === m.id}
                     onSelect={() => {
                       setSelectedMatch(m);
@@ -1842,7 +2487,7 @@ export default function AbroadLiftMatchesPage() {
                   />
                   {/* Premium Logic Connectors */}
                   {selectedMatch?.id === m.id && (
-                     <div className="absolute -inset-[3px] rounded-[30px] bg-blue-500/5 pointer-events-none ring-2 ring-blue-500 animate-in fade-in zoom-in-95 duration-500" />
+                    <div className="absolute -inset-[3px] rounded-[30px] bg-blue-500/5 pointer-events-none ring-2 ring-blue-500 animate-in fade-in zoom-in-95 duration-500" />
                   )}
                 </div>
               ))}
@@ -1856,610 +2501,798 @@ export default function AbroadLiftMatchesPage() {
                 <div className="absolute inset-0 rounded-[36px] border-4 border-slate-50 w-full h-full" />
                 <div className="absolute inset-0 rounded-[36px] border-4 border-blue-500 border-t-transparent animate-spin w-full h-full shadow-[0_0_30px_rgba(59,130,246,0.3)]" />
                 <div className="absolute inset-0 flex items-center justify-center">
-                   <Cloud className="w-8 h-8 text-blue-100 animate-pulse" />
+                  <Cloud className="w-8 h-8 text-blue-100 animate-pulse" />
                 </div>
               </div>
               <div className="space-y-2">
-                 <p className="text-blue-600 font-black text-xs uppercase tracking-[0.3em] animate-pulse">Running Neural Engine...</p>
-                 <p className="text-slate-400 font-medium text-sm">Cross-referencing {form.degree} programs in {form.field}...</p>
+                <p className="text-blue-600 font-black text-xs uppercase tracking-[0.3em] animate-pulse">
+                  Running Neural Engine...
+                </p>
+                <p className="text-slate-400 font-medium text-sm">
+                  Cross-referencing {form.degree} programs in {form.field}...
+                </p>
               </div>
             </div>
           )}
           {/* Fallback Search State */}
           {!loading && !error && matches.length === 0 && (
             <div className="bg-white border-2 border-dashed border-slate-100 p-16 rounded-[48px] text-center max-w-xl mx-auto shadow-2xl shadow-slate-200/50">
-               <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-8">
-                 <Search className="w-12 h-12 text-slate-200" />
-               </div>
-               <h3 className="text-2xl font-black text-slate-900 mb-4">No Direct Matches Found</h3>
-               <p className="text-slate-500 font-medium leading-relaxed mb-10">
-                 Our engine couldn&apos;t find an exact match for your specific criteria. Try broadening your budget or field of study.
-               </p>
-               <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
-                 <button onClick={() => setStep(6)} className="w-full sm:w-auto px-8 h-14 bg-slate-900 text-white rounded-2xl font-black text-sm hover:shadow-xl transition-all">
-                    Adjust Budget
-                 </button>
-                 <button onClick={() => { setForm({ ...form, budget: "100000", field: "" }); runMatch(); }} className="w-full sm:w-auto px-8 h-14 bg-white border border-slate-200 text-slate-600 rounded-2xl font-black text-sm hover:bg-slate-50 transition-all">
-                    Reset Filters
-                 </button>
-               </div>
+              <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-8">
+                <Search className="w-12 h-12 text-slate-200" />
+              </div>
+              <h3 className="text-2xl font-black text-slate-900 mb-4">
+                No Direct Matches Found
+              </h3>
+              <p className="text-slate-500 font-medium leading-relaxed mb-10">
+                Our engine couldn&apos;t find an exact match for your specific
+                criteria. Try broadening your budget or field of study.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
+                <button
+                  onClick={() => setStep(6)}
+                  className="w-full sm:w-auto px-8 h-14 bg-slate-900 text-white rounded-2xl font-black text-sm hover:shadow-xl transition-all"
+                >
+                  Adjust Budget
+                </button>
+                <button
+                  onClick={() => {
+                    setForm({ ...form, budget: "100000", field: "" });
+                    runMatch();
+                  }}
+                  className="w-full sm:w-auto px-8 h-14 bg-white border border-slate-200 text-slate-600 rounded-2xl font-black text-sm hover:bg-slate-50 transition-all"
+                >
+                  Reset Filters
+                </button>
+              </div>
             </div>
           )}
         </div>
       );
     }
 
-    // 9: Cost Selection Analytics & Roadmap
+    // 9: Cost estimate - View breakdown
     if (step === 9 && selectedMatch) {
-      const toggleUSD = form.currency === "USD";
-      const tuition = selectedMatch.tuitionFee || 0;
-      const living = 12000; // Base est
-      const total = tuition + living;
-      
-      const displayVal = (v: number) => toggleUSD ? (v / 1.35).toFixed(1) : v.toFixed(1);
-      const symbol = toggleUSD ? "$" : "NPR";
-      const unit = toggleUSD ? "k" : "L";
+      const city =
+        selectedMatch.location?.split(",")?.[0]?.trim() || "your selected city";
+      const countryCode =
+        selectedMatch.countryCode || form.countries[0] || "AU";
+      const countryName =
+        COUNTRIES.find((c) => c.code === countryCode)?.name || countryCode;
+
+      const usdToNpr = USD_TO_NPR;
+      const formatters = {
+        USD: new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "USD",
+          maximumFractionDigits: 0,
+        }),
+        NPR: new Intl.NumberFormat("en-NP", {
+          style: "currency",
+          currency: "NPR",
+          maximumFractionDigits: 0,
+        }),
+      };
+
+      const convertFromUsd = (usdAmount: number) =>
+        costDisplayCurrency === "NPR"
+          ? Math.round(usdAmount * usdToNpr)
+          : Math.round(usdAmount);
+
+      const formatCost = (usdAmount: number) =>
+        formatters[costDisplayCurrency].format(convertFromUsd(usdAmount));
+
+      const tuitionUsd = Math.round(
+        selectedMatch.currency === "NPR"
+          ? (selectedMatch.tuitionFee || 22000) / usdToNpr
+          : selectedMatch.tuitionFee || 22000,
+      );
+      const visaFeesUsd = 300;
+      const docAndApplicationFeesUsd = 400;
+      const consultancyFeesUsd = form.sponsorType === "Self" ? 450 : 0;
+      const flightsUsd = 620;
+      const livingBreakdownUsd = {
+        rent: 3800,
+        food: 1300,
+        transport: 500,
+        insurance: 320,
+        other: 700,
+      };
+      const livingCostUsd = Object.values(livingBreakdownUsd).reduce(
+        (sum, val) => sum + val,
+        0,
+      );
+
+      const year1Items = [
+        {
+          label: "Tuition fees",
+          info: "Estimated first-year tuition based on selected university and programme.",
+          amountUsd: tuitionUsd,
+        },
+        {
+          label: "Visa fees",
+          info: "Government visa application and biometrics fee estimate.",
+          amountUsd: visaFeesUsd,
+        },
+        {
+          label: "Documentation & application fees",
+          info: "Application portal fees, courier, attestations, and transcript processing.",
+          amountUsd: docAndApplicationFeesUsd,
+        },
+        {
+          label: "Consultancy/service fees (if applicable)",
+          info: "Advisory and processing support fee. May be waived depending on your package.",
+          amountUsd: consultancyFeesUsd,
+        },
+        {
+          label: "Flights",
+          info: "One-way initial travel estimate from Nepal to destination.",
+          amountUsd: flightsUsd,
+        },
+        {
+          label: "Living cost (rent, food, transport, insurance, other)",
+          info: "Typical annual living expense for an international student.",
+          amountUsd: livingCostUsd,
+        },
+      ];
+
+      const totalYear1Usd = year1Items.reduce(
+        (sum, item) => sum + item.amountUsd,
+        0,
+      );
+      const budgetRaw = Number.parseFloat(form.budget) || 0;
+      const budgetUsd =
+        form.currency === "NPR" ? budgetRaw / usdToNpr : budgetRaw;
+      const costBand = getCostBand(totalYear1Usd, budgetUsd);
+      const monthlyEstimateUsd = Math.round(totalYear1Usd / 12);
+      const durationYears = Math.max(1, parseInt(form.duration) || 2);
+      const yearlyProjection = Array.from({ length: durationYears }).map(
+        (_, idx) => {
+          const inflationFactor = 1 + idx * 0.06;
+          return {
+            year: idx + 1,
+            valueUsd: Math.round(totalYear1Usd * inflationFactor),
+          };
+        },
+      );
 
       return (
-        <div className="animate-in fade-in slide-in-from-bottom-2 duration-400 max-w-full px-8 lg:px-16 pb-24">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6 border-b border-slate-50 pb-8">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-widest mb-4 border border-emerald-100">
-                Direct Financial Intelligence
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-400 max-w-full px-4 md:px-8 lg:px-16 pb-8">
+          <div className="max-w-4xl mx-auto space-y-6">
+            <div className="space-y-2">
+              <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
+                Your cost breakdown - Year 1
+              </h2>
+              <p className="text-sm font-medium text-slate-500">
+                For {selectedMatch.name}
+              </p>
+            </div>
+
+            <div className="inline-flex bg-slate-100 p-1 rounded-2xl border border-slate-200">
+              {[
+                { key: "USD", label: "Dollar (USD)" },
+                { key: "NPR", label: "NPR" },
+              ].map((currencyTab) => (
+                <button
+                  key={currencyTab.key}
+                  onClick={() =>
+                    setCostDisplayCurrency(currencyTab.key as "USD" | "NPR")
+                  }
+                  className={`px-4 md:px-6 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${
+                    costDisplayCurrency === currencyTab.key
+                      ? "bg-white text-blue-600 shadow-sm"
+                      : "text-slate-500 hover:text-slate-700"
+                  }`}
+                >
+                  {currencyTab.label}
+                </button>
+              ))}
+            </div>
+
+            <Card className="p-6 md:p-8 rounded-[32px] border border-slate-100 bg-white shadow-sm">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">
+                Total estimated cost
+              </p>
+              <p className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight">
+                {formatCost(totalYear1Usd)}
+              </p>
+              <div className="mt-4">
+                <span
+                  className={`inline-flex px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest ${costBand.badgeClass}`}
+                >
+                  {costBand.label}
+                </span>
               </div>
-              <h2 className="text-4xl font-black text-slate-900 tracking-tight">Annual Cost Roadmap</h2>
-              <p className="text-slate-500 font-medium italic mt-2">Analysis for {selectedMatch.name}</p>
+            </Card>
+
+            <Card className="p-4 md:p-6 rounded-[28px] border border-slate-100 bg-white">
+              <h3 className="text-sm md:text-base font-black text-slate-900 mb-3">
+                Cost classification
+              </h3>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[360px] text-left border-separate border-spacing-y-2">
+                  <thead>
+                    <tr className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                      <th className="px-3 py-2">Range</th>
+                      <th className="px-3 py-2">Cost band</th>
+                      <th className="px-3 py-2">Color</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-sm font-bold text-slate-700">
+                    <tr>
+                      <td className="px-3 py-2">Up to budget (&lt;= 90%)</td>
+                      <td className="px-3 py-2">Low Cost</td>
+                      <td className="px-3 py-2 text-emerald-700">Green</td>
+                    </tr>
+                    <tr>
+                      <td className="px-3 py-2">90% - 120% of budget</td>
+                      <td className="px-3 py-2">Moderate Cost</td>
+                      <td className="px-3 py-2 text-amber-700">Yellow</td>
+                    </tr>
+                    <tr>
+                      <td className="px-3 py-2">Above 120% of budget</td>
+                      <td className="px-3 py-2">High Cost</td>
+                      <td className="px-3 py-2 text-rose-700">Red</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+
+            <div className="inline-flex bg-slate-100 p-1 rounded-2xl border border-slate-200">
+              {[
+                { key: "year1", label: "Year 1" },
+                { key: "perMonth", label: "Per month" },
+                { key: "yearByYear", label: "Year by year" },
+              ].map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() =>
+                    setCostBreakdownTab(
+                      tab.key as "year1" | "perMonth" | "yearByYear",
+                    )
+                  }
+                  className={`px-4 md:px-6 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${
+                    costBreakdownTab === tab.key
+                      ? "bg-white text-blue-600 shadow-sm"
+                      : "text-slate-500 hover:text-slate-700"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
             </div>
-            
-            <div className="flex bg-slate-100 p-1 rounded-2xl border border-slate-200 shadow-inner">
-               {["NPR", "USD"].map(c => (
-                  <button key={c} onClick={() => updateForm("currency", c)} className={`px-6 py-2 rounded-xl text-[10px] font-black tracking-widest transition-all ${form.currency === c ? "bg-white text-blue-600 shadow-md scale-105" : "text-slate-400 hover:text-slate-600"}`}>{c}</button>
-               ))}
-            </div>
-          </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* 1. Main Highlight Cards */}
-            <div className="lg:col-span-8 space-y-8">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                   <Card className="p-8 rounded-[40px] border-none bg-slate-900 text-white shadow-xl relative overflow-hidden group">
-                      <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
-                         <Calculator className="w-24 h-24 text-blue-400" />
+            {costBreakdownTab === "year1" && (
+              <Card className="p-4 md:p-6 rounded-[28px] border border-slate-100 bg-white">
+                <div className="space-y-3">
+                  {year1Items.map((item) => (
+                    <div
+                      key={item.label}
+                      className="flex items-center justify-between gap-4 py-3 border-b border-slate-50 last:border-0"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="text-sm md:text-[15px] font-bold text-slate-800 leading-tight">
+                          {item.label}
+                        </span>
+                        <span
+                          title={item.info}
+                          className="text-slate-400 shrink-0"
+                        >
+                          <Info className="w-4 h-4" />
+                        </span>
                       </div>
-                      <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-4">Base Tuition</p>
-                      <h3 className="text-4xl font-black italic">
-                         <span className="text-slate-500 text-xl mr-1 non-italic font-medium">{symbol}</span>
-                         {displayVal(tuition)}
-                         <span className="text-blue-400 text-2xl ml-1">{unit}</span>
-                      </h3>
-                      <p className="text-[9px] text-slate-400 mt-4 leading-relaxed font-bold">ANNUAL TUITION RATE</p>
-                   </Card>
-
-                   <Card className="p-8 rounded-[40px] border-none bg-white border border-slate-100 shadow-md hover:border-blue-500 transition-all relative overflow-hidden group">
-                      <div className="absolute top-0 right-0 p-8 opacity-5 text-blue-600">
-                         <Wallet className="w-24 h-24" />
-                      </div>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Living Estimate</p>
-                      <h3 className="text-4xl font-black text-slate-900">
-                         <span className="text-slate-300 text-xl mr-1 font-medium">{symbol}</span>
-                         {displayVal(living)}
-                         <span className="text-slate-300 text-2xl ml-1">{unit}</span>
-                      </h3>
-                      <p className="text-[9px] text-slate-400 mt-4 leading-relaxed font-bold uppercase tracking-widest">Global Base Average</p>
-                   </Card>
-
-                   <Card className="p-8 rounded-[40px] border-none bg-blue-600 text-white shadow-2xl relative overflow-hidden scale-105 ring-4 ring-blue-100">
-                      <p className="text-[10px] font-black text-blue-200 uppercase tracking-widest mb-4">Total Yearly</p>
-                      <h3 className="text-4xl font-black italic">
-                         <span className="text-blue-300 text-xl mr-1 non-italic font-medium">{symbol}</span>
-                         {displayVal(total)}
-                         <span className="text-blue-300 text-2xl ml-1">{unit}</span>
-                      </h3>
-                      <p className="text-[9px] text-blue-200 mt-4 leading-relaxed font-bold uppercase tracking-widest">Combined Base Model</p>
-                   </Card>
+                      <span className="text-sm md:text-base font-black text-slate-900 shrink-0">
+                        {formatCost(item.amountUsd)}
+                      </span>
+                    </div>
+                  ))}
                 </div>
+              </Card>
+            )}
 
-                <Card className="p-10 rounded-[48px] border-none bg-slate-50 border border-slate-100 relative overflow-hidden">
-                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-blue-100/20 blur-[120px] rounded-full" />
-                   <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
-                      <div className="flex-1 space-y-6">
-                         <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-blue-600 shadow-sm">
-                               <Sparkles className="w-6 h-6" />
-                            </div>
-                            <h4 className="text-2xl font-black text-slate-900">ROI Match Analysis</h4>
-                         </div>
-                         <p className="text-slate-600 font-medium leading-relaxed">
-                            Based on your target budget of {symbol} {form.budget}, {selectedMatch.name} provides an exceptional financial fit. 
-                            The institution currently ranks in the <span className="text-blue-600 font-black">Top 10% for Graduate Salary ROI</span> in {selectedMatch.location?.split(",")[0]}.
-                         </p>
-                         <div className="flex flex-wrap gap-4 pt-4">
-                            <div className="bg-white px-5 py-3 rounded-2xl border border-slate-100 shadow-xs">
-                               <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">Scholarship Pool</p>
-                               <p className="text-xs font-black text-emerald-600">3 ACTIVE OPPS</p>
-                            </div>
-                            <div className="bg-white px-5 py-3 rounded-2xl border border-slate-100 shadow-xs">
-                               <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">Affordability</p>
-                               <p className="text-xs font-black text-blue-600">HIGH MATCH</p>
-                            </div>
-                         </div>
-                      </div>
-                      <div className="w-full md:w-48 h-48 rounded-[40px] bg-slate-900 flex flex-col items-center justify-center p-6 text-white text-center shadow-xl">
-                         <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">Neural Score</p>
-                         <div className="text-6xl font-black text-blue-400 tracking-tighter italic">94%</div>
-                         <div className="mt-4 w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
-                            <div className="h-full bg-blue-400 w-[94%]" />
-                         </div>
-                      </div>
-                   </div>
-                </Card>
-            </div>
+            {costBreakdownTab === "perMonth" && (
+              <Card className="p-6 rounded-[28px] border border-slate-100 bg-white">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">
+                  Average monthly estimate
+                </p>
+                <p className="text-3xl font-black text-slate-900 mb-4">
+                  {formatCost(monthlyEstimateUsd)}
+                </p>
+                <p className="text-sm text-slate-500 font-medium">
+                  Monthly view is computed from the Year 1 estimate and helps
+                  you plan cash flow.
+                </p>
+              </Card>
+            )}
 
-            {/* 2. Side Strategy Panel */}
-            <div className="lg:col-span-4 space-y-8">
-               <Card className="p-8 rounded-[40px] border border-slate-100 bg-white shadow-sm space-y-8">
-                  <h5 className="text-[10px] font-black text-slate-900 uppercase tracking-[0.3em]">Selection Roadmap</h5>
-                  
-                  <div className="space-y-6">
-                     {[
-                        { step: "Target Selection", desc: selectedMatch.name, status: "completed" },
-                        { step: "Budget Alignment", desc: `${symbol} ${displayVal(total)}${unit} / Year`, status: "current" },
-                        { step: "Visa Confidence", desc: "Neuro-calculation Pending", status: "upcoming" }
-                     ].map((item, i) => (
-                        <div key={i} className="flex gap-4">
-                           <div className="flex flex-col items-center pt-1.5">
-                              <div className={`w-3 h-3 rounded-full ${item.status === "completed" ? "bg-emerald-500" : item.status === "current" ? "bg-blue-600 ring-4 ring-blue-100" : "bg-slate-200"}`} />
-                              {i < 2 && <div className="w-0.5 flex-1 bg-slate-100 mt-1" />}
-                           </div>
-                           <div className="pb-4">
-                              <p className={`text-[9px] font-black uppercase tracking-widest ${item.status === "upcoming" ? "text-slate-300" : "text-slate-400"}`}>{item.step}</p>
-                              <p className={`text-xs font-bold ${item.status === "upcoming" ? "text-slate-300" : "text-slate-900"} mt-1`}>{item.desc}</p>
-                           </div>
-                        </div>
-                     ))}
-                  </div>
+            {costBreakdownTab === "yearByYear" && (
+              <Card className="p-6 rounded-[28px] border border-slate-100 bg-white">
+                <div className="space-y-3">
+                  {yearlyProjection.map((row) => (
+                    <div
+                      key={row.year}
+                      className="flex items-center justify-between py-3 border-b border-slate-50 last:border-0"
+                    >
+                      <span className="text-sm font-bold text-slate-700">
+                        Year {row.year}
+                      </span>
+                      <span className="text-base font-black text-slate-900">
+                        {formatCost(row.valueUsd)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            )}
 
-                  <button 
-                     onClick={() => setStep(10)}
-                     className="w-full h-14 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-slate-900/10 flex items-center justify-center gap-2"
-                  >
-                     Analyze Official Eligibility
-                     <ChevronLeft className="w-4 h-4 rotate-180" />
-                  </button>
-               </Card>
+            <p className="text-xs md:text-sm text-slate-500 leading-relaxed">
+              Based on typical costs for students in {city}, {countryName}.
+              Actual amounts depend on your lifestyle and final university
+              invoice. Conversion reference: 1 USD ~= NPR {usdToNpr}.
+            </p>
 
-               <div className="p-6 bg-linear-to-br from-indigo-500 to-blue-600 rounded-[32px] text-white space-y-4 shadow-lg shadow-indigo-500/20">
-                  <div className="flex items-center gap-3">
-                     <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-md">
-                        <GraduationCap className="w-5 h-5" />
-                     </div>
-                     <p className="text-[10px] font-black uppercase tracking-widest">Strategy Note</p>
-                  </div>
-                  <p className="text-xs font-medium leading-relaxed opacity-90 italic">
-                     &ldquo;Choosing this institution aligns your academic profile with global hiring markets in {selectedMatch.location?.split(",")[1] || "the region"}.&rdquo;
-                  </p>
-               </div>
+            <div className="sticky bottom-0 pt-2 pb-4 bg-linear-to-t from-white via-white to-transparent">
+              <button
+                onClick={() => setStep(10)}
+                className="w-full h-14 rounded-2xl bg-slate-900 text-white font-black text-xs uppercase tracking-widest hover:bg-black transition-colors"
+              >
+                Refine with detailed financials
+              </button>
             </div>
           </div>
         </div>
       );
     }
 
-    // 10: Advanced Eligibility Checker & AI Insights
+    // 10: College acceptance - See complete details
     if (step === 10 && selectedMatch) {
-       const score = getEligibilityScore(form);
-       const insights = [];
-       const suggestions = [];
+      const profileScore = getEligibilityScore(form);
+      const admissionPct = Math.max(
+        35,
+        Math.min(
+          95,
+          Math.round(
+            (selectedMatch.admissionRate || 60) * 0.5 + profileScore * 0.5,
+          ),
+        ),
+      );
+      const admissionBand = getRateBand(admissionPct);
 
-       if (parseFloat(form.ielsWriting) < 6.0) insights.push("Writing band is below the preferred 6.0 threshold.");
-       if ((parseFloat(form.testScore) || 0) < 6.5) suggestions.push("Consider retaking the English test to reach a top-tier band (6.5/90+) for better matching.");
-       if (parseInt(form.backlogs) > 5) insights.push("High backlog count may require a strong SOP to explain academic progression.");
-       if (parseInt(form.bankBalance) < 4000000) suggestions.push("Strengthen financial dossier to avoid potential visa flags regarding liquidity.");
+      const gpaVal = parseFloat(form.gpa) || 3.0;
+      const backlogs = parseInt(form.backlogs) || 0;
+      const academicFit = Math.max(
+        4,
+        Math.min(
+          10,
+          Math.round((gpaVal / 4) * 10) - Math.min(2, Math.floor(backlogs / 3)),
+        ),
+      );
 
-       const status = score >= 80 ? "Eligible" : score >= 60 ? "Moderate" : "High Risk";
-       const colorClass = score >= 80 ? "text-emerald-500" : score >= 60 ? "text-amber-500" : "text-rose-500";
-       const bgClass = score >= 80 ? "bg-emerald-50" : score >= 60 ? "bg-amber-50" : "bg-rose-50";
+      const englishScore = parseFloat(form.testScore) || 0;
+      const englishStatus =
+        englishScore >= 6.5
+          ? "Meets minimum English requirement"
+          : "Below preferred band";
 
-       return (
-         <div className="animate-in fade-in slide-in-from-bottom-2 duration-400 max-w-full px-8 lg:px-16 pb-24">
-            {/* LEFT: MAIN SCORE PANEL */}
-            <div className="lg:col-span-12 mb-4 text-center">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 text-blue-700 text-[10px] font-black uppercase tracking-widest mb-6 border border-blue-100">
-                AI Eligibility Engine 4.0
+      const competitiveness: "Low" | "Medium" | "High" =
+        (selectedMatch.admissionRate || 60) >= 75
+          ? "Low"
+          : (selectedMatch.admissionRate || 60) >= 55
+            ? "Medium"
+            : "High";
+
+      const strengths = [
+        "Recent graduation year",
+        "Relevant field of study",
+        englishScore >= 6.5
+          ? "Solid English score"
+          : "English score close to required threshold",
+      ].slice(0, 4);
+
+      const weakAreas = [
+        gpaVal < 3.0
+          ? "CGPA below preferred band"
+          : "CGPA is competitive for many programmes",
+        (parseInt(form.studyGap) || 0) > 2
+          ? "Older graduation year"
+          : "Study gap is manageable",
+        (parseInt(form.sponsorIncome) || 0) < 150000
+          ? "No clear monthly funding strength"
+          : "Funding profile can be strengthened further",
+      ].slice(0, 4);
+
+      return (
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-400 max-w-full px-4 md:px-8 lg:px-16 pb-24">
+          <div className="max-w-4xl mx-auto space-y-6">
+            <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
+              How your admission chances are calculated
+            </h2>
+
+            <Card className="p-6 md:p-8 rounded-[32px] border border-slate-100 bg-white shadow-sm">
+              <p className="text-5xl md:text-6xl font-black text-slate-900 leading-none">
+                {admissionPct}%
+              </p>
+              <div className="mt-3">
+                <span
+                  className={`inline-flex px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest ${admissionBand.badgeClass}`}
+                >
+                  {admissionBand.label}
+                </span>
               </div>
-              <h2 className="text-4xl font-black text-slate-900 mb-2">Detailed Profile Assessment</h2>
-              <p className="text-gray-500 font-medium max-w-lg mx-auto italic">Predictive analysis based on current global admission trends.</p>
+            </Card>
+
+            <Card className="p-4 md:p-6 rounded-[28px] border border-slate-100 bg-white">
+              <h3 className="text-sm md:text-base font-black text-slate-900 mb-3">
+                Eligibility / chance bands
+              </h3>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[360px] text-left border-separate border-spacing-y-2">
+                  <thead>
+                    <tr className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                      <th className="px-3 py-2">Range</th>
+                      <th className="px-3 py-2">Chance</th>
+                      <th className="px-3 py-2">Color</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-sm font-bold text-slate-700">
+                    <tr>
+                      <td className="px-3 py-2">80% - 100%</td>
+                      <td className="px-3 py-2">High Chance</td>
+                      <td className="px-3 py-2 text-emerald-700">Green</td>
+                    </tr>
+                    <tr>
+                      <td className="px-3 py-2">50% - 80%</td>
+                      <td className="px-3 py-2">Moderate Chance</td>
+                      <td className="px-3 py-2 text-amber-700">Yellow</td>
+                    </tr>
+                    <tr>
+                      <td className="px-3 py-2">Below 50%</td>
+                      <td className="px-3 py-2">Low Chance</td>
+                      <td className="px-3 py-2 text-rose-700">Red</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+
+            <Card className="p-6 rounded-[28px] border border-slate-100 bg-white space-y-4">
+              <h3 className="text-lg font-black text-slate-900">
+                Academic match
+              </h3>
+              <p className="text-sm font-bold text-blue-700">
+                Academic fit: {academicFit}/10
+              </p>
+              <p className="text-sm text-slate-600">
+                Your CGPA is within the usual range for admits in this course.
+              </p>
+            </Card>
+
+            <Card className="p-6 rounded-[28px] border border-slate-100 bg-white space-y-4">
+              <h3 className="text-lg font-black text-slate-900">
+                English &amp; test scores
+              </h3>
+              <span
+                className={`inline-flex px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest ${englishScore >= 6.5 ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}
+              >
+                {englishStatus}
+              </span>
+              <p className="text-sm text-slate-600">
+                Other tests, if needed by programme, may further improve your
+                profile strength.
+              </p>
+            </Card>
+
+            <Card className="p-6 rounded-[28px] border border-slate-100 bg-white space-y-4">
+              <h3 className="text-lg font-black text-slate-900">
+                Programme competitiveness
+              </h3>
+              <span
+                className={`inline-flex px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest ${competitiveness === "Low" ? "bg-emerald-50 text-emerald-700" : competitiveness === "Medium" ? "bg-amber-50 text-amber-700" : "bg-rose-50 text-rose-700"}`}
+              >
+                {competitiveness} competition
+              </span>
+              <p className="text-sm text-slate-600">
+                This programme receives many international applications.
+              </p>
+            </Card>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Card className="p-6 rounded-[28px] border border-slate-100 bg-white">
+                <h3 className="text-lg font-black text-slate-900 mb-3">
+                  Strengths
+                </h3>
+                <ul className="space-y-2">
+                  {strengths.map((item) => (
+                    <li
+                      key={item}
+                      className="text-sm text-slate-700 font-medium flex items-start gap-2"
+                    >
+                      <span className="text-emerald-500 mt-1">•</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+              <Card className="p-6 rounded-[28px] border border-slate-100 bg-white">
+                <h3 className="text-lg font-black text-slate-900 mb-3">
+                  Risks / weak areas
+                </h3>
+                <ul className="space-y-2">
+                  {weakAreas.map((item) => (
+                    <li
+                      key={item}
+                      className="text-sm text-slate-700 font-medium flex items-start gap-2"
+                    >
+                      <span className="text-amber-500 mt-1">•</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </Card>
             </div>
 
-            <div className="lg:col-span-5 space-y-6">
-               <Card className="p-8 rounded-[40px] border-none shadow-2xl bg-white relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-6 opacity-5">
-                    <Sparkles className="w-24 h-24" />
-                  </div>
-                  <div className="text-center space-y-4">
-                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Overall Match Score</p>
-                     <div className="relative w-40 h-40 mx-auto flex items-center justify-center">
-                        <svg className="w-full h-full transform -rotate-90">
-                           <circle cx="80" cy="80" r="70" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-slate-50" />
-                           <circle cx="80" cy="80" r="70" stroke="currentColor" strokeWidth="8" fill="transparent" strokeDasharray={440} strokeDashoffset={440 - (440 * score) / 100} className={`${colorClass} transition-all duration-1000 delay-300`} />
-                        </svg>
-                        <div className="absolute inset-0 flex flex-col items-center justify-center">
-                           <span className={`text-5xl font-black ${colorClass}`}>{score}</span>
-                           <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">/ 100</span>
-                        </div>
-                     </div>
-                     <div className={`inline-flex items-center gap-2 px-6 py-2 rounded-full ${bgClass} ${colorClass} font-black text-sm uppercase tracking-widest border border-current/10`}>
-                        {status === "Eligible" ? <CheckCircle2 className="w-4 h-4" /> : <ShieldAlert className="w-4 h-4" />}
-                        {status}
-                     </div>
-                  </div>
-               </Card>
-
-               <Card className="p-6 rounded-[32px] border border-slate-100 bg-slate-50/30">
-                  <h4 className="text-xs font-black text-slate-900 uppercase tracking-widest mb-6 border-b border-slate-100 pb-4">Test Performance Breakdown</h4>
-                  <div className="space-y-5">
-                     {form.testType === "IELTS" && [
-                        { l: "Reading", v: parseFloat(form.ielsReading) || 0 },
-                        { l: "Writing", v: parseFloat(form.ielsWriting) || 0 },
-                        { l: "Listening", v: parseFloat(form.ielsListening) || 0 },
-                        { l: "Speaking", v: parseFloat(form.ielsSpeaking) || 0 }
-                     ].map((item, i) => (
-                        <div key={i} className="space-y-1.5">
-                           <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
-                              <span className="text-slate-400">{item.l}</span>
-                              <span className={item.v >= 6.0 ? "text-emerald-500" : "text-rose-500"}>{item.v}</span>
-                           </div>
-                           <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                              <div className={`h-full ${item.v >= 6.0 ? "bg-emerald-500" : item.v >= 5.5 ? "bg-amber-500" : "bg-rose-500"} transition-all duration-1000`} style={{ width: `${(item.v / 9) * 100}%` }} />
-                           </div>
-                        </div>
-                     ))}
-                     {form.testType === "GRE" && [
-                        { l: "Verbal", v: parseInt(form.greVerbal) || 130, max: 170 },
-                        { l: "Quant", v: parseInt(form.greQuant) || 130, max: 170 },
-                        { l: "AWA", v: parseFloat(form.greAwa) || 0, max: 6 }
-                     ].map((item, i) => (
-                        <div key={i} className="space-y-1.5">
-                           <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
-                              <span className="text-slate-400">{item.l}</span>
-                              <span className="text-slate-900">{item.v}</span>
-                           </div>
-                           <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                              <div className={`h-full bg-indigo-500 transition-all duration-1000`} style={{ width: `${((item.v - (item.max === 170 ? 130 : 0)) / (item.max === 170 ? 40 : 6)) * 100}%` }} />
-                           </div>
-                        </div>
-                     ))}
-                  </div>
-               </Card>
+            <div className="pt-2 space-y-3">
+              <button
+                onClick={() => setStep(7)}
+                className="w-full h-14 rounded-2xl bg-slate-900 text-white font-black text-xs uppercase tracking-widest hover:bg-black transition-colors"
+              >
+                See how to improve my admission chances
+              </button>
+              <button
+                onClick={() => setStep(3)}
+                className="w-full text-sm font-bold text-blue-700 hover:text-blue-800 transition-colors"
+              >
+                Try a different programme
+              </button>
             </div>
-
-            {/* RIGHT: AI ANALYSIS & ANALYTICS */}
-            <div className="lg:col-span-7 space-y-6">
-               <Card className="p-8 rounded-[40px] border-none shadow-xl bg-slate-900 text-white relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-8 opacity-10">
-                    <Monitor className="w-32 h-32" />
-                  </div>
-                  <h4 className="text-xs font-black text-blue-400 uppercase tracking-[0.3em] mb-6 italic italic italic">AI Diagnostic Insights</h4>
-                  <div className="space-y-4">
-                     {insights.length > 0 ? insights.map((insight, i) => (
-                        <div key={i} className="flex gap-4 p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
-                           <div className="w-2 h-2 rounded-full bg-amber-500 mt-2 shrink-0" />
-                           <p className="text-sm font-medium text-slate-100 leading-relaxed">{insight}</p>
-                        </div>
-                     )) : (
-                        <div className="flex gap-4 p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 backdrop-blur-md">
-                           <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-                           <p className="text-sm font-bold text-emerald-50">Your profile meets or exceeds most requirements for top-tier worldwide admissions.</p>
-                        </div>
-                     )}
-                  </div>
-                  <div className="mt-8 pt-8 border-t border-white/5 flex items-center justify-between">
-                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">
-                           <Sparkles className="w-5 h-5" />
-                        </div>
-                        <div>
-                           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">AI Confidence</p>
-                           <p className="text-sm font-black text-white">96.8% Reliable</p>
-                        </div>
-                     </div>
-                     <div className="text-right">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Top Region Match</p>
-                        <p className="text-sm font-black text-blue-400">{form.countries[0] || "Global Entry"}</p>
-                     </div>
-                  </div>
-               </Card>
-
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Card className="p-6 rounded-[32px] border border-slate-100 bg-white">
-                     <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Smart Suggestions</h5>
-                     <div className="space-y-3">
-                        {suggestions.map((s, i) => (
-                           <div key={i} className="flex gap-2 text-xs font-bold text-slate-600">
-                              <span className="text-blue-500">•</span>
-                              {s}
-                           </div>
-                        ))}
-                        {suggestions.length === 0 && (
-                           <div className="text-xs font-bold text-emerald-600 flex items-center gap-2">
-                              <CheckCircle2 className="w-3.5 h-3.5" />
-                              Profile is optimized for success.
-                           </div>
-                        )}
-                        <div className="text-[10px] font-medium text-slate-400 mt-4 leading-relaxed bg-slate-50 p-3 rounded-xl">
-                           <span className="font-black text-slate-900 mr-1 italic">Note:</span>
-                           {form.countries.includes("US") ? "USA institutions prioritize holistic profiles including GRE and SOP." : "Your target region focuses heavily on standardized English scores."}
-                        </div>
-                     </div>
-                  </Card>
-                  
-                  <Card className="p-6 rounded-[32px] flex items-center justify-center bg-linear-to-br from-blue-600 to-indigo-700 text-white border-none shadow-lg">
-                     <div className="text-center">
-                        <p className="text-[10px] font-black uppercase tracking-[0.3em] opacity-60 mb-3">Country Fit</p>
-                        <div className="flex flex-col items-center gap-2">
-                           {form.countries.slice(0, 3).map(code => (
-                              <div key={code} className="flex items-center gap-3 bg-white/10 px-4 py-2 rounded-xl backdrop-blur-md w-full">
-                                 <FlagIcon countryCode={code} className="w-5 h-4 rounded-xs" />
-                                 <span className="text-xs font-black tracking-widest">{code} Match: 90%+</span>
-                              </div>
-                           ))}
-                        </div>
-                     </div>
-                  </Card>
-               </div>
-            </div>
-         </div>
-       );
+          </div>
+        </div>
+      );
     }
 
-    // 11: Cost & Visa Estimation Dashboard
+    // 11: Visa acceptance - See complete details
     if (step === 11 && selectedMatch) {
-       const country = form.countries[0] || "AU";
-       const duration = parseInt(form.duration) || 3;
-       const isTier1 = form.cityType === "Tier 1";
-       const isPrivate = form.univType === "Private";
+      const countryCode =
+        selectedMatch.countryCode || form.countries[0] || "AU";
+      const countryName =
+        COUNTRIES.find((c) => c.code === countryCode)?.name || countryCode;
+      const bankBalance = parseInt(form.bankBalance) || 0;
+      const sponsorIncome = parseInt(form.sponsorIncome) || 0;
+      const english = parseFloat(form.testScore) || 0;
 
-       // --- 1. BASE COST DATA (Lakhs NPR) ---
-       const costsMap: any = {
-          US: { t: 30, t_p: 40, v: 0.25 },
-          UK: { t: 25, t_p: 35, v: 0.50 },
-          CA: { t: 18, t_p: 28, v: 0.20 },
-          AU: { t: 28, t_p: 38, v: 1.25 }
-       };
+      const financiallyStrong =
+        bankBalance >= 4500000 && sponsorIncome >= 150000;
+      const fundingStatus = financiallyStrong
+        ? "Funding looks adequate"
+        : "Funding may be tight";
 
-       const base = costsMap[country] || costsMap.AU;
-       const tuitionAnnual = isPrivate ? base.t_p : base.t;
-       const livingAnnual = isTier1 ? 15 : 10;
-       const oneTimeCosts = 0.35 + base.v + 1.2 + 0.5; // IELTS + Visa + Flight + Consultancy
+      const baseVisaPct = financiallyStrong ? 74 : 62;
+      const englishEffect = english >= 6.5 ? 6 : 0;
+      const visaPct = Math.min(95, Math.max(45, baseVisaPct + englishEffect));
+      const visaBand = getRateBand(visaPct);
 
-       const totalYearly = tuitionAnnual + livingAnnual;
-       const totalCourse = (totalYearly * duration) + oneTimeCosts;
-       
-       // --- 2. VISA PROBABILITY LOGIC ---
-       const bank = (parseInt(form.bankBalance) || 0) / 100000; // to Lakhs
-       const minRequiredBank = totalYearly + 5; // buffer
-       const hasIeltsGood = parseFloat(form.testScore) >= 6.5;
-       
-       let visaProb = 0;
-       if (bank >= minRequiredBank && hasIeltsGood) visaProb = 92;
-       else if (bank >= minRequiredBank || (hasIeltsGood && bank >= totalYearly * 0.7)) visaProb = 75;
-       else if (bank >= totalYearly * 0.5) visaProb = 55;
-       else visaProb = 35;
+      const hasDetailedForm = Boolean(
+        form.bankBalance && form.sponsorIncome && form.testScore,
+      );
+      const checklist = [
+        { label: "Passport", ready: false },
+        { label: "Transcripts", ready: true },
+        { label: "Work letters", ready: (parseInt(form.studyGap) || 0) > 0 },
+        { label: "SOP", ready: false },
+      ];
 
-       // --- 3. RISK & INSIGHTS ---
-       const risks = [];
-       if (bank < totalYearly) risks.push("Current liquidity is below total first-year investment.");
-       if (isTier1 && isPrivate) risks.push("High-cost combination: Elite city with Private education.");
-       if (parseInt(form.sponsorIncome) < 150000) risks.push("Monthly sponsor income may be flagged for long-term sustainability.");
+      const riskBullets = [
+        "No previous travel history",
+        financiallyStrong
+          ? "Funding is acceptable but could be better documented"
+          : "Limited financial proof",
+        english < 6.5
+          ? "English profile is below preferred level"
+          : "Study plan narrative can be made sharper",
+      ].slice(0, 4);
 
-       const insights = [
-          `Your financial coverage is ${Math.round((bank / minRequiredBank) * 100)}% of the recommended bank proof.`,
-          form.cityType === "Tier 1" ? "Choosing a Tier 2 city could save you ~NPR 5 Lakhs annually." : "Tier 2 selection optimized your living expenses.",
-          country === "CA" ? "Canada is currently the most cost-efficient option for your profile." : "This destination offers high ROI but requires strong financial standing."
-       ];
+      return (
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-400 max-w-full px-4 md:px-8 lg:px-16 pb-24">
+          <div className="max-w-4xl mx-auto space-y-6">
+            <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
+              Your visa approval outlook
+            </h2>
 
-       const toggleUSD = form.currency === "USD";
-       const displayVal = (v: number) => toggleUSD ? (v / 1.35).toFixed(1) : v.toFixed(1);
-       const symbol = toggleUSD ? "$" : "NPR";
-       const unit = toggleUSD ? "k" : "L";
+            <Card className="p-6 md:p-8 rounded-[32px] border border-slate-100 bg-white shadow-sm">
+              <p className="text-5xl md:text-6xl font-black text-slate-900 leading-none">
+                {visaPct}%
+              </p>
+              <div className="mt-3">
+                <span
+                  className={`inline-flex px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest ${visaBand.badgeClass}`}
+                >
+                  {visaBand.label}
+                </span>
+              </div>
+            </Card>
 
-       return (
-         <div className="animate-in fade-in slide-in-from-bottom-2 duration-400 max-w-full px-4 pb-24">
-            {/* DASHBOARD HEADER */}
-            <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-6">
-               <div className="text-center md:text-left">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-widest mb-4 border border-emerald-100">
-                     Phase 03: Financial & Visa Oracle
+            <Card className="p-4 md:p-6 rounded-[28px] border border-slate-100 bg-white">
+              <h3 className="text-sm md:text-base font-black text-slate-900 mb-3">
+                Visa rate bands
+              </h3>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[360px] text-left border-separate border-spacing-y-2">
+                  <thead>
+                    <tr className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                      <th className="px-3 py-2">Range</th>
+                      <th className="px-3 py-2">Chance</th>
+                      <th className="px-3 py-2">Color</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-sm font-bold text-slate-700">
+                    <tr>
+                      <td className="px-3 py-2">80% - 100%</td>
+                      <td className="px-3 py-2">High Chance</td>
+                      <td className="px-3 py-2 text-emerald-700">Green</td>
+                    </tr>
+                    <tr>
+                      <td className="px-3 py-2">50% - 80%</td>
+                      <td className="px-3 py-2">Moderate Chance</td>
+                      <td className="px-3 py-2 text-amber-700">Yellow</td>
+                    </tr>
+                    <tr>
+                      <td className="px-3 py-2">Below 50%</td>
+                      <td className="px-3 py-2">Low Chance</td>
+                      <td className="px-3 py-2 text-rose-700">Red</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+
+            <Card className="p-6 rounded-[28px] border border-slate-100 bg-white space-y-3">
+              <h3 className="text-lg font-black text-slate-900">
+                Country trends
+              </h3>
+              <p className="text-sm text-slate-600">
+                Student visas for {countryName} are generally favourable for
+                profiles with clear study plans and strong funding.
+              </p>
+            </Card>
+
+            <Card className="p-6 rounded-[28px] border border-slate-100 bg-white space-y-3">
+              <h3 className="text-lg font-black text-slate-900">
+                Profile &amp; study plan
+              </h3>
+              <p className="text-sm text-slate-600">
+                Your {form.field || "academic"} background aligns well with a{" "}
+                {selectedMatch.popularPrograms?.[0] || "Master's programme"}.
+              </p>
+            </Card>
+
+            <Card className="p-6 rounded-[28px] border border-slate-100 bg-white space-y-3">
+              <h3 className="text-lg font-black text-slate-900">
+                Financial strength
+              </h3>
+              <span
+                className={`inline-flex px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest ${financiallyStrong ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}
+              >
+                {fundingStatus}
+              </span>
+              <p className="text-sm text-slate-600">
+                Based on your declared income band and funding type (
+                {form.sponsorType}), this is a preliminary financial readiness
+                signal.
+              </p>
+            </Card>
+
+            <Card className="p-6 rounded-[28px] border border-slate-100 bg-white space-y-3">
+              <h3 className="text-lg font-black text-slate-900">
+                Document readiness
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {checklist.map((item) => (
+                  <div
+                    key={item.label}
+                    className="flex items-center gap-2 text-sm font-medium text-slate-700"
+                  >
+                    <span
+                      className={`w-2 h-2 rounded-full ${item.ready ? "bg-emerald-500" : "bg-amber-500"}`}
+                    />
+                    <span>{item.label}</span>
                   </div>
-                  <h2 className="text-4xl font-black text-slate-900 leading-tight">Investment Dashboard</h2>
-                  <p className="text-slate-500 font-medium italic italic italic">Comprehensive breakdown for {selectedMatch.name}</p>
-               </div>
-               <div className="flex bg-slate-100 p-1.5 rounded-2xl border border-slate-200 shadow-inner">
-                  {["NPR", "USD"].map(c => (
-                     <button key={c} onClick={() => updateForm("currency", c)} className={`px-6 py-2 rounded-xl text-[10px] font-black tracking-widest transition-all ${form.currency === c ? "bg-white text-blue-600 shadow-md scale-105" : "text-slate-400 hover:text-slate-600"}`}>{c}</button>
-                  ))}
-               </div>
-            </div>
+                ))}
+              </div>
+              <p className="text-sm font-bold text-amber-700">
+                Some documents still missing.
+              </p>
+            </Card>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-               {/* 1. TOTAL HIGHLIGHT */}
-               <div className="lg:col-span-8 space-y-8">
-                  <Card className="p-10 rounded-[48px] border-none bg-slate-900 text-white shadow-2xl relative overflow-hidden group">
-                     <div className="absolute top-0 right-0 p-12 opacity-5 group-hover:opacity-10 transition-opacity">
-                        <Wallet className="w-48 h-48" />
-                     </div>
-                     <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-10">
-                        <div className="text-center md:text-left">
-                           <p className="text-[10px] font-black text-blue-400 uppercase tracking-[0.4em] mb-4">Total Course Investment</p>
-                           <h3 className="text-6xl font-black tracking-tighter mb-2 italic">
-                              <span className="text-slate-500 text-3xl mr-2 font-medium non-italic tracking-normal">{symbol}</span>
-                              {displayVal(totalCourse)}
-                              <span className="text-blue-400 text-4xl ml-2">{unit}</span>
-                           </h3>
-                           <p className="text-slate-400 font-medium">Estimated for the entire {duration}-year duration.</p>
-                        </div>
-                        <div className="w-full md:w-auto grid grid-cols-2 gap-4">
-                           <div className="bg-white/5 border border-white/10 p-4 rounded-3xl backdrop-blur-md">
-                              <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Yearly Base</p>
-                              <p className="text-lg font-black">{symbol}{displayVal(totalYearly)}{unit}</p>
-                           </div>
-                           <div className="bg-white/5 border border-white/10 p-4 rounded-3xl backdrop-blur-md">
-                              <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Required Bank</p>
-                              <p className="text-lg font-black text-emerald-400">{symbol}{displayVal(minRequiredBank)}{unit}</p>
-                           </div>
-                        </div>
-                     </div>
+            <Card className="p-6 rounded-[28px] border border-slate-100 bg-white space-y-3">
+              <h3 className="text-lg font-black text-slate-900">
+                Areas to strengthen before applying
+              </h3>
+              <ul className="space-y-2">
+                {riskBullets.map((risk) => (
+                  <li
+                    key={risk}
+                    className="text-sm text-slate-700 font-medium flex items-start gap-2"
+                  >
+                    <span className="text-amber-500 mt-1">•</span>
+                    <span>{risk}</span>
+                  </li>
+                ))}
+              </ul>
+            </Card>
 
-                     <div className="mt-8 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-6">
-                        <div className="flex gap-8">
-                           <div>
-                              <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Monthly Cashflow</p>
-                              <p className="text-xl font-black text-blue-400">{symbol}{displayVal(livingAnnual / 12)}{unit}<span className="text-[10px] text-slate-500 ml-1 font-medium non-italic">/mo</span></p>
-                           </div>
-                           <div>
-                              <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">ROI Potential</p>
-                              <p className="text-xl font-black text-emerald-400">High</p>
-                           </div>
-                        </div>
-                        <button className="flex items-center gap-3 bg-white text-slate-900 px-6 py-3 rounded-2xl font-black text-xs hover:bg-blue-50 transition-all shadow-xl shadow-white/5">
-                           <Download className="w-4 h-4" />
-                           GENERATE PDF REPORT
-                        </button>
-                     </div>
-                  </Card>
-
-                  {/* 2. PIE CHART & BREAKDOWN */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                     <Card className="p-8 rounded-[40px] border border-slate-100 bg-white">
-                        <h4 className="text-xs font-black text-slate-900 uppercase tracking-widest mb-8">Cost Allocation</h4>
-                        <div className="flex items-center gap-8">
-                           <div className="relative w-32 h-32 flex items-center justify-center">
-                              <svg className="w-full h-full transform -rotate-90">
-                                 <circle cx="64" cy="64" r="56" stroke="#f1f5f9" strokeWidth="16" fill="transparent" />
-                                 <circle cx="64" cy="64" r="56" stroke="#3b82f6" strokeWidth="16" fill="transparent" strokeDasharray={351} strokeDashoffset={351 - (351 * (tuitionAnnual / totalYearly))} />
-                                 <circle cx="64" cy="64" r="56" stroke="#10b981" strokeWidth="16" fill="transparent" strokeDasharray={351} strokeDashoffset={351 - (351 * (livingAnnual / totalYearly))} style={{ rotate: `${(tuitionAnnual / totalYearly) * 360}deg` }} />
-                              </svg>
-                              <div className="absolute inset-0 flex items-center justify-center">
-                                 <Calculator className="w-6 h-6 text-slate-200" />
-                              </div>
-                           </div>
-                           <div className="space-y-4 flex-1">
-                              <div className="flex items-center justify-between">
-                                 <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-blue-500" />
-                                    <span className="text-[10px] font-black text-slate-400 uppercase">Tuition</span>
-                                 </div>
-                                 <span className="text-xs font-black text-slate-900">{Math.round((tuitionAnnual / totalYearly) * 100)}%</span>
-                              </div>
-                              <div className="flex items-center justify-between">
-                                 <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                                    <span className="text-[10px] font-black text-slate-400 uppercase">Living</span>
-                                 </div>
-                                 <span className="text-xs font-black text-slate-900">{Math.round((livingAnnual / totalYearly) * 100)}%</span>
-                              </div>
-                           </div>
-                        </div>
-                     </Card>
-
-                     <Card className="p-8 rounded-[40px] border border-slate-100 bg-white space-y-4">
-                        <h4 className="text-xs font-black text-slate-900 uppercase tracking-widest mb-4">One-Time Fees</h4>
-                        {[
-                           { l: "Visa & Gov Fees", v: base.v },
-                           { l: "IELTS Exam", v: 0.35 },
-                           { l: "Flight Essentials", v: 1.2 },
-                           { l: "Application Fees", v: 0.5 }
-                        ].map((fee, i) => (
-                           <div key={i} className="flex justify-between items-center py-2 border-b border-slate-50 last:border-0">
-                              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">{fee.l}</span>
-                              <span className="text-xs font-black text-slate-900">{symbol} {displayVal(fee.v)}{unit}</span>
-                           </div>
-                        ))}
-                     </Card>
-                  </div>
-               </div>
-
-               {/* 3. VISA ORACLE PANEL */}
-               <div className="lg:col-span-4 space-y-6">
-                  <Card className="p-8 rounded-[40px] border-none bg-blue-600 text-white shadow-xl shadow-blue-500/20 relative overflow-hidden">
-                     <div className="absolute top-0 right-0 p-8 opacity-10">
-                        <ShieldCheck className="w-24 h-24" />
-                     </div>
-                     <div className="text-center space-y-6 relative z-10">
-                        <p className="text-[10px] font-black text-blue-200 uppercase tracking-[0.3em]">Visa Success Probability</p>
-                        <div className="text-6xl font-black tracking-tighter">
-                           {visaProb}%
-                        </div>
-                        <div className="h-3 w-full bg-white/10 rounded-full overflow-hidden">
-                           <div className="h-full bg-white transition-all duration-1000 delay-500 shadow-lg shadow-white/50" style={{ width: `${visaProb}%` }} />
-                        </div>
-                        <p className="text-xs font-medium text-blue-100 italic">&quot;Your financial strength is the primary driver of this confidence score.&quot;</p>
-                     </div>
-                  </Card>
-
-                  <Card className="p-8 rounded-[40px] border border-slate-100 bg-white">
-                     <h4 className="text-xs font-black text-slate-900 uppercase tracking-widest mb-6">Risk Analysis</h4>
-                     <div className="space-y-4">
-                        {risks.length > 0 ? risks.map((r, i) => (
-                           <div key={i} className="flex gap-3 p-4 rounded-2xl bg-rose-50 border border-rose-100">
-                              <ShieldAlert className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
-                              <p className="text-[10px] font-bold text-rose-700 leading-relaxed">{r}</p>
-                           </div>
-                        )) : (
-                           <div className="flex gap-3 p-4 rounded-2xl bg-emerald-50 border border-emerald-100">
-                              <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                              <p className="text-[10px] font-bold text-emerald-700 leading-relaxed">No high-risk financial markers detected.</p>
-                           </div>
-                        )}
-                     </div>
-
-                     <div className="mt-8 pt-8 border-t border-slate-100">
-                        <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">AI Strategic Insights</h5>
-                        <div className="space-y-3">
-                           {insights.map((ins, i) => (
-                              <div key={i} className="flex gap-2 text-[10px] font-bold text-slate-600 leading-relaxed">
-                                 <span className="text-blue-500">•</span>
-                                 {ins}
-                              </div>
-                           ))}
-                        </div>
-                     </div>
-                  </Card>
-               </div>
-            </div>
-         </div>
-       );
+            <button
+              onClick={() => setStep(hasDetailedForm ? 12 : 7)}
+              className="w-full h-14 rounded-2xl bg-slate-900 text-white font-black text-xs uppercase tracking-widest hover:bg-black transition-colors"
+            >
+              Strengthen my visa profile
+            </button>
+          </div>
+        </div>
+      );
     }
 
     // 12: Document Checklist
     if (step === 12 && selectedMatch) {
       const docs = [
-        { t: "Valid Passport", desc: "Must be valid for at least 6 months after your course end date." },
-        { t: "Academic Transcripts", desc: "Original SLC/SEE, +2, and Bachelor's degree certificates." },
-        { t: "English Score Certificate", desc: `${form.testType} score of ${form.testScore} or higher.` },
-        { t: "Statement of Purpose (SOP)", desc: `Your personal essay focused on why you chose ${selectedMatch.name}.` },
-        { t: "Financial Evidence", desc: "Bank balance certificate showing coverage for first year tuition & living." },
-        { t: "Letters of Recommendation", desc: "At least two letters from previous professors or managers." },
-        { t: "Character Certificate", desc: "Issued by your previous academic institution." },
-        { t: "Passport Sized Photos", desc: "Recent photos with white background (meeting embassy specs)." },
+        {
+          t: "Valid Passport",
+          desc: "Must be valid for at least 6 months after your course end date.",
+        },
+        {
+          t: "Academic Transcripts",
+          desc: "Original SLC/SEE, +2, and Bachelor's degree certificates.",
+        },
+        {
+          t: "English Score Certificate",
+          desc: `${form.testType} score of ${form.testScore} or higher.`,
+        },
+        {
+          t: "Statement of Purpose (SOP)",
+          desc: `Your personal essay focused on why you chose ${selectedMatch.name}.`,
+        },
+        {
+          t: "Financial Evidence",
+          desc: "Bank balance certificate showing coverage for first year tuition & living.",
+        },
+        {
+          t: "Letters of Recommendation",
+          desc: "At least two letters from previous professors or managers.",
+        },
+        {
+          t: "Character Certificate",
+          desc: "Issued by your previous academic institution.",
+        },
+        {
+          t: "Passport Sized Photos",
+          desc: "Recent photos with white background (meeting embassy specs).",
+        },
       ];
 
       return (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
           <div className="mb-10">
-            <h2 className="text-3xl font-black text-slate-900 mb-2">Preparation Checklist</h2>
-            <p className="text-gray-500 font-medium">Ensure you have these documents ready for your application.</p>
+            <h2 className="text-3xl font-black text-slate-900 mb-2">
+              Preparation Checklist
+            </h2>
+            <p className="text-gray-500 font-medium">
+              Ensure you have these documents ready for your application.
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {docs.map((d, i) => (
-              <div key={i} className="group p-6 bg-white border border-slate-100 rounded-3xl hover:border-blue-500 transition-all shadow-sm flex items-start gap-4">
+              <div
+                key={i}
+                className="group p-6 bg-white border border-slate-100 rounded-3xl hover:border-blue-500 transition-all shadow-sm flex items-start gap-4"
+              >
                 <div className="mt-1 w-6 h-6 rounded-full border-2 border-slate-100 flex items-center justify-center text-transparent group-hover:border-blue-500 group-hover:bg-blue-50 transition-all">
                   <FileCheck className="w-3 h-3 group-hover:text-blue-500" />
                 </div>
                 <div>
                   <h4 className="font-bold text-slate-900 mb-1">{d.t}</h4>
-                  <p className="text-xs text-slate-500 leading-relaxed font-medium">{d.desc}</p>
+                  <p className="text-xs text-slate-500 leading-relaxed font-medium">
+                    {d.desc}
+                  </p>
                 </div>
               </div>
             ))}
@@ -2470,268 +3303,393 @@ export default function AbroadLiftMatchesPage() {
 
     // 13: Final Phase Financial Oracle & Roadmap
     if (step === 13 && selectedMatch) {
-       const duration = parseInt(form.duration) || 3;
-       const eligScore = getEligibilityScore(form);
-       const scholPercent = eligScore >= 90 ? 50 : eligScore >= 80 ? 20 : 0;
-       
-       const baseTuitionAnnual = selectedMatch.tuitionFee || 25000;
-       const totalScholSavings = (baseTuitionAnnual * (scholPercent / 100)) * duration;
-       
-       const tuitionAnnual = baseTuitionAnnual * (1 - scholPercent / 100);
-       const livingAnnual = 12000;
-       const oneTime = 3500; 
-       
-       const totalTuition = tuitionAnnual * duration;
-       const totalLiving = livingAnnual * duration;
-       const totalInvestment = totalTuition + totalLiving + oneTime;
+      const duration = parseInt(form.duration) || 3;
+      const eligScore = getEligibilityScore(form);
+      const scholPercent = eligScore >= 90 ? 50 : eligScore >= 80 ? 20 : 0;
 
-       const toggleUSD = form.currency === "USD";
-       const displayVal = (v: number) => toggleUSD ? (v / 1.35).toFixed(1) : v.toFixed(1);
-       const symbol = toggleUSD ? "$" : "NPR";
-       const unit = toggleUSD ? "k" : "L";
+      const baseTuitionAnnual = selectedMatch.tuitionFee || 25000;
+      const totalScholSavings =
+        baseTuitionAnnual * (scholPercent / 100) * duration;
 
-       const tuitionPercent = Math.round((totalTuition / totalInvestment) * 100);
-       const livingPercent = Math.round((totalLiving / totalInvestment) * 100);
-       const miscPercent = 100 - tuitionPercent - livingPercent;
+      const tuitionAnnual = baseTuitionAnnual * (1 - scholPercent / 100);
+      const livingAnnual = 12000;
+      const oneTime = 3500;
 
-       const meta = {
-         US: { v: 185 },
-         CA: { v: 110 },
-         AU: { v: 450 },
-         UK: { v: 600 },
-       }[selectedMatch.countryCode as "US" | "CA" | "AU" | "UK"] || { v: 100 };
+      const totalTuition = tuitionAnnual * duration;
+      const totalLiving = livingAnnual * duration;
+      const totalInvestment = totalTuition + totalLiving + oneTime;
 
-       return (
-         <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 max-w-full px-8 lg:px-16 pb-32">
-            {/* 1. Header Spotlight */}
-            <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-10 border-b border-slate-50 pb-12">
-               <div>
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-widest mb-6 border border-emerald-100 italic">
-                     Phase 03: Final Financial Commitment
+      const toggleUSD = form.currency === "USD";
+      const displayVal = (v: number) =>
+        toggleUSD ? (v / 1.35).toFixed(1) : v.toFixed(1);
+      const symbol = toggleUSD ? "$" : "NPR";
+      const unit = toggleUSD ? "k" : "L";
+
+      const tuitionPercent = Math.round((totalTuition / totalInvestment) * 100);
+      const livingPercent = Math.round((totalLiving / totalInvestment) * 100);
+      const miscPercent = 100 - tuitionPercent - livingPercent;
+
+      const meta = {
+        US: { v: 185 },
+        CA: { v: 110 },
+        AU: { v: 450 },
+        UK: { v: 600 },
+      }[selectedMatch.countryCode as "US" | "CA" | "AU" | "UK"] || { v: 100 };
+
+      return (
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 max-w-full px-8 lg:px-16 pb-32">
+          {/* 1. Header Spotlight */}
+          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-10 border-b border-slate-50 pb-12">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-widest mb-6 border border-emerald-100 italic">
+                Phase 03: Final Financial Commitment
+              </div>
+              <h2 className="text-5xl font-black text-slate-900 leading-tight tracking-tighter italic uppercase">
+                Budget Summary
+              </h2>
+
+              {/* Currency Switching Tabs */}
+              <div className="flex items-center gap-1.5 p-1.5 bg-slate-50 rounded-2xl w-fit mt-8 border border-slate-100">
+                <button
+                  onClick={() => setForm({ ...form, currency: "NPR" })}
+                  className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${!toggleUSD ? "bg-white text-blue-600 shadow-sm ring-1 ring-slate-200/50" : "text-slate-400 hover:text-slate-600"}`}
+                >
+                  NPR (Home)
+                </button>
+                <button
+                  onClick={() => setForm({ ...form, currency: "USD" })}
+                  className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${toggleUSD ? "bg-white text-blue-600 shadow-sm ring-1 ring-slate-200/50" : "text-slate-400 hover:text-slate-600"}`}
+                >
+                  USD (Intl)
+                </button>
+              </div>
+
+              <p className="text-slate-500 font-medium mt-6 italic text-lg max-w-2xl">
+                Complete fiscal roadmap for your full {duration}-year tenure at{" "}
+                {selectedMatch.name}.
+              </p>
+            </div>
+
+            <div className="relative group">
+              <div
+                className={`bg-${scholPercent > 0 ? "emerald-600 shadow-emerald-500/20" : "blue-600 shadow-blue-500/20"} text-white p-10 rounded-[48px] shadow-2xl text-center scale-105 ring-8 ring-blue-50 transition-all`}
+              >
+                <p className="text-[10px] font-black opacity-80 uppercase tracking-[0.3em] mb-4">
+                  {scholPercent > 0
+                    ? "Scholarship Applied"
+                    : "Total Net Investment"}
+                </p>
+                <h3 className="text-5xl font-black italic">
+                  <span className="opacity-60 text-2xl mr-1 non-italic font-medium">
+                    {symbol}
+                  </span>
+                  {displayVal(totalInvestment)}
+                  <span className="opacity-60 text-3xl ml-1">{unit}</span>
+                </h3>
+                {scholPercent > 0 && (
+                  <div className="mt-4 px-4 py-1.5 rounded-full bg-white/20 text-[9px] font-black uppercase tracking-widest inline-flex items-center gap-2">
+                    <Sparkles className="w-3 h-3" />
+                    Saved {symbol}
+                    {displayVal(totalScholSavings)}
+                    {unit} via Merit
                   </div>
-                  <h2 className="text-5xl font-black text-slate-900 leading-tight tracking-tighter italic uppercase">Budget Summary</h2>
-                  
-                  {/* Currency Switching Tabs */}
-                  <div className="flex items-center gap-1.5 p-1.5 bg-slate-50 rounded-2xl w-fit mt-8 border border-slate-100">
-                     <button 
-                        onClick={() => setForm({ ...form, currency: "NPR" })}
-                        className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${!toggleUSD ? "bg-white text-blue-600 shadow-sm ring-1 ring-slate-200/50" : "text-slate-400 hover:text-slate-600"}`}
-                     >
-                        NPR (Home)
-                     </button>
-                     <button 
-                        onClick={() => setForm({ ...form, currency: "USD" })}
-                        className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${toggleUSD ? "bg-white text-blue-600 shadow-sm ring-1 ring-slate-200/50" : "text-slate-400 hover:text-slate-600"}`}
-                     >
-                        USD (Intl)
-                     </button>
-                  </div>
+                )}
+                <p className="text-[9px] font-bold opacity-60 mt-4 uppercase tracking-widest">
+                  Calculated to End-of-Degree
+                </p>
+              </div>
 
-                  <p className="text-slate-500 font-medium mt-6 italic text-lg max-w-2xl">
-                     Complete fiscal roadmap for your full {duration}-year tenure at {selectedMatch.name}.
+              {/* Scholarship Eligibility Card */}
+              <div className="mt-6 p-6 rounded-3xl bg-white border border-slate-100 shadow-lg animate-in slide-in-from-top-4 duration-700">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                    Merit Eligibility
+                  </h4>
+                  <span
+                    className={`text-xs font-black ${eligScore >= 80 ? "text-emerald-500" : "text-slate-400"}`}
+                  >
+                    {eligScore}% Score
+                  </span>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold text-slate-600">
+                      Scholarship Status
+                    </span>
+                    <span
+                      className={`text-[10px] font-black uppercase ${scholPercent > 0 ? "text-emerald-600" : "text-rose-500"}`}
+                    >
+                      {scholPercent > 0
+                        ? `GRANTED (${scholPercent}%)`
+                        : "NOT ELIGIBLE"}
+                    </span>
+                  </div>
+                  <div className="h-1.5 w-full bg-slate-50 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full transition-all duration-1000 ${eligScore >= 80 ? "bg-emerald-500" : "bg-slate-200"}`}
+                      style={{ width: `${eligScore}%` }}
+                    />
+                  </div>
+                  <p className="text-[8px] font-medium text-slate-400 leading-tight">
+                    {eligScore >= 90
+                      ? "Extraordinary profile. 50% President's Merit Scholarship deducted."
+                      : eligScore >= 80
+                        ? "Strong profile. 20% Excellence Scholarship deducted."
+                        : "Score 80%+ to unlock merit-based tuition reductions."}
                   </p>
-               </div>
-               
-               <div className="relative group">
-                  <div className={`bg-${scholPercent > 0 ? "emerald-600 shadow-emerald-500/20" : "blue-600 shadow-blue-500/20"} text-white p-10 rounded-[48px] shadow-2xl text-center scale-105 ring-8 ring-blue-50 transition-all`}>
-                     <p className="text-[10px] font-black opacity-80 uppercase tracking-[0.3em] mb-4">{scholPercent > 0 ? "Scholarship Applied" : "Total Net Investment"}</p>
-                     <h3 className="text-5xl font-black italic">
-                        <span className="opacity-60 text-2xl mr-1 non-italic font-medium">{symbol}</span>
-                        {displayVal(totalInvestment)}
-                        <span className="opacity-60 text-3xl ml-1">{unit}</span>
-                     </h3>
-                     {scholPercent > 0 && (
-                        <div className="mt-4 px-4 py-1.5 rounded-full bg-white/20 text-[9px] font-black uppercase tracking-widest inline-flex items-center gap-2">
-                          <Sparkles className="w-3 h-3" />
-                          Saved {symbol}{displayVal(totalScholSavings)}{unit} via Merit
-                        </div>
-                     )}
-                     <p className="text-[9px] font-bold opacity-60 mt-4 uppercase tracking-widest">Calculated to End-of-Degree</p>
-                  </div>
-                  
-                  {/* Scholarship Eligibility Card */}
-                  <div className="mt-6 p-6 rounded-3xl bg-white border border-slate-100 shadow-lg animate-in slide-in-from-top-4 duration-700">
-                     <div className="flex items-center justify-between mb-4">
-                        <h4 className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Merit Eligibility</h4>
-                        <span className={`text-xs font-black ${eligScore >= 80 ? "text-emerald-500" : "text-slate-400"}`}>{eligScore}% Score</span>
-                     </div>
-                     <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                           <span className="text-[10px] font-bold text-slate-600">Scholarship Status</span>
-                           <span className={`text-[10px] font-black uppercase ${scholPercent > 0 ? "text-emerald-600" : "text-rose-500"}`}>{scholPercent > 0 ? `GRANTED (${scholPercent}%)` : "NOT ELIGIBLE"}</span>
-                        </div>
-                        <div className="h-1.5 w-full bg-slate-50 rounded-full overflow-hidden">
-                           <div className={`h-full transition-all duration-1000 ${eligScore >= 80 ? "bg-emerald-500" : "bg-slate-200"}`} style={{ width: `${eligScore}%` }} />
-                        </div>
-                        <p className="text-[8px] font-medium text-slate-400 leading-tight">
-                           {eligScore >= 90 ? "Extraordinary profile. 50% President's Merit Scholarship deducted." : eligScore >= 80 ? "Strong profile. 20% Excellence Scholarship deducted." : "Score 80%+ to unlock merit-based tuition reductions."}
-                        </p>
-                     </div>
-                  </div>
-               </div>
+                </div>
+              </div>
             </div>
+          </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-               {/* 2. Primary Analysis (LEFT) */}
-               <div className="lg:col-span-8 space-y-12">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                     <Card className="p-10 rounded-[48px] border border-slate-100 bg-white shadow-sm flex flex-col items-center">
-                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-10 w-full">Investment Distribution</h4>
-                        <div className="relative w-56 h-56 flex items-center justify-center">
-                           <div className="w-full h-full rounded-full" style={{ background: `conic-gradient(#2563eb 0% ${tuitionPercent}%, #6366f1 ${tuitionPercent}% ${tuitionPercent+livingPercent}%, #94a3b8 ${tuitionPercent+livingPercent}% 100%)` }} />
-                           <div className="absolute inset-0 w-32 h-32 m-auto bg-white rounded-full flex flex-col items-center justify-center shadow-inner">
-                              <span className="text-2xl font-black text-slate-900">100%</span>
-                              <span className="text-[8px] font-bold text-slate-400 uppercase">Coverage</span>
-                           </div>
-                        </div>
-                        <div className="grid grid-cols-3 gap-4 mt-12 w-full text-center">
-                           <div>
-                              <div className="w-2 h-2 rounded-full bg-blue-600 mx-auto" />
-                              <p className="text-[9px] font-black text-slate-900">{tuitionPercent}%</p>
-                              <p className="text-[8px] font-bold text-slate-400 uppercase">Tuition</p>
-                           </div>
-                           <div>
-                              <div className="w-2 h-2 rounded-full bg-indigo-500 mx-auto" />
-                              <p className="text-[9px] font-black text-slate-900">{livingPercent}%</p>
-                              <p className="text-[8px] font-bold text-slate-400 uppercase">Living</p>
-                           </div>
-                           <div>
-                              <div className="w-2 h-2 rounded-full bg-slate-400 mx-auto" />
-                              <p className="text-[9px] font-black text-slate-900">{miscPercent}%</p>
-                              <p className="text-[8px] font-bold text-slate-400 uppercase">Misc</p>
-                           </div>
-                        </div>
-                     </Card>
-
-                     <Card className="p-10 rounded-[48px] border border-slate-100 bg-linear-to-b from-white to-slate-50 shadow-xl overflow-hidden relative">
-                        <div className="absolute top-0 right-0 p-8 opacity-5">
-                           <Calculator className="w-16 h-16" />
-                        </div>
-                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-12">Projected Expenditure Roadmap</h4>
-                        <div className="flex items-end justify-between h-64 gap-6 px-4">
-                           {Array.from({ length: duration }).map((_, i) => {
-                              const annualTotal = tuitionAnnual + livingAnnual;
-                              const h = 100 - (i * 12); 
-                              return (
-                                 <div key={i} className="flex-1 flex flex-col items-center gap-6 group">
-                                    <div className="w-full relative h-[210px] flex flex-col justify-end">
-                                       <div className="absolute inset-0 bg-slate-100/50 rounded-3xl border border-dotted border-slate-200" />
-                                       <div className="w-full bg-linear-to-t from-blue-700 via-blue-500 to-indigo-400 rounded-3xl transition-all duration-1000 shadow-lg relative group-hover:scale-y-[1.02]" style={{ height: `${h}%` }}>
-                                          <div className="absolute -top-8 left-0 w-full text-center">
-                                             <span className="text-[9px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">~{symbol}{displayVal(annualTotal)}</span>
-                                          </div>
-                                       </div>
-                                    </div>
-                                    <p className="text-[10px] font-black text-slate-900 border-b-2 border-blue-600 pb-1 uppercase tracking-widest italic font-bold">Year {i+1}</p>
-                                 </div>
-                              );
-                           })}
-                        </div>
-                     </Card>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            {/* 2. Primary Analysis (LEFT) */}
+            <div className="lg:col-span-8 space-y-12">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <Card className="p-10 rounded-[48px] border border-slate-100 bg-white shadow-sm flex flex-col items-center">
+                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-10 w-full">
+                    Investment Distribution
+                  </h4>
+                  <div className="relative w-56 h-56 flex items-center justify-center">
+                    <div
+                      className="w-full h-full rounded-full"
+                      style={{
+                        background: `conic-gradient(#2563eb 0% ${tuitionPercent}%, #6366f1 ${tuitionPercent}% ${tuitionPercent + livingPercent}%, #94a3b8 ${tuitionPercent + livingPercent}% 100%)`,
+                      }}
+                    />
+                    <div className="absolute inset-0 w-32 h-32 m-auto bg-white rounded-full flex flex-col items-center justify-center shadow-inner">
+                      <span className="text-2xl font-black text-slate-900">
+                        100%
+                      </span>
+                      <span className="text-[8px] font-bold text-slate-400 uppercase">
+                        Coverage
+                      </span>
+                    </div>
                   </div>
+                  <div className="grid grid-cols-3 gap-4 mt-12 w-full text-center">
+                    <div>
+                      <div className="w-2 h-2 rounded-full bg-blue-600 mx-auto" />
+                      <p className="text-[9px] font-black text-slate-900">
+                        {tuitionPercent}%
+                      </p>
+                      <p className="text-[8px] font-bold text-slate-400 uppercase">
+                        Tuition
+                      </p>
+                    </div>
+                    <div>
+                      <div className="w-2 h-2 rounded-full bg-indigo-500 mx-auto" />
+                      <p className="text-[9px] font-black text-slate-900">
+                        {livingPercent}%
+                      </p>
+                      <p className="text-[8px] font-bold text-slate-400 uppercase">
+                        Living
+                      </p>
+                    </div>
+                    <div>
+                      <div className="w-2 h-2 rounded-full bg-slate-400 mx-auto" />
+                      <p className="text-[9px] font-black text-slate-900">
+                        {miscPercent}%
+                      </p>
+                      <p className="text-[8px] font-bold text-slate-400 uppercase">
+                        Misc
+                      </p>
+                    </div>
+                  </div>
+                </Card>
 
-                  <Card className="p-10 rounded-[48px] border border-slate-100 bg-white shadow-sm overflow-hidden">
-                     <div className="flex items-center justify-between mb-8 border-b border-slate-50 pb-6 uppercase tracking-widest italic font-bold">
-                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Itemized Commitment Ledger</h4>
-                        <span className="text-[9px] font-black text-blue-600 italic">Full Phase Breakdown</span>
-                     </div>
-                     <div className="w-full overflow-x-auto">
-                        <table className="w-full text-left border-separate border-spacing-y-2">
-                           <thead>
-                              <tr className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
-                                 <th className="px-4 py-2">Fiscal Item</th>
-                                 <th className="px-4 py-2">Frequency</th>
-                                 <th className="px-4 py-2 text-right">Magnitude</th>
-                              </tr>
-                           </thead>
-                           <tbody className="text-xs font-bold text-slate-700">
-                              {[
-                                 { t: "Tuition Fee", f: "Annual", v: tuitionAnnual },
-                                 { t: "Living (Rent/Food)", f: "Monthly", v: livingAnnual },
-                                 { t: "Health Insurance", f: "One-time", v: 800 },
-                                 { t: "Resource Material", f: "Semester", v: 500 },
-                                 { t: "Flight Estimate", f: "One-time", v: 1200 },
-                                 { t: "Visa Fees", f: "One-time", v: (meta as any).v || 350 },
-                                 { t: "Enrollment Fees", f: "One-time", v: 450 },
-                              ].map((item, idx) => (
-                                 <tr key={idx} className="group hover:bg-slate-50 transition-colors">
-                                    <td className="px-4 py-3 rounded-l-2xl border-l-4 border-transparent group-hover:border-blue-600 font-bold text-slate-900">{item.t}</td>
-                                    <td className="px-4 py-3"><span className="px-2 py-1 rounded-lg bg-slate-100 text-[9px] uppercase tracking-tighter text-slate-500">{item.f}</span></td>
-                                    <td className="px-4 py-3 text-right font-black text-slate-900 rounded-r-2xl">{symbol}{displayVal(item.v)}{unit}</td>
-                                 </tr>
-                              ))}
-                              <tr className="bg-blue-600 text-white shadow-xl">
-                                 <td className="px-4 py-4 rounded-l-2xl font-black italic uppercase tracking-widest">Aggregate Allocation</td>
-                                 <td className="px-4 py-4" />
-                                 <td className="px-4 py-4 text-right font-black text-lg rounded-r-2xl">{symbol} {displayVal(totalInvestment)} {unit}</td>
-                              </tr>
-                           </tbody>
-                        </table>
-                     </div>
-                  </Card>
-
-                  <Card className="p-12 rounded-[56px] border border-none bg-slate-900 text-white shadow-2xl relative overflow-hidden group">
-                     <div className="flex flex-col md:flex-row items-center gap-12 relative z-10">
-                        <div className="w-28 h-28 rounded-full bg-white/10 flex items-center justify-center border border-white/5 backdrop-blur-3xl shrink-0 group-hover:scale-110 transition-transform">
-                           <Sparkles className="w-12 h-12 text-blue-400" />
-                        </div>
-                        <div className="space-y-6">
-                           <h4 className="text-2xl font-black italic tracking-tight">Financial Strategy Protocol</h4>
-                           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-slate-300">
-                              <div className="space-y-4">
-                                 <div className="flex items-start gap-4">
-                                    <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-1" />
-                                    <p className="text-sm font-medium italic">Your liquidity covers 85% of Year 1 commitment upfront.</p>
-                                 </div>
-                                 <div className="flex items-start gap-4">
-                                    <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-1" />
-                                    <p className="text-sm font-medium italic">Sponsor verified for full {selectedMatch.name} degree support.</p>
-                                 </div>
-                              </div>
-                              <div className="space-y-4">
-                                 <div className="flex items-start gap-4">
-                                    <ShieldAlert className="w-5 h-5 text-amber-400 shrink-0 mt-1" />
-                                    <p className="text-sm font-medium italic">Projections account for standard inflation and cost spikes.</p>
-                                 </div>
-                                 <div className="flex items-start gap-4">
-                                    <ShieldAlert className="w-5 h-5 text-amber-400 shrink-0 mt-1" />
-                                    <p className="text-sm font-medium italic">Recommended visa proof: {symbol}{displayVal(totalInvestment*1.05)}{unit}.</p>
-                                 </div>
-                              </div>
-                           </div>
-                        </div>
-                     </div>
-                  </Card>
-               </div>
-
-               {/* 3. Submission Area (RIGHT) */}
-               <div className="lg:col-span-4">
-                  <Card className="p-10 rounded-[56px] border border-slate-100 bg-white shadow-xl w-full flex flex-col items-center justify-center text-center space-y-12 h-fit sticky top-8">
-                     <div className="w-24 h-24 rounded-full bg-slate-900 flex items-center justify-center text-white shadow-2xl relative">
-                        <div className="absolute inset-0 bg-blue-500 blur-2xl opacity-20 rounded-full animate-pulse" />
-                        <CheckCircle2 className="w-12 h-12 relative z-10" />
-                     </div>
-                     <div>
-                        <h4 className="text-3xl font-black text-slate-900 tracking-tight italic">Audit Complete</h4>
-                        <p className="text-slate-500 font-medium italic mt-2">Your roadmap is ready for export.</p>
-                     </div>
-                     <div className="w-full space-y-4">
-                        <button 
-                           onClick={() => window.print()}
-                           className="w-full h-16 bg-blue-600 text-white rounded-3xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-blue-500/30 hover:scale-105 transition-all flex items-center justify-center gap-3 print:hidden"
+                <Card className="p-10 rounded-[48px] border border-slate-100 bg-linear-to-b from-white to-slate-50 shadow-xl overflow-hidden relative">
+                  <div className="absolute top-0 right-0 p-8 opacity-5">
+                    <Calculator className="w-16 h-16" />
+                  </div>
+                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-12">
+                    Projected Expenditure Roadmap
+                  </h4>
+                  <div className="flex items-end justify-between h-64 gap-6 px-4">
+                    {Array.from({ length: duration }).map((_, i) => {
+                      const annualTotal = tuitionAnnual + livingAnnual;
+                      const h = 100 - i * 12;
+                      return (
+                        <div
+                          key={i}
+                          className="flex-1 flex flex-col items-center gap-6 group"
                         >
-                           <Download className="w-5 h-5" />
-                           Export Financial PDF
-                        </button>
-                        <button onClick={() => setStep(0)} className="w-full h-14 bg-slate-50 text-slate-500 rounded-3xl font-bold text-xs uppercase tracking-[0.2em] hover:bg-slate-100 transition-all border border-slate-100 italic print:hidden">
-                           START NEW ANALYSIS
-                        </button>
-                     </div>
-                  </Card>
-               </div>
+                          <div className="w-full relative h-[210px] flex flex-col justify-end">
+                            <div className="absolute inset-0 bg-slate-100/50 rounded-3xl border border-dotted border-slate-200" />
+                            <div
+                              className="w-full bg-linear-to-t from-blue-700 via-blue-500 to-indigo-400 rounded-3xl transition-all duration-1000 shadow-lg relative group-hover:scale-y-[1.02]"
+                              style={{ height: `${h}%` }}
+                            >
+                              <div className="absolute -top-8 left-0 w-full text-center">
+                                <span className="text-[9px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
+                                  ~{symbol}
+                                  {displayVal(annualTotal)}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <p className="text-[10px] font-black text-slate-900 border-b-2 border-blue-600 pb-1 uppercase tracking-widest italic">
+                            Year {i + 1}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </Card>
+              </div>
+
+              <Card className="p-10 rounded-[48px] border border-slate-100 bg-white shadow-sm overflow-hidden">
+                <div className="flex items-center justify-between mb-8 border-b border-slate-50 pb-6 uppercase tracking-widest italic font-bold">
+                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    Itemized Commitment Ledger
+                  </h4>
+                  <span className="text-[9px] font-black text-blue-600 italic">
+                    Full Phase Breakdown
+                  </span>
+                </div>
+                <div className="w-full overflow-x-auto">
+                  <table className="w-full text-left border-separate border-spacing-y-2">
+                    <thead>
+                      <tr className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                        <th className="px-4 py-2">Fiscal Item</th>
+                        <th className="px-4 py-2">Frequency</th>
+                        <th className="px-4 py-2 text-right">Magnitude</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-xs font-bold text-slate-700">
+                      {[
+                        { t: "Tuition Fee", f: "Annual", v: tuitionAnnual },
+                        {
+                          t: "Living (Rent/Food)",
+                          f: "Monthly",
+                          v: livingAnnual,
+                        },
+                        { t: "Health Insurance", f: "One-time", v: 800 },
+                        { t: "Resource Material", f: "Semester", v: 500 },
+                        { t: "Flight Estimate", f: "One-time", v: 1200 },
+                        {
+                          t: "Visa Fees",
+                          f: "One-time",
+                          v: (meta as any).v || 350,
+                        },
+                        { t: "Enrollment Fees", f: "One-time", v: 450 },
+                      ].map((item, idx) => (
+                        <tr
+                          key={idx}
+                          className="group hover:bg-slate-50 transition-colors"
+                        >
+                          <td className="px-4 py-3 rounded-l-2xl border-l-4 border-transparent group-hover:border-blue-600 font-bold text-slate-900">
+                            {item.t}
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className="px-2 py-1 rounded-lg bg-slate-100 text-[9px] uppercase tracking-tighter text-slate-500">
+                              {item.f}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-right font-black text-slate-900 rounded-r-2xl">
+                            {symbol}
+                            {displayVal(item.v)}
+                            {unit}
+                          </td>
+                        </tr>
+                      ))}
+                      <tr className="bg-blue-600 text-white shadow-xl">
+                        <td className="px-4 py-4 rounded-l-2xl font-black italic uppercase tracking-widest">
+                          Aggregate Allocation
+                        </td>
+                        <td className="px-4 py-4" />
+                        <td className="px-4 py-4 text-right font-black text-lg rounded-r-2xl">
+                          {symbol} {displayVal(totalInvestment)} {unit}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </Card>
+
+              <Card className="p-12 rounded-[56px] border border-none bg-slate-900 text-white shadow-2xl relative overflow-hidden group">
+                <div className="flex flex-col md:flex-row items-center gap-12 relative z-10">
+                  <div className="w-28 h-28 rounded-full bg-white/10 flex items-center justify-center border border-white/5 backdrop-blur-3xl shrink-0 group-hover:scale-110 transition-transform">
+                    <Sparkles className="w-12 h-12 text-blue-400" />
+                  </div>
+                  <div className="space-y-6">
+                    <h4 className="text-2xl font-black italic tracking-tight">
+                      Financial Strategy Protocol
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-slate-300">
+                      <div className="space-y-4">
+                        <div className="flex items-start gap-4">
+                          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-1" />
+                          <p className="text-sm font-medium italic">
+                            Your liquidity covers 85% of Year 1 commitment
+                            upfront.
+                          </p>
+                        </div>
+                        <div className="flex items-start gap-4">
+                          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-1" />
+                          <p className="text-sm font-medium italic">
+                            Sponsor verified for full {selectedMatch.name}{" "}
+                            degree support.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="space-y-4">
+                        <div className="flex items-start gap-4">
+                          <ShieldAlert className="w-5 h-5 text-amber-400 shrink-0 mt-1" />
+                          <p className="text-sm font-medium italic">
+                            Projections account for standard inflation and cost
+                            spikes.
+                          </p>
+                        </div>
+                        <div className="flex items-start gap-4">
+                          <ShieldAlert className="w-5 h-5 text-amber-400 shrink-0 mt-1" />
+                          <p className="text-sm font-medium italic">
+                            Recommended visa proof: {symbol}
+                            {displayVal(totalInvestment * 1.05)}
+                            {unit}.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Card>
             </div>
-         </div>
-       );
+
+            {/* 3. Submission Area (RIGHT) */}
+            <div className="lg:col-span-4">
+              <Card className="p-10 rounded-[56px] border border-slate-100 bg-white shadow-xl w-full flex flex-col items-center justify-center text-center space-y-12 h-fit sticky top-8">
+                <div className="w-24 h-24 rounded-full bg-slate-900 flex items-center justify-center text-white shadow-2xl relative">
+                  <div className="absolute inset-0 bg-blue-500 blur-2xl opacity-20 rounded-full animate-pulse" />
+                  <CheckCircle2 className="w-12 h-12 relative z-10" />
+                </div>
+                <div>
+                  <h4 className="text-3xl font-black text-slate-900 tracking-tight italic">
+                    Audit Complete
+                  </h4>
+                  <p className="text-slate-500 font-medium italic mt-2">
+                    Your roadmap is ready for export.
+                  </p>
+                </div>
+                <div className="w-full space-y-4">
+                  <button
+                    onClick={() => window.print()}
+                    className="w-full h-16 bg-blue-600 text-white rounded-3xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-blue-500/30 hover:scale-105 transition-all flex items-center justify-center gap-3 print:hidden"
+                  >
+                    <Download className="w-5 h-5" />
+                    Export Financial PDF
+                  </button>
+                  <button
+                    onClick={() => setStep(0)}
+                    className="w-full h-14 bg-slate-50 text-slate-500 rounded-3xl font-bold text-xs uppercase tracking-[0.2em] hover:bg-slate-100 transition-all border border-slate-100 italic print:hidden"
+                  >
+                    START NEW ANALYSIS
+                  </button>
+                </div>
+              </Card>
+            </div>
+          </div>
+        </div>
+      );
     }
 
     return null;
@@ -2756,27 +3714,41 @@ export default function AbroadLiftMatchesPage() {
           />
           <div className="absolute inset-0 bg-linear-to-br from-blue-600/40 via-blue-800/60 to-slate-900/80 mix-blend-multiply" />
           <div className="absolute top-8 left-8 lg:top-12 lg:left-12 z-20">
-             <div className="flex items-center gap-2 group">
-                <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform">
-                   <GraduationCap className="text-white w-5 h-5" />
-                </div>
-                <span className="font-black text-xl tracking-tight text-white">AbroadLift</span>
-             </div>
+            <div className="flex items-center gap-2 group">
+              <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform">
+                <GraduationCap className="text-white w-5 h-5" />
+              </div>
+              <span className="font-black text-xl tracking-tight text-white">
+                AbroadLift
+              </span>
+            </div>
           </div>
 
           <div className="absolute bottom-12 left-12 right-12 z-20 hidden lg:block">
             <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-[32px] shadow-2xl max-w-sm animate-in fade-in slide-in-from-bottom-8 duration-700">
               <p className="text-white text-lg font-medium leading-relaxed italic mb-8">
-                 &ldquo;AbroadLift made my application process simple and stress-free. The intake selection were exactly what I needed.&rdquo;
+                &ldquo;AbroadLift made my application process simple and
+                stress-free. The intake selection were exactly what I
+                needed.&rdquo;
               </p>
               <div className="flex items-center gap-4">
-                 <div className="w-10 h-10 rounded-full bg-blue-400 overflow-hidden border-2 border-white/40">
-                    <Image src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1974&auto=format&fit=crop" alt="User" width={40} height={40} className="object-cover" />
-                 </div>
-                 <div>
-                    <h4 className="text-white font-bold text-sm">Sarah Jenkins</h4>
-                    <p className="text-white/60 text-[10px] font-bold uppercase tracking-widest">Master&apos;s Class of 2026</p>
-                 </div>
+                <div className="w-10 h-10 rounded-full bg-blue-400 overflow-hidden border-2 border-white/40">
+                  <Image
+                    src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1974&auto=format&fit=crop"
+                    alt="User"
+                    width={40}
+                    height={40}
+                    className="object-cover"
+                  />
+                </div>
+                <div>
+                  <h4 className="text-white font-bold text-sm">
+                    Sarah Jenkins
+                  </h4>
+                  <p className="text-white/60 text-[10px] font-bold uppercase tracking-widest">
+                    Master&apos;s Class of 2026
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -2784,137 +3756,186 @@ export default function AbroadLiftMatchesPage() {
       )}
 
       {/* Right Panel - Dynamic Flow Area */}
-      <div className={`relative flex-1 flex flex-col bg-white overflow-hidden ${step >= 8 ? "h-screen" : "h-[65vh] lg:h-screen"}`}>
+      <div
+        className={`relative flex-1 flex flex-col bg-white overflow-hidden ${step >= 8 ? "h-screen" : "h-[65vh] lg:h-screen"}`}
+      >
         {/* Progress Header */}
         {step > 0 && step < 8 && (
           <div className="h-1.5 w-full bg-slate-50 flex">
-             {Array.from({ length: 7 }).map((_, i) => (
-                <div key={i} className={`h-full flex-1 transition-all duration-1000 ${i < step ? "bg-blue-600" : "bg-slate-100"}`} />
-             ))}
+            {Array.from({ length: 7 }).map((_, i) => (
+              <div
+                key={i}
+                className={`h-full flex-1 transition-all duration-1000 ${i < step ? "bg-blue-600" : "bg-slate-100"}`}
+              />
+            ))}
           </div>
         )}
 
-         <div className="px-8 py-6 lg:px-12 lg:py-8 flex justify-between items-center z-30 print:hidden bg-white/80 backdrop-blur-md border-b border-slate-50 sticky top-0">
-            <div className="flex items-center gap-6">
-               {step >= 8 ? (
-                  <div className="flex items-center gap-3 group cursor-pointer" onClick={() => setStep(1)}>
-                     <div className="w-10 h-10 rounded-2xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform">
-                        <GraduationCap className="text-white w-5 h-5" />
-                     </div>
-                     <div className="flex flex-col">
-                        <span className="font-black text-lg tracking-tight text-slate-900 leading-none">AbroadLift</span>
-                        <span className="text-[9px] font-black text-blue-600 uppercase tracking-widest mt-1">Intelligence</span>
-                     </div>
-                  </div>
-               ) : step > 0 && (
-                  <button onClick={handleBack} className="group flex items-center gap-2 text-slate-400 hover:text-slate-900 transition-colors font-black text-xs uppercase tracking-widest">
-                     <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-                     Back
-                  </button>
-               )}
-            </div>
-
-            {/* Analysis Navigation Integrated into Navbar (For Post-Match Steps 9-13) */}
-            {step >= 9 && step <= 13 && (
-               <div className="hidden lg:flex items-center gap-6 bg-slate-50 p-2 pl-6 rounded-2xl border border-slate-100 shadow-sm animate-in fade-in slide-in-from-top-4 duration-500">
-                  <div className="flex flex-col">
-                     <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em]">Current Stage</span>
-                     <span className="text-xs font-black text-slate-900 italic">{STEPS[step]?.label}</span>
-                  </div>
-                  <div className="h-4 w-px bg-slate-200" />
-                  <div className="flex items-center gap-3 pr-2">
-                     <button 
-                        onClick={() => setStep(step === 9 ? 8 : step - 1)}
-                        className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-slate-200 text-slate-500 transition-all"
-                     >
-                        <ChevronLeft className="w-4 h-4" />
-                     </button>
-                     <div className="flex gap-1">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                           <div key={i} className={`w-1.5 h-1.5 rounded-full transition-all ${i + 9 <= step ? "bg-blue-600 w-4" : "bg-slate-200"}`} />
-                        ))}
-                     </div>
-                     <button 
-                        onClick={() => setStep(step + 1)}
-                        disabled={step === 13}
-                        className={`h-10 px-6 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${
-                           step < 13 ? "bg-slate-900 text-white hover:bg-black shadow-lg shadow-slate-900/10" : "bg-slate-100 text-slate-200 cursor-not-allowed"
-                        }`}
-                     >
-                        {step === 13 ? "Completed" : "Next Stage"}
-                     </button>
-                  </div>
-               </div>
+        <div className="px-8 py-6 lg:px-12 lg:py-8 flex justify-between items-center z-30 print:hidden bg-white/80 backdrop-blur-md border-b border-slate-50 sticky top-0">
+          <div className="flex items-center gap-6">
+            {step >= 8 ? (
+              <div
+                className="flex items-center gap-3 group cursor-pointer"
+                onClick={() => setStep(1)}
+              >
+                <div className="w-10 h-10 rounded-2xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform">
+                  <GraduationCap className="text-white w-5 h-5" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="font-black text-lg tracking-tight text-slate-900 leading-none">
+                    AbroadLift
+                  </span>
+                  <span className="text-[9px] font-black text-blue-600 uppercase tracking-widest mt-1">
+                    Intelligence
+                  </span>
+                </div>
+              </div>
+            ) : (
+              step > 0 && (
+                <button
+                  onClick={handleBack}
+                  className="group flex items-center gap-2 text-slate-400 hover:text-slate-900 transition-colors font-black text-xs uppercase tracking-widest"
+                >
+                  <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+                  Back
+                </button>
+              )
             )}
-            
-            <div className="flex items-center gap-4">
-               <span className="text-[10px] font-black text-slate-300 tracking-widest hidden sm:inline">OFFICIAL ADMISSIONS PORTAL</span>
-               <button className="px-5 py-2 rounded-xl bg-slate-50 text-[10px] font-black text-slate-500 hover:bg-slate-100 transition-colors border border-slate-100">HELP CENTER</button>
+          </div>
+
+          {/* Analysis Navigation Integrated into Navbar (For Post-Match Steps 9-13) */}
+          {step >= 9 && step <= 13 && (
+            <div className="hidden lg:flex items-center gap-6 bg-slate-50 p-2 pl-6 rounded-2xl border border-slate-100 shadow-sm animate-in fade-in slide-in-from-top-4 duration-500">
+              <div className="flex flex-col">
+                <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                  Current Stage
+                </span>
+                <span className="text-xs font-black text-slate-900 italic">
+                  {STEPS[step]?.label}
+                </span>
+              </div>
+              <div className="h-4 w-px bg-slate-200" />
+              <div className="flex items-center gap-3 pr-2">
+                <button
+                  onClick={() => setStep(step === 9 ? 8 : step - 1)}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-slate-200 text-slate-500 transition-all"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <div className="flex gap-1">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className={`w-1.5 h-1.5 rounded-full transition-all ${i + 9 <= step ? "bg-blue-600 w-4" : "bg-slate-200"}`}
+                    />
+                  ))}
+                </div>
+                <button
+                  onClick={() => setStep(step + 1)}
+                  disabled={step === 13}
+                  className={`h-10 px-6 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${
+                    step < 13
+                      ? "bg-slate-900 text-white hover:bg-black shadow-lg shadow-slate-900/10"
+                      : "bg-slate-100 text-slate-200 cursor-not-allowed"
+                  }`}
+                >
+                  {step === 13 ? "Completed" : "Next Stage"}
+                </button>
+              </div>
             </div>
-         </div>
+          )}
+
+          <div className="flex items-center gap-4">
+            <span className="text-[10px] font-black text-slate-300 tracking-widest hidden sm:inline">
+              OFFICIAL ADMISSIONS PORTAL
+            </span>
+            <button className="px-5 py-2 rounded-xl bg-slate-50 text-[10px] font-black text-slate-500 hover:bg-slate-100 transition-colors border border-slate-100">
+              HELP CENTER
+            </button>
+          </div>
+        </div>
 
         {/* Step Indicator Sub-header */}
         {step > 0 && step < 8 && (
           <div className="px-8 lg:px-12 mb-2">
-             <p className="text-[10px] font-black text-blue-600 uppercase tracking-[0.3em]">Phase 01: Profile Building &bull; Step {step} of 7</p>
+            <p className="text-[10px] font-black text-blue-600 uppercase tracking-[0.3em]">
+              Phase 01: Profile Building &bull; Step {step} of 7
+            </p>
           </div>
         )}
 
         {/* Step Content Area */}
         <div className="flex-1 overflow-y-auto px-8 lg:px-12 py-8 lg:py-12 override-scroll">
-           <div className={`${step >= 8 ? "max-w-full" : "max-w-4xl"} mx-auto min-h-full flex flex-col`}>
-              <div className="flex-1">
-                 {renderStep()}
-              </div>
+          <div
+            className={`${step >= 8 ? "max-w-full" : "max-w-4xl"} mx-auto min-h-full flex flex-col`}
+          >
+            <div className="flex-1">{renderStep()}</div>
 
-              {/* Step Navigation Footer */}
-              {step > 0 && step < 8 && (
-                <div className="mt-20 pt-10 border-t border-slate-50 flex items-center justify-between pb-10 print:hidden">
-                   <div className="flex flex-col">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Next Up</span>
-                      <span className="text-sm font-bold text-slate-900">{STEPS[step + 1]?.label || "Finish"}</span>
-                   </div>
-                   <button 
-                     onClick={handleNext}
-                     disabled={!canContinue()}
-                     className={`h-16 px-10 rounded-2xl font-black text-sm transition-all flex items-center gap-3 shadow-xl ${
-                       canContinue() ? "bg-slate-900 text-white hover:bg-black hover:scale-105 shadow-slate-900/20" : "bg-slate-100 text-slate-400 cursor-not-allowed"
-                     }`}
-                   >
-                      {step === 7 ? "Analyze & Match" : "Continue"}
-                      <ChevronLeft className="w-5 h-5 rotate-180" strokeWidth={3} />
-                   </button>
+            {/* Step Navigation Footer */}
+            {step > 0 && step < 8 && (
+              <div className="mt-20 pt-10 border-t border-slate-50 flex items-center justify-between pb-10 print:hidden">
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    Next Up
+                  </span>
+                  <span className="text-sm font-bold text-slate-900">
+                    {STEPS[step + 1]?.label || "Finish"}
+                  </span>
                 </div>
-              )}
-
-           </div>
+                <button
+                  onClick={handleNext}
+                  disabled={!canContinue()}
+                  className={`h-16 px-10 rounded-2xl font-black text-sm transition-all flex items-center gap-3 shadow-xl ${
+                    canContinue()
+                      ? "bg-slate-900 text-white hover:bg-black hover:scale-105 shadow-slate-900/20"
+                      : "bg-slate-100 text-slate-400 cursor-not-allowed"
+                  }`}
+                >
+                  {step === 7 ? "Analyze & Match" : "Continue"}
+                  <ChevronLeft className="w-5 h-5 rotate-180" strokeWidth={3} />
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Branding Global Footer (Only on Step 0) */}
         {step === 0 && (
-           <div className="p-8 lg:px-12 border-t border-slate-50 flex flex-wrap items-center justify-between gap-6">
-              <div className="flex items-center gap-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                 <span>&copy; 2026 ABROADLIFT GLOBAL ADMISSIONS</span>
-                 <div className="hidden sm:flex items-center gap-4 border-l border-slate-100 pl-6 ml-2">
-                    <button className="hover:text-slate-900 transition-colors">Privacy</button>
-                    <button className="hover:text-slate-900 transition-colors">Legal</button>
-                    <button className="hover:text-slate-900 transition-colors">Cookie Policy</button>
-                 </div>
+          <div className="p-8 lg:px-12 border-t border-slate-50 flex flex-wrap items-center justify-between gap-6">
+            <div className="flex items-center gap-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+              <span>&copy; 2026 ABROADLIFT GLOBAL ADMISSIONS</span>
+              <div className="hidden sm:flex items-center gap-4 border-l border-slate-100 pl-6 ml-2">
+                <button className="hover:text-slate-900 transition-colors">
+                  Privacy
+                </button>
+                <button className="hover:text-slate-900 transition-colors">
+                  Legal
+                </button>
+                <button className="hover:text-slate-900 transition-colors">
+                  Cookie Policy
+                </button>
               </div>
-              <div className="flex items-center gap-2 grayscale hover:grayscale-0 transition-all opacity-50">
-                 <Globe className="w-4 h-4 text-slate-400" />
-                 <span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter italic">Global Presence in 20+ Countries</span>
-              </div>
-           </div>
+            </div>
+            <div className="flex items-center gap-2 grayscale hover:grayscale-0 transition-all opacity-50">
+              <Globe className="w-4 h-4 text-slate-400" />
+              <span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter italic">
+                Global Presence in 20+ Countries
+              </span>
+            </div>
+          </div>
         )}
       </div>
 
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
         .override-scroll::-webkit-scrollbar { width: 4px; }
         .override-scroll::-webkit-scrollbar-track { background: transparent; }
         .override-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.05); border-radius: 10px; }
         .override-scroll:hover::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); }
-      `}} />
+      `,
+        }}
+      />
     </div>
   );
 }
