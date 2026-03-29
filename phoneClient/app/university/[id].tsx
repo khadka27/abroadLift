@@ -32,141 +32,160 @@ const UNIVERSITIES: Record<string, any> = {
     title: "University of Melbourne",
     location: "Melbourne, Australia",
     image: "https://images.unsplash.com/photo-1541339907198-e08756ebafe3?auto=format&fit=crop&q=80&w=800",
-    ranking: "#33",
-    acceptance: "42%",
-    tuition: "$35k/yr",
-    description: "The University of Melbourne is a public research university located in Melbourne, Australia. Founded in 1853, it is Australia's second oldest university and the oldest in Victoria. Known for its lush campus and exceptional educational parameters.",
-    courses: ["Computer Science", "Business Administration", "Engineering", "Arts"],
+    description: "The University of Melbourne is one of Australia's leading research universities, known for academic excellence and global reputation.",
+    programs: "29 Programs",
+    intake: "February",
+    tuition: "Tuition Fee",
+    type: "International",
+    offered: ["Master of Data Science", "Bachelor of Business", "PhD in Engineering", "PhD in Engineering"],
+    facilities: [
+      "https://images.unsplash.com/photo-1555854816-802f18809c14?auto=format&fit=crop&q=80&w=400",
+      "https://images.unsplash.com/photo-1540317580114-ed684c15ffcc?auto=format&fit=crop&q=80&w=400"
+    ],
   },
   "2": {
     title: "University of Toronto",
     location: "Toronto, Canada",
     image: "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&q=80&w=800",
-    ranking: "#18",
-    acceptance: "43%",
+    description: "The University of Toronto is a globally top-ranked public research university in Canada, offering world-class innovation and learning programs.",
+    programs: "35 Programs",
+    intake: "September",
     tuition: "$42k/yr",
-    description: "The University of Toronto is a globally top-ranked public research university in Toronto, Ontario, Canada on the grounds that surround Queen's Park. It offers world-class innovation and learning programs.",
-    courses: ["Artificial Intelligence", "Life Sciences", "Economics", "Law"],
+    type: "Public",
+    offered: ["Artificial Intelligence", "Life Sciences", "Economics", "Law"],
+    facilities: [
+      "https://images.unsplash.com/photo-1498243639359-2cee29633c06?auto=format&fit=crop&q=80&w=400",
+      "https://images.unsplash.com/photo-1541339907198-e08756ebafe3?auto=format&fit=crop&q=80&w=400"
+    ],
+  },
+  "3": {
+    title: "Stanford University",
+    location: "Stanford, USA",
+    image: "https://images.unsplash.com/photo-1533667586627-9f5cb393304a?auto=format&fit=crop&q=80&w=800",
+    description: "Stanford University is known for its proximity to Silicon Valley and its role as a premier private research university.",
+    programs: "42 Programs",
+    intake: "August",
+    tuition: "$55k/yr",
+    type: "Private",
+    offered: ["CS", "MBA", "Medicine", "AI & Data"],
+    facilities: [
+      "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&q=80&w=400",
+      "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?auto=format&fit=crop&q=80&w=400"
+    ],
   },
 };
 
 export default function UniversityDetails() {
   const { id } = useLocalSearchParams();
-  const [activeTab, setActiveTab] = useState("Overview");
-  
-  // Default to Melbourne if ID not found just for preview purposes
   const details = UNIVERSITIES[id as string] || UNIVERSITIES["1"];
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <StatusBar barStyle="dark-content" />
       
-      {/* Scrollable Content */}
-      <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollContent}>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+          <Feather name="chevron-left" size={28} color={THEME.textDark} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>{details.title}</Text>
+        <View style={{ width: 44 }} /> 
+      </View>
+
+      <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollContent} contentContainerStyle={styles.scrollInner}>
         
-        {/* Hero Image Section */}
-        <View style={styles.heroContainer}>
-          <Image source={{ uri: details.image }} style={styles.heroImage} />
-          
-          {/* Header Controls (Overlay) */}
-          <View style={styles.headerOverlay}>
-            <View style={styles.headerSafePadding} />
-            <View style={styles.headerRow}>
-              <TouchableOpacity onPress={() => router.back()} style={styles.iconButton}>
-                <Feather name="chevron-left" size={24} color={THEME.textDark} />
-              </TouchableOpacity>
-              <View style={styles.headerRightActions}>
-                 <TouchableOpacity style={[styles.iconButton, { marginRight: 12 }]}>
-                   <Feather name="share-2" size={20} color={THEME.textDark} />
-                 </TouchableOpacity>
-                 <TouchableOpacity style={styles.iconButton}>
-                   <Feather name="bookmark" size={20} color={THEME.textDark} />
-                 </TouchableOpacity>
+        {/* Main Image */}
+        <Image source={{ uri: details.image }} style={styles.mainImage} />
+
+        {/* Info Header */}
+        <View style={styles.infoHead}>
+           <View style={{ flex: 1 }}>
+              <Text style={styles.uniTitle}>{details.title}</Text>
+              <View style={styles.locationRow}>
+                <Ionicons name="location" size={16} color="#F97316" />
+                <Text style={styles.locationText}>{details.location}</Text>
               </View>
+              <View style={styles.starsRow}>
+                {[1, 2, 3, 4, 5].map(i => (
+                  <Ionicons key={i} name="star" size={18} color="#FBBF24" style={{ marginRight: 2 }} />
+                ))}
+              </View>
+           </View>
+           <TouchableOpacity style={styles.bookmarkButton}>
+              <Feather name="bookmark" size={24} color="#3B82F6" />
+           </TouchableOpacity>
+        </View>
+
+        {/* About */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>About the University</Text>
+          <Text style={styles.aboutText}>{details.description}</Text>
+        </View>
+
+        {/* Key Information Grid */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Key Information</Text>
+          <View style={styles.infoGrid}>
+            <View style={styles.infoCard}>
+              <View style={styles.infoIconBox}>
+                <Ionicons name="school" size={20} color="#000" />
+              </View>
+              <Text style={styles.infoCardText}>{details.programs}</Text>
+            </View>
+            <View style={styles.infoCard}>
+               <View style={styles.infoIconBox}>
+                <Ionicons name="globe-outline" size={20} color="#3B82F6" />
+              </View>
+              <Text style={styles.infoCardText}>{details.type}</Text>
+            </View>
+            <View style={styles.infoCard}>
+               <View style={styles.infoIconBox}>
+                 <Ionicons name="calendar-outline" size={20} color="#EF4444" />
+               </View>
+              <Text style={styles.infoCardText}>{details.intake}</Text>
+            </View>
+            <View style={styles.infoCard}>
+               <View style={styles.infoIconBox}>
+                 <MaterialIcons name="monetization-on" size={20} color="#84CC16" />
+               </View>
+              <Text style={styles.infoCardText}>{details.tuition}</Text>
             </View>
           </View>
         </View>
 
-        {/* Content Body */}
-        <View style={styles.bodyContainer}>
-          <Text style={styles.title}>{details.title}</Text>
-          <View style={styles.locationContainer}>
-            <Ionicons name="location" size={16} color={THEME.orange} />
-            <Text style={styles.locationText}>{details.location}</Text>
-          </View>
-
-          {/* Key Stats Row */}
-          <View style={styles.statsRow}>
-            <View style={styles.statBox}>
-               <Feather name="award" size={24} color={THEME.primary} style={styles.statIcon} />
-               <Text style={styles.statValue}>{details.ranking}</Text>
-               <Text style={styles.statLabel}>Global Rank</Text>
-            </View>
-            <View style={styles.statBox}>
-               <Feather name="bar-chart" size={24} color={THEME.primary} style={styles.statIcon} />
-               <Text style={styles.statValue}>{details.acceptance}</Text>
-               <Text style={styles.statLabel}>Acceptance</Text>
-            </View>
-            <View style={styles.statBox}>
-               <Feather name="dollar-sign" size={24} color={THEME.primary} style={styles.statIcon} />
-               <Text style={styles.statValue}>{details.tuition}</Text>
-               <Text style={styles.statLabel}>P.A Tuition</Text>
-            </View>
-          </View>
-
-          {/* Content Tabs */}
-          <View style={styles.tabsRow}>
-            {['Overview', 'Courses', 'Reviews'].map(tab => (
-              <TouchableOpacity 
-                key={tab} 
-                onPress={() => setActiveTab(tab)}
-                style={[styles.tabButton, activeTab === tab && styles.tabButtonActive]}
-              >
-                <Text style={[styles.tabText, activeTab === tab && styles.tabTextActive]}>{tab}</Text>
-              </TouchableOpacity>
+        {/* Programs Offered */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Programs Offered</Text>
+          <View style={styles.programsGrid}>
+            {details.offered.map((prog: string, i: number) => (
+              <View key={i} style={styles.programItem}>
+                <Ionicons name="checkmark-circle" size={20} color="#84CC16" />
+                <Text style={styles.programText} numberOfLines={1}>{prog}</Text>
+              </View>
             ))}
           </View>
+        </View>
 
-          {/* Dynamic Content */}
-          <View style={styles.tabContent}>
-            {activeTab === 'Overview' && (
-              <View>
-                <Text style={styles.sectionTitle}>About</Text>
-                <Text style={styles.descriptionText}>{details.description}</Text>
-              </View>
-            )}
-
-            {activeTab === 'Courses' && (
-              <View>
-                <Text style={styles.sectionTitle}>Popular Programs</Text>
-                {details.courses.map((course: string, idx: number) => (
-                  <View key={idx} style={styles.courseItem}>
-                    <View style={styles.courseIconBox}>
-                      <Ionicons name="school-outline" size={20} color={THEME.primary} />
-                    </View>
-                    <Text style={styles.courseText}>{course}</Text>
-                    <Feather name="chevron-right" size={18} color={THEME.textGray} />
-                  </View>
-                ))}
-              </View>
-            )}
-
-            {activeTab === 'Reviews' && (
-              <View style={styles.reviewStateWrapper}>
-                 <Text style={styles.descriptionText}>No reviews available yet.</Text>
-              </View>
-            )}
+        {/* Campus Facilities */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Campus Facilities</Text>
+          <View style={styles.facilitiesRow}>
+            {details.facilities.map((fac: string, i: number) => (
+              <Image key={i} source={{ uri: fac }} style={styles.facilityImage} />
+            ))}
           </View>
+        </View>
+
+        {/* Location Map */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Location Map</Text>
+          <Image 
+            source={{ uri: "https://www.maproom.net/wp-content/uploads/Map-of-London.jpg" }} 
+            style={styles.mapImage} 
+          />
         </View>
 
       </ScrollView>
-
-      {/* Sticky Bottom Bar */}
-      <View style={styles.bottomBar}>
-        <TouchableOpacity style={styles.applyButton}>
-          <Text style={styles.applyButtonText}>Apply Now</Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 }
@@ -174,198 +193,143 @@ export default function UniversityDetails() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: THEME.bgLight,
+    backgroundColor: "#FFFFFF",
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingTop: Platform.OS === 'ios' ? 60 : 40,
+    paddingBottom: 20,
+  },
+  backButton: {
+    width: 44,
+    height: 44,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: "800",
+    color: "#000",
   },
   scrollContent: {
     flex: 1,
   },
-  heroContainer: {
-    width: width,
-    height: 320,
-    backgroundColor: "#E5E7EB",
-    position: "relative",
-  },
-  heroImage: {
-    width: "100%",
-    height: "100%",
-    resizeMode: "cover",
-  },
-  headerOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0, 0, 0, 0.2)",
-  },
-  headerSafePadding: {
-    height: Platform.OS === "ios" ? 50 : StatusBar.currentHeight || 24,
-  },
-  headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+  scrollInner: {
     paddingHorizontal: 20,
-    marginTop: 10,
+    paddingBottom: 40,
   },
-  iconButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  headerRightActions: {
-    flexDirection: "row",
-  },
-  bodyContainer: {
-    flex: 1,
-    backgroundColor: THEME.bgLight,
-    borderTopLeftRadius: 32,
-    borderTopRightRadius: 32,
-    marginTop: -30,
-    paddingHorizontal: 24,
-    paddingTop: 32,
-    paddingBottom: 100, // accommodate sticky button
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: "bold",
-    color: THEME.textDark,
-    marginBottom: 8,
-  },
-  locationContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+  mainImage: {
+    width: "100%",
+    height: 240,
+    borderRadius: 24,
     marginBottom: 24,
+  },
+  infoHead: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginBottom: 24,
+  },
+  uniTitle: {
+    fontSize: 20,
+    fontWeight: "800",
+    color: "#000",
+    marginBottom: 6,
+  },
+  locationRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
   },
   locationText: {
     fontSize: 14,
-    color: THEME.textGray,
-    marginLeft: 6,
+    color: "#64748B",
+    marginLeft: 4,
     fontWeight: "500",
   },
-  statsRow: {
+  starsRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 32,
   },
-  statBox: {
-    flex: 1,
-    backgroundColor: "#F8FAFC",
-    paddingVertical: 16,
-    borderRadius: 20,
+  bookmarkButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#F1F5F9",
+    justifyContent: "center",
     alignItems: "center",
-    marginHorizontal: 4,
   },
-  statIcon: {
-    marginBottom: 8,
-  },
-  statValue: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: THEME.textDark,
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontSize: 11,
-    color: THEME.textGray,
-    textTransform: "uppercase",
-    fontWeight: "600",
-  },
-  tabsRow: {
-    flexDirection: "row",
-    borderBottomWidth: 1,
-    borderBottomColor: "#F3F4F6",
-    marginBottom: 24,
-  },
-  tabButton: {
-    flex: 1,
-    paddingVertical: 12,
-    alignItems: "center",
-    borderBottomWidth: 2,
-    borderBottomColor: "transparent",
-  },
-  tabButtonActive: {
-    borderBottomColor: THEME.primary,
-  },
-  tabText: {
-    fontSize: 15,
-    fontWeight: "500",
-    color: THEME.textGray,
-  },
-  tabTextActive: {
-    color: THEME.primary,
-    fontWeight: "bold",
-  },
-  tabContent: {
-    minHeight: 200,
+  section: {
+    marginBottom: 28,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: THEME.textDark,
-    marginBottom: 12,
+    fontSize: 17,
+    fontWeight: "700",
+    color: "#000",
+    marginBottom: 16,
   },
-  descriptionText: {
-    fontSize: 15,
-    lineHeight: 24,
-    color: THEME.textGray,
+  aboutText: {
+    fontSize: 14,
+    lineHeight: 22,
+    color: "#475569",
+    opacity: 0.9,
   },
-  courseItem: {
+  infoGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+  },
+  infoCard: {
+    width: (width - 52) / 2,
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F3F4F6",
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    borderRadius: 18,
+    padding: 12,
   },
-  courseIconBox: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    backgroundColor: "#F0FDFA",
+  infoIconBox: {
+    width: 32,
+    height: 32,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 16,
+    marginRight: 10,
   },
-  courseText: {
-    flex: 1,
-    fontSize: 15,
+  infoCardText: {
+    fontSize: 13,
     fontWeight: "600",
-    color: THEME.textDark,
+    color: "#475569",
   },
-  reviewStateWrapper: {
-    paddingVertical: 32,
+  programsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+  },
+  programItem: {
+    width: "48%",
+    flexDirection: "row",
     alignItems: "center",
+    marginBottom: 12,
   },
-  bottomBar: {
-    position: "absolute",
-    bottom: 0,
-    width: "100%",
-    backgroundColor: THEME.bgLight,
-    paddingHorizontal: 24,
-    paddingTop: 16,
-    paddingBottom: Platform.OS === 'ios' ? 32 : 20,
-    borderTopWidth: 1,
-    borderTopColor: "#E5E7EB",
+  programText: {
+    fontSize: 13,
+    color: "#475569",
+    marginLeft: 8,
+    fontWeight: "500",
   },
-  applyButton: {
-    backgroundColor: THEME.primary,
-    height: 56,
+  facilitiesRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  facilityImage: {
+    width: "48%",
+    height: 140,
     borderRadius: 16,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: THEME.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
   },
-  applyButtonText: {
-    fontSize: 17,
-    fontWeight: "bold",
-    color: THEME.bgLight,
+  mapImage: {
+    width: "100%",
+    height: 180,
+    borderRadius: 20,
   },
 });

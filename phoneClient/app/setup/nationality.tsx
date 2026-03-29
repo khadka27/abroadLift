@@ -9,20 +9,11 @@ import {
   Image,
   ScrollView,
   StatusBar,
-  ImageBackground,
-  LayoutAnimation,
-  Platform,
-  UIManager,
   TextInput,
-  Animated,
+  ImageBackground,
 } from "react-native";
 import { Stack, router } from "expo-router";
 import { Feather } from "@expo/vector-icons";
-
-// Enable LayoutAnimation for Android
-if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
 
 const { width, height } = Dimensions.get("window");
 
@@ -31,51 +22,28 @@ const COLORS = {
   textDark: "#0F172A",
   textGray: "#64748B",
   white: "#FFFFFF",
-  bgSubtle: "rgba(255, 255, 255, 0.4)",
-  glassBorder: "rgba(255, 255, 255, 0.5)",
+  bgSubtle: "#F8FAFF",
+  glassBorder: "rgba(0, 0, 0, 0.05)",
   teal: "rgb(41, 142, 168)",
 };
 
-const FIELDS = [
-  { id: "engineering", name: "Engineering and Technology" },
-  { id: "business", name: "Business, Management" },
-  { id: "sciences", name: "Sciences" },
-  { id: "arts", name: "Arts" },
-  { id: "law", name: "Law" },
+const NATIONALITIES = [
+  { id: "usa", name: "United States Of America", flag: "🇺🇸" },
+  { id: "uk", name: "United Kingdom", flag: "🇬🇧" },
+  { id: "canada", name: "Canada", flag: "🇨🇦" },
+  { id: "korea", name: "Korea", flag: "🇰🇷" },
+  { id: "netherland", name: "Netherland", flag: "🇳🇱" },
+  { id: "brazil", name: "Brazil", flag: "🇧🇷" },
+  { id: "germany", name: "Germany", flag: "🇩🇪" },
+  { id: "india", name: "India", flag: "🇮🇳" },
 ];
 
-export default function FieldOfStudySelection() {
-  const [selectedField, setSelectedField] = useState<string>("engineering");
+export default function NationalitySelection() {
+  const [selectedNationality, setSelectedNationality] = useState<string>("usa");
   const [search, setSearch] = useState("");
 
-  const anims = React.useRef(FIELDS.reduce((acc, field) => {
-    acc[field.id] = new Animated.Value(field.id === "engineering" ? 1 : 0);
-    return acc;
-  }, {} as Record<string, Animated.Value>)).current;
-
-  const handleSelect = (id: string) => {
-    if (id === selectedField) return;
-
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    
-    Animated.parallel([
-      Animated.timing(anims[selectedField], {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-      Animated.timing(anims[id], {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-    ]).start();
-
-    setSelectedField(id);
-  };
-
-  const filteredFields = FIELDS.filter(field => 
-    field.name.toLowerCase().includes(search.toLowerCase())
+  const filtered = NATIONALITIES.filter(n => 
+    n.name.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -94,7 +62,7 @@ export default function FieldOfStudySelection() {
             <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
               <Feather name="chevron-left" size={28} color={COLORS.textDark} />
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>Field Of Study</Text>
+            <Text style={styles.headerTitle}>Nationality</Text>
             <View style={{ width: 44 }} /> 
           </View>
 
@@ -104,14 +72,14 @@ export default function FieldOfStudySelection() {
                 key={i} 
                 style={[
                   styles.trackerSegment, 
-                  i === 3 ? styles.trackerSegmentActive : styles.trackerSegmentInactive
+                  i === 5 ? styles.trackerSegmentActive : styles.trackerSegmentInactive
                 ]} 
               />
             ))}
           </View>
 
           <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-            <Text style={styles.questionText}>What do you want to study?</Text>
+            <Text style={styles.questionText}>What is your nationality?</Text>
 
             {/* Search Bar */}
             <View style={styles.searchContainer}>
@@ -125,37 +93,28 @@ export default function FieldOfStudySelection() {
               />
             </View>
 
-            {/* Fields List */}
+            {/* Nationality List */}
             <View style={styles.list}>
-              {filteredFields.map((field) => {
-                const isSelected = selectedField === field.id;
+              {filtered.map((item) => {
+                const isSelected = selectedNationality === item.id;
                 return (
                   <TouchableOpacity
-                    key={field.id}
+                    key={item.id}
                     activeOpacity={0.8}
                     style={[
-                      styles.fieldItem,
+                      styles.nationalityItem,
                       isSelected && styles.selectedItem,
                     ]}
-                    onPress={() => handleSelect(field.id)}
+                    onPress={() => setSelectedNationality(item.id)}
                   >
-                    <Animated.View style={[styles.glassContainer, { opacity: anims[field.id] }]}>
-                      <Image 
-                        source={require("../../assets/images/onboarding-bg-4k.png")}
-                        style={styles.glassImageBackground}
-                        blurRadius={30}
-                      />
-                      <View style={styles.glassOverlay} />
-                    </Animated.View>
-
-                    <Text style={[styles.fieldName, isSelected && styles.selectedFieldName]}>{field.name}</Text>
+                     <View style={styles.flagBox}>
+                        <Text style={styles.flagEmoji}>{item.flag}</Text>
+                     </View>
+                    <Text style={[styles.nationalityName, isSelected && styles.selectedName]}>{item.name}</Text>
                     {isSelected && <Feather name="check" size={20} color={COLORS.primary} />}
                   </TouchableOpacity>
                 );
               })}
-              {filteredFields.length === 0 && (
-                <Text style={styles.noResultsText}>No fields found matching "{search}"</Text>
-              )}
             </View>
           </ScrollView>
 
@@ -163,7 +122,7 @@ export default function FieldOfStudySelection() {
           <View style={styles.footer}>
             <TouchableOpacity
               style={styles.continueButton}
-              onPress={() => router.push("/setup/academics")}
+              onPress={() => router.push("/setup/english-test")}
             >
               <Text style={styles.continueButtonText}>Continue</Text>
             </TouchableOpacity>
@@ -207,120 +166,6 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "700",
     color: COLORS.textDark,
-    letterSpacing: -0.4,
-  },
-  scrollContent: {
-    paddingHorizontal: 28,
-    paddingBottom: 40,
-  },
-  questionText: {
-    fontSize: 16,
-    color: COLORS.textGray,
-    textAlign: "center",
-    marginTop: 10,
-    marginBottom: 40,
-    fontWeight: "500",
-  },
-  searchContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.5)",
-    height: 48,
-    borderRadius: 14,
-    paddingHorizontal: 16,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.4)",
-    marginBottom: 24,
-  },
-  searchIcon: {
-    marginRight: 10,
-    opacity: 0.4,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 15,
-    color: COLORS.textDark,
-    fontWeight: "500",
-  },
-  list: {
-    gap: 12,
-  },
-  fieldItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: "rgba(255, 255, 255, 0.8)",
-    paddingHorizontal: 18,
-    paddingVertical: 18,
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.4)",
-    overflow: "hidden",
-    position: "relative",
-    marginBottom: 2,
-  },
-  selectedItem: {
-    borderColor: "rgba(255, 255, 255, 0.6)",
-    backgroundColor: "transparent",
-    transform: [{ scale: 1.02 }],
-  },
-  glassContainer: {
-    ...StyleSheet.absoluteFillObject,
-    overflow: "hidden",
-  },
-  glassImageBackground: {
-    ...StyleSheet.absoluteFillObject,
-    width: width,
-    height: height,
-    top: -460,
-    left: -20,
-  },
-  glassOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(255, 255, 255, 0.35)",
-  },
-  fieldName: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: "700",
-    color: COLORS.textDark,
-    zIndex: 1,
-  },
-  selectedFieldName: {
-    color: COLORS.primary,
-    fontWeight: "800",
-  },
-  noResultsText: {
-    textAlign: "center",
-    color: COLORS.textGray,
-    fontSize: 16,
-    marginTop: 20,
-    fontWeight: "500",
-  },
-  footer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: 24,
-    backgroundColor: "transparent",
-  },
-  continueButton: {
-    backgroundColor: COLORS.teal,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: COLORS.teal,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    elevation: 5,
-  },
-  continueButtonText: {
-    color: COLORS.white,
-    fontSize: 18,
-    fontWeight: "bold",
   },
   trackerContainer: {
     flexDirection: "row",
@@ -340,5 +185,112 @@ const styles = StyleSheet.create({
   },
   trackerSegmentInactive: {
     backgroundColor: "#E5E7EB",
+  },
+  scrollContent: {
+    paddingHorizontal: 28,
+    paddingBottom: 100,
+  },
+  questionText: {
+    fontSize: 16,
+    color: COLORS.textGray,
+    textAlign: "center",
+    marginTop: 10,
+    marginBottom: 32,
+    fontWeight: "500",
+  },
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.5)",
+    height: 52,
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.4)",
+    marginBottom: 28,
+  },
+  searchIcon: {
+    marginRight: 12,
+    opacity: 0.4,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 15,
+    color: COLORS.textDark,
+    fontWeight: "500",
+  },
+  list: {
+    gap: 12,
+  },
+  nationalityItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.4)",
+    marginBottom: 2,
+  },
+  selectedItem: {
+    borderColor: COLORS.primary,
+    backgroundColor: "rgba(255, 255, 255, 1)",
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  flagBox: {
+    width: 44,
+    height: 32,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F3F4F6",
+    borderRadius: 8,
+    marginRight: 16,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+  },
+  flagEmoji: {
+    fontSize: 20,
+  },
+  nationalityName: {
+    flex: 1,
+    fontSize: 16,
+    fontWeight: "600",
+    color: COLORS.textDark,
+  },
+  selectedName: {
+    color: COLORS.primary,
+    fontWeight: "700",
+  },
+  footer: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 24,
+    backgroundColor: "white", // Solid background for footer
+    borderTopWidth: 1,
+    borderTopColor: "rgba(0,0,0,0.05)",
+  },
+  continueButton: {
+    backgroundColor: COLORS.teal,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: COLORS.teal,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+  continueButtonText: {
+    color: COLORS.white,
+    fontSize: 18,
+    fontWeight: "bold",
   },
 });

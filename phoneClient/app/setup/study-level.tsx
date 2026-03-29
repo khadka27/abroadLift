@@ -92,6 +92,18 @@ export default function StudyLevelSelection() {
             <View style={{ width: 44 }} /> 
           </View>
 
+          <View style={styles.trackerContainer}>
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <View 
+                key={i} 
+                style={[
+                  styles.trackerSegment, 
+                  i === 2 ? styles.trackerSegmentActive : styles.trackerSegmentInactive
+                ]} 
+              />
+            ))}
+          </View>
+
           <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
             <Text style={styles.questionText}>What level of study are you planning?</Text>
 
@@ -292,5 +304,24 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     fontSize: 18,
     fontWeight: "bold",
+  },
+  trackerContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 8,
+    marginTop: 10,
+    marginBottom: 20,
+  },
+  trackerSegment: {
+    height: 6,
+    borderRadius: 3,
+    width: 32,
+  },
+  trackerSegmentActive: {
+    backgroundColor: COLORS.primary,
+  },
+  trackerSegmentInactive: {
+    backgroundColor: "#E5E7EB",
   },
 });

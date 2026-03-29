@@ -28,32 +28,101 @@ const THEME = {
 };
 
 const DESTINATIONS = [
-  { name: "India", flag: "https://upload.wikimedia.org/wikipedia/en/thumb/4/41/Flag_of_India.svg/1200px-Flag_of_India.svg.png" },
-  { name: "Korea", flag: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Flag_of_South_Korea.svg/1200px-Flag_of_South_Korea.svg.png" },
-  { name: "Australia", flag: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Flag_of_Australia.svg/1200px-Flag_of_Australia.svg.png" },
-  { name: "Canada", flag: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Flag_of_Canada.svg/1200px-Flag_of_Canada.svg.png" },
+  { name: "USA", image: "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&q=80&w=400" },
+  { name: "UK", image: "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&q=80&w=400" },
+  { name: "Korea", image: "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?auto=format&fit=crop&q=80&w=400" },
+  { name: "Australia", image: "https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?auto=format&fit=crop&q=80&w=400" },
+  { name: "Canada", image: "https://images.unsplash.com/photo-1503614472-8c93d56e92ce?auto=format&fit=crop&q=80&w=400" },
+  { name: "India", image: "https://images.unsplash.com/photo-1524492707941-5f397b72b07d?auto=format&fit=crop&q=80&w=400" },
 ];
 
-const DEGREES = ["Bachelor's", "Master's", "PHD", "Diploma"];
+const DEGREES = [
+  { name: "Bachelor's", icon: "school-outline", color: "#4D7EF1", image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&q=80&w=400" },
+  { name: "Master's", icon: "briefcase-outline", color: "#F59E0B", image: "https://images.unsplash.com/photo-1541339907198-e08756ebafe3?auto=format&fit=crop&q=80&w=400" },
+  { name: "PHD", icon: "ribbon-outline", color: "#10B981", image: "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&q=80&w=400" },
+  { name: "Diploma", icon: "document-text-outline", color: "#EC4899", image: "https://images.unsplash.com/photo-1498243639359-2cee29633c06?auto=format&fit=crop&q=80&w=400" },
+];
 
 const UNIVERSITIES = [
   {
     id: "1",
-    title: "University of Melbourne",
-    location: "Melbourne, Australia",
-    image: "https://images.unsplash.com/photo-1541339907198-e08756ebafe3?auto=format&fit=crop&q=80&w=800",
+    title: "Harvard University",
+    location: "Cambridge, USA",
+    rating: "4.9",
+    reviews: "1.2k",
+    image: "https://images.unsplash.com/photo-1576091160550-2173bdd9962a?auto=format&fit=crop&q=80&w=800",
   },
   {
     id: "2",
-    title: "University of Melbourne",
-    location: "Melbourne, Australia",
-    image: "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&q=80&w=800",
+    title: "University of Oxford",
+    location: "Oxford, UK",
+    rating: "4.8",
+    reviews: "950",
+    image: "https://images.unsplash.com/photo-1541339907198-e08756ebafe3?auto=format&fit=crop&q=80&w=800",
   },
   {
     id: "3",
-    title: "University of Melbourne",
-    location: "Melbourne, Australia",
+    title: "Seoul National University",
+    location: "Seoul, Korea",
+    rating: "4.7",
+    reviews: "820",
+    image: "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&q=80&w=800",
+  },
+  {
+    id: "4",
+    title: "University of Toronto",
+    location: "Toronto, Canada",
+    rating: "4.6",
+    reviews: "740",
+    image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&q=80&w=800",
+  },
+  {
+    id: "5",
+    title: "IIT Delhi",
+    location: "New Delhi, India",
+    rating: "4.5",
+    reviews: "680",
     image: "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&q=80&w=800",
+  },
+  {
+    id: "6",
+    title: "Stanford University",
+    location: "Stanford, USA",
+    rating: "4.9",
+    reviews: "1.5k",
+    image: "https://images.unsplash.com/photo-1533667586627-9f5cb393304a?auto=format&fit=crop&q=80&w=800",
+  },
+  {
+    id: "7",
+    title: "University of Tokyo",
+    location: "Tokyo, Japan",
+    rating: "4.7",
+    reviews: "920",
+    image: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?auto=format&fit=crop&q=80&w=800",
+  },
+  {
+    id: "8",
+    title: "ETH Zurich",
+    location: "Zurich, Switzerland",
+    rating: "4.8",
+    reviews: "880",
+    image: "https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?auto=format&fit=crop&q=80&w=800",
+  },
+  {
+    id: "9",
+    title: "NUS Singapore",
+    location: "Singapore",
+    rating: "4.8",
+    reviews: "1.1k",
+    image: "https://images.unsplash.com/photo-1527891751199-7225231a68dd?auto=format&fit=crop&q=80&w=800",
+  },
+  {
+    id: "10",
+    title: "University of Sydney",
+    location: "Sydney, Australia",
+    rating: "4.6",
+    reviews: "650",
+    image: "https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?auto=format&fit=crop&q=80&w=800",
   },
 ];
 
@@ -81,11 +150,10 @@ export default function ExploreTab() {
             <Feather name="chevron-down" size={16} color={THEME.textDark} style={{ marginLeft: 4 }} />
           </View>
         </View>
-        <TouchableOpacity>
-          <Image 
-            source={{ uri: "https://randomuser.me/api/portraits/men/32.jpg" }} 
-            style={styles.avatar} 
-          />
+        <TouchableOpacity onPress={() => router.push("/profile")}>
+          <View style={[styles.avatar, { justifyContent: "center", alignItems: "center" }]}>
+            <Ionicons name="person" size={24} color={THEME.textGray} />
+          </View>
         </TouchableOpacity>
       </View>
 
@@ -108,9 +176,9 @@ export default function ExploreTab() {
         {/* Hero Banner */}
         <View style={styles.heroBanner}>
           <View style={styles.heroContent}>
-            <Text style={styles.heroTitle}>Find Your Ideal University</Text>
+            <Text style={styles.heroTitle}>Find Your Ideal{"\n"}University</Text>
             <Text style={styles.heroSubtitle}>
-              Explore universities worldwide and discover programs that match your goal and budget.
+              Explore universities worldwide and discover programs that match your goal.
             </Text>
             <TouchableOpacity style={styles.heroButton} onPress={() => router.push("/search")}>
               <Text style={styles.heroButtonText}>Start Exploring</Text>
@@ -118,7 +186,7 @@ export default function ExploreTab() {
           </View>
           <View style={styles.heroImageContainer}>
             <Image
-              source={{ uri: "https://png.pngtree.com/png-vector/20231109/ourmid/pngtree-global-education-and-online-learning-concept-png-image_10522191.png" }}
+              source={{ uri: "https://cdni.iconscout.com/illustration/premium/thumb/searching-for-university-location-illustration-download-in-svg-png-gif-formats--student-search-education-world-pack-people-illustrations-4712431.png" }}
               style={styles.heroImage}
               resizeMode="contain"
             />
@@ -131,7 +199,7 @@ export default function ExploreTab() {
           {DESTINATIONS.map((dest, i) => (
             <TouchableOpacity key={i} style={styles.destinationItem} onPress={() => router.push(("/category/" + dest.name) as any)}>
               <View style={styles.destinationIconWrap}>
-                 <Image source={{ uri: dest.flag }} style={styles.destinationImage} />
+                 <Image source={{ uri: dest.image }} style={styles.destinationImage} />
               </View>
               <Text style={styles.destinationText}>{dest.name}</Text>
             </TouchableOpacity>
@@ -141,19 +209,29 @@ export default function ExploreTab() {
         {/* Recommended For You */}
         <SectionHeader title="Recommended For You" />
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalList}>
-          {UNIVERSITIES.map((u) => (
+          {UNIVERSITIES.slice(0, 5).map((u) => (
             <TouchableOpacity key={u.id} style={styles.cardContainerHorizontal} activeOpacity={0.9} onPress={() => router.push(("/university/" + u.id) as any)}>
               <View style={styles.imageContainer}>
                 <Image source={{ uri: u.image }} style={styles.cardImage} />
+                <View style={styles.ratingBadge}>
+                  <Ionicons name="star" size={10} color={THEME.orange} />
+                  <Text style={styles.ratingText}>{u.rating}</Text>
+                </View>
+                <TouchableOpacity style={styles.bookmarkSmall}>
+                   <Feather name="bookmark" size={14} color={THEME.primary} />
+                </TouchableOpacity>
               </View>
               <Text style={styles.cardTitle} numberOfLines={1}>
                 {u.title}
               </Text>
-              <View style={styles.cardLocationBox}>
-                <Ionicons name="location" size={14} color={THEME.orange} />
-                <Text style={styles.cardLocationText} numberOfLines={1}>
-                  {u.location}
-                </Text>
+              <View style={styles.cardInfoRow}>
+                <View style={styles.cardLocationBox}>
+                  <Ionicons name="location" size={12} color={THEME.orange} />
+                  <Text style={styles.cardLocationText} numberOfLines={1}>
+                    {u.location}
+                  </Text>
+                </View>
+                <Text style={styles.reviewsText}>({u.reviews})</Text>
               </View>
             </TouchableOpacity>
           ))}
@@ -163,11 +241,14 @@ export default function ExploreTab() {
         <SectionHeader title="Browse by Degree" />
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalList}>
           {DEGREES.map((degree) => (
-            <TouchableOpacity key={degree} style={styles.degreeItem} onPress={() => router.push(("/category/" + degree) as any)}>
+            <TouchableOpacity key={degree.name} style={styles.degreeItem} onPress={() => router.push(("/category/" + degree.name) as any)}>
               <View style={styles.degreeIconWrap}>
-                <MaterialCommunityIcons name="certificate" size={32} color={THEME.bgLight} />
+                <Image source={{ uri: degree.image }} style={styles.degreeImage} />
+                <View style={[styles.degreeIconOverlay, { backgroundColor: degree.color + "CC" }]}>
+                  <Ionicons name={degree.icon as any} size={24} color="white" />
+                </View>
               </View>
-              <Text style={styles.degreeText}>{degree}</Text>
+              <Text style={styles.degreeText}>{degree.name}</Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -175,10 +256,17 @@ export default function ExploreTab() {
         {/* Trending Fields */}
         <SectionHeader title="Trending Fields" />
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalList}>
-          {/* Mocked short pills for Trending Fields as implied by missing content in screenshot */}
-          {["Computer Science", "Business Admin", "Medicine", "AI & Data"].map((field, i) => (
-            <TouchableOpacity key={i} style={styles.trendingPill} onPress={() => router.push(("/category/" + field) as any)}>
-              <Text style={styles.trendingPillText}>{field}</Text>
+          {[
+            { name: "Computer Science", icon: "laptop", image: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=400" },
+            { name: "Business Admin", icon: "briefcase", image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=400" },
+            { name: "Medicine", icon: "medical", image: "https://images.unsplash.com/photo-1576091160550-2173bdd9962a?auto=format&fit=crop&q=80&w=400" },
+            { name: "AI & Data", icon: "analytics", image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=400" },
+          ].map((field, i) => (
+            <TouchableOpacity key={i} style={styles.trendingPill} onPress={() => router.push(("/category/" + field.name) as any)}>
+               <View style={styles.trendingImageWrap}>
+                 <Image source={{ uri: field.image }} style={styles.trendingImage} />
+               </View>
+              <Text style={styles.trendingPillText}>{field.name}</Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -186,19 +274,26 @@ export default function ExploreTab() {
         {/* Top Ranked Universities */}
         <SectionHeader title="Top Ranked Universities" />
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={[styles.horizontalList, { paddingBottom: 24 }]}>
-          {UNIVERSITIES.map((u) => (
+          {UNIVERSITIES.slice(5, 10).map((u) => (
             <TouchableOpacity key={`top-${u.id}`} style={styles.cardContainerHorizontal} activeOpacity={0.9} onPress={() => router.push(("/university/" + u.id) as any)}>
               <View style={styles.imageContainer}>
                 <Image source={{ uri: u.image }} style={styles.cardImage} />
+                <View style={styles.ratingBadge}>
+                  <Ionicons name="star" size={10} color={THEME.orange} />
+                  <Text style={styles.ratingText}>{u.rating || "4.5"}</Text>
+                </View>
               </View>
               <Text style={styles.cardTitle} numberOfLines={1}>
                 {u.title}
               </Text>
-              <View style={styles.cardLocationBox}>
-                <Ionicons name="location" size={14} color={THEME.orange} />
-                <Text style={styles.cardLocationText} numberOfLines={1}>
-                  {u.location}
-                </Text>
+              <View style={styles.cardInfoRow}>
+                <View style={styles.cardLocationBox}>
+                  <Ionicons name="location" size={12} color={THEME.orange} />
+                  <Text style={styles.cardLocationText} numberOfLines={1}>
+                    {u.location}
+                  </Text>
+                </View>
+                <Text style={styles.reviewsText}>({u.reviews || "500"})</Text>
               </View>
             </TouchableOpacity>
           ))}
@@ -299,12 +394,13 @@ const styles = StyleSheet.create({
     padding: 24,
     marginBottom: 32,
     flexDirection: "row",
-    position: "relative",
-    overflow: "hidden", // In case illustrations bleed
+    alignItems: "center",
+    justifyContent: "space-between",
+    minHeight: 180,
   },
   heroContent: {
-    flex: 1,
-    paddingRight: 40,
+    flex: 1.4,
+    paddingRight: 10,
     zIndex: 2,
   },
   heroTitle: {
@@ -334,12 +430,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   heroImageContainer: {
-    position: "absolute",
-    right: -20,
-    bottom: -15,
-    width: 140,
-    height: 140,
-    zIndex: 1,
+    flex: 1,
+    height: 120,
+    justifyContent: "center",
+    alignItems: "center",
   },
   heroImage: {
     width: "100%",
@@ -402,32 +496,107 @@ const styles = StyleSheet.create({
     marginHorizontal: 12,
   },
   degreeIconWrap: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: "#111827", // Dark badge style from mock
+    width: 80,
+    height: 80,
+    borderRadius: 24,
+    backgroundColor: "#F3F4F6", 
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 8,
-    borderWidth: 3,
+    borderWidth: 1.5,
     borderColor: "#E5E7EB",
+    overflow: "hidden",
+    position: "relative",
+  },
+  degreeImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
+  },
+  degreeIconOverlay: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
   },
   degreeText: {
     fontSize: 13,
     color: THEME.textDark,
-    fontWeight: "500",
+    fontWeight: "600",
   },
   trendingPill: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    backgroundColor: "#F3F4F6",
-    borderRadius: 20,
+    paddingLeft: 6,
+    paddingRight: 16,
+    paddingVertical: 6,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 25,
     marginHorizontal: 6,
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  trendingImageWrap: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    overflow: "hidden",
+    marginRight: 10,
+    backgroundColor: "#F3F4F6",
+  },
+  trendingImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
   },
   trendingPillText: {
     color: THEME.textDark,
-    fontWeight: "500",
+    fontWeight: "600",
     fontSize: 13,
+  },
+  ratingBadge: {
+    position: "absolute",
+    top: 8,
+    left: 8,
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    gap: 4,
+  },
+  ratingText: {
+    fontSize: 10,
+    fontWeight: "bold",
+    color: THEME.textDark,
+  },
+  bookmarkSmall: {
+    position: "absolute",
+    top: 8,
+    right: 8,
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  cardInfoRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 2,
+  },
+  reviewsText: {
+    fontSize: 10,
+    color: THEME.textGray,
   },
   cardContainerHorizontal: {
     width: 170, // Horizontal scrolling card width
