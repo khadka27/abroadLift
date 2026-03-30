@@ -181,9 +181,9 @@ export default function DashboardScreen() {
               </TouchableOpacity>
            </View>
            <Image 
-             source={{ uri: "https://cdni.iconscout.com/illustration/premium/thumb/searching-for-university-location-illustration-download-in-svg-png-gif-formats--student-search-education-world-pack-people-illustrations-4712431.png" }} 
+             source={{ uri: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=400&q=80" }} 
              style={styles.improveImage}
-             resizeMode="contain"
+             resizeMode="cover"
            />
         </View>
 
@@ -592,10 +592,12 @@ const styles = StyleSheet.create({
   },
   improveImage: {
     position: "absolute",
-    right: -10,
-    bottom: -10,
-    width: 160,
-    height: 160,
+    right: 0,
+    bottom: 0,
+    width: 140,
+    height: "100%",
+    borderTopRightRadius: 32,
+    borderBottomRightRadius: 32,
     zIndex: 5,
   },
   sectionHeader: {
