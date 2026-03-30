@@ -19,7 +19,7 @@ import { useUser } from "../context/UserContext";
 const { width } = Dimensions.get("window");
 
 const THEME = {
-  primary: "#1A8A99",
+  primary: "#33BFFF", 
   secondary: "#004be3",
   textDark: "#111827",
   textGray: "#64748B",
@@ -28,13 +28,14 @@ const THEME = {
   green: "#10B981",
   white: "#FFFFFF",
   blue: "#3B82F6",
+  red: "#EF4444",
 };
 
 export default function DashboardScreen() {
   const { userData } = useUser();
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" translucent />
       
       {/* Top Bar */}
       <View style={styles.topBar}>
@@ -46,7 +47,10 @@ export default function DashboardScreen() {
           <TouchableOpacity style={styles.iconButton}>
             <Ionicons name="notifications-outline" size={24} color={THEME.textDark} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.profileButton}>
+          <TouchableOpacity 
+            style={styles.profileButton}
+            onPress={() => router.push("/(tabs)/profile")}
+          >
             <Ionicons name="person-circle" size={44} color="#E2E8F0" />
           </TouchableOpacity>
         </View>
@@ -97,34 +101,67 @@ export default function DashboardScreen() {
               </TouchableOpacity>
            </View>
 
-           {/* Admission Chances Card */}
-           <View style={styles.statCard}>
-              <View>
-                <View style={styles.statIconHeader}>
-                  <View style={[styles.statIconBox, { backgroundColor: "#FFF7ED" }]}>
-                    <MaterialCommunityIcons name="target" size={20} color={THEME.orange} />
-                  </View>
-                  <Text style={styles.statTitle}>Admission Chances</Text>
-                </View>
-                <Text style={styles.statValue}>75% <Text style={styles.statUnit}>- Moderate</Text></Text>
-                
-                <View style={styles.checkRow}>
-                   <Ionicons name="checkmark-circle" size={16} color={THEME.green} />
-                   <Text style={styles.checkText}>Good GPA</Text>
-                </View>
-                <View style={styles.checkRow}>
-                   <Ionicons name="warning" size={16} color={THEME.orange} />
-                   <Text style={styles.checkText}>Improve IELTS</Text>
-                </View>
-              </View>
-
-              <TouchableOpacity 
-                style={[styles.statButton, { backgroundColor: THEME.orange }]}
-                onPress={() => router.push("/university/admission-chance")}
-              >
-                <Text style={styles.statButtonText}>Set Goals</Text>
-              </TouchableOpacity>
-           </View>
+            {/* Admission Chances Card */}
+            <View style={styles.statCard}>
+               <View>
+                 <View style={styles.statIconHeader}>
+                   <View style={[styles.statIconBox, { backgroundColor: "#FFF7ED" }]}>
+                     <MaterialCommunityIcons name="target" size={20} color={THEME.orange} />
+                   </View>
+                   <Text style={styles.statTitle}>Admission Chances</Text>
+                 </View>
+                 <Text style={styles.statValue}>75% <Text style={styles.statUnit}>- Moderate</Text></Text>
+                 
+                 <View style={styles.checkRow}>
+                    <Ionicons name="checkmark-circle" size={16} color={THEME.green} />
+                    <Text style={styles.checkText}>Good GPA</Text>
+                 </View>
+                 <View style={styles.checkRow}>
+                    <Ionicons name="warning" size={16} color={THEME.orange} />
+                    <Text style={styles.checkText}>Improve IELTS</Text>
+                 </View>
+               </View>
+ 
+               <TouchableOpacity 
+                 style={[styles.statButton, { backgroundColor: THEME.orange }]}
+                 onPress={() => router.push("/university/admission-chance")}
+               >
+                 <Text style={styles.statButtonText}>Set Goals</Text>
+               </TouchableOpacity>
+            </View>
+ 
+            {/* Visa Readiness Card */}
+            <View style={styles.statCard}>
+               <View>
+                 <View style={styles.statIconHeader}>
+                   <View style={[styles.statIconBox, { backgroundColor: THEME.secondary }]}>
+                     <Text style={styles.visaIconText}>VISA</Text>
+                   </View>
+                   <Text style={styles.statTitle}>Visa Readiness</Text>
+                 </View>
+                 <Text style={styles.statValue}>60% <Text style={[styles.statUnit, { color: THEME.red, fontWeight: "800" }]}>- Needs Work</Text></Text>
+                 
+                 <View style={styles.progressBarContainer}>
+                    <View style={[styles.progressBarFull, { width: "60%", backgroundColor: THEME.blue }]} />
+                 </View>
+ 
+                 <View style={styles.checkRow}>
+                    <Ionicons name="checkmark-circle" size={16} color={THEME.green} />
+                    <Text style={styles.checkText}>Strong Academics</Text>
+                 </View>
+                 <View style={styles.checkRow}>
+                    <Ionicons name="warning" size={16} color={THEME.orange} />
+                    <Text style={styles.checkText}>Financial Proof Weak</Text>
+                 </View>
+               </View>
+ 
+               <TouchableOpacity 
+                 style={[styles.statButton, { backgroundColor: THEME.blue }]}
+                 onPress={() => router.push("/visa-readiness")}
+               >
+                 <Text style={styles.statButtonText}>Improve</Text>
+               </TouchableOpacity>
+            </View>
         </ScrollView>
 
         {/* Improve Your Chances Banner */}
@@ -481,6 +518,23 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "700",
     color: THEME.textDark,
+  },
+  visaIconText: {
+    color: "white",
+    fontSize: 8,
+    fontWeight: "900",
+  },
+  progressBarContainer: {
+    height: 6,
+    backgroundColor: "#E2E8F0",
+    borderRadius: 3,
+    width: "100%",
+    marginBottom: 16,
+    overflow: "hidden",
+  },
+  progressBarFull: {
+    height: "100%",
+    borderRadius: 3,
   },
   improveBanner: {
     marginHorizontal: 20,

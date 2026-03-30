@@ -6,7 +6,6 @@ import {
   ImageBackground,
   TouchableOpacity,
   Dimensions,
-  SafeAreaView,
   StatusBar,
   TextInput,
   KeyboardAvoidingView,
@@ -17,6 +16,7 @@ import {
 import { Stack, router } from "expo-router";
 import { AntDesign, FontAwesome, Feather } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { width, height } = Dimensions.get("window");
 
@@ -30,6 +30,8 @@ const COLORS = {
 };
 
 export default function RegisterScreen() {
+  const insets = useSafeAreaInsets();
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -44,8 +46,14 @@ export default function RegisterScreen() {
         imageStyle={{ top: -140, height: height + 140 }}
         resizeMode="cover"
       >
-        <SafeAreaView style={styles.safeArea}>
-          <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.mainContent}>
+          <ScrollView 
+            contentContainerStyle={[
+              styles.scrollContent, 
+              { paddingTop: 20 + insets.top, paddingBottom: 60 + insets.bottom }
+            ]}
+            showsVerticalScrollIndicator={false}
+          >
             {/* Horizontal Header with Arrow and Title */}
             <View style={styles.horizontalHeader}>
               <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
@@ -139,7 +147,7 @@ export default function RegisterScreen() {
               </TouchableOpacity>
             </View>
           </ScrollView>
-        </SafeAreaView>
+        </View>
       </ImageBackground>
     </KeyboardAvoidingView>
   );
@@ -155,18 +163,16 @@ const styles = StyleSheet.create({
     width: width,
     height: height,
   },
-  safeArea: {
+  mainContent: {
     flex: 1,
   },
   scrollContent: {
     paddingHorizontal: 24,
-    paddingTop: 80, // Increased further to bring title down
-    paddingBottom: 60,
   },
   horizontalHeader: {
     flexDirection: "row",
     alignItems: "flex-start",
-    marginBottom: 28, // Reduced from 40
+    marginBottom: 28, 
     gap: 20,
   },
   backButton: {
@@ -212,12 +218,12 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     width: width,
     height: height,
-    top: -240, // Match the visual position of background icons
+    top: -240, 
     left: -24,
   },
   glassOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(255, 255, 255, 0.3)", // Frosting tint
+    backgroundColor: "rgba(255, 255, 255, 0.3)", 
   },
   inputGroup: {
     marginBottom: 24,
@@ -236,7 +242,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "rgba(255, 255, 255, 0.5)",
     borderRadius: 18,
-    height: 54, // Reduced from 60
+    height: 54, 
     paddingHorizontal: 20,
     borderWidth: 1,
     borderColor: COLORS.glassBorder,

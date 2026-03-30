@@ -7,184 +7,369 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
-  SafeAreaView,
   StatusBar,
   Platform,
+  TextInput,
 } from "react-native";
-import { useLocalSearchParams, router } from "expo-router";
-import { Feather, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { useLocalSearchParams, router, Stack } from "expo-router";
+import { Feather, Ionicons, MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useUser } from "../context/UserContext";
 
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 
 const THEME = {
-  primary: "#1A8A99",
+  primary: "#33BFFF", 
+  secondary: "#004be3",
   textDark: "#111827",
   textGray: "#6B7280",
-  bgLight: "#FFFFFF",
+  bgLight: "#F8FAFF",
   orange: "#F59E0B",
-  blue: "#4D7EF1",
+  blue: "#3B82F6",
   green: "#10B981",
+  white: "#FFFFFF",
+  purple: "#6366F1",
 };
 
-// Dummy data for demonstration since we are using dynamic routes
 const UNIVERSITIES: Record<string, any> = {
   "1": {
     title: "University of Melbourne",
     location: "Melbourne, Australia",
     image: "https://images.unsplash.com/photo-1541339907198-e08756ebafe3?auto=format&fit=crop&q=80&w=800",
     description: "The University of Melbourne is one of Australia's leading research universities, known for academic excellence and global reputation.",
-    programs: "29 Programs",
-    intake: "February",
-    tuition: "Tuition Fee",
-    type: "International",
-    offered: ["Master of Data Science", "Bachelor of Business", "PhD in Engineering", "PhD in Engineering"],
-    facilities: [
-      "https://images.unsplash.com/photo-1555854816-802f18809c14?auto=format&fit=crop&q=80&w=400",
-      "https://images.unsplash.com/photo-1540317580114-ed684c15ffcc?auto=format&fit=crop&q=80&w=400"
-    ],
+    type: "Public Research",
+    established: "1853",
+    campus: "Parkville",
+    students: "50,000+",
   },
   "2": {
     title: "University of Toronto",
     location: "Toronto, Canada",
     image: "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&q=80&w=800",
     description: "The University of Toronto is a globally top-ranked public research university in Canada, offering world-class innovation and learning programs.",
-    programs: "35 Programs",
-    intake: "September",
-    tuition: "$42k/yr",
-    type: "Public",
-    offered: ["Artificial Intelligence", "Life Sciences", "Economics", "Law"],
-    facilities: [
-      "https://images.unsplash.com/photo-1498243639359-2cee29633c06?auto=format&fit=crop&q=80&w=400",
-      "https://images.unsplash.com/photo-1541339907198-e08756ebafe3?auto=format&fit=crop&q=80&w=400"
-    ],
+    type: "Public Research",
+    established: "1827",
+    campus: "St. George",
+    students: "60,000+",
   },
   "3": {
     title: "Stanford University",
     location: "Stanford, USA",
     image: "https://images.unsplash.com/photo-1533667586627-9f5cb393304a?auto=format&fit=crop&q=80&w=800",
-    description: "Stanford University is known for its proximity to Silicon Valley and its role as a premier private research university.",
-    programs: "42 Programs",
-    intake: "August",
-    tuition: "$55k/yr",
-    type: "Private",
-    offered: ["CS", "MBA", "Medicine", "AI & Data"],
-    facilities: [
-      "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&q=80&w=400",
-      "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?auto=format&fit=crop&q=80&w=400"
-    ],
+    description: "Located in the heart of Silicon Valley, Stanford University is recognized as one of the world's leading research and teaching institutions. It offers unmatched opportunities for tech innovation.",
+    type: "Private Research",
+    established: "1885",
+    campus: "Suburban",
+    students: "17,000+",
   },
 };
 
+const TABS = ["Estimates", "Overview", "Rankings", "Courses & Fees"];
+
 export default function UniversityDetails() {
   const { id } = useLocalSearchParams();
-  const details = UNIVERSITIES[id as string] || UNIVERSITIES["1"];
+  const insets = useSafeAreaInsets();
+  const { selectUniversity } = useUser();
+  const [selectedTab, setSelectedTab] = useState("Estimates");
+  const [courseSearch, setCourseSearch] = useState("");
+  
+  const details = UNIVERSITIES[id as string] || UNIVERSITIES["3"];
+
+  const renderEstimates = () => (
+    <View style={styles.tabContent}>
+      <View style={styles.estimateCard}>
+        <Text style={styles.estimateLabel}>ESTIMATED TOTAL COST / YR</Text>
+        <Text style={styles.estimateValue}>$65,000</Text>
+        <View style={styles.costBar}>
+          <View style={[styles.costSegment, { width: '65%', backgroundColor: '#6366F1' }]} />
+          <View style={[styles.costSegment, { width: '25%', backgroundColor: '#FBBF24' }]} />
+          <View style={[styles.costSegment, { width: '10%', backgroundColor: '#10B981' }]} />
+        </View>
+        <View style={styles.costLegend}>
+          <View style={styles.legendItem}>
+            <View style={[styles.legendDot, { backgroundColor: '#6366F1' }]} />
+            <Text style={styles.legendText}>Tuition</Text>
+          </View>
+          <View style={styles.legendItem}>
+            <View style={[styles.legendDot, { backgroundColor: '#FBBF24' }]} />
+            <Text style={styles.legendText}>Living</Text>
+          </View>
+          <View style={styles.legendItem}>
+            <View style={[styles.legendDot, { backgroundColor: '#10B981' }]} />
+            <Text style={styles.legendText}>Other</Text>
+          </View>
+        </View>
+      </View>
+
+      <View style={styles.chancesCard}>
+        <Text style={styles.chancesTitle}>Your Chances</Text>
+        <View style={styles.chancesVisual}>
+          <View style={styles.circularProgress}>
+            <View style={[styles.circularFill, { transform: [{ rotate: '45deg' }] }]} />
+            <View style={styles.circularInner}>
+              <Text style={styles.percentageText}>12%</Text>
+            </View>
+          </View>
+          <Text style={styles.admissionLabel}>Admission</Text>
+        </View>
+        <Text style={styles.chancesDescription}>
+          Based on your profile, you have a <Text style={{ fontWeight: '800' }}>low chance</Text> of admission. Improve your test scores to increase odds.
+        </Text>
+        <TouchableOpacity 
+          style={styles.completeEstimateBtn}
+          onPress={() => router.push("/university/admission-chance")}
+        >
+          <Text style={styles.completeEstimateBtnText}>Get Complete Estimate</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  const renderOverview = () => (
+    <View style={styles.tabContent}>
+      <View style={styles.sectionHeader}>
+        <View style={styles.sectionIconBox}>
+          <Ionicons name="book-outline" size={18} color={THEME.purple} />
+        </View>
+        <Text style={styles.contentSectionTitle}>About University</Text>
+      </View>
+      <View style={styles.overviewTextCard}>
+        <Text style={styles.overviewText}>{details.description}</Text>
+      </View>
+
+      <View style={styles.sectionHeader}>
+        <View style={styles.sectionIconBox}>
+          <Ionicons name="star-outline" size={18} color={THEME.orange} />
+        </View>
+        <Text style={styles.contentSectionTitle}>Highlights</Text>
+      </View>
+      <View style={styles.highlightItem}>
+        <View style={styles.checkCircle}>
+          <Ionicons name="checkmark" size={12} color={THEME.blue} />
+        </View>
+        <Text style={styles.highlightText}>#1 in Computer Science</Text>
+      </View>
+      <View style={styles.highlightItem}>
+        <View style={styles.checkCircle}>
+          <Ionicons name="checkmark" size={12} color={THEME.blue} />
+        </View>
+        <Text style={styles.highlightText}>Silicon Valley Network</Text>
+      </View>
+      <View style={styles.highlightItem}>
+        <View style={styles.checkCircle}>
+          <Ionicons name="checkmark" size={12} color={THEME.blue} />
+        </View>
+        <Text style={styles.highlightText}>High Employability</Text>
+      </View>
+
+      <View style={styles.sectionHeader}>
+        <View style={styles.sectionIconBox}>
+          <Ionicons name="business-outline" size={18} color={THEME.blue} />
+        </View>
+        <Text style={styles.contentSectionTitle}>Key Facts</Text>
+      </View>
+      <View style={styles.keyFactsGrid}>
+        <View style={styles.factCard}>
+          <View style={styles.factIconBox}>
+            <MaterialCommunityIcons name="office-building" size={20} color="#BF90FF" />
+          </View>
+          <Text style={styles.factLabel}>TYPE</Text>
+          <Text style={styles.factValue}>{details.type}</Text>
+        </View>
+        <View style={styles.factCard}>
+          <View style={styles.factIconBox}>
+            <Ionicons name="time-outline" size={20} color="#F59E0B" />
+          </View>
+          <Text style={styles.factLabel}>ESTABLISHED</Text>
+          <Text style={styles.factValue}>{details.established}</Text>
+        </View>
+        <View style={styles.factCard}>
+          <View style={styles.factIconBox}>
+            <Ionicons name="location-outline" size={20} color="#F43F5E" />
+          </View>
+          <Text style={styles.factLabel}>CAMPUS</Text>
+          <Text style={styles.factValue}>{details.campus}</Text>
+        </View>
+        <View style={styles.factCard}>
+          <View style={styles.factIconBox}>
+            <Ionicons name="people-outline" size={20} color="#10B981" />
+          </View>
+          <Text style={styles.factLabel}>STUDENTS</Text>
+          <Text style={styles.factValue}>{details.students}</Text>
+        </View>
+      </View>
+    </View>
+  );
+
+  const renderRankings = () => (
+    <View style={styles.tabContent}>
+      <View style={styles.rankingGlobalCard}>
+        <View style={styles.globalHeader}>
+          <View style={styles.medalIcon}>
+            <Ionicons name="ribbon" size={24} color="#FBBF24" />
+          </View>
+          <View>
+            <Text style={styles.globalRatingTitle}>Global Excellence</Text>
+            <Text style={styles.globalRatingSub}>Top ranked globally</Text>
+          </View>
+        </View>
+        <View style={styles.globalRanksRow}>
+          <View style={styles.rankSubCard}>
+             <Text style={styles.rankAgency}>QS WORLD</Text>
+             <Text style={styles.rankNumber}>#3</Text>
+             <Text style={styles.rankScope}>Global</Text>
+          </View>
+          <View style={styles.rankSubCard}>
+             <Text style={styles.rankAgency}>THE WORLD</Text>
+             <Text style={styles.rankNumber}>#2</Text>
+             <Text style={styles.rankScope}>Global</Text>
+          </View>
+        </View>
+        <View style={styles.ribbonOverlay}>
+           <Ionicons name="ribbon-outline" size={140} color="rgba(255,255,255,0.15)" />
+        </View>
+      </View>
+
+      <View style={styles.nationalRankCard}>
+         <View style={styles.nationalIconBox}>
+            <Ionicons name="location" size={24} color={THEME.blue} />
+         </View>
+         <View style={{ flex: 1 }}>
+            <View style={styles.nationalRow}>
+               <Text style={styles.nationalLabel}>NATIONAL RANK</Text>
+               <View style={styles.tierBadge}>
+                  <Text style={styles.tierText}>Top Tier</Text>
+               </View>
+            </View>
+            <Text style={styles.nationalValue}>#2 USA <Text style={styles.nationalSub}>in Country</Text></Text>
+         </View>
+      </View>
+    </View>
+  );
+
+  const renderCourses = () => (
+    <View style={styles.tabContent}>
+      <View style={styles.courseSearchWrapper}>
+        <Ionicons name="search" size={20} color="#94A3B8" />
+        <TextInput 
+          placeholder="Search Courses..." 
+          style={styles.courseInput}
+          placeholderTextColor="#94A3B8"
+          value={courseSearch}
+          onChangeText={setCourseSearch}
+        />
+      </View>
+
+      {[
+        { name: "MSc Computer Science", duration: "2 Years", mode: "Full-time", fee: "$62,000/yr", category: "ENGINEERING" },
+        { name: "MBA", duration: "2 Years", mode: "Full-time", fee: "$75,000/yr", category: "BUSINESS" },
+        { name: "MSc Data Science", duration: "1.5 Years", mode: "Full-time", fee: "$58,000/yr", category: "ENGINEERING" },
+      ].map((course, idx) => (
+        <View key={idx} style={styles.courseCard}>
+          <View style={styles.courseCardHeader}>
+            <Text style={styles.courseName}>{course.name}</Text>
+            <View style={[styles.categoryBadge, { backgroundColor: course.category === 'ENGINEERING' ? '#DBEAFE' : '#E0E7FF' }]}>
+              <Text style={[styles.categoryText, { color: course.category === 'ENGINEERING' ? '#2563EB' : '#4338CA' }]}>{course.category}</Text>
+            </View>
+          </View>
+          <View style={styles.courseDetails}>
+            <View style={styles.courseDetailItem}>
+              <Ionicons name="time-outline" size={16} color="#94A3B8" />
+              <Text style={styles.courseDetailText}>{course.duration}</Text>
+            </View>
+            <View style={styles.courseDetailItem}>
+              <Ionicons name="briefcase-outline" size={16} color="#94A3B8" />
+              <Text style={styles.courseDetailText}>{course.mode}</Text>
+            </View>
+          </View>
+          <Text style={styles.tuitionLabel}>Tuition Fee</Text>
+          <View style={styles.tuitionRow}>
+            <Text style={styles.tuitionValue}>{course.fee}</Text>
+            <Ionicons name="chevron-forward" size={20} color="#6366F1" />
+          </View>
+        </View>
+      ))}
+    </View>
+  );
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
-      
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Feather name="chevron-left" size={28} color={THEME.textDark} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>{details.title}</Text>
-        <View style={{ width: 44 }} /> 
-      </View>
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <Stack.Screen options={{ headerShown: false, contentStyle: { backgroundColor: '#fff' } }} />
 
-      <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollContent} contentContainerStyle={styles.scrollInner}>
-        
-        {/* Main Image */}
-        <Image source={{ uri: details.image }} style={styles.mainImage} />
-
-        {/* Info Header */}
-        <View style={styles.infoHead}>
-           <View style={{ flex: 1 }}>
-              <Text style={styles.uniTitle}>{details.title}</Text>
-              <View style={styles.locationRow}>
-                <Ionicons name="location" size={16} color="#F97316" />
-                <Text style={styles.locationText}>{details.location}</Text>
-              </View>
-              <View style={styles.starsRow}>
-                {[1, 2, 3, 4, 5].map(i => (
-                  <Ionicons key={i} name="star" size={18} color="#FBBF24" style={{ marginRight: 2 }} />
-                ))}
-              </View>
-           </View>
-           <TouchableOpacity style={styles.bookmarkButton}>
-              <Feather name="bookmark" size={24} color="#3B82F6" />
-           </TouchableOpacity>
-        </View>
-
-        {/* About */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>About the University</Text>
-          <Text style={styles.aboutText}>{details.description}</Text>
-        </View>
-
-        {/* Key Information Grid */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Key Information</Text>
-          <View style={styles.infoGrid}>
-            <View style={styles.infoCard}>
-              <View style={styles.infoIconBox}>
-                <Ionicons name="school" size={20} color="#000" />
-              </View>
-              <Text style={styles.infoCardText}>{details.programs}</Text>
+      <ScrollView 
+        showsVerticalScrollIndicator={false} 
+        stickyHeaderIndices={[1]}
+        contentContainerStyle={{ paddingBottom: 100 + insets.bottom }}
+      >
+        {/* Banner Section */}
+        <View style={styles.bannerContainer}>
+          <Image source={{ uri: details.image }} style={styles.bannerImage} />
+          <View style={styles.bannerOverlay} />
+          
+          <View style={[styles.bannerHeader, { paddingTop: insets.top + 10 }]}>
+            <TouchableOpacity style={styles.headerCircleBtn} onPress={() => router.back()}>
+              <Ionicons name="arrow-back" size={22} color="white" />
+            </TouchableOpacity>
+            <View style={styles.headerRightBtns}>
+              <TouchableOpacity style={styles.headerCircleBtn}>
+                <Ionicons name="share-social-outline" size={22} color="white" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.headerCircleBtn}>
+                <Ionicons name="heart-outline" size={22} color="white" />
+              </TouchableOpacity>
             </View>
-            <View style={styles.infoCard}>
-               <View style={styles.infoIconBox}>
-                <Ionicons name="globe-outline" size={20} color="#3B82F6" />
-              </View>
-              <Text style={styles.infoCardText}>{details.type}</Text>
-            </View>
-            <View style={styles.infoCard}>
-               <View style={styles.infoIconBox}>
-                 <Ionicons name="calendar-outline" size={20} color="#EF4444" />
-               </View>
-              <Text style={styles.infoCardText}>{details.intake}</Text>
-            </View>
-            <View style={styles.infoCard}>
-               <View style={styles.infoIconBox}>
-                 <MaterialIcons name="monetization-on" size={20} color="#84CC16" />
-               </View>
-              <Text style={styles.infoCardText}>{details.tuition}</Text>
+          </View>
+
+          <View style={styles.bannerBottomInfo}>
+            <Text style={styles.uniTitle}>{details.title}</Text>
+            <View style={styles.locationRow}>
+              <Ionicons name="location" size={16} color="white" />
+              <Text style={styles.locationText}>{details.location}</Text>
             </View>
           </View>
         </View>
 
-        {/* Programs Offered */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Programs Offered</Text>
-          <View style={styles.programsGrid}>
-            {details.offered.map((prog: string, i: number) => (
-              <View key={i} style={styles.programItem}>
-                <Ionicons name="checkmark-circle" size={20} color="#84CC16" />
-                <Text style={styles.programText} numberOfLines={1}>{prog}</Text>
-              </View>
+        {/* Sticky Tab Bar */}
+        <View style={styles.tabBarWrapper}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabScroll}>
+            {TABS.map((tab) => (
+              <TouchableOpacity 
+                key={tab} 
+                style={[styles.tabItem, selectedTab === tab && styles.activeTabItem]}
+                onPress={() => setSelectedTab(tab)}
+              >
+                <Text style={[styles.tabText, selectedTab === tab && styles.activeTabText]}>{tab}</Text>
+              </TouchableOpacity>
             ))}
-          </View>
+          </ScrollView>
         </View>
 
-
-
-        {/* Campus Facilities */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Campus Facilities</Text>
-          <View style={styles.facilitiesRow}>
-            {details.facilities.map((fac: string, i: number) => (
-              <Image key={i} source={{ uri: fac }} style={styles.facilityImage} />
-            ))}
-          </View>
+        {/* Tab Content Area */}
+        <View style={styles.mainContent}>
+          {selectedTab === "Estimates" && renderEstimates()}
+          {selectedTab === "Overview" && renderOverview()}
+          {selectedTab === "Rankings" && renderRankings()}
+          {selectedTab === "Courses & Fees" && renderCourses()}
         </View>
 
-        {/* Location Map */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Location Map</Text>
-          <Image 
-            source={{ uri: "https://www.maproom.net/wp-content/uploads/Map-of-London.jpg" }} 
-            style={styles.mapImage} 
-          />
+        {/* Action Button */}
+        <View style={styles.bottomActionWrap}>
+          <TouchableOpacity 
+            style={styles.shortlistBtn}
+            onPress={() => {
+              selectUniversity({
+                id: id as string,
+                name: details.title,
+                location: details.location,
+                image: details.image,
+                course: details.offered?.[0] || "MSc Computer Science",
+              });
+              router.push("/(tabs)/explore");
+            }}
+          >
+            <Text style={styles.shortlistBtnText}>Shortlist University</Text>
+          </TouchableOpacity>
         </View>
 
       </ScrollView>
@@ -195,226 +380,538 @@ export default function UniversityDetails() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F8FAFC",
   },
-  header: {
+  bannerContainer: {
+    height: 200,
+    width: "100%",
+    position: "relative",
+  },
+  bannerImage: {
+    width: "100%",
+    height: "100%",
+  },
+  bannerOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.3)",
+  },
+  bannerHeader: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
-    paddingBottom: 20,
+    paddingHorizontal: 20,
   },
-  backButton: {
+  headerCircleBtn: {
     width: 44,
     height: 44,
+    borderRadius: 22,
+    backgroundColor: "rgba(255,255,255,0.2)",
     justifyContent: "center",
     alignItems: "center",
   },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: "800",
-    color: "#000",
-  },
-  scrollContent: {
-    flex: 1,
-  },
-  scrollInner: {
-    paddingHorizontal: 20,
-    paddingBottom: 40,
-  },
-  mainImage: {
-    width: "100%",
-    height: 240,
-    borderRadius: 24,
-    marginBottom: 24,
-  },
-  infoHead: {
+  headerRightBtns: {
     flexDirection: "row",
-    alignItems: "flex-start",
-    marginBottom: 24,
+    gap: 12,
+  },
+  bannerBottomInfo: {
+    position: "absolute",
+    bottom: 16,
+    left: 20,
   },
   uniTitle: {
     fontSize: 20,
-    fontWeight: "800",
-    color: "#000",
-    marginBottom: 6,
+    fontWeight: "900",
+    color: "white",
+    marginBottom: 4,
   },
   locationRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 8,
+    gap: 4,
   },
   locationText: {
-    fontSize: 14,
+    fontSize: 12,
+    color: "white",
+    fontWeight: "600",
+    opacity: 0.9,
+  },
+  tabBarWrapper: {
+    backgroundColor: "white",
+    borderBottomWidth: 1,
+    borderBottomColor: "#E2E8F0",
+  },
+  tabScroll: {
+    paddingHorizontal: 12,
+  },
+  tabItem: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderBottomWidth: 3,
+    borderBottomColor: "transparent",
+  },
+  activeTabItem: {
+    borderBottomColor: THEME.blue,
+  },
+  tabText: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#94A3B8",
+  },
+  activeTabText: {
+    color: THEME.blue,
+  },
+  mainContent: {
+    padding: 16,
+  },
+  tabContent: {
+    flex: 1,
+  },
+  estimateCard: {
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: "#F1F5F9",
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  estimateLabel: {
+    fontSize: 12,
+    fontWeight: "800",
+    color: "#94A3B8",
+    letterSpacing: 1,
+    marginBottom: 12,
+  },
+  estimateValue: {
+    fontSize: 24,
+    fontWeight: "900",
+    color: THEME.textDark,
+    marginBottom: 12,
+  },
+  costBar: {
+    height: 10,
+    width: "100%",
+    backgroundColor: "#F1F5F9",
+    borderRadius: 5,
+    flexDirection: "row",
+    overflow: "hidden",
+    marginBottom: 20,
+  },
+  costSegment: {
+    height: "100%",
+  },
+  costLegend: {
+    flexDirection: "row",
+    gap: 20,
+  },
+  legendItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  legendDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  legendText: {
+    fontSize: 13,
+    fontWeight: "600",
     color: "#64748B",
-    marginLeft: 4,
+  },
+  chancesCard: {
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: "#F1F5F9",
+  },
+  chancesTitle: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: THEME.textDark,
+    marginBottom: 12,
+  },
+  chancesVisual: {
+    alignItems: "center",
+    marginBottom: 24,
+  },
+  circularProgress: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    borderWidth: 4,
+    borderColor: "#F1F5F9",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  circularFill: {
+    position: "absolute",
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    borderWidth: 4,
+    borderColor: "#EF4444",
+    borderTopColor: "transparent",
+    borderLeftColor: "transparent",
+  },
+  percentageText: {
+    fontSize: 14,
+    fontWeight: "900",
+    color: THEME.textDark,
+  },
+  admissionLabel: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#94A3B8",
+    marginTop: 8,
+  },
+  chancesDescription: {
+    fontSize: 14,
+    lineHeight: 22,
+    color: "#64748B",
+    textAlign: "center",
+    marginBottom: 24,
+  },
+  completeEstimateBtn: {
+    backgroundColor: "#EFF6FF",
+    height: 56,
+    borderRadius: 16,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  completeEstimateBtnText: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: THEME.blue,
+  },
+  circularInner: {
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+    marginTop: 8,
+  },
+  sectionIconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    backgroundColor: "#F8FAFC",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
+  contentSectionTitle: {
+    fontSize: 18,
+    fontWeight: "800",
+    color: THEME.textDark,
+  },
+  overviewTextCard: {
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: "#F1F5F9",
+    marginBottom: 28,
+  },
+  overviewText: {
+    fontSize: 14,
+    lineHeight: 24,
+    color: "#475569",
     fontWeight: "500",
   },
-  starsRow: {
+  highlightItem: {
     flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "white",
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#F1F5F9",
+    marginBottom: 12,
+    gap: 12,
   },
-  bookmarkButton: {
-    width: 48,
-    height: 48,
+  checkCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: "#EFF6FF",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  highlightText: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#475569",
+  },
+  keyFactsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 16,
+    marginTop: 8,
+  },
+  factCard: {
+    width: (width - 64) / 2,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 20,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#F1F5F9",
+  },
+  factIconBox: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "#F8FAFC",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  factLabel: {
+    fontSize: 11,
+    fontWeight: "800",
+    color: "#94A3B8",
+    marginBottom: 4,
+  },
+  factValue: {
+    fontSize: 15,
+    fontWeight: "900",
+    color: THEME.textDark,
+  },
+  rankingGlobalCard: {
+    backgroundColor: THEME.blue,
+    borderRadius: 32,
+    padding: 28,
+    marginBottom: 24,
+    position: "relative",
+    overflow: "hidden",
+  },
+  globalHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
+    marginBottom: 32,
+    zIndex: 10,
+  },
+  medalIcon: {
+    width: 54,
+    height: 54,
+    borderRadius: 18,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  globalRatingTitle: {
+    fontSize: 20,
+    fontWeight: "900",
+    color: "white",
+  },
+  globalRatingSub: {
+    fontSize: 14,
+    color: "white",
+    opacity: 0.8,
+    fontWeight: "600",
+  },
+  globalRanksRow: {
+    flexDirection: "row",
+    gap: 16,
+    zIndex: 10,
+  },
+  rankSubCard: {
+    flex: 1,
+    backgroundColor: "rgba(255,255,255,0.12)",
     borderRadius: 24,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.2)",
+  },
+  rankAgency: {
+    fontSize: 10,
+    fontWeight: "800",
+    color: "white",
+    opacity: 0.9,
+    marginBottom: 6,
+  },
+  rankNumber: {
+    fontSize: 28,
+    fontWeight: "900",
+    color: "white",
+    marginBottom: 2,
+  },
+  rankScope: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: "white",
+  },
+  ribbonOverlay: {
+    position: "absolute",
+    right: -20,
+    bottom: -20,
+    opacity: 0.4,
+  },
+  nationalRankCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "white",
+    padding: 24,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: "#F1F5F9",
+    gap: 20,
+  },
+  nationalIconBox: {
+    width: 56,
+    height: 56,
+    borderRadius: 16,
     backgroundColor: "#F1F5F9",
     justifyContent: "center",
     alignItems: "center",
   },
-  section: {
-    marginBottom: 28,
-  },
-  sectionTitle: {
-    fontSize: 17,
-    fontWeight: "700",
-    color: "#000",
-    marginBottom: 16,
-  },
-  aboutText: {
-    fontSize: 14,
-    lineHeight: 22,
-    color: "#475569",
-    opacity: 0.9,
-  },
-  infoGrid: {
+  nationalRow: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 12,
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 4,
   },
-  infoCard: {
-    width: (width - 52) / 2,
+  nationalLabel: {
+    fontSize: 13,
+    fontWeight: "800",
+    color: "#64748B",
+  },
+  tierBadge: {
+    backgroundColor: "#EFF6FF",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 10,
+  },
+  tierText: {
+    fontSize: 11,
+    fontWeight: "800",
+    color: THEME.blue,
+  },
+  nationalValue: {
+    fontSize: 24,
+    fontWeight: "900",
+    color: THEME.textDark,
+  },
+  nationalSub: {
+    fontSize: 14,
+    color: "#94A3B8",
+    fontWeight: "600",
+  },
+  courseSearchWrapper: {
     flexDirection: "row",
     alignItems: "center",
+    backgroundColor: "white",
     borderWidth: 1,
     borderColor: "#E2E8F0",
-    borderRadius: 18,
-    padding: 12,
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    height: 56,
+    marginBottom: 24,
   },
-  infoIconBox: {
-    width: 32,
-    height: 32,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 10,
-  },
-  infoCardText: {
-    fontSize: 13,
+  courseInput: {
+    flex: 1,
+    marginLeft: 12,
+    fontSize: 15,
     fontWeight: "600",
-    color: "#475569",
+    color: THEME.textDark,
   },
-  programsGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-  },
-  programItem: {
-    width: "48%",
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  programText: {
-    fontSize: 13,
-    color: "#475569",
-    marginLeft: 8,
-    fontWeight: "500",
-  },
-  eligibilityCard: {
-    backgroundColor: THEME.primary + "10",
+  courseCard: {
+    backgroundColor: "white",
     borderRadius: 24,
     padding: 24,
-    marginBottom: 32,
+    marginBottom: 16,
     borderWidth: 1,
-    borderColor: THEME.primary + "30",
+    borderColor: "#F1F5F9",
   },
-  eligibilityContent: {
+  courseCardHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 12,
+  },
+  courseName: {
+    fontSize: 17,
+    fontWeight: "800",
+    color: THEME.textDark,
+    flex: 1,
+  },
+  categoryBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
+  },
+  categoryText: {
+    fontSize: 10,
+    fontWeight: "900",
+  },
+  courseDetails: {
+    flexDirection: "row",
+    gap: 16,
     marginBottom: 20,
   },
-  eligibilityTitle: {
-    fontSize: 18,
-    fontWeight: "800",
-    color: THEME.primary,
-    marginBottom: 8,
-  },
-  eligibilitySubtext: {
-    fontSize: 13,
-    color: "#475569",
-    lineHeight: 18,
-  },
-  checkButton: {
-    backgroundColor: THEME.primary,
-    paddingVertical: 14,
-    borderRadius: 16,
+  courseDetailItem: {
+    flexDirection: "row",
     alignItems: "center",
-    shadowColor: THEME.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
+    gap: 6,
   },
-  checkButtonText: {
-    color: "white",
-    fontSize: 15,
-    fontWeight: "bold",
+  courseDetailText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#64748B",
   },
-  costContainer: {
-    backgroundColor: "#F8FAFC",
-    borderRadius: 24,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: "#E2E8F0",
+  tuitionLabel: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#94A3B8",
+    marginBottom: 4,
   },
-  costItem: {
+  tuitionRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#E2E8F0",
   },
-  costLabelRow: {
-    flexDirection: "row",
+  tuitionValue: {
+    fontSize: 20,
+    fontWeight: "900",
+    color: THEME.textDark,
+  },
+  bottomActionWrap: {
+    paddingHorizontal: 24,
+    marginTop: 10,
+    marginBottom: 20,
+  },
+  shortlistBtn: {
+    backgroundColor: THEME.blue,
+    height: 64,
+    borderRadius: 20,
+    justifyContent: "center",
     alignItems: "center",
+    shadowColor: THEME.blue,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
+    elevation: 8,
   },
-  costLabel: {
-    fontSize: 14,
-    color: "#475569",
-    marginLeft: 10,
-    fontWeight: "500",
-  },
-  costValue: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#000",
-  },
-  totalCostItem: {
-    borderBottomWidth: 0,
-    marginTop: 8,
-    paddingTop: 16,
-  },
-  totalLabel: {
-    fontSize: 16,
-    fontWeight: "800",
-    color: "#000",
-  },
-  totalValue: {
+  shortlistBtnText: {
+    color: "white",
     fontSize: 18,
     fontWeight: "900",
-    color: THEME.primary,
-  },
-  facilitiesRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  facilityImage: {
-    width: "48%",
-    height: 140,
-    borderRadius: 16,
-  },
-  mapImage: {
-    width: "100%",
-    height: 180,
-    borderRadius: 20,
   },
 });

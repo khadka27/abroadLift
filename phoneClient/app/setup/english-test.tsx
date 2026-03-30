@@ -34,7 +34,6 @@ const COLORS = {
   white: "#FFFFFF",
   glassBase: "rgba(255, 255, 255, 0.8)",
   glassBorder: "rgba(255, 255, 255, 0.4)",
-  teal: "rgb(41, 142, 168)",
 };
 
 const ENGLISH_LEVELS = ["Beginner", "Intermediate", "Advanced", "Fluent", "Native"];
@@ -42,24 +41,35 @@ const TEST_TYPES = ["IELTS", "PTE", "TOEFL", "Duolingo"];
 
 export default function EnglishTestSelection() {
   const { userData, setUserData } = useUser();
-  const [hasTakenTest, setHasTakenTest] = useState<boolean | null>(null);
-  const [testType, setTestType] = useState<string>("");
-  const [score, setScore] = useState("");
-  const [englishLevel, setEnglishLevel] = useState("");
+  const [hasTakenTest, setHasTakenTest] = useState<boolean | null>(
+    userData.testType && userData.testType !== "Not Taken" ? true :
+    userData.englishLevel ? false : null
+  );
+  const [testType, setTestType] = useState<string>(userData.testType === "Not Taken" ? "" : userData.testType || "");
+  const [score, setScore] = useState(userData.score === "Pending" ? "" : userData.score || "");
+  const [englishLevel, setEnglishLevel] = useState(userData.englishLevel || "");
 
   const handleToggle = (taken: boolean) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setHasTakenTest(taken);
+    // Reset other fields when toggling
+    if (taken) setEnglishLevel("");
+    else { setTestType(""); setScore(""); }
   };
   
   const handleComplete = () => {
     setUserData(prev => ({
         ...prev,
-        score: score || "Pending",
-        testType: testType || "Not Taken"
+        score: hasTakenTest ? score : "N/A",
+        testType: hasTakenTest ? testType : "Not Taken",
+        englishLevel: hasTakenTest ? "N/A" : englishLevel
     }));
     router.push("/setup/university-select");
   };
+
+  const isFormValid = hasTakenTest === true 
+    ? (testType !== "" && score.trim().length > 0)
+    : (hasTakenTest === false && englishLevel !== "");
 
   return (
     <View style={styles.container}>
@@ -96,10 +106,10 @@ export default function EnglishTestSelection() {
           <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
             <Text style={styles.questionText}>Have you taken an English test?</Text>
 
-            {/* IELTS Illustration Banner */}
+            {/* Banner */}
             <View style={styles.bannerContainer}>
               <Image
-                source={{ uri: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&q=80&w=800" }} 
+                source={require("../../assets/images/onboarding-bg-4k.png")} 
                 style={styles.bannerImage}
                 resizeMode="cover"
               />
@@ -145,7 +155,7 @@ export default function EnglishTestSelection() {
             {/* Dynamic Content based on selection */}
             {hasTakenTest === true && (
               <Animated.View style={styles.formSection}>
-                <Text style={styles.sectionTitle}>Describe your test result?</Text>
+                <Text style={styles.sectionTitle}>Select your test type</Text>
                 
                 <View style={styles.horizontalList}>
                   {TEST_TYPES.map((type) => (
@@ -175,7 +185,7 @@ export default function EnglishTestSelection() {
                         testType === "PTE" ? "e.g. 65" :
                         testType === "TOEFL" ? "e.g. 100" :
                         testType === "Duolingo" ? "e.g. 120" :
-                        "e.g. 7.5"
+                        "Score"
                       }
                       placeholderTextColor={COLORS.textGray}
                       value={score}
@@ -189,29 +199,33 @@ export default function EnglishTestSelection() {
 
             {hasTakenTest === false && (
               <View style={styles.formSection}>
-                <Text style={styles.sectionTitle}>Describe your English level?</Text>
-                <TouchableOpacity style={styles.dropdownCard}>
-                  <Image 
-                    source={require("../../assets/images/onboarding-bg-4k.png")}
-                    style={[styles.glassImageBackground, { top: -600 }]}
-                    blurRadius={30}
-                  />
-                  <View style={styles.glassOverlay} />
-                  <Text style={[styles.dropdownText, { zIndex: 1 }]}>{englishLevel || "Select your English Level"}</Text>
-                  <Feather name="chevron-down" size={20} color={COLORS.textDark} opacity={0.6} style={{ zIndex: 1 }} />
-                </TouchableOpacity>
+                <Text style={styles.sectionTitle}>Select your proficiency level</Text>
+                <View style={styles.horizontalList}>
+                  {ENGLISH_LEVELS.map((level) => (
+                    <TouchableOpacity
+                      key={level}
+                      style={[styles.badge, englishLevel === level && styles.activeBadge]}
+                      onPress={() => setEnglishLevel(level)}
+                    >
+                      <Text style={[styles.badgeText, englishLevel === level && styles.activeBadgeText]}>{level}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
               </View>
             )}
 
             {/* Continue Button */}
-            {hasTakenTest !== null && (
-              <TouchableOpacity
-                style={[styles.continueButton, { marginTop: 40 }]}
-                onPress={handleComplete}
-              >
-                <Text style={styles.continueButtonText}>Continue</Text>
-              </TouchableOpacity>
-            )}
+            <TouchableOpacity
+              style={[
+                styles.continueButton, 
+                { marginTop: 40 },
+                !isFormValid && { opacity: 0.5 }
+              ]}
+              disabled={!isFormValid}
+              onPress={handleComplete}
+            >
+              <Text style={styles.continueButtonText}>Continue</Text>
+            </TouchableOpacity>
 
           </ScrollView>
         </SafeAreaView>
@@ -232,7 +246,7 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
-    paddingTop: 80,
+    paddingTop: Platform.OS === 'android' ? 40 : 0,
   },
   header: {
     flexDirection: "row",
@@ -256,7 +270,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 28,
-    paddingBottom: 40,
+    paddingBottom: 100,
   },
   questionText: {
     fontSize: 16,
@@ -328,24 +342,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 20,
   },
-  dropdownCard: {
-    backgroundColor: "rgba(255, 255, 255, 0.75)",
-    height: 58,
-    borderRadius: 18,
-    paddingHorizontal: 20,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderWidth: 1.5,
-    borderColor: "rgba(255, 255, 255, 0.4)",
-    overflow: "hidden",
-  },
-  dropdownText: {
-    fontSize: 16,
-    color: COLORS.textDark,
-    fontWeight: "500",
-    opacity: 0.8,
-  },
   horizontalList: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -354,27 +350,21 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   badge: {
-    paddingHorizontal: 24,
-    paddingVertical: 14,
-    borderRadius: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 16,
     backgroundColor: "rgba(255, 255, 255, 0.9)",
     borderWidth: 1.5,
     borderColor: "rgba(255, 255, 255, 0.6)",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 5,
-    elevation: 2,
   },
   activeBadge: {
     backgroundColor: COLORS.primary,
     borderColor: COLORS.primary,
   },
   badgeText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "800",
     color: COLORS.textDark,
-    letterSpacing: 0.5,
   },
   activeBadgeText: {
     color: COLORS.white,
@@ -400,12 +390,12 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   continueButton: {
-    backgroundColor: COLORS.teal,
+    backgroundColor: COLORS.primary,
     height: 60,
     borderRadius: 30,
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: COLORS.teal,
+    shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.2,
     shadowRadius: 10,

@@ -6,13 +6,13 @@ import {
   ImageBackground,
   TouchableOpacity,
   Dimensions,
-  SafeAreaView,
   StatusBar,
-  Image, // Added Image
+  Image,
 } from "react-native";
 import { Stack, router } from "expo-router";
 import { AntDesign, FontAwesome, Feather } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { width, height } = Dimensions.get("window");
 
@@ -25,6 +25,8 @@ const COLORS = {
 };
 
 export default function Index() {
+  const insets = useSafeAreaInsets();
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
@@ -36,37 +38,33 @@ export default function Index() {
         imageStyle={{ top: -140, height: height + 140 }}
         resizeMode="cover"
       >
-        <SafeAreaView style={styles.safeArea}>
-          {/* Top Heading with a more visible glass effect */}
-          <View style={styles.headerGlass}>
-            <Image 
-              source={require("../assets/images/onboarding-bg-4k.png")}
-              style={styles.glassImageBackground}
-              blurRadius={30}
-            />
-            <View style={styles.glassOverlay} />
-            
-            {/* Logo Added Here */}
-            <Image 
-              source={require("../assets/images/logo.png")}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-            
-            <Text style={styles.title}>
-              Discover the best{"\n"}College for you !
-            </Text>
+        <View style={[styles.mainContent, { paddingTop: insets.top }]}>
+          {/* Top Heading with native BlurView */}
+          <View style={styles.headerGlassWrapper}>
+            <BlurView intensity={60} tint="light" style={styles.headerBlur}>
+              {/* Logo Added Here */}
+              <Image 
+                source={require("../assets/images/logo.png")}
+                style={styles.logo}
+                resizeMode="contain"
+              />
+              
+              <Text style={styles.title}>
+                Discover the best{"\n"}College for you !
+              </Text>
+            </BlurView>
           </View>
 
-          {/* Bottom Card with Visible Glassmorphism */}
+          {/* Bottom Card with native BlurView for edge-to-edge perfection */}
           <View style={styles.bottomCardWrapper}>
-            <View style={styles.bottomBlurCard}>
-              <Image 
-                source={require("../assets/images/onboarding-bg-4k.png")}
-                style={styles.glassImageBackgroundBottom}
-                blurRadius={40}
-              />
-              <View style={styles.glassOverlay} />
+            <BlurView 
+              intensity={80} 
+              tint="light" 
+              style={[
+                styles.bottomBlurCard, 
+                { paddingBottom: 40 + insets.bottom }
+              ]}
+            >
               <TouchableOpacity
                 style={styles.primaryButton}
                 onPress={() => router.push("/register")}
@@ -103,9 +101,9 @@ export default function Index() {
                   <FontAwesome name="facebook" size={26} color="#1877F2" />
                 </TouchableOpacity>
               </View>
-            </View>
+            </BlurView>
           </View>
-        </SafeAreaView>
+        </View>
       </ImageBackground>
     </View>
   );
@@ -121,37 +119,27 @@ const styles = StyleSheet.create({
     width: width,
     height: height,
   },
-  safeArea: {
+  mainContent: {
     flex: 1,
     justifyContent: "space-between",
   },
-  headerGlass: {
-    marginTop: 60,
+  headerGlassWrapper: {
+    marginTop: 20,
     marginHorizontal: 32,
-    paddingVertical: 32,
-    paddingHorizontal: 20,
     borderRadius: 32,
     borderWidth: 1.5,
-    borderColor: "rgba(255, 255, 255, 0.5)",
+    borderColor: "rgba(255, 255, 255, 0.4)",
+    overflow: "hidden",
+  },
+  headerBlur: {
+    paddingVertical: 32,
+    paddingHorizontal: 20,
     alignItems: "center",
-    overflow: "hidden", // Clips the blurred image
-    position: "relative",
   },
   logo: {
     width: 140,
     height: 48,
     marginBottom: 20,
-  },
-  glassImageBackground: {
-    ...StyleSheet.absoluteFillObject,
-    width: width,
-    height: height,
-    top: -80, // Offset to match main background
-    left: -40,
-  },
-  glassOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(255, 255, 255, 0.25)",
   },
   title: {
     fontSize: 28,
@@ -164,25 +152,14 @@ const styles = StyleSheet.create({
   bottomCardWrapper: {
     borderTopLeftRadius: 60,
     borderTopRightRadius: 60,
-    overflow: "hidden", // Important for BlurView to clip
+    overflow: "hidden",
     width: width,
   },
   bottomBlurCard: {
     paddingHorizontal: 30,
     paddingTop: 50,
-    paddingBottom: 60,
-    borderTopLeftRadius: 60,
-    borderTopRightRadius: 60,
-    borderWidth: 1.5,
+    borderTopWidth: 1.5,
     borderColor: "rgba(255, 255, 255, 0.5)",
-    overflow: "hidden",
-    position: "relative",
-  },
-  glassImageBackgroundBottom: {
-    ...StyleSheet.absoluteFillObject,
-    width: width,
-    height: height * 1.5, // Much larger to ensure full coverage
-    top: -500, // Offset to align with the visual flow
   },
   primaryButton: {
     backgroundColor: COLORS.primaryTeal,

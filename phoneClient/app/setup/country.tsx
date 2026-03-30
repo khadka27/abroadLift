@@ -5,14 +5,15 @@ import {
   Text,
   TouchableOpacity,
   Dimensions,
-  SafeAreaView,
   Image,
   ScrollView,
   StatusBar,
+  Platform,
 } from "react-native";
 import { Stack, router } from "expo-router";
-import { Feather } from "@expo/vector-icons";
+import { Feather, Ionicons } from "@expo/vector-icons";
 import { useUser } from "../context/UserContext";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
 
@@ -34,28 +35,30 @@ const COUNTRIES = [
   { id: "brazil", name: "Brazil", flag: "🇧🇷" },
   { id: "germany", name: "Germany", flag: "🇩🇪" },
   { id: "india", name: "India", flag: "🇮🇳" },
-  { id: "usa2", name: "USA", flag: "🇺🇸", badge: "Bronce" },
-  { id: "uk2", name: "UK", flag: "🇬🇧" },
-  { id: "canada2", name: "Canada", flag: "🇨🇦" },
-  { id: "korea2", name: "Korea", flag: "🇰🇷" },
+  { id: "australia", name: "Australia", flag: "🇦🇺" },
+  { id: "france", name: "France", flag: "🇫🇷" },
+  { id: "japan", name: "Japan", flag: "🇯🇵" },
+  { id: "italy", name: "Italy", flag: "🇮🇹" },
 ];
 
 export default function CountrySelection() {
   const { userData, setUserData } = useUser();
-  const [selectedCountries, setSelectedCountries] = useState<string[]>(userData.country ? [userData.country.toLowerCase()] : []);
+  const insets = useSafeAreaInsets();
+  const [selectedCountryId, setSelectedCountryId] = useState<string | null>(
+    COUNTRIES.find(c => c.name === userData.country)?.id || null
+  );
 
   const toggleCountry = (id: string, name: string, flag: string) => {
-    // For study plan, we'll pick the most recently selected as the primary
-    setSelectedCountries([id]);
+    setSelectedCountryId(id);
     setUserData(prev => ({ ...prev, country: name, flag: flag }));
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+    <View style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
       <Stack.Screen options={{ headerShown: false }} />
 
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: Platform.OS === 'android' ? (insets.top || 20) + 10 : insets.top + 10 }]}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <Feather name="chevron-left" size={28} color={COLORS.textDark} />
         </TouchableOpacity>
@@ -75,8 +78,11 @@ export default function CountrySelection() {
         ))}
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <Text style={styles.questionText}>Which countries are you interested in?</Text>
+      <ScrollView 
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: 100 + insets.bottom }]} 
+        showsVerticalScrollIndicator={false}
+      >
+        <Text style={styles.questionText}>Which country are you interested in?</Text>
 
         {/* Landmark Banner */}
         <View style={styles.bannerContainer}>
@@ -94,14 +100,21 @@ export default function CountrySelection() {
               key={country.id}
               style={[
                 styles.countryItem,
-                selectedCountries.includes(country.id) && styles.selectedItem,
+                selectedCountryId === country.id && styles.selectedItem,
               ]}
               onPress={() => toggleCountry(country.id, country.name, country.flag)}
             >
-              <View style={styles.flagContainer}>
-                 {/* Better approach: Use a modern card-style for flags */}
+              <View style={[
+                styles.flagContainer,
+                selectedCountryId === country.id && styles.selectedFlagContainer
+              ]}>
                 <Text style={styles.flagEmoji}>{country.flag}</Text>
-                {country.badge && (
+                {selectedCountryId === country.id && (
+                  <View style={styles.checkBadge}>
+                    <Ionicons name="checkmark-circle" size={18} color={COLORS.primary} />
+                  </View>
+                )}
+                {country.badge && selectedCountryId !== country.id && (
                   <View style={[
                     styles.badge, 
                     { backgroundColor: country.badge === 'Gold' ? '#FFD700' : country.badge === 'Silver' ? '#C0C0C0' : '#CD7F32' }
@@ -110,22 +123,29 @@ export default function CountrySelection() {
                   </View>
                 )}
               </View>
-              <Text style={styles.countryName}>{country.name}</Text>
+              <Text style={[
+                styles.countryName,
+                selectedCountryId === country.id && styles.selectedCountryName
+              ]}>{country.name}</Text>
             </TouchableOpacity>
           ))}
         </View>
       </ScrollView>
 
       {/* Sticky Bottom Button */}
-      <View style={styles.footer}>
+      <View style={[styles.footer, { paddingBottom: insets.bottom + 16 }]}>
         <TouchableOpacity
-          style={styles.continueButton}
+          style={[
+            styles.continueButton,
+            !selectedCountryId && { opacity: 0.5 }
+          ]}
+          disabled={!selectedCountryId}
           onPress={() => router.push("/setup/study-level")}
         >
           <Text style={styles.continueButtonText}>Continue</Text>
         </TouchableOpacity>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -194,6 +214,19 @@ const styles = StyleSheet.create({
   selectedItem: {
     transform: [{ scale: 1.05 }],
   },
+  selectedFlagContainer: {
+    borderColor: COLORS.primary,
+    backgroundColor: "rgba(51, 191, 255, 0.05)",
+    borderWidth: 2,
+  },
+  checkBadge: {
+    position: "absolute",
+    top: -8,
+    right: -8,
+    backgroundColor: COLORS.white,
+    borderRadius: 10,
+    zIndex: 10,
+  },
   flagContainer: {
     width: 65,
     height: 50,
@@ -219,6 +252,10 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "600",
     color: COLORS.textGray,
+  },
+  selectedCountryName: {
+    color: COLORS.primary,
+    fontWeight: "800",
   },
   badge: {
     position: "absolute",
@@ -247,12 +284,12 @@ const styles = StyleSheet.create({
     borderTopColor: COLORS.glassBorder,
   },
   continueButton: {
-    backgroundColor: "rgb(41, 142, 168)", // Matching the teal/blue in screenshot
+    backgroundColor: COLORS.primary, // Using standardized primary blue
     height: 60,
     borderRadius: 30,
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: "rgb(41, 142, 168)",
+    shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.2,
     shadowRadius: 10,
