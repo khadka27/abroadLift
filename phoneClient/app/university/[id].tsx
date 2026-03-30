@@ -318,6 +318,12 @@ export default function UniversityDetails() {
               <TouchableOpacity style={styles.headerCircleBtn}>
                 <Ionicons name="heart-outline" size={22} color="white" />
               </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.headerCircleBtn}
+                onPress={() => router.push("/(tabs)/profile")}
+              >
+                <Ionicons name="person-circle" size={40} color="rgba(255,255,255,0.7)" />
+              </TouchableOpacity>
             </View>
           </View>
 
@@ -411,10 +417,15 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.2)",
     justifyContent: "center",
     alignItems: "center",
+    overflow: "hidden",
   },
   headerRightBtns: {
     flexDirection: "row",
-    gap: 12,
+    gap: 8,
+  },
+  profileBtnImage: {
+    width: "100%",
+    height: "100%",
   },
   bannerBottomInfo: {
     position: "absolute",

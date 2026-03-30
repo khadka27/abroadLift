@@ -185,10 +185,20 @@ export default function UniversitySelection() {
       
       {/* Search and Header Section */}
       <View style={styles.header}>
-        <Text style={styles.title}>Find Universities That Match Your Profile</Text>
-        <Text style={styles.subtitle}>
-          Compare costs, admission chances, and visa success — all in one place
-        </Text>
+        <View style={styles.headerTopRow}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.title}>Find Universities That Match Your Profile</Text>
+            <Text style={styles.subtitle}>
+              Compare costs, admission chances, and visa success — all in one place
+            </Text>
+          </View>
+          <TouchableOpacity 
+            style={styles.profileBtn}
+            onPress={() => router.push("/(tabs)/profile")}
+          >
+            <Ionicons name="person-circle" size={48} color="#CBD5E1" />
+          </TouchableOpacity>
+        </View>
 
         <View style={styles.searchBar}>
           <Feather name="search" size={20} color="#94A3B8" />
@@ -476,15 +486,35 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: 20,
     backgroundColor: THEME.white,
+    paddingTop: 60,
+  },
+  headerTopRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 8,
+  },
+  profileBtn: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    overflow: "hidden",
+    marginTop: 6,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  profileImage: {
+    width: "100%",
+    height: "100%",
   },
   title: {
-    fontSize: 26,
+    fontSize: 22,
     fontWeight: "900",
     color: THEME.textDark,
-    lineHeight: 32,
+    lineHeight: 28,
     marginBottom: 8,
-    marginTop: 60,
     letterSpacing: -0.5,
+    paddingRight: 10,
   },
   subtitle: {
     fontSize: 14,

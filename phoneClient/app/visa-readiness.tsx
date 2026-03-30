@@ -9,7 +9,6 @@ import {
   StatusBar,
   Platform,
   Dimensions,
-  Image,
 } from "react-native";
 import { router, Stack } from "expo-router";
 import { Feather, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -27,39 +26,66 @@ const COLORS = {
   green: "#10B981",
   orange: "#F97316",
   red: "#EF4444",
-  border: "#E2E8F0",
+  border: "#F1F5F9",
+  blue: "#3B82F6",
 };
 
 export default function VisaReadinessPage() {
   const insets = useSafeAreaInsets();
+  const [expandedSections, setExpandedSections] = React.useState<string[]>(["profile-1", "risks", "profile-2"]);
 
-  const READINESS_DATA = [
-    { title: "Academic Proof", status: "Strong", score: 90, color: COLORS.green, icon: "school" },
-    { title: "Financial Support", status: "Weak", score: 40, color: COLORS.orange, icon: "wallet" },
-    { title: "Language Proficiency", status: "Ready", score: 95, color: COLORS.green, icon: "chatbubbles" },
-    { title: "Personal History", status: "Incomplete", score: 20, color: COLORS.red, icon: "person" },
-  ];
+  const toggleSection = (id: string) => {
+    setExpandedSections(prev => 
+      prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]
+    );
+  };
 
-  const DOCUMENTS = [
-    { id: 1, name: "Passport (Valid > 6 months)", status: "verified" },
-    { id: 2, name: "Acceptance Letter (CAS/I-20)", status: "pending" },
-    { id: 3, name: "6-Month Bank Statement", status: "missing" },
-    { id: 4, name: "Sponsorship Affidavit", status: "pending" },
-    { id: 5, name: "Previous Academic Transcripts", status: "verified" },
-  ];
+  const isExpanded = (id: string) => expandedSections.includes(id);
+
+  const SectionHeader = ({ title, icon, color, iconBg, onToggle, expanded }: { title: string; icon: any; color: string; iconBg: string; onToggle: () => void; expanded: boolean }) => (
+    <TouchableOpacity style={styles.sectionHeader} onPress={onToggle} activeOpacity={0.7}>
+      <View style={styles.sectionTitleRow}>
+        <View style={[styles.sectionIconBox, { backgroundColor: iconBg }]}>
+          <Ionicons name={icon} size={18} color={color} />
+        </View>
+        <Text style={styles.sectionTitleText}>{title}</Text>
+      </View>
+      <Ionicons name={expanded ? "chevron-up" : "chevron-down"} size={20} color="#CBD5E1" />
+    </TouchableOpacity>
+  );
+
+  const AnalysisItem = ({ label, type }: { label: string; type: 'success' | 'warning' }) => (
+    <View style={styles.analysisItemRow}>
+      <View style={styles.analysisIconWrap}>
+        {type === 'success' ? (
+          <View style={[styles.statusIcon, { backgroundColor: COLORS.green }]}>
+            <Ionicons name="checkmark" size={12} color="white" />
+          </View>
+        ) : (
+          <MaterialCommunityIcons name="alert" size={20} color="#F59E0B" />
+        )}
+      </View>
+      <Text style={styles.analysisItemText}>{label}</Text>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" translucent />
       <Stack.Screen options={{ headerShown: false }} />
 
       {/* Header */}
       <View style={[styles.header, { paddingTop: Platform.OS === 'android' ? (insets.top || 30) + 10 : insets.top + 10 }]}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Feather name="chevron-left" size={28} color={COLORS.textDark} />
+          <Feather name="chevron-left" size={26} color={COLORS.textDark} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Visa Readiness</Text>
-        <View style={{ width: 44 }} />
+        <TouchableOpacity
+          style={styles.profileButton}
+          onPress={() => router.push("/(tabs)/profile")}
+        >
+          <Ionicons name="person-circle" size={44} color="#CBD5E1" />
+        </TouchableOpacity>
       </View>
 
       <ScrollView 
@@ -67,91 +93,104 @@ export default function VisaReadinessPage() {
         contentContainerStyle={[styles.scrollInner, { paddingBottom: 40 + insets.bottom }]}
       >
         
-        {/* Readiness Overview Score */}
-        <View style={styles.scoreCard}>
-          <View style={styles.scoreMain}>
-             <View style={styles.scoreCircle}>
-                <Text style={styles.scoreValue}>60%</Text>
-                <Text style={styles.scoreLabel}>Ready</Text>
+        {/* Readiness Summary Card */}
+        <View style={styles.summaryCard}>
+          <View style={styles.summaryContent}>
+            <View style={styles.summaryLeft}>
+              <Text style={styles.summaryTitle}>Visa Readiness Score</Text>
+              <Text style={styles.summaryValue}>60% - Needs Work</Text>
+              <View style={styles.averageBadge}>
+                <View style={styles.orangeDot} />
+                <Text style={styles.averageBadgeText}>Average Cost</Text>
+              </View>
+            </View>
+            <View style={styles.chartContainer}>
+               <View style={styles.donutBase}>
+                  <View style={[styles.donutSegment, { borderColor: COLORS.primary, borderTopColor: 'transparent', borderLeftColor: 'transparent', transform: [{ rotate: '45deg' }] }]} />
+                  <View style={[styles.donutSegment, { borderColor: COLORS.orange, borderBottomColor: 'transparent', borderRightColor: 'transparent', transform: [{ rotate: '-45deg' }] }]} />
+                  <View style={[styles.donutSegment, { borderColor: '#14B8A6', borderTopColor: 'transparent', borderRightColor: 'transparent', width: 66, height: 66, top: -10, left: -10, transform: [{ rotate: '120deg' }] }]} />
+               </View>
+            </View>
+          </View>
+          <View style={styles.summaryDivider} />
+          <View style={styles.summaryFooter}>
+             <View style={styles.footerIconItem}>
+                <Ionicons name="information-circle-outline" size={14} color="#64748B" />
+                <Text style={styles.footerIconText}>Financial Strength</Text>
              </View>
-             <View style={styles.scoreTextContent}>
-                <Text style={styles.statusBadge}>Status: <Text style={{ color: COLORS.orange }}>Needs Work</Text></Text>
-                <Text style={styles.scoreQuote}>"Your visa probability is high but requires financial documentation."</Text>
+             <View style={styles.footerIconItem}>
+                <Ionicons name="information-circle-outline" size={14} color="#64748B" />
+                <Text style={styles.footerIconText}>Documents</Text>
+             </View>
+             <View style={styles.footerIconItem}>
+                <Ionicons name="information-circle-outline" size={14} color="#64748B" />
+                <Text style={styles.footerIconText}>Country Rules</Text>
              </View>
           </View>
-          <View style={styles.scoreProgressBarContainer}>
-             <View style={[styles.scoreProgressBar, { width: "60%" }]} />
-          </View>
         </View>
 
-        {/* Breakdown Section */}
-        <Text style={styles.sectionTitle}>Profile Breakdown</Text>
-        <View style={styles.breakdownGrid}>
-           {READINESS_DATA.map((item, idx) => (
-             <View key={idx} style={styles.breakdownItem}>
-                <View style={[styles.iconCircle, { backgroundColor: item.color + "15" }]}>
-                   <Ionicons name={item.icon as any} size={20} color={item.color} />
-                </View>
-                <View style={{ flex: 1 }}>
-                   <View style={styles.itemTitleRow}>
-                      <Text style={styles.itemTitle}>{item.title}</Text>
-                      <Text style={[styles.itemStatus, { color: item.color }]}>{item.status}</Text>
-                   </View>
-                   <View style={styles.miniProgressBackground}>
-                      <View style={[styles.miniProgressFill, { width: `${item.score}%`, backgroundColor: item.color }]} />
-                   </View>
-                </View>
-             </View>
-           ))}
-        </View>
+        {/* Breakdown Sections */}
+        <View style={styles.breakdownContainer}>
 
-        {/* Document Checklist */}
-        <View style={styles.documentSection}>
-           <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Document Checklist</Text>
-              <Text style={styles.countText}>2/5 Completed</Text>
+           {/* Profile Analysis (Blue) */}
+           <View style={styles.sectionBox}>
+             <SectionHeader 
+                title="Profile Analysis" 
+                icon="person-outline" 
+                color="#3B82F6" 
+                iconBg="#DBEAFE" 
+                onToggle={() => toggleSection("profile-1")}
+                expanded={isExpanded("profile-1")}
+             />
+             {isExpanded("profile-1") && (
+               <View style={styles.sectionBody}>
+                 <AnalysisItem label="Strong Academics" type="success" />
+                 <AnalysisItem label="Good Study Plan" type="success" />
+                 <AnalysisItem label="Financial Proof Weak" type="warning" />
+                 <AnalysisItem label="Low Bank Balance" type="warning" />
+               </View>
+             )}
            </View>
 
-           <View style={styles.checklistCard}>
-              {DOCUMENTS.map((doc, idx) => (
-                <View key={doc.id} style={[styles.docItem, idx === DOCUMENTS.length - 1 && { borderBottomWidth: 0 }]}>
-                   <View style={styles.docLeft}>
-                      <View style={styles.statusCircle}>
-                         {doc.status === 'verified' ? (
-                           <Ionicons name="checkmark-circle" size={20} color={COLORS.green} />
-                         ) : doc.status === 'pending' ? (
-                           <MaterialCommunityIcons name="clock-outline" size={18} color={COLORS.orange} />
-                         ) : (
-                           <MaterialCommunityIcons name="alert-circle-outline" size={20} color={COLORS.red} />
-                         )}
-                      </View>
-                      <Text style={[styles.docName, doc.status === 'verified' && styles.verifiedText]}>{doc.name}</Text>
-                   </View>
-                   <TouchableOpacity>
-                      <Feather name="upload" size={18} color={COLORS.primary} />
-                   </TouchableOpacity>
-                </View>
-              ))}
+           {/* Risk Factors (Orange) */}
+           <View style={styles.sectionBox}>
+             <SectionHeader 
+                title="Risk Factors" 
+                icon="warning-outline" 
+                color="#D97706" 
+                iconBg="#FEF3C7" 
+                onToggle={() => toggleSection("risks")}
+                expanded={isExpanded("risks")}
+             />
+             {isExpanded("risks") && (
+               <View style={styles.sectionBody}>
+                 <AnalysisItem label="Insufficient Bank Balance" type="warning" />
+                 <AnalysisItem label="Weak Financial Document" type="warning" />
+                 <AnalysisItem label="No Sponsor Proof" type="warning" />
+               </View>
+             )}
            </View>
-        </View>
 
-        {/* Action Plan */}
-        <View style={styles.actionPlan}>
-           <Text style={styles.sectionTitle}>Critical Action Plan</Text>
-           <View style={styles.actionCard}>
-              <View style={styles.actionPoint}>
-                 <View style={styles.bulletDot} />
-                 <Text style={styles.actionText}>Upload 6-month bank statement from a single sponsor.</Text>
-              </View>
-              <View style={styles.actionPoint}>
-                 <View style={styles.bulletDot} />
-                 <Text style={styles.actionText}>Finalize your SOP (Statement of Purpose) draft.</Text>
-              </View>
-              <TouchableOpacity style={styles.improveButton}>
-                 <Text style={styles.improveButtonText}>Improve Strategy Now</Text>
-                 <Feather name="arrow-right" size={18} color="white" />
-              </TouchableOpacity>
+           {/* Profile Analysis (Green) */}
+           <View style={styles.sectionBox}>
+             <SectionHeader 
+                title="Profile Analysis" 
+                icon="checkmark-circle-outline" 
+                color="#059669" 
+                iconBg="#D1FAE5" 
+                onToggle={() => toggleSection("profile-2")}
+                expanded={isExpanded("profile-2")}
+             />
+             {isExpanded("profile-2") && (
+               <View style={styles.sectionBody}>
+                 <AnalysisItem label="Financial Proof" type="success" />
+                 <AnalysisItem label="Academics" type="success" />
+                 <AnalysisItem label="Country Rules" type="success" />
+                 <AnalysisItem label="Documents" type="warning" />
+               </View>
+             )}
            </View>
+
         </View>
 
       </ScrollView>
@@ -169,240 +208,195 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 20,
-    paddingBottom: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    paddingBottom: 15,
   },
   backButton: {
     width: 44,
     height: 44,
     justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: COLORS.bgSubtle,
-    borderRadius: 14,
+    alignItems: "flex-start",
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: "900",
+    fontSize: 22,
+    fontWeight: "800",
     color: COLORS.textDark,
+  },
+  profileButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    overflow: "hidden",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  profileImage: {
+    width: "100%",
+    height: "100%",
   },
   scrollInner: {
-    paddingTop: 24,
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
+    paddingTop: 10,
   },
-  scoreCard: {
-    backgroundColor: COLORS.white,
-    borderRadius: 32,
-    padding: 24,
-    borderWidth: 1.5,
-    borderColor: COLORS.border,
-    marginBottom: 32,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.05,
-    shadowRadius: 20,
-    elevation: 3,
-  },
-  scoreMain: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  scoreCircle: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    borderWidth: 8,
-    borderColor: COLORS.primary + "20",
-    borderTopColor: COLORS.primary,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 20,
-  },
-  scoreValue: {
-    fontSize: 22,
-    fontWeight: "900",
-    color: COLORS.textDark,
-  },
-  scoreLabel: {
-    fontSize: 10,
-    color: COLORS.textGray,
-    fontWeight: "800",
-    textTransform: "uppercase",
-  },
-  scoreTextContent: {
-    flex: 1,
-  },
-  statusBadge: {
-    fontSize: 14,
-    fontWeight: "900",
-    color: COLORS.textDark,
-    marginBottom: 6,
-  },
-  scoreQuote: {
-    fontSize: 13,
-    color: COLORS.textGray,
-    lineHeight: 18,
-    fontStyle: "italic",
-  },
-  scoreProgressBarContainer: {
-    height: 8,
-    backgroundColor: COLORS.bgSubtle,
-    borderRadius: 4,
-    overflow: "hidden",
-  },
-  scoreProgressBar: {
-    height: "100%",
-    backgroundColor: COLORS.primary,
-    borderRadius: 4,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "900",
-    color: COLORS.textDark,
-    marginBottom: 16,
-  },
-  breakdownGrid: {
-    gap: 16,
-    marginBottom: 32,
-  },
-  breakdownItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: COLORS.bgSubtle,
-    padding: 16,
-    borderRadius: 20,
+  summaryCard: {
+    backgroundColor: "#FEF9F2", 
+    borderRadius: 24,
+    padding: 20,
+    marginBottom: 24,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: "#FDEED7",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.03,
+    shadowRadius: 10,
+    elevation: 2,
   },
-  iconCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 16,
-  },
-  itemTitleRow: {
+  summaryContent: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    marginBottom: 16,
+  },
+  summaryLeft: {
+    flex: 1,
+  },
+  summaryTitle: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#64748B",
     marginBottom: 8,
   },
-  itemTitle: {
-    fontSize: 14,
+  summaryValue: {
+    fontSize: 20,
     fontWeight: "800",
     color: COLORS.textDark,
+    marginBottom: 10,
   },
-  itemStatus: {
-    fontSize: 12,
-    fontWeight: "900",
+  averageBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FCE8CC",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    alignSelf: "flex-start",
+    gap: 6,
   },
-  miniProgressBackground: {
-    height: 4,
-    backgroundColor: "rgba(0,0,0,0.05)",
-    borderRadius: 2,
+  orangeDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: COLORS.orange,
   },
-  miniProgressFill: {
-    height: "100%",
-    borderRadius: 2,
+  averageBadgeText: {
+    fontSize: 11,
+    fontWeight: "800",
+    color: COLORS.orange,
   },
-  documentSection: {
-    marginBottom: 32,
+  chartContainer: {
+    width: 80,
+    height: 80,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  donutBase: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    borderWidth: 12,
+    borderColor: "#E2E8F0",
+    position: 'relative',
+  },
+  donutSegment: {
+    position: 'absolute',
+    top: -12,
+    left: -12,
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    borderWidth: 12,
+  },
+  summaryDivider: {
+    height: 1,
+    backgroundColor: "#FDEED7",
+    marginBottom: 12,
+  },
+  summaryFooter: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  footerIconItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  footerIconText: {
+    fontSize: 10,
+    color: COLORS.textGray,
+    fontWeight: "600",
+  },
+  breakdownContainer: {
+    gap: 20,
+  },
+  sectionBox: {
+    borderRadius: 24,
+    borderWidth: 1.5,
+    borderColor: "#F1F5F9",
+    backgroundColor: COLORS.white,
+    overflow: "hidden",
   },
   sectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 16,
-  },
-  countText: {
-    fontSize: 13,
-    fontWeight: "800",
-    color: COLORS.primary,
-  },
-  checklistCard: {
+    padding: 16,
     backgroundColor: COLORS.white,
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    paddingHorizontal: 20,
   },
-  docItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 18,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
-  },
-  docLeft: {
+  sectionTitleRow: {
     flexDirection: "row",
     alignItems: "center",
-    flex: 1,
-    marginRight: 15,
-  },
-  statusCircle: {
-    marginRight: 12,
-  },
-  docName: {
-    fontSize: 14,
-    color: COLORS.textDark,
-    fontWeight: "600",
-  },
-  verifiedText: {
-    color: COLORS.textGray,
-    textDecorationLine: "line-through",
-    opacity: 0.8,
-  },
-  actionPlan: {
-    marginBottom: 20,
-  },
-  actionCard: {
-    backgroundColor: "#FDF5E1",
-    borderRadius: 28,
-    padding: 24,
-    borderWidth: 1,
-    borderColor: "rgba(146, 64, 14, 0.1)",
-  },
-  actionPoint: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    marginBottom: 16,
     gap: 12,
   },
-  bulletDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: COLORS.orange,
-    marginTop: 6,
-  },
-  actionText: {
-    flex: 1,
-    fontSize: 14,
-    color: "#92400E",
-    fontWeight: "600",
-    lineHeight: 20,
-  },
-  improveButton: {
-    backgroundColor: COLORS.primary,
-    height: 60,
-    borderRadius: 20,
-    flexDirection: "row",
-    alignItems: "center",
+  sectionIconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
     justifyContent: "center",
-    gap: 12,
-    marginTop: 10,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 4,
+    alignItems: "center",
   },
-  improveButtonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "900",
+  sectionTitleText: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: COLORS.textDark,
+  },
+  sectionBody: {
+    borderTopWidth: 1,
+    borderTopColor: "#F1F5F9",
+    paddingBottom: 8,
+  },
+  analysisItemRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F1F5F9",
+    gap: 12,
+  },
+  analysisIconWrap: {
+    width: 24,
+    alignItems: "center",
+  },
+  statusIcon: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  analysisItemText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: COLORS.textDark,
   },
 });

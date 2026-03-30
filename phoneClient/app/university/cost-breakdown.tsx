@@ -4,7 +4,6 @@ import {
   View,
   Text,
   ScrollView,
-  Image,
   TouchableOpacity,
   Dimensions,
   SafeAreaView,
@@ -29,8 +28,8 @@ const THEME = {
   divider: "#F1F5F9",
 };
 
-const SectionHeader = ({ title, icon, color, expanded = false }: { title: string; icon: any; color: string; expanded?: boolean }) => (
-  <View style={styles.sectionHeader}>
+const SectionHeader = ({ title, icon, color, expanded = false, onToggle }: { title: string; icon: any; color: string; expanded?: boolean; onToggle?: () => void }) => (
+  <TouchableOpacity style={styles.sectionHeader} onPress={onToggle} activeOpacity={0.7}>
     <View style={styles.sectionTitleRow}>
       <View style={[styles.sectionIconBox, { backgroundColor: color + "20" }]}>
         <MaterialCommunityIcons name={icon} size={18} color={color} />
@@ -38,7 +37,7 @@ const SectionHeader = ({ title, icon, color, expanded = false }: { title: string
       <Text style={styles.sectionTitleText}>{title}</Text>
     </View>
     <Feather name={expanded ? "chevron-up" : "chevron-down"} size={20} color="#CBD5E1" />
-  </View>
+  </TouchableOpacity>
 );
 
 const CostItem = ({ label, value, subValue, footerText }: { label: string; value: string; subValue?: string; footerText?: string }) => (
@@ -56,6 +55,23 @@ const CostItem = ({ label, value, subValue, footerText }: { label: string; value
 
 export default function CostBreakdownScreen() {
   const [activeTab, setActiveTab] = React.useState("First year");
+  const [expandedSections, setExpandedSections] = React.useState<string[]>([
+    "year-tuition", 
+    "year-living", 
+    "monthly", 
+    "pre-app", 
+    "regional", 
+    "visa", 
+    "travel"
+  ]);
+
+  const toggleSection = (id: string) => {
+    setExpandedSections(prev => 
+      prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]
+    );
+  };
+
+  const isExpanded = (id: string) => expandedSections.includes(id);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -71,10 +87,7 @@ export default function CostBreakdownScreen() {
           style={styles.profileButton}
           onPress={() => router.push("/(tabs)/profile")}
         >
-          <Image 
-            source={{ uri: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=100" }} 
-            style={styles.profileImage} 
-          />
+          <Ionicons name="person-circle" size={44} color="#CBD5E1" />
         </TouchableOpacity>
       </View>
 
@@ -95,7 +108,7 @@ export default function CostBreakdownScreen() {
                <View style={styles.donutBase}>
                   <View style={[styles.donutSegment, { borderColor: '#3B82F6', borderTopColor: 'transparent', borderLeftColor: 'transparent', transform: [{ rotate: '45deg' }] }]} />
                   <View style={[styles.donutSegment, { borderColor: '#10B981', borderBottomColor: 'transparent', borderRightColor: 'transparent', transform: [{ rotate: '-45deg' }] }]} />
-                  <View style={[styles.donutSegment, { borderColor: '#F97316', borderTopColor: 'transparent', borderRightColor: 'transparent', width: 66, height: 66, top: 2, left: 2, transform: [{ rotate: '120deg' }] }]} />
+                  <View style={[styles.donutSegment, { borderColor: '#F97316', borderTopColor: 'transparent', borderRightColor: 'transparent', width: 66, height: 66, top: -10, left: -10, transform: [{ rotate: '120deg' }] }]} />
                </View>
             </View>
           </View>
@@ -124,13 +137,21 @@ export default function CostBreakdownScreen() {
 
           {/* Year Breakdown (Tuition/Education) */}
           <View style={styles.sectionBox}>
-            <SectionHeader title="Year Breakdown" icon="wallet-outline" color="#A3E635" />
-            <View style={styles.sectionBody}>
-              <CostItem label="Year 1" value="NPR 30 Lakhs" />
-              <CostItem label="Year 2" value="NPR 25 Lakhs" />
-              <CostItem label="Year 3" value="NPR 20 Lakhs" />
-              <Text style={styles.footerInfoText}>Tuition may reduce after first year</Text>
-            </View>
+            <SectionHeader 
+              title="Year Breakdown" 
+              icon="wallet-outline" 
+              color="#A3E635" 
+              expanded={isExpanded("year-tuition")}
+              onToggle={() => toggleSection("year-tuition")}
+            />
+            {isExpanded("year-tuition") && (
+              <View style={styles.sectionBody}>
+                <CostItem label="Year 1" value="NPR 30 Lakhs" />
+                <CostItem label="Year 2" value="NPR 25 Lakhs" />
+                <CostItem label="Year 3" value="NPR 20 Lakhs" />
+                <Text style={styles.footerInfoText}>Tuition may reduce after first year</Text>
+              </View>
+            )}
           </View>
 
           <TouchableOpacity style={styles.primaryActionButton}>
@@ -139,24 +160,40 @@ export default function CostBreakdownScreen() {
 
           {/* Year Breakdown (Living) */}
           <View style={styles.sectionBox}>
-            <SectionHeader title="Year Breakdown" icon="information-outline" color="#A3E635" />
-            <View style={styles.sectionBody}>
-              <CostItem label="Rent" value="15,000" />
-              <CostItem label="Food" value="10,000" />
-              <CostItem label="Transport" value="3,000" />
-              <CostItem label="Other" value="5,000" />
-              <Text style={styles.footerInfoText}>Part time Incomes (Optional)</Text>
-            </View>
+            <SectionHeader 
+              title="Year Breakdown" 
+              icon="information-outline" 
+              color="#A3E635" 
+              expanded={isExpanded("year-living")}
+              onToggle={() => toggleSection("year-living")}
+            />
+            {isExpanded("year-living") && (
+              <View style={styles.sectionBody}>
+                <CostItem label="Rent" value="15,000" />
+                <CostItem label="Food" value="10,000" />
+                <CostItem label="Transport" value="3,000" />
+                <CostItem label="Other" value="5,000" />
+                <Text style={styles.footerInfoText}>Part time Incomes (Optional)</Text>
+              </View>
+            )}
           </View>
 
           {/* Total Monthly Cost */}
           <View style={styles.sectionBox}>
-            <SectionHeader title="Total Monthly Cost" icon="information-outline" color="#A3E635" />
-            <View style={styles.sectionBody}>
-              <View style={styles.compactMonthlyRow}>
-                 <Text style={styles.monthlyValueText}>NPR 33,000 / month - NPR 3.9 Lakhs / year</Text>
+            <SectionHeader 
+              title="Total Monthly Cost" 
+              icon="information-outline" 
+              color="#A3E635" 
+              expanded={isExpanded("monthly")}
+              onToggle={() => toggleSection("monthly")}
+            />
+            {isExpanded("monthly") && (
+              <View style={styles.sectionBody}>
+                <View style={styles.compactMonthlyRow}>
+                   <Text style={styles.monthlyValueText}>NPR 33,000 / month - NPR 3.9 Lakhs / year</Text>
+                </View>
               </View>
-            </View>
+            )}
           </View>
 
           <TouchableOpacity style={styles.primaryActionButton}>
@@ -165,41 +202,73 @@ export default function CostBreakdownScreen() {
 
           {/* Pre-application Cost */}
           <View style={styles.sectionBox}>
-            <SectionHeader title="Pre-application Cost" icon="information-outline" color="#A3E635" />
-            <View style={styles.sectionBody}>
-              <CostItem label="Consultancy Fee" value="NPR 0 - 50,000" />
-              <CostItem label="IELTS Test" value="NPR 27,000 - 30,000" />
-              <CostItem label="Documents" value="NPR 27,000 - 30,000" />
-              <CostItem label="Medical" value="NPR 27,000 - 30,000" />
-              <CostItem label="Application Fees" value="NPR 27,000 - 30,000" />
-            </View>
+            <SectionHeader 
+              title="Pre-application Cost" 
+              icon="information-outline" 
+              color="#A3E635" 
+              expanded={isExpanded("pre-app")}
+              onToggle={() => toggleSection("pre-app")}
+            />
+            {isExpanded("pre-app") && (
+              <View style={styles.sectionBody}>
+                <CostItem label="Consultancy Fee" value="NPR 0 - 50,000" />
+                <CostItem label="IELTS Test" value="NPR 27,000 - 30,000" />
+                <CostItem label="Documents" value="NPR 27,000 - 30,000" />
+                <CostItem label="Medical" value="NPR 27,000 - 30,000" />
+                <CostItem label="Application Fees" value="NPR 27,000 - 30,000" />
+              </View>
+            )}
           </View>
 
           {/* Tuition Fees (Regional) */}
           <View style={styles.sectionBox}>
-            <SectionHeader title="Tuition Fees" icon="school-outline" color="#FB923C" />
-            <View style={styles.sectionBody}>
-              <CostItem label="USA/UK" value="NPR 17-44 Lakhs" subValue="per year" />
-              <CostItem label="Canada/Australia" value="NPR 17-44 Lakhs" subValue="per year" />
-              <CostItem label="Germany/Europe" value="NPR 17-44 Lakhs" subValue="per year" />
-            </View>
+            <SectionHeader 
+              title="Tuition Fees" 
+              icon="school-outline" 
+              color="#FB923C" 
+              expanded={isExpanded("regional")}
+              onToggle={() => toggleSection("regional")}
+            />
+            {isExpanded("regional") && (
+              <View style={styles.sectionBody}>
+                <CostItem label="USA/UK" value="NPR 17-44 Lakhs" subValue="per year" />
+                <CostItem label="Canada/Australia" value="NPR 17-44 Lakhs" subValue="per year" />
+                <CostItem label="Germany/Europe" value="NPR 17-44 Lakhs" subValue="per year" />
+              </View>
+            )}
           </View>
 
           {/* Visa & Government Costs */}
           <View style={styles.sectionBox}>
-            <SectionHeader title="Visa & Government Costs" icon="card-account-details-outline" color="#60A5FA" />
-            <View style={styles.sectionBody}>
-              <CostItem label="Visa Fee" value="NPR 1.5-5 Lakhs" subValue="Insurance - " />
-              <CostItem label="Biometrics" value="" />
-            </View>
+            <SectionHeader 
+              title="Visa & Government Costs" 
+              icon="card-account-details-outline" 
+              color="#60A5FA" 
+              expanded={isExpanded("visa")}
+              onToggle={() => toggleSection("visa")}
+            />
+            {isExpanded("visa") && (
+              <View style={styles.sectionBody}>
+                <CostItem label="Visa Fee" value="NPR 1.5-5 Lakhs" subValue="Insurance - " />
+                <CostItem label="Biometrics" value="" />
+              </View>
+            )}
           </View>
 
           {/* Travel & Setup */}
           <View style={styles.sectionBox}>
-            <SectionHeader title="Travel & Setup" icon="airplane-takeoff" color="#E879F9" />
-            <View style={styles.sectionBody}>
-              <CostItem label="Flight Ticket" value="NPR 47,000 - 2 Lakhs" />
-            </View>
+            <SectionHeader 
+              title="Travel & Setup" 
+              icon="airplane-takeoff" 
+              color="#E879F9" 
+              expanded={isExpanded("travel")}
+              onToggle={() => toggleSection("travel")}
+            />
+            {isExpanded("travel") && (
+              <View style={styles.sectionBody}>
+                <CostItem label="Flight Ticket" value="NPR 47,000 - 2 Lakhs" />
+              </View>
+            )}
           </View>
 
         </View>
@@ -240,6 +309,8 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     overflow: "hidden",
+    justifyContent: "center",
+    alignItems: "center",
   },
   profileImage: {
     width: "100%",
@@ -250,7 +321,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   summaryCard: {
-    backgroundColor: "#FEF9F2", // Warm cream from screenshot
+    backgroundColor: "#FEF9F2", 
     borderRadius: 24,
     padding: 20,
     marginBottom: 20,
