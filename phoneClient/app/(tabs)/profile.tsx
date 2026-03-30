@@ -3,6 +3,7 @@ import {
   StyleSheet,
   View,
   Text,
+  Image,
   ScrollView,
   TouchableOpacity,
   SafeAreaView,
@@ -10,13 +11,15 @@ import {
   Platform,
 } from "react-native";
 import { router } from "expo-router";
-import { Feather } from "@expo/vector-icons";
+import { Feather, Ionicons } from "@expo/vector-icons";
 
-const THEME = {
-  primary: "#1A8A99",
+const COLORS = {
+  primary: "#3B82F6", // Bright blue for Edit button
   textDark: "#111827",
-  textGray: "#6B7280",
-  bgLight: "#FFFFFF",
+  textGray: "#64748B",
+  white: "#FFFFFF",
+  bgSubtle: "#F8FAFF",
+  border: "#E5E7EB",
   red: "#EF4444",
 };
 
@@ -24,45 +27,62 @@ export default function ProfileTab() {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      <View style={styles.headerContainer}>
-        <Text style={styles.headerTitleLarge}>Profile</Text>
+      
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+          <Feather name="chevron-left" size={28} color={COLORS.textDark} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Profile</Text>
+        <View style={{ width: 44 }} /> 
       </View>
-      <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollContent}>
-        <View style={styles.profileHeader}>
-          <View style={styles.profileAvatar}>
-            <Feather name="user" size={40} color={THEME.primary} />
+
+      <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollContent} contentContainerStyle={styles.scrollInner}>
+        
+        {/* Profile Info Row */}
+        <View style={styles.profileRow}>
+          <View style={[styles.avatar, { justifyContent: "center", alignItems: "center" }]}>
+            <Ionicons name="person" size={56} color={COLORS.textGray} />
           </View>
-          <Text style={styles.profileName}>John Doe</Text>
-          <Text style={styles.profileEmail}>john.doe@example.com</Text>
+          <View style={styles.profileTextContainer}>
+            <Text style={styles.profileName}>Something Surname</Text>
+            <Text style={styles.profileUsername}>@something123</Text>
+            <TouchableOpacity 
+              style={styles.editButton} 
+              onPress={() => router.push("/profile/edit")}
+            >
+              <Text style={styles.editButtonText}>Edit Profile</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
-        <View style={styles.profileOptions}>
-          <TouchableOpacity style={styles.profileOptionItem}>
-            <Feather name="edit-2" size={20} color={THEME.textDark} />
-            <Text style={styles.profileOptionText}>Edit Profile</Text>
-            <Feather name="chevron-right" size={20} color={THEME.textGray} />
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.profileOptionItem}>
-            <Feather name="file-text" size={20} color={THEME.textDark} />
-            <Text style={styles.profileOptionText}>My Applications</Text>
-            <Feather name="chevron-right" size={20} color={THEME.textGray} />
+        {/* Menu Options */}
+        <View style={styles.menuContainer}>
+          <TouchableOpacity style={styles.menuItem}>
+            <Text style={styles.menuItemText}>My Study Preferences</Text>
+            <Feather name="chevron-right" size={20} color={COLORS.textDark} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.profileOptionItem}>
-            <Feather name="settings" size={20} color={THEME.textDark} />
-            <Text style={styles.profileOptionText}>Settings</Text>
-            <Feather name="chevron-right" size={20} color={THEME.textGray} />
+          <TouchableOpacity style={styles.menuItem}>
+            <Text style={styles.menuItemText}>Saved Universities</Text>
+            <Feather name="chevron-right" size={20} color={COLORS.textDark} />
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={styles.profileOptionItem} 
-            onPress={() => router.push("/")}
-          >
-            <Feather name="log-out" size={20} color={THEME.red} />
-            <Text style={[styles.profileOptionText, { color: THEME.red }]}>Log Out</Text>
+          <TouchableOpacity style={styles.menuItem}>
+            <Text style={styles.menuItemText}>Notifications</Text>
+            <Feather name="chevron-right" size={20} color={COLORS.textDark} />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.menuItem}>
+            <Text style={styles.menuItemText}>Settings</Text>
+            <Feather name="chevron-right" size={20} color={COLORS.textDark} />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.menuItem} onPress={() => router.push("/")}>
+            <Text style={[styles.menuItemText, { color: COLORS.textDark }]}>Log Out</Text>
           </TouchableOpacity>
         </View>
+
       </ScrollView>
     </SafeAreaView>
   );
@@ -71,62 +91,97 @@ export default function ProfileTab() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: THEME.bgLight,
+    backgroundColor: COLORS.white,
   },
-  headerContainer: {
-    paddingHorizontal: 24,
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
-    paddingBottom: 8,
-    backgroundColor: THEME.bgLight,
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 0) + 10 : 20,
+    paddingBottom: 20,
   },
-  headerTitleLarge: {
-    fontSize: 32,
-    fontWeight: "bold",
-    color: THEME.textDark,
+  backButton: {
+    width: 44,
+    height: 44,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "800",
+    color: COLORS.textDark,
   },
   scrollContent: {
     flex: 1,
   },
-  profileHeader: {
-    alignItems: "center",
-    paddingVertical: 24,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F3F4F6",
+  scrollInner: {
+    paddingHorizontal: 24,
+    paddingTop: 10,
+    paddingBottom: 40,
   },
-  profileAvatar: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    backgroundColor: "#E0F2F1",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  profileName: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: THEME.textDark,
-    marginBottom: 4,
-  },
-  profileEmail: {
-    fontSize: 14,
-    color: THEME.textGray,
-  },
-  profileOptions: {
-    padding: 24,
-  },
-  profileOptionItem: {
+  profileRow: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 18,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F3F4F6",
+    marginBottom: 40,
   },
-  profileOptionText: {
-    fontSize: 16,
-    fontWeight: "500",
-    marginLeft: 16,
+  avatar: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: "#F3F4F6",
+    borderWidth: 2,
+    borderColor: COLORS.border,
+  },
+  profileTextContainer: {
+    marginLeft: 20,
     flex: 1,
-    color: THEME.textDark,
+  },
+  profileName: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: COLORS.textDark,
+    marginBottom: 4,
+  },
+  profileUsername: {
+    fontSize: 14,
+    color: COLORS.textGray,
+    marginBottom: 16,
+  },
+  editButton: {
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 14,
+    alignSelf: "flex-start",
+  },
+  editButtonText: {
+    color: COLORS.white,
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  menuContainer: {
+    gap: 16,
+  },
+  menuItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: COLORS.white,
+    paddingHorizontal: 20,
+    paddingVertical: 18,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  menuItemText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: COLORS.textDark,
   },
 });

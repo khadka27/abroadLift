@@ -39,7 +39,7 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
         let iconName = 'home';
         if (route.name === 'explore') iconName = 'home';
         if (route.name === 'search') iconName = 'search';
-        if (route.name === 'saved') iconName = 'bookmark';
+        if (route.name === 'recent') iconName = 'clock';
         if (route.name === 'profile') iconName = 'user';
 
         return (
@@ -55,11 +55,11 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
           >
             {isFocused ? (
               <View style={styles.tabIconActiveBg}>
-                <Feather name={iconName} size={20} color="white" />
+                <Feather name={iconName as any} size={20} color="white" />
               </View>
             ) : (
               <View style={styles.iconWrapper}>
-                <Feather name={iconName} size={24} color={THEME.primary} />
+                <Feather name={iconName as any} size={24} color={THEME.primary} />
               </View>
             )}
             <Text style={[styles.tabText, isFocused && styles.tabTextActive]}>
@@ -81,11 +81,14 @@ export default function TabLayout() {
       />
       <Tabs.Screen
         name="search"
-        options={{ title: 'Search' }}
+        options={{ 
+          title: 'Search',
+          href: null // Hides from tab bar but keeps route accessible if needed
+        }}
       />
       <Tabs.Screen
-        name="saved"
-        options={{ title: 'Saved' }}
+        name="recent"
+        options={{ title: 'Recent' }}
       />
       <Tabs.Screen
         name="profile"

@@ -12,14 +12,15 @@ import {
   TextInput,
   Platform,
 } from "react-native";
-import { router } from "expo-router";
+import { Stack, router } from "expo-router";
 import { Feather, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
+import { useUser } from "../context/UserContext";
 
 const { width } = Dimensions.get("window");
 
 const THEME = {
-  primary: "#1A8A99",
+  primary: "#33BFFF", 
   secondary: "#004be3",
   textDark: "#111827",
   textGray: "#6B7280",
@@ -91,41 +92,51 @@ const ProgressTracker = ({ percentage }: { percentage: number }) => {
   );
 };
 
-export default function UniversitySelection() {
+export default function UniversitySelectionSetup() {
+  const { userData, selectUniversity } = useUser();
+
+  const handleSelect = (uni: any) => {
+    selectUniversity(uni);
+    router.push("/(tabs)/explore");
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
+      <Stack.Screen options={{ headerShown: false }} />
       
-      {/* Search and Header Section */}
+      {/* Header Section */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Feather name="arrow-left" size={24} color={THEME.textDark} />
-        </TouchableOpacity>
+        <View style={styles.topRow}>
+            <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+                <Feather name="chevron-left" size={28} color={THEME.textDark} />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>University Selection</Text>
+            <View style={{ width: 44 }} />
+        </View>
+
+        <View style={styles.trackerContainer}>
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+            <View 
+                key={i} 
+                style={[
+                styles.trackerSegment, 
+                i === 6 ? styles.trackerSegmentActive : styles.trackerSegmentInactive
+                ]} 
+            />
+            ))}
+        </View>
+
+        {/* Study Plan Status Bar */}
+        <View style={styles.studyPlanBar}>
+            <Text style={styles.studyPlanEmoji}>{userData.flag}</Text>
+            <Text style={styles.studyPlanText}>Study Plan <Text style={styles.studyPlanCountry}>{userData.country}</Text></Text>
+        </View>
         
-        <Text style={styles.title}>Find Universities That Match Your Profile</Text>
+        <Text style={styles.title}>Universities Matched For You</Text>
         <Text style={styles.subtitle}>
           Compare costs, admission chances, and visa success — all in one place
         </Text>
-
-        <View style={styles.searchBar}>
-          <Feather name="search" size={20} color="#94A3B8" />
-          <TextInput 
-            placeholder="Search universities, courses..." 
-            style={styles.searchInput}
-            placeholderTextColor="#94A3B8"
-          />
-        </View>
-
-        <View style={styles.actionsRow}>
-          <TouchableOpacity style={styles.actionButton}>
-            <MaterialIcons name="swap-vert" size={20} color={THEME.textDark} />
-            <Text style={styles.actionButtonText}>Sort</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton}>
-            <Ionicons name="options-outline" size={20} color={THEME.textDark} />
-            <Text style={styles.actionButtonText}>Filters</Text>
-          </TouchableOpacity>
-        </View>
       </View>
 
       <ScrollView 
@@ -137,7 +148,7 @@ export default function UniversitySelection() {
             key={uni.id} 
             activeOpacity={0.95} 
             style={styles.card}
-            onPress={() => router.push(`/university/${uni.id}`)}
+            onPress={() => handleSelect(uni)}
           >
             {/* Banner Image */}
             <View style={styles.imageContainer}>
@@ -203,7 +214,7 @@ export default function UniversitySelection() {
 
               <TouchableOpacity 
                 style={styles.selectButton}
-                onPress={() => router.push("/(tabs)/explore")}
+                onPress={() => handleSelect(uni)}
               >
                 <Text style={styles.selectButtonText}>Select University</Text>
                 <Feather name="arrow-right" size={18} color="white" />
@@ -223,72 +234,85 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'ios' ? 10 : 20,
     backgroundColor: THEME.white,
+    paddingTop: 10,
+  },
+  topRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 10,
   },
   backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
     backgroundColor: "#F1F5F9",
+    borderRadius: 14,
     justifyContent: "center",
     alignItems: "center",
+  },
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: THEME.textDark,
+  },
+  trackerContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 8,
+    marginTop: 10,
+    marginBottom: 24,
+  },
+  trackerSegment: {
+    height: 6,
+    borderRadius: 3,
+    width: 32,
+  },
+  trackerSegmentActive: {
+    backgroundColor: THEME.primary,
+  },
+  trackerSegmentInactive: {
+    backgroundColor: "#E5E7EB",
+  },
+  studyPlanBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F8FAFC",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
     marginBottom: 20,
+    gap: 10,
+  },
+  studyPlanEmoji: {
+    fontSize: 20,
+  },
+  studyPlanText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: THEME.textGray,
+  },
+  studyPlanCountry: {
+    color: THEME.secondary,
+    fontWeight: "800",
   },
   title: {
-    fontSize: 26,
+    fontSize: 22,
     fontWeight: "900",
     color: THEME.textDark,
-    lineHeight: 32,
+    lineHeight: 30,
     marginBottom: 8,
     letterSpacing: -0.5,
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: 13,
     color: "#64748B",
-    lineHeight: 20,
+    lineHeight: 18,
     marginBottom: 24,
     fontWeight: "500",
-  },
-  searchBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#F8FAFC",
-    borderWidth: 1,
-    borderColor: "#E2E8F0",
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    height: 54,
-    marginBottom: 16,
-  },
-  searchInput: {
-    flex: 1,
-    marginLeft: 10,
-    fontSize: 15,
-    color: THEME.textDark,
-    fontWeight: "500",
-  },
-  actionsRow: {
-    flexDirection: "row",
-    gap: 12,
-    marginBottom: 20,
-  },
-  actionButton: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#F8FAFC",
-    borderWidth: 1,
-    borderColor: "#E2E8F0",
-    borderRadius: 16,
-    height: 50,
-    gap: 8,
-  },
-  actionButtonText: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: THEME.textDark,
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -308,7 +332,7 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   imageContainer: {
-    height: 180,
+    height: 160,
     width: "100%",
     position: "relative",
   },
@@ -337,13 +361,13 @@ const styles = StyleSheet.create({
     color: "#004be3",
   },
   cardInfo: {
-    padding: 24,
+    padding: 20,
   },
   locationRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 12,
   },
   locationLeft: {
     flexDirection: "row",
@@ -351,7 +375,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   locationText: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: "800",
     color: "#64748B",
     letterSpacing: 0.5,
@@ -359,25 +383,25 @@ const styles = StyleSheet.create({
   },
   recommendedBadge: {
     backgroundColor: "#FFF3E0",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
     borderRadius: 20,
   },
   recommendedText: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: "800",
     color: "#F97316",
   },
   nameRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 16,
-    marginBottom: 20,
+    gap: 12,
+    marginBottom: 16,
   },
   uniIconBox: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: "#F1F5F9",
     justifyContent: "center",
     alignItems: "center",
@@ -386,43 +410,43 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   uniName: {
-    fontSize: 19,
+    fontSize: 17,
     fontWeight: "800",
     color: THEME.textDark,
-    marginBottom: 4,
+    marginBottom: 2,
   },
   courseName: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "700",
     color: "#6366F1",
   },
   divider: {
     height: 1,
     backgroundColor: "#F1F5F9",
-    marginBottom: 16,
+    marginBottom: 12,
   },
   detailsGrid: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 16,
+    marginBottom: 12,
   },
   detailItem: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
+    gap: 8,
     width: "48%",
   },
   detailTextWrapper: {
     flex: 1,
   },
   detailLabel: {
-    fontSize: 11,
+    fontSize: 10,
     color: "#94A3B8",
     fontWeight: "600",
-    marginBottom: 2,
+    marginBottom: 1,
   },
   detailValue: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "800",
     color: THEME.textDark,
   },
@@ -430,7 +454,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 24,
+    marginBottom: 20,
   },
   acceptanceLabelBox: {
     flexDirection: "row",
@@ -438,7 +462,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   acceptanceLabel: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "700",
     color: "#64748B",
   },
@@ -450,38 +474,38 @@ const styles = StyleSheet.create({
   },
   progressBarBackground: {
     flex: 1,
-    height: 8,
+    height: 6,
     backgroundColor: "#F1F5F9",
-    borderRadius: 4,
+    borderRadius: 3,
     overflow: "hidden",
   },
   progressBarFill: {
     height: "100%",
-    borderRadius: 4,
+    borderRadius: 3,
   },
   progressText: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: "900",
-    width: 32,
+    width: 28,
     textAlign: "right",
   },
   selectButton: {
-    backgroundColor: "#004be3", // Standard Academic Blue from Design MD
-    height: 60,
-    borderRadius: 20,
+    backgroundColor: "#004be3",
+    height: 54,
+    borderRadius: 18,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 10,
     shadowColor: "#004be3",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 6,
   },
   selectButtonText: {
     color: THEME.white,
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "800",
   },
 });

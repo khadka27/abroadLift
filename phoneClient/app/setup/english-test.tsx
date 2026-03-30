@@ -18,6 +18,7 @@ import {
 } from "react-native";
 import { Stack, router } from "expo-router";
 import { Feather } from "@expo/vector-icons";
+import { useUser } from "../context/UserContext";
 
 // Enable LayoutAnimation for Android
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -40,6 +41,7 @@ const ENGLISH_LEVELS = ["Beginner", "Intermediate", "Advanced", "Fluent", "Nativ
 const TEST_TYPES = ["IELTS", "PTE", "TOEFL", "Duolingo"];
 
 export default function EnglishTestSelection() {
+  const { userData, setUserData } = useUser();
   const [hasTakenTest, setHasTakenTest] = useState<boolean | null>(null);
   const [testType, setTestType] = useState<string>("");
   const [score, setScore] = useState("");
@@ -48,6 +50,15 @@ export default function EnglishTestSelection() {
   const handleToggle = (taken: boolean) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setHasTakenTest(taken);
+  };
+  
+  const handleComplete = () => {
+    setUserData(prev => ({
+        ...prev,
+        score: score || "Pending",
+        testType: testType || "Not Taken"
+    }));
+    router.push("/setup/university-select");
   };
 
   return (
@@ -68,6 +79,18 @@ export default function EnglishTestSelection() {
             </TouchableOpacity>
             <Text style={styles.headerTitle}>English</Text>
             <View style={{ width: 44 }} /> 
+          </View>
+
+          <View style={styles.trackerContainer}>
+            {[1, 2, 3, 4, 5].map((i) => (
+              <View 
+                key={i} 
+                style={[
+                  styles.trackerSegment, 
+                  i === 5 ? styles.trackerSegmentActive : styles.trackerSegmentInactive
+                ]} 
+              />
+            ))}
           </View>
 
           <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -184,7 +207,7 @@ export default function EnglishTestSelection() {
             {hasTakenTest !== null && (
               <TouchableOpacity
                 style={[styles.continueButton, { marginTop: 40 }]}
-                onPress={() => router.push("/setup/financial")}
+                onPress={handleComplete}
               >
                 <Text style={styles.continueButtonText}>Continue</Text>
               </TouchableOpacity>
@@ -331,21 +354,27 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   badge: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 14,
-    backgroundColor: "rgba(255, 255, 255, 0.5)",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.4)",
+    paddingHorizontal: 24,
+    paddingVertical: 14,
+    borderRadius: 20,
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    borderWidth: 1.5,
+    borderColor: "rgba(255, 255, 255, 0.6)",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 2,
   },
   activeBadge: {
     backgroundColor: COLORS.primary,
     borderColor: COLORS.primary,
   },
   badgeText: {
-    fontSize: 14,
-    fontWeight: "600",
+    fontSize: 16,
+    fontWeight: "800",
     color: COLORS.textDark,
+    letterSpacing: 0.5,
   },
   activeBadgeText: {
     color: COLORS.white,
@@ -386,5 +415,24 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     fontSize: 18,
     fontWeight: "bold",
+  },
+  trackerContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 8,
+    marginTop: 10,
+    marginBottom: 20,
+  },
+  trackerSegment: {
+    height: 6,
+    borderRadius: 3,
+    width: 32,
+  },
+  trackerSegmentActive: {
+    backgroundColor: COLORS.primary,
+  },
+  trackerSegmentInactive: {
+    backgroundColor: "#E5E7EB",
   },
 });

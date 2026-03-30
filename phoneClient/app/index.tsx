@@ -45,6 +45,14 @@ export default function Index() {
               blurRadius={30}
             />
             <View style={styles.glassOverlay} />
+            
+            {/* Logo Added Here */}
+            <Image 
+              source={require("../assets/images/logo.png")}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+            
             <Text style={styles.title}>
               Discover the best{"\n"}College for you !
             </Text>
@@ -118,16 +126,21 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   headerGlass: {
-    marginTop: 80,
-    marginHorizontal: 40,
-    paddingVertical: 24,
-    paddingHorizontal: 16,
+    marginTop: 60,
+    marginHorizontal: 32,
+    paddingVertical: 32,
+    paddingHorizontal: 20,
     borderRadius: 32,
     borderWidth: 1.5,
     borderColor: "rgba(255, 255, 255, 0.5)",
     alignItems: "center",
     overflow: "hidden", // Clips the blurred image
     position: "relative",
+  },
+  logo: {
+    width: 140,
+    height: 48,
+    marginBottom: 20,
   },
   glassImageBackground: {
     ...StyleSheet.absoluteFillObject,

@@ -86,6 +86,20 @@ export default function RegisterScreen() {
                     placeholderTextColor="rgba(15, 23, 42, 0.3)"
                     style={styles.input}
                     autoCapitalize="none"
+                    keyboardType="email-address"
+                  />
+                </View>
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Phone Number</Text>
+                <View style={styles.inputWrapper}>
+                  <Feather name="phone" size={20} color={COLORS.primaryBlue} style={styles.inputIcon} />
+                  <TextInput
+                    placeholder="Enter phone number"
+                    placeholderTextColor="rgba(15, 23, 42, 0.3)"
+                    style={styles.input}
+                    keyboardType="phone-pad"
                   />
                 </View>
               </View>

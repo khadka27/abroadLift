@@ -18,6 +18,7 @@ import {
 } from "react-native";
 import { Stack, router } from "expo-router";
 import { Feather } from "@expo/vector-icons";
+import { useUser } from "../context/UserContext";
 
 // Enable LayoutAnimation for Android
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -45,15 +46,18 @@ const FIELDS = [
 ];
 
 export default function FieldOfStudySelection() {
-  const [selectedField, setSelectedField] = useState<string>("engineering");
+  const { userData, setUserData } = useUser();
+  const [selectedField, setSelectedField] = useState<string>(
+    FIELDS.find(f => f.name === userData.fieldOfStudy)?.id || "engineering"
+  );
   const [search, setSearch] = useState("");
 
   const anims = React.useRef(FIELDS.reduce((acc, field) => {
-    acc[field.id] = new Animated.Value(field.id === "engineering" ? 1 : 0);
+    acc[field.id] = new Animated.Value(field.id === (FIELDS.find(f => f.name === userData.fieldOfStudy)?.id || "engineering") ? 1 : 0);
     return acc;
   }, {} as Record<string, Animated.Value>)).current;
 
-  const handleSelect = (id: string) => {
+  const handleSelect = (id: string, name: string) => {
     if (id === selectedField) return;
 
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -72,6 +76,7 @@ export default function FieldOfStudySelection() {
     ]).start();
 
     setSelectedField(id);
+    setUserData(prev => ({ ...prev, fieldOfStudy: name }));
   };
 
   const filteredFields = FIELDS.filter(field => 
@@ -96,6 +101,18 @@ export default function FieldOfStudySelection() {
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Field Of Study</Text>
             <View style={{ width: 44 }} /> 
+          </View>
+
+          <View style={styles.trackerContainer}>
+            {[1, 2, 3, 4, 5].map((i) => (
+              <View 
+                key={i} 
+                style={[
+                  styles.trackerSegment, 
+                  i === 3 ? styles.trackerSegmentActive : styles.trackerSegmentInactive
+                ]} 
+              />
+            ))}
           </View>
 
           <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -125,7 +142,7 @@ export default function FieldOfStudySelection() {
                       styles.fieldItem,
                       isSelected && styles.selectedItem,
                     ]}
-                    onPress={() => handleSelect(field.id)}
+                    onPress={() => handleSelect(field.id, field.name)}
                   >
                     <Animated.View style={[styles.glassContainer, { opacity: anims[field.id] }]}>
                       <Image 
@@ -309,5 +326,24 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     fontSize: 18,
     fontWeight: "bold",
+  },
+  trackerContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 8,
+    marginTop: 10,
+    marginBottom: 20,
+  },
+  trackerSegment: {
+    height: 6,
+    borderRadius: 3,
+    width: 32,
+  },
+  trackerSegmentActive: {
+    backgroundColor: COLORS.primary,
+  },
+  trackerSegmentInactive: {
+    backgroundColor: "#E5E7EB",
   },
 });

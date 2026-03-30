@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { Stack, router } from "expo-router";
 import { Feather } from "@expo/vector-icons";
+import { useUser } from "../context/UserContext";
 
 const { width } = Dimensions.get("window");
 
@@ -40,14 +41,13 @@ const COUNTRIES = [
 ];
 
 export default function CountrySelection() {
-  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
+  const { userData, setUserData } = useUser();
+  const [selectedCountries, setSelectedCountries] = useState<string[]>(userData.country ? [userData.country.toLowerCase()] : []);
 
-  const toggleCountry = (id: string) => {
-    if (selectedCountries.includes(id)) {
-      setSelectedCountries(selectedCountries.filter((c) => c !== id));
-    } else {
-      setSelectedCountries([...selectedCountries, id]);
-    }
+  const toggleCountry = (id: string, name: string, flag: string) => {
+    // For study plan, we'll pick the most recently selected as the primary
+    setSelectedCountries([id]);
+    setUserData(prev => ({ ...prev, country: name, flag: flag }));
   };
 
   return (
@@ -61,6 +61,18 @@ export default function CountrySelection() {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Country</Text>
         <View style={{ width: 44 }} /> 
+      </View>
+
+      <View style={styles.trackerContainer}>
+        {[1, 2, 3, 4, 5].map((i) => (
+          <View 
+            key={i} 
+            style={[
+              styles.trackerSegment, 
+              i === 1 ? styles.trackerSegmentActive : styles.trackerSegmentInactive
+            ]} 
+          />
+        ))}
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -84,7 +96,7 @@ export default function CountrySelection() {
                 styles.countryItem,
                 selectedCountries.includes(country.id) && styles.selectedItem,
               ]}
-              onPress={() => toggleCountry(country.id)}
+              onPress={() => toggleCountry(country.id, country.name, country.flag)}
             >
               <View style={styles.flagContainer}>
                  {/* Better approach: Use a modern card-style for flags */}
@@ -250,5 +262,24 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     fontSize: 18,
     fontWeight: "bold",
+  },
+  trackerContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 8,
+    marginTop: 10,
+    marginBottom: 20,
+  },
+  trackerSegment: {
+    height: 6,
+    borderRadius: 3,
+    width: 32,
+  },
+  trackerSegmentActive: {
+    backgroundColor: COLORS.primary,
+  },
+  trackerSegmentInactive: {
+    backgroundColor: "#E5E7EB",
   },
 });
