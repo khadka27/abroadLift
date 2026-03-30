@@ -7,23 +7,25 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
-  SafeAreaView,
   StatusBar,
   Platform,
 } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { Feather, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 
 const THEME = {
-  primary: "#1A8A99",
+  primary: "#33BFFF", 
+  secondary: "#004be3",
   textDark: "#111827",
   textGray: "#6B7280",
-  bgLight: "#FFFFFF",
+  bgLight: "#F8FAFF",
   orange: "#F59E0B",
-  blue: "#4D7EF1",
+  blue: "#3B82F6",
   green: "#10B981",
+  white: "#FFFFFF",
 };
 
 // Dummy data for demonstration since we are using dynamic routes
@@ -77,32 +79,42 @@ const UNIVERSITIES: Record<string, any> = {
 
 export default function UniversityDetails() {
   const { id } = useLocalSearchParams();
+  const insets = useSafeAreaInsets();
   const details = UNIVERSITIES[id as string] || UNIVERSITIES["1"];
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
       
-      {/* Header */}
-      <View style={styles.header}>
+      {/* Header with manual insets */}
+      <View style={[styles.header, { paddingTop: Platform.OS === 'android' ? (insets.top || 30) + 10 : insets.top + 10 }]}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Feather name="chevron-left" size={28} color={THEME.textDark} />
+          <Feather name="arrow-left" size={28} color={THEME.textDark} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{details.title}</Text>
+        <Text style={styles.headerTitle}>Details</Text>
         <View style={{ width: 44 }} /> 
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollContent} contentContainerStyle={styles.scrollInner}>
+      <ScrollView 
+        showsVerticalScrollIndicator={false} 
+        style={styles.scrollContent} 
+        contentContainerStyle={[
+          styles.scrollInner,
+          { paddingBottom: 40 + insets.bottom }
+        ]}
+      >
         
         {/* Main Image */}
-        <Image source={{ uri: details.image }} style={styles.mainImage} />
+        <View style={styles.imageContainer}>
+          <Image source={{ uri: details.image }} style={styles.mainImage} />
+        </View>
 
         {/* Info Header */}
         <View style={styles.infoHead}>
            <View style={{ flex: 1 }}>
               <Text style={styles.uniTitle}>{details.title}</Text>
               <View style={styles.locationRow}>
-                <Ionicons name="location" size={16} color="#F97316" />
+                <Ionicons name="location" size={16} color={THEME.orange} />
                 <Text style={styles.locationText}>{details.location}</Text>
               </View>
               <View style={styles.starsRow}>
@@ -112,7 +124,7 @@ export default function UniversityDetails() {
               </View>
            </View>
            <TouchableOpacity style={styles.bookmarkButton}>
-              <Feather name="bookmark" size={24} color="#3B82F6" />
+              <Feather name="bookmark" size={24} color={THEME.blue} />
            </TouchableOpacity>
         </View>
 
@@ -202,37 +214,49 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 16,
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
-    paddingBottom: 20,
+    paddingBottom: 10,
   },
   backButton: {
     width: 44,
     height: 44,
+    backgroundColor: THEME.white,
+    borderRadius: 14,
     justifyContent: "center",
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 2,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: "800",
-    color: "#000",
+    color: THEME.textDark,
   },
   scrollContent: {
     flex: 1,
   },
   scrollInner: {
-    paddingHorizontal: 20,
-    paddingBottom: 40,
+    paddingHorizontal: 24,
+    paddingTop: 10,
+  },
+  imageContainer: {
+    width: "100%",
+    height: 240,
+    borderRadius: 32,
+    overflow: "hidden",
+    marginBottom: 24,
+    backgroundColor: "#EEE",
   },
   mainImage: {
     width: "100%",
-    height: 240,
-    borderRadius: 24,
-    marginBottom: 24,
+    height: "100%",
   },
   infoHead: {
     flexDirection: "row",
     alignItems: "flex-start",
-    marginBottom: 24,
+    marginBottom: 32,
   },
   uniTitle: {
     fontSize: 20,

@@ -4,18 +4,21 @@ import {
   View,
   Text,
   TouchableOpacity,
-  SafeAreaView,
   StatusBar,
   TextInput,
   ScrollView,
   Platform,
   KeyboardAvoidingView,
+  Image,
 } from "react-native";
 import { router } from "expo-router";
 import { Feather, Ionicons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
+import { useUser } from "../context/UserContext";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const COLORS = {
-  primary: "#1A8A99",
+  primary: "#33BFFF", 
   textDark: "#111827",
   textGray: "#64748B",
   white: "#FFFFFF",
@@ -24,27 +27,47 @@ const COLORS = {
 };
 
 export default function EditProfile() {
+  const { userData, setUserData } = useUser();
+  const insets = useSafeAreaInsets();
+  
   const [formData, setFormData] = useState({
-    name: "Something Surname",
-    username: "something123",
-    email: "something@example.com",
-    phone: "+1 234 567 890",
+    name: userData.name,
+    username: userData.username,
+    profileImage: userData.profileImage,
   });
 
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setFormData({ ...formData, profileImage: result.assets[0].uri });
+    }
+  };
+
   const handleSave = () => {
-    // Simulate saving
+    setUserData(prev => ({
+      ...prev,
+      name: formData.name,
+      username: formData.username,
+      profileImage: formData.profileImage,
+    }));
     router.back();
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+    <View style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
       <KeyboardAvoidingView 
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
       >
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { paddingTop: Platform.OS === 'android' ? (insets.top || 30) + 10 : insets.top + 10 }]}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <Feather name="chevron-left" size={28} color={COLORS.textDark} />
           </TouchableOpacity>
@@ -57,15 +80,23 @@ export default function EditProfile() {
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollInner}>
           
           {/* Avatar Section */}
-          <View style={styles.avatarContainer}>
+          <TouchableOpacity 
+            style={styles.avatarContainer} 
+            onPress={pickImage}
+            activeOpacity={0.8}
+          >
             <View style={styles.avatarBox}>
-               <Ionicons name="person" size={50} color={COLORS.textGray} />
-               <TouchableOpacity style={styles.cameraIcon}>
+               {formData.profileImage ? (
+                 <Image source={{ uri: formData.profileImage }} style={styles.avatarImage} />
+               ) : (
+                 <Ionicons name="person" size={50} color={COLORS.textGray} />
+               )}
+               <View style={styles.cameraIcon}>
                   <Feather name="camera" size={16} color="white" />
-               </TouchableOpacity>
+               </View>
             </View>
             <Text style={styles.changePhotoText}>Change Profile Photo</Text>
-          </View>
+          </TouchableOpacity>
 
           {/* Form Fields */}
           <View style={styles.form}>
@@ -89,29 +120,6 @@ export default function EditProfile() {
                 autoCapitalize="none"
               />
             </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Email Address</Text>
-              <TextInput 
-                style={styles.input}
-                value={formData.email}
-                onChangeText={(val) => setFormData({...formData, email: val})}
-                placeholder="Email Address"
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Phone Number</Text>
-              <TextInput 
-                style={styles.input}
-                value={formData.phone}
-                onChangeText={(val) => setFormData({...formData, phone: val})}
-                placeholder="Phone Number"
-                keyboardType="phone-pad"
-              />
-            </View>
           </View>
 
           {/* Additional Settings */}
@@ -123,7 +131,7 @@ export default function EditProfile() {
 
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -181,6 +189,11 @@ const styles = StyleSheet.create({
     position: "relative",
     borderWidth: 1.5,
     borderColor: COLORS.border,
+    overflow: "hidden",
+  },
+  avatarImage: {
+    width: "100%",
+    height: "100%",
   },
   cameraIcon: {
     position: "absolute",

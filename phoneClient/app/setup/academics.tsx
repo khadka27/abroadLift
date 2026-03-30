@@ -26,7 +26,6 @@ const COLORS = {
   white: "#FFFFFF",
   glassBase: "rgba(255, 255, 255, 0.75)",
   glassBorder: "rgba(255, 255, 255, 0.6)",
-  teal: "rgb(41, 142, 168)",
 };
 
 export default function AcademicsSetup() {
@@ -207,12 +206,12 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   continueButton: {
-    backgroundColor: COLORS.teal,
+    backgroundColor: COLORS.primary,
     height: 60,
     borderRadius: 30,
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: COLORS.teal,
+    shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.2,
     shadowRadius: 10,

@@ -6,7 +6,6 @@ import {
   ImageBackground,
   TouchableOpacity,
   Dimensions,
-  SafeAreaView,
   StatusBar,
   TextInput,
   KeyboardAvoidingView,
@@ -17,6 +16,7 @@ import {
 import { Stack, router } from "expo-router";
 import { AntDesign, FontAwesome, Feather } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { width, height } = Dimensions.get("window");
 
@@ -30,6 +30,8 @@ const COLORS = {
 };
 
 export default function LoginScreen() {
+  const insets = useSafeAreaInsets();
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -44,8 +46,14 @@ export default function LoginScreen() {
         imageStyle={{ top: -140, height: height + 140 }}
         resizeMode="cover"
       >
-        <SafeAreaView style={styles.safeArea}>
-          <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.mainContent}>
+          <ScrollView 
+            contentContainerStyle={[
+              styles.scrollContent, 
+              { paddingTop: 20 + insets.top, paddingBottom: 60 + insets.bottom }
+            ]}
+            showsVerticalScrollIndicator={false}
+          >
             {/* Horizontal Header with Arrow and Title */}
             <View style={styles.horizontalHeader}>
               <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
@@ -130,7 +138,7 @@ export default function LoginScreen() {
               </TouchableOpacity>
             </View>
           </ScrollView>
-        </SafeAreaView>
+        </View>
       </ImageBackground>
     </KeyboardAvoidingView>
   );
@@ -146,18 +154,16 @@ const styles = StyleSheet.create({
     width: width,
     height: height,
   },
-  safeArea: {
+  mainContent: {
     flex: 1,
   },
   scrollContent: {
     paddingHorizontal: 24,
-    paddingTop: 100, // Increased further to bring title down
-    paddingBottom: 60,
   },
   horizontalHeader: {
     flexDirection: "row",
     alignItems: "flex-start",
-    marginBottom: 20, // Reduced from 48
+    marginBottom: 20, 
     gap: 20,
   },
   backButton: {
@@ -169,10 +175,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   headerText: {
-    flex: 1, // Allow text to take remaining space
+    flex: 1,
   },
   title: {
-    fontSize: 32, // Adjusted for row fit
+    fontSize: 32,
     fontWeight: "900",
     color: COLORS.textDark,
     lineHeight: 38,
@@ -183,7 +189,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: "#64748B",
     fontWeight: "500",
-    lineHeight: 22, // Better readability
+    lineHeight: 22,
     letterSpacing: -0.2,
   },
   glassCard: {
@@ -191,7 +197,7 @@ const styles = StyleSheet.create({
     padding: 32,
     borderWidth: 1.5,
     borderColor: COLORS.glassBorder,
-    backgroundColor: "transparent", 
+    backgroundColor: "transparent",
     overflow: "hidden",
     shadowColor: COLORS.primaryBlue,
     shadowOffset: { width: 0, height: 12 },
@@ -204,15 +210,15 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     width: width,
     height: height,
-    top: -240, // Match the visual position of background icons
+    top: -240, 
     left: -24,
   },
   glassOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(255, 255, 255, 0.3)", // The frosting tint
+    backgroundColor: "rgba(255, 255, 255, 0.3)", 
   },
   inputGroup: {
-    marginBottom: 28, // More space between fields
+    marginBottom: 28, 
   },
   label: {
     fontSize: 11,
@@ -220,7 +226,7 @@ const styles = StyleSheet.create({
     color: COLORS.textDark,
     marginBottom: 12,
     textTransform: "uppercase",
-    letterSpacing: 1.2, // Clean, airy uppercase
+    letterSpacing: 1.2,
     opacity: 0.5,
   },
   inputWrapper: {

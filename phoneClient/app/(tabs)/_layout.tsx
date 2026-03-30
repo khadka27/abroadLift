@@ -4,7 +4,7 @@ import { Tabs } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 
 const THEME = {
-  primary: "#1A8A99",
+  primary: "#33BFFF",
   textDark: "#111827",
   textGray: "#6B7280",
   bgLight: "#FFFFFF",

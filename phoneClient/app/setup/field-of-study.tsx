@@ -34,7 +34,6 @@ const COLORS = {
   white: "#FFFFFF",
   bgSubtle: "rgba(255, 255, 255, 0.4)",
   glassBorder: "rgba(255, 255, 255, 0.5)",
-  teal: "rgb(41, 142, 168)",
 };
 
 const FIELDS = [
@@ -311,12 +310,12 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
   continueButton: {
-    backgroundColor: COLORS.teal,
+    backgroundColor: COLORS.primary,
     height: 60,
     borderRadius: 30,
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: COLORS.teal,
+    shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.2,
     shadowRadius: 10,

@@ -12,9 +12,10 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { Feather, Ionicons } from "@expo/vector-icons";
+import { useUser } from "../context/UserContext";
 
 const COLORS = {
-  primary: "#3B82F6", // Bright blue for Edit button
+  primary: "#33BFFF", 
   textDark: "#111827",
   textGray: "#64748B",
   white: "#FFFFFF",
@@ -24,6 +25,8 @@ const COLORS = {
 };
 
 export default function ProfileTab() {
+  const { userData } = useUser();
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
@@ -41,12 +44,16 @@ export default function ProfileTab() {
         
         {/* Profile Info Row */}
         <View style={styles.profileRow}>
-          <View style={[styles.avatar, { justifyContent: "center", alignItems: "center" }]}>
-            <Ionicons name="person" size={56} color={COLORS.textGray} />
+          <View style={[styles.avatar, { justifyContent: "center", alignItems: "center", overflow: "hidden" }]}>
+            {userData.profileImage ? (
+              <Image source={{ uri: userData.profileImage }} style={{ width: '100%', height: '100%' }} />
+            ) : (
+              <Ionicons name="person" size={56} color={COLORS.textGray} />
+            )}
           </View>
           <View style={styles.profileTextContainer}>
-            <Text style={styles.profileName}>Something Surname</Text>
-            <Text style={styles.profileUsername}>@something123</Text>
+            <Text style={styles.profileName}>{userData.name}</Text>
+            <Text style={styles.profileUsername}>{userData.username}</Text>
             <TouchableOpacity 
               style={styles.editButton} 
               onPress={() => router.push("/profile/edit")}
@@ -59,7 +66,12 @@ export default function ProfileTab() {
         {/* Menu Options */}
         <View style={styles.menuContainer}>
           <TouchableOpacity style={styles.menuItem}>
-            <Text style={styles.menuItemText}>My Study Preferences</Text>
+            <View style={styles.menuItemLeft}>
+              <Text style={styles.menuItemText}>My Study Preferences</Text>
+              <Text style={styles.menuItemSubtext}>
+                {userData.flag} {userData.country} • {userData.studyLevel}
+              </Text>
+            </View>
             <Feather name="chevron-right" size={20} color={COLORS.textDark} />
           </TouchableOpacity>
 
@@ -183,5 +195,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     color: COLORS.textDark,
+  },
+  menuItemLeft: {
+    flex: 1,
+  },
+  menuItemSubtext: {
+    fontSize: 13,
+    color: COLORS.textGray,
+    fontWeight: "500",
+    marginTop: 2,
   },
 });

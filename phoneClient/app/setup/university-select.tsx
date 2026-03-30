@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useMemo } from "react";
 import {
   StyleSheet,
   View,
@@ -7,7 +7,6 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
-  SafeAreaView,
   StatusBar,
   TextInput,
   Platform,
@@ -16,8 +15,9 @@ import { Stack, router } from "expo-router";
 import { Feather, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { useUser } from "../context/UserContext";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 
 const THEME = {
   primary: "#33BFFF", 
@@ -94,6 +94,16 @@ const ProgressTracker = ({ percentage }: { percentage: number }) => {
 
 export default function UniversitySelectionSetup() {
   const { userData, selectUniversity } = useUser();
+  const insets = useSafeAreaInsets();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredUniversities = useMemo(() => {
+    return MATCHED_UNIVERSITIES.filter(uni => 
+      uni.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      uni.course.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      uni.location.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [searchQuery]);
 
   const handleSelect = (uni: any) => {
     selectUniversity(uni);
@@ -101,129 +111,174 @@ export default function UniversitySelectionSetup() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" translucent />
+    <View style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
       <Stack.Screen options={{ headerShown: false }} />
       
-      {/* Header Section */}
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: Platform.OS === 'android' ? (insets.top || 30) + 10 : insets.top + 10 }]}>
+        {/* Header Top Row */}
         <View style={styles.topRow}>
-            <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-                <Feather name="arrow-left" size={28} color={THEME.textDark} />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>University Selection</Text>
-            <View style={{ width: 44 }} />
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+            <Feather name="arrow-left" size={28} color={THEME.textDark} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Selection</Text>
+          <View style={{ width: 44 }} />
         </View>
 
+        {/* Progress Dots */}
         <View style={styles.trackerContainer}>
-            {[1, 2, 3, 4, 5, 6].map((i) => (
+          {[1, 2, 3, 4, 5, 6].map((i) => (
             <View 
-                key={i} 
-                style={[
+              key={i} 
+              style={[
                 styles.trackerSegment, 
                 i === 6 ? styles.trackerSegmentActive : styles.trackerSegmentInactive
-                ]} 
+              ]} 
             />
-            ))}
+          ))}
         </View>
 
-        {/* Study Plan Status Bar */}
+        {/* Selected Preferences Summary Bar */}
         <View style={styles.studyPlanBar}>
-            <Text style={styles.studyPlanEmoji}>{userData.flag}</Text>
-            <Text style={styles.studyPlanText}>Study Plan <Text style={styles.studyPlanCountry}>{userData.country}</Text></Text>
+          <Text style={styles.studyPlanEmoji}>{userData.flag}</Text>
+          <Text style={styles.studyPlanText}>
+            Study in <Text style={styles.studyPlanCountry}>{userData.country}</Text> • {userData.studyLevel}
+          </Text>
         </View>
         
-        <Text style={styles.title}>Universities Matched For You</Text>
+        <Text style={styles.title}>Recommended For You</Text>
         <Text style={styles.subtitle}>
-          Compare costs, admission chances, and visa success — all in one place
+          Compare costs and admission chances based on your profile
         </Text>
+
+        {/* New Search Bar */}
+        <View style={styles.searchBarWrapper}>
+          <Feather name="search" size={20} color={THEME.textGray} style={styles.searchIcon} />
+          <TextInput
+            placeholder="Search universities or courses..."
+            placeholderTextColor={THEME.textGray}
+            style={styles.searchInput}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            clearButtonMode="while-editing"
+          />
+        </View>
       </View>
 
       <ScrollView 
         showsVerticalScrollIndicator={false} 
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: 40 + insets.bottom }
+        ]}
       >
-        {MATCHED_UNIVERSITIES.map((uni) => (
-          <TouchableOpacity 
-            key={uni.id} 
-            activeOpacity={0.95} 
-            style={styles.card}
-            onPress={() => handleSelect(uni)}
-          >
-            {/* Banner Image */}
-            <View style={styles.imageContainer}>
-              <Image source={{ uri: uni.image }} style={styles.cardImage} />
-              <View style={styles.rankBadge}>
-                <BlurView intensity={20} style={styles.rankBlur}>
-                  <Ionicons name="trophy-outline" size={12} color="#004be3" />
-                  <Text style={styles.rankText}>{uni.rank}</Text>
-                </BlurView>
-              </View>
-            </View>
-
-            {/* University Info */}
-            <View style={styles.cardInfo}>
-              <View style={styles.locationRow}>
-                <View style={styles.locationLeft}>
-                    <Ionicons name="location-outline" size={14} color="#64748B" />
-                    <Text style={styles.locationText}>{uni.location}</Text>
-                </View>
-                {uni.recommended && (
-                  <View style={styles.recommendedBadge}>
-                    <Text style={styles.recommendedText}>Recommended</Text>
+        {filteredUniversities.length > 0 ? (
+          filteredUniversities.map((uni) => (
+            <View 
+              key={uni.id} 
+              style={styles.card}
+            >
+              {/* Top part is clickable for selection */}
+              <TouchableOpacity 
+                activeOpacity={0.9} 
+                onPress={() => handleSelect(uni)}
+                style={{ flex: 1 }}
+              >
+                {/* Banner Image */}
+                <View style={styles.imageContainer}>
+                  <Image source={{ uri: uni.image }} style={styles.cardImage} />
+                  <View style={styles.rankBadge}>
+                    <BlurView intensity={40} tint="light" style={styles.rankBlur}>
+                      <Ionicons name="trophy-outline" size={12} color="#004be3" />
+                      <Text style={styles.rankText}>{uni.rank}</Text>
+                    </BlurView>
                   </View>
-                )}
-              </View>
-
-              <View style={styles.nameRow}>
-                <View style={styles.uniIconBox}>
-                    <Ionicons name="school" size={20} color={THEME.secondary} />
                 </View>
-                <View style={styles.nameTexts}>
-                    <Text style={styles.uniName}>{uni.name}</Text>
-                    <Text style={styles.courseName}>{uni.course}</Text>
-                </View>
-              </View>
 
-              <View style={styles.divider} />
+                <View style={[styles.cardInfo, { paddingBottom: 0 }]}>
+                  <View style={styles.locationRow}>
+                    <View style={styles.locationLeft}>
+                      <Ionicons name="location-outline" size={14} color="#64748B" />
+                      <Text style={styles.locationText}>{uni.location}</Text>
+                    </View>
+                    {uni.recommended && (
+                      <View style={styles.recommendedBadge}>
+                        <Text style={styles.recommendedText}>Matched</Text>
+                      </View>
+                    )}
+                  </View>
 
-              <View style={styles.detailsGrid}>
-                <View style={styles.detailItem}>
-                    <Feather name="calendar" size={14} color="#64748B" />
-                    <View style={styles.detailTextWrapper}>
+                  <View style={styles.nameRow}>
+                    <View style={styles.uniIconBox}>
+                      <Ionicons name="school" size={20} color={THEME.secondary} />
+                    </View>
+                    <View style={styles.nameTexts}>
+                      <Text style={styles.uniName}>{uni.name}</Text>
+                      <Text style={styles.courseName}>{uni.course}</Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.divider} />
+
+                  <View style={styles.detailsGrid}>
+                    <View style={styles.detailItem}>
+                      <Feather name="calendar" size={14} color="#64748B" />
+                      <View style={styles.detailTextWrapper}>
                         <Text style={styles.detailLabel}>Duration</Text>
                         <Text style={styles.detailValue}>{uni.duration}</Text>
+                      </View>
                     </View>
-                </View>
-                <View style={styles.detailItem}>
-                    <Feather name="briefcase" size={14} color="#64748B" />
-                    <View style={styles.detailTextWrapper}>
+                    <View style={styles.detailItem}>
+                      <Feather name="dollar-sign" size={14} color="#64748B" />
+                      <View style={styles.detailTextWrapper}>
                         <Text style={styles.detailLabel}>Tuition</Text>
                         <Text style={styles.detailValue}>{uni.tuition}</Text>
+                      </View>
                     </View>
-                </View>
-              </View>
+                  </View>
 
-              <View style={styles.acceptanceRow}>
-                <View style={styles.acceptanceLabelBox}>
-                    <Ionicons name="checkmark-done" size={14} color="#64748B" />
-                    <Text style={styles.acceptanceLabel}>Acceptance Rate</Text>
+                  <View style={styles.acceptanceRow}>
+                    <View style={styles.acceptanceLabelBox}>
+                      <Ionicons name="stats-chart" size={14} color="#64748B" />
+                      <Text style={styles.acceptanceLabel}>Admission Chance</Text>
+                    </View>
+                    <ProgressTracker percentage={uni.acceptanceRate} />
+                  </View>
                 </View>
-                <ProgressTracker percentage={uni.acceptanceRate} />
-              </View>
-
-              <TouchableOpacity 
-                style={styles.selectButton}
-                onPress={() => handleSelect(uni)}
-              >
-                <Text style={styles.selectButtonText}>Select University</Text>
-                <Feather name="arrow-right" size={18} color="white" />
               </TouchableOpacity>
+
+              {/* Action Buttons are separate from the main card click area */}
+              <View style={[styles.cardInfo, { paddingTop: 0 }]}>
+                <View style={styles.actionButtons}>
+                  <TouchableOpacity 
+                    style={styles.detailsButton}
+                    onPress={() => router.push(`/university/${uni.id}`)}
+                  >
+                    <Text style={styles.detailsButtonText}>View Details</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity 
+                    style={styles.selectButton}
+                    onPress={() => handleSelect(uni)}
+                  >
+                    <Text style={styles.selectButtonText}>Select University</Text>
+                    <Feather name="arrow-right" size={18} color="white" />
+                  </TouchableOpacity>
+                </View>
+              </View>
             </View>
-          </TouchableOpacity>
-        ))}
+          ))
+        ) : (
+          <View style={styles.emptyContainer}>
+            <Ionicons name="search-outline" size={64} color="#E5E7EB" />
+            <Text style={styles.emptyText}>No results for "{searchQuery}"</Text>
+            <TouchableOpacity onPress={() => setSearchQuery("")}>
+              <Text style={styles.resetText}>Clear Search</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -233,55 +288,55 @@ const styles = StyleSheet.create({
     backgroundColor: THEME.white,
   },
   header: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
     backgroundColor: THEME.white,
-    paddingTop: 40,
+    paddingBottom: 10,
   },
   topRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 10,
+    marginBottom: 16,
   },
   backButton: {
     width: 44,
     height: 44,
     justifyContent: "center",
-    alignItems: "flex-start", // Align to left side of its container
+    alignItems: "center",
+    backgroundColor: THEME.bgLight,
+    borderRadius: 14,
   },
   headerTitle: {
-    fontSize: 22,
-    fontWeight: "700",
+    fontSize: 20,
+    fontWeight: "800",
     color: THEME.textDark,
+    letterSpacing: -0.5,
   },
   trackerContainer: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
     gap: 8,
-    marginTop: 10,
-    marginBottom: 24,
+    marginBottom: 20,
   },
   trackerSegment: {
     height: 6,
     borderRadius: 3,
-    width: 32,
+    width: 28,
   },
   trackerSegmentActive: {
     backgroundColor: THEME.primary,
   },
   trackerSegmentInactive: {
-    backgroundColor: "#E5E7EB",
+    backgroundColor: "#E2E8F0",
   },
   studyPlanBar: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F8FAFC",
+    backgroundColor: "#F1F5F9",
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "#E2E8F0",
     marginBottom: 20,
     gap: 10,
   },
@@ -289,7 +344,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   studyPlanText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "600",
     color: THEME.textGray,
   },
@@ -298,22 +353,44 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
   title: {
-    fontSize: 22,
+    fontSize: 26,
     fontWeight: "900",
     color: THEME.textDark,
-    lineHeight: 30,
+    lineHeight: 32,
     marginBottom: 8,
-    letterSpacing: -0.5,
+    letterSpacing: -0.8,
   },
   subtitle: {
-    fontSize: 13,
-    color: "#64748B",
-    lineHeight: 18,
-    marginBottom: 24,
+    fontSize: 14,
+    color: THEME.textGray,
+    lineHeight: 20,
+    marginBottom: 20,
     fontWeight: "500",
   },
+  searchBarWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: THEME.bgLight,
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    height: 54,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    marginBottom: 10,
+  },
+  searchIcon: {
+    marginRight: 10,
+    opacity: 0.5,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 15,
+    color: THEME.textDark,
+    fontWeight: "600",
+  },
   scrollContent: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
+    paddingTop: 10,
     paddingBottom: 40,
   },
   card: {
@@ -330,7 +407,7 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   imageContainer: {
-    height: 160,
+    height: 180,
     width: "100%",
     position: "relative",
   },
@@ -348,59 +425,58 @@ const styles = StyleSheet.create({
   rankBlur: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    backgroundColor: "rgba(255, 255, 255, 0.8)",
-    gap: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    gap: 6,
   },
   rankText: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: "800",
-    color: "#004be3",
+    color: THEME.secondary,
   },
   cardInfo: {
-    padding: 20,
+    padding: 24,
   },
   locationRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: 16,
   },
   locationLeft: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
+    gap: 6,
   },
   locationText: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: "800",
-    color: "#64748B",
+    color: THEME.textGray,
     letterSpacing: 0.5,
     textTransform: "uppercase",
   },
   recommendedBadge: {
-    backgroundColor: "#FFF3E0",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 20,
+    backgroundColor: "rgba(51, 191, 255, 0.1)",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
   },
   recommendedText: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: "800",
-    color: "#F97316",
+    color: THEME.primary,
   },
   nameRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
-    marginBottom: 16,
+    gap: 14,
+    marginBottom: 20,
   },
   uniIconBox: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "#F1F5F9",
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "rgba(0, 75, 227, 0.05)",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -408,43 +484,43 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   uniName: {
-    fontSize: 17,
+    fontSize: 19,
     fontWeight: "800",
     color: THEME.textDark,
-    marginBottom: 2,
+    marginBottom: 4,
   },
   courseName: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: "700",
-    color: "#6366F1",
+    color: THEME.secondary,
   },
   divider: {
     height: 1,
     backgroundColor: "#F1F5F9",
-    marginBottom: 12,
+    marginBottom: 16,
   },
   detailsGrid: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 12,
+    marginBottom: 16,
   },
   detailItem: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 10,
     width: "48%",
   },
   detailTextWrapper: {
     flex: 1,
   },
   detailLabel: {
-    fontSize: 10,
+    fontSize: 11,
     color: "#94A3B8",
     fontWeight: "600",
-    marginBottom: 1,
+    marginBottom: 2,
   },
   detailValue: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: "800",
     color: THEME.textDark,
   },
@@ -452,50 +528,54 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 20,
+    marginBottom: 24,
+    backgroundColor: THEME.bgLight,
+    padding: 16,
+    borderRadius: 16,
   },
   acceptanceLabelBox: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 8,
   },
   acceptanceLabel: {
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: "700",
-    color: "#64748B",
+    color: THEME.textDark,
   },
   progressContainer: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    flex: 0.8,
+    gap: 10,
+    flex: 0.7,
   },
   progressBarBackground: {
     flex: 1,
-    height: 6,
-    backgroundColor: "#F1F5F9",
-    borderRadius: 3,
+    height: 8,
+    backgroundColor: "#E2E8F0",
+    borderRadius: 4,
     overflow: "hidden",
   },
   progressBarFill: {
     height: "100%",
-    borderRadius: 3,
+    borderRadius: 4,
   },
   progressText: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: "900",
-    width: 28,
+    width: 32,
     textAlign: "right",
   },
   selectButton: {
-    backgroundColor: "#004be3",
-    height: 54,
+    backgroundColor: THEME.secondary,
+    flex: 1.5,
+    height: 56,
     borderRadius: 18,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 10,
-    shadowColor: "#004be3",
+    gap: 8,
+    shadowColor: THEME.secondary,
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.2,
     shadowRadius: 10,
@@ -503,7 +583,44 @@ const styles = StyleSheet.create({
   },
   selectButtonText: {
     color: THEME.white,
-    fontSize: 15,
+    fontSize: 14,
+    fontWeight: "800",
+  },
+  actionButtons: {
+    flexDirection: "row",
+    gap: 12,
+    alignItems: "center",
+  },
+  detailsButton: {
+    flex: 1,
+    height: 56,
+    borderRadius: 18,
+    backgroundColor: THEME.bgLight,
+    borderWidth: 1.5,
+    borderColor: "#E2E8F0",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  detailsButtonText: {
+    color: THEME.textDark,
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  emptyContainer: {
+    paddingVertical: 80,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  emptyText: {
+    fontSize: 16,
+    color: THEME.textGray,
+    fontWeight: "600",
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  resetText: {
+    fontSize: 14,
+    color: THEME.primary,
     fontWeight: "800",
   },
 });

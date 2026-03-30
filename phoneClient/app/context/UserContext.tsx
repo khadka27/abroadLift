@@ -1,6 +1,9 @@
 import React, { createContext, useContext, useState } from 'react';
 
 type UserData = {
+  name: string;
+  username: string;
+  profileImage: string | null;
   country: string;
   flag: string;
   studyLevel: string;
@@ -20,9 +23,12 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [userData, setUserData] = useState<UserData>({
-    country: "USA",
-    flag: "🇺🇸",
-    studyLevel: "Master's",
+    name: "Something Surname",
+    username: "@something123",
+    profileImage: null,
+    country: "UK",
+    flag: "🇬🇧",
+    studyLevel: "Master's Degree",
     fieldOfStudy: "Computer Science",
     selectedUniversities: [],
   });
