@@ -248,21 +248,21 @@ export default function UniversitySelectionSetup() {
               </TouchableOpacity>
 
               {/* Action Buttons are separate from the main card click area */}
-              <View style={[styles.cardInfo, { paddingTop: 0 }]}>
+              <View style={[styles.cardInfo, { paddingTop: 0, paddingBottom: 24 }]}>
                 <View style={styles.actionButtons}>
-                  <TouchableOpacity
-                    style={styles.detailsButton}
-                    onPress={() => router.push(`/university/${uni.id}`)}
-                  >
-                    <Text style={styles.detailsButtonText}>View Details</Text>
-                  </TouchableOpacity>
-
                   <TouchableOpacity
                     style={styles.selectButton}
                     onPress={() => handleSelect(uni)}
                   >
                     <Text style={styles.selectButtonText}>Select University</Text>
                     <Feather name="arrow-right" size={18} color="white" />
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.detailsButton}
+                    onPress={() => router.push(`/university/${uni.id}`)}
+                  >
+                    <Text style={styles.detailsButtonText}>View Details</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -568,7 +568,7 @@ const styles = StyleSheet.create({
   },
   selectButton: {
     backgroundColor: THEME.secondary,
-    flex: 1.5,
+    width: "100%",
     height: 56,
     borderRadius: 18,
     flexDirection: "row",
@@ -583,27 +583,27 @@ const styles = StyleSheet.create({
   },
   selectButtonText: {
     color: THEME.white,
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: "800",
   },
   actionButtons: {
-    flexDirection: "row",
+    flexDirection: "column",
     gap: 12,
     alignItems: "center",
   },
   detailsButton: {
-    flex: 1,
+    width: "100%",
     height: 56,
     borderRadius: 18,
-    backgroundColor: THEME.bgLight,
+    backgroundColor: "transparent",
     borderWidth: 1.5,
     borderColor: "#E2E8F0",
     justifyContent: "center",
     alignItems: "center",
   },
   detailsButtonText: {
-    color: THEME.textDark,
-    fontSize: 14,
+    color: THEME.textGray,
+    fontSize: 15,
     fontWeight: "700",
   },
   emptyContainer: {

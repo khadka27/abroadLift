@@ -13,7 +13,7 @@ import {
   LayoutAnimation,
   Platform,
   UIManager,
-  Animated, // Added Animated
+  Animated,
 } from "react-native";
 import { Stack, router } from "expo-router";
 import { Feather, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -44,13 +44,13 @@ const STUDY_LEVELS = [
 
 export default function StudyLevelSelection() {
   const { userData, setUserData } = useUser();
-  const [selectedLevel, setSelectedLevel] = useState<string>(
-    STUDY_LEVELS.find(l => l.name === userData.studyLevel)?.id || "bachelors"
+  const [selectedLevel, setSelectedLevel] = useState<string | null>(
+    STUDY_LEVELS.find(l => l.name === userData.studyLevel)?.id || null
   );
   
   // Animated values for each option's blur
   const anims = React.useRef(STUDY_LEVELS.reduce((acc, level) => {
-    acc[level.id] = new Animated.Value(level.id === (STUDY_LEVELS.find(l => l.name === userData.studyLevel)?.id || "bachelors") ? 1 : 0);
+    acc[level.id] = new Animated.Value(level.name === userData.studyLevel ? 1 : 0);
     return acc;
   }, {} as Record<string, Animated.Value>)).current;
 
@@ -60,18 +60,25 @@ export default function StudyLevelSelection() {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     
     // Smoothly fade out the old selection and fade in the new one
-    Animated.parallel([
-      Animated.timing(anims[selectedLevel], {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }),
+    const animTasks = [
       Animated.timing(anims[id], {
         toValue: 1,
         duration: 300,
         useNativeDriver: true,
-      }),
-    ]).start();
+      })
+    ];
+
+    if (selectedLevel) {
+      animTasks.push(
+        Animated.timing(anims[selectedLevel], {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        })
+      );
+    }
+
+    Animated.parallel(animTasks).start();
 
     setSelectedLevel(id);
     setUserData(prev => ({ ...prev, studyLevel: name }));
@@ -112,7 +119,7 @@ export default function StudyLevelSelection() {
           <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
             <Text style={styles.questionText}>What level of study are you planning?</Text>
 
-            {/* Education Banner - Stable Local Asset */}
+            {/* Education Banner */}
             <View style={styles.bannerContainer}>
               <Image
                 source={require("../../assets/images/onboarding-bg-4k.png")} 
@@ -161,7 +168,11 @@ export default function StudyLevelSelection() {
           {/* Sticky Bottom Button */}
           <View style={styles.footer}>
             <TouchableOpacity
-              style={styles.continueButton}
+              style={[
+                styles.continueButton,
+                !selectedLevel && { opacity: 0.5 }
+              ]}
+              disabled={!selectedLevel}
               onPress={() => router.push("/setup/field-of-study")}
             >
               <Text style={styles.continueButtonText}>Continue</Text>
@@ -185,7 +196,7 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
-    paddingTop: 80,
+    paddingTop: Platform.OS === 'android' ? 40 : 0,
   },
   header: {
     flexDirection: "row",
@@ -210,7 +221,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 28,
-    paddingBottom: 40,
+    paddingBottom: 100,
   },
   questionText: {
     fontSize: 16,

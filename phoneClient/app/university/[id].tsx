@@ -115,7 +115,10 @@ export default function UniversityDetails() {
         <Text style={styles.chancesDescription}>
           Based on your profile, you have a <Text style={{ fontWeight: '800' }}>low chance</Text> of admission. Improve your test scores to increase odds.
         </Text>
-        <TouchableOpacity style={styles.completeEstimateBtn}>
+        <TouchableOpacity 
+          style={styles.completeEstimateBtn}
+          onPress={() => router.push("/university/admission-chance")}
+        >
           <Text style={styles.completeEstimateBtnText}>Get Complete Estimate</Text>
         </TouchableOpacity>
       </View>
@@ -380,7 +383,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#F8FAFC",
   },
   bannerContainer: {
-    height: 380,
+    height: 200,
     width: "100%",
     position: "relative",
   },
@@ -415,22 +418,22 @@ const styles = StyleSheet.create({
   },
   bannerBottomInfo: {
     position: "absolute",
-    bottom: 30,
-    left: 24,
+    bottom: 16,
+    left: 20,
   },
   uniTitle: {
-    fontSize: 28,
+    fontSize: 20,
     fontWeight: "900",
     color: "white",
-    marginBottom: 8,
+    marginBottom: 4,
   },
   locationRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 4,
   },
   locationText: {
-    fontSize: 16,
+    fontSize: 12,
     color: "white",
     fontWeight: "600",
     opacity: 0.9,
@@ -444,8 +447,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   tabItem: {
-    paddingHorizontal: 20,
-    paddingVertical: 18,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
     borderBottomWidth: 3,
     borderBottomColor: "transparent",
   },
@@ -453,7 +456,7 @@ const styles = StyleSheet.create({
     borderBottomColor: THEME.blue,
   },
   tabText: {
-    fontSize: 15,
+    fontSize: 13,
     fontWeight: "700",
     color: "#94A3B8",
   },
@@ -461,18 +464,18 @@ const styles = StyleSheet.create({
     color: THEME.blue,
   },
   mainContent: {
-    padding: 24,
+    padding: 16,
   },
   tabContent: {
     flex: 1,
   },
   estimateCard: {
     backgroundColor: "white",
-    borderRadius: 24,
-    padding: 24,
+    borderRadius: 20,
+    padding: 16,
     borderWidth: 1,
     borderColor: "#F1F5F9",
-    marginBottom: 24,
+    marginBottom: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.05,
@@ -487,10 +490,10 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   estimateValue: {
-    fontSize: 32,
+    fontSize: 24,
     fontWeight: "900",
     color: THEME.textDark,
-    marginBottom: 20,
+    marginBottom: 12,
   },
   costBar: {
     height: 10,
@@ -525,25 +528,25 @@ const styles = StyleSheet.create({
   },
   chancesCard: {
     backgroundColor: "white",
-    borderRadius: 24,
-    padding: 24,
+    borderRadius: 20,
+    padding: 16,
     borderWidth: 1,
     borderColor: "#F1F5F9",
   },
   chancesTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "800",
     color: THEME.textDark,
-    marginBottom: 24,
+    marginBottom: 12,
   },
   chancesVisual: {
     alignItems: "center",
     marginBottom: 24,
   },
   circularProgress: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     borderWidth: 4,
     borderColor: "#F1F5F9",
     justifyContent: "center",
@@ -551,16 +554,16 @@ const styles = StyleSheet.create({
   },
   circularFill: {
     position: "absolute",
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     borderWidth: 4,
     borderColor: "#EF4444",
     borderTopColor: "transparent",
     borderLeftColor: "transparent",
   },
   percentageText: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: "900",
     color: THEME.textDark,
   },
@@ -588,6 +591,14 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "800",
     color: THEME.blue,
+  },
+  circularInner: {
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
   },
   sectionHeader: {
     flexDirection: "row",

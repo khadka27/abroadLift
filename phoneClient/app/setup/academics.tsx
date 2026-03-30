@@ -16,6 +16,7 @@ import {
 } from "react-native";
 import { Stack, router } from "expo-router";
 import { Feather } from "@expo/vector-icons";
+import { useUser } from "../context/UserContext";
 
 const { width, height } = Dimensions.get("window");
 
@@ -29,8 +30,20 @@ const COLORS = {
 };
 
 export default function AcademicsSetup() {
-  const [recentField, setRecentField] = useState("");
-  const [cgpa, setCgpa] = useState("");
+  const { userData, setUserData } = useUser();
+  const [recentField, setRecentField] = useState(userData.recentAcademicField || "");
+  const [cgpa, setCgpa] = useState(userData.cgpa || "");
+
+  const handleContinue = () => {
+    setUserData(prev => ({
+      ...prev,
+      recentAcademicField: recentField,
+      cgpa: cgpa,
+    }));
+    router.push("/setup/english-test");
+  };
+
+  const isFormValid = recentField.trim().length > 0 && cgpa.trim().length > 0;
 
   return (
     <View style={styles.container}>
@@ -81,7 +94,7 @@ export default function AcademicsSetup() {
                     <Feather name="book-open" size={18} color={COLORS.textGray} style={styles.inputIcon} />
                     <TextInput
                       style={styles.textInput}
-                      placeholder=""
+                      placeholder="e.g. Science"
                       placeholderTextColor={COLORS.textGray}
                       value={recentField}
                       onChangeText={setRecentField}
@@ -96,7 +109,7 @@ export default function AcademicsSetup() {
                     <Feather name="trending-up" size={18} color={COLORS.textGray} style={styles.inputIcon} />
                     <TextInput
                       style={styles.textInput}
-                      placeholder=""
+                      placeholder="e.g. 3.8"
                       placeholderTextColor={COLORS.textGray}
                       value={cgpa}
                       onChangeText={setCgpa}
@@ -107,8 +120,13 @@ export default function AcademicsSetup() {
 
                 {/* Continue Button inside Form Flow */}
                 <TouchableOpacity
-                  style={[styles.continueButton, { marginTop: 40 }]}
-                  onPress={() => router.push("/setup/english-test")}
+                  style={[
+                    styles.continueButton, 
+                    { marginTop: 40 },
+                    !isFormValid && { opacity: 0.5 }
+                  ]}
+                  onPress={handleContinue}
+                  disabled={!isFormValid}
                 >
                   <Text style={styles.continueButtonText}>Continue</Text>
                 </TouchableOpacity>
@@ -134,7 +152,7 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
-    paddingTop: 80,
+    paddingTop: Platform.OS === 'android' ? 40 : 0,
   },
   header: {
     flexDirection: "row",

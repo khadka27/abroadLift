@@ -11,7 +11,7 @@ import {
   Platform,
 } from "react-native";
 import { router } from "expo-router";
-import { Feather, Ionicons } from "@expo/vector-icons";
+import { Feather, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useUser } from "../context/UserContext";
 
 const COLORS = {
@@ -63,18 +63,72 @@ export default function ProfileTab() {
           </View>
         </View>
 
-        {/* Menu Options */}
-        <View style={styles.menuContainer}>
-          <TouchableOpacity style={styles.menuItem}>
-            <View style={styles.menuItemLeft}>
-              <Text style={styles.menuItemText}>My Study Preferences</Text>
-              <Text style={styles.menuItemSubtext}>
-                {userData.flag} {userData.country} • {userData.studyLevel}
-              </Text>
-            </View>
-            <Feather name="chevron-right" size={20} color={COLORS.textDark} />
-          </TouchableOpacity>
+        {/* Preferences Section */}
+        <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>MY PREFERENCES</Text>
+        </View>
 
+        <View style={styles.preferencesContainer}>
+          <View style={styles.prefItem}>
+            <View style={styles.prefIconBox}>
+                <Ionicons name="location-outline" size={20} color={COLORS.primary} />
+            </View>
+            <View style={styles.prefTextContent}>
+                <Text style={styles.prefLabel}>Target Country</Text>
+                <Text style={styles.prefValue}>{userData.flag} {userData.country || "Not Set"}</Text>
+            </View>
+          </View>
+
+          <View style={styles.prefItem}>
+            <View style={styles.prefIconBox}>
+                <Ionicons name="school-outline" size={20} color={COLORS.primary} />
+            </View>
+            <View style={styles.prefTextContent}>
+                <Text style={styles.prefLabel}>Study Level</Text>
+                <Text style={styles.prefValue}>{userData.studyLevel || "Not Set"}</Text>
+            </View>
+          </View>
+
+          <View style={styles.prefItem}>
+            <View style={styles.prefIconBox}>
+                <Ionicons name="book-outline" size={20} color={COLORS.primary} />
+            </View>
+            <View style={styles.prefTextContent}>
+                <Text style={styles.prefLabel}>Field of Interest</Text>
+                <Text style={styles.prefValue}>{userData.fieldOfStudy || "Not Set"}</Text>
+            </View>
+          </View>
+
+          <View style={styles.prefItem}>
+            <View style={styles.prefIconBox}>
+                <MaterialCommunityIcons name="certificate-outline" size={20} color={COLORS.primary} />
+            </View>
+            <View style={styles.prefTextContent}>
+                <Text style={styles.prefLabel}>Academics</Text>
+                <Text style={styles.prefValue}>
+                    {userData.recentAcademicField ? `${userData.recentAcademicField} • ${userData.cgpa} CGPA` : "Not Set"}
+                </Text>
+            </View>
+          </View>
+
+          <View style={styles.prefItem}>
+            <View style={styles.prefIconBox}>
+                <Ionicons name="language-outline" size={20} color={COLORS.primary} />
+            </View>
+            <View style={styles.prefTextContent}>
+                <Text style={styles.prefLabel}>English Proficiency</Text>
+                <Text style={styles.prefValue}>
+                    {userData.testType === "Not Taken" 
+                        ? (userData.englishLevel || "Not Set")
+                        : (userData.score ? `${userData.testType}: ${userData.score}` : "Not Set")
+                    }
+                </Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Menu Options */}
+        <View style={[styles.menuContainer, { marginTop: 32 }]}>
           <TouchableOpacity style={styles.menuItem}>
             <Text style={styles.menuItemText}>Saved Universities</Text>
             <Feather name="chevron-right" size={20} color={COLORS.textDark} />
@@ -91,7 +145,7 @@ export default function ProfileTab() {
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.menuItem} onPress={() => router.push("/")}>
-            <Text style={[styles.menuItemText, { color: COLORS.textDark }]}>Log Out</Text>
+            <Text style={[styles.menuItemText, { color: COLORS.red }]}>Log Out</Text>
           </TouchableOpacity>
         </View>
 
@@ -138,9 +192,9 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   avatar: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     backgroundColor: "#F3F4F6",
     borderWidth: 2,
     borderColor: COLORS.border,
@@ -172,6 +226,52 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "bold",
   },
+  sectionHeader: {
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 12,
+    fontWeight: "800",
+    color: COLORS.textGray,
+    letterSpacing: 1.5,
+  },
+  preferencesContainer: {
+    backgroundColor: COLORS.bgSubtle,
+    borderRadius: 24,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    gap: 20,
+  },
+  prefItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
+  },
+  prefIconBox: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  prefTextContent: {
+    flex: 1,
+  },
+  prefLabel: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: COLORS.textGray,
+    marginBottom: 2,
+  },
+  prefValue: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: COLORS.textDark,
+  },
   menuContainer: {
     gap: 16,
   },
@@ -182,7 +282,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
     paddingHorizontal: 20,
     paddingVertical: 18,
-    borderRadius: 12,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: COLORS.border,
     shadowColor: "#000",
@@ -195,14 +295,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     color: COLORS.textDark,
-  },
-  menuItemLeft: {
-    flex: 1,
-  },
-  menuItemSubtext: {
-    fontSize: 13,
-    color: COLORS.textGray,
-    fontWeight: "500",
-    marginTop: 2,
   },
 });

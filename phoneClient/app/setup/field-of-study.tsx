@@ -46,13 +46,13 @@ const FIELDS = [
 
 export default function FieldOfStudySelection() {
   const { userData, setUserData } = useUser();
-  const [selectedField, setSelectedField] = useState<string>(
-    FIELDS.find(f => f.name === userData.fieldOfStudy)?.id || "engineering"
+  const [selectedField, setSelectedField] = useState<string | null>(
+    FIELDS.find(f => f.name === userData.fieldOfStudy)?.id || null
   );
   const [search, setSearch] = useState("");
 
   const anims = React.useRef(FIELDS.reduce((acc, field) => {
-    acc[field.id] = new Animated.Value(field.id === (FIELDS.find(f => f.name === userData.fieldOfStudy)?.id || "engineering") ? 1 : 0);
+    acc[field.id] = new Animated.Value(field.name === userData.fieldOfStudy ? 1 : 0);
     return acc;
   }, {} as Record<string, Animated.Value>)).current;
 
@@ -61,18 +61,25 @@ export default function FieldOfStudySelection() {
 
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     
-    Animated.parallel([
-      Animated.timing(anims[selectedField], {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }),
+    const animTasks = [
       Animated.timing(anims[id], {
         toValue: 1,
         duration: 300,
         useNativeDriver: true,
-      }),
-    ]).start();
+      })
+    ];
+
+    if (selectedField) {
+      animTasks.push(
+        Animated.timing(anims[selectedField], {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        })
+      );
+    }
+
+    Animated.parallel(animTasks).start();
 
     setSelectedField(id);
     setUserData(prev => ({ ...prev, fieldOfStudy: name }));
@@ -138,7 +145,7 @@ export default function FieldOfStudySelection() {
                     key={field.id}
                     activeOpacity={0.8}
                     style={[
-                      styles.fieldItem,
+                      styles.levelItem,
                       isSelected && styles.selectedItem,
                     ]}
                     onPress={() => handleSelect(field.id, field.name)}
@@ -166,7 +173,11 @@ export default function FieldOfStudySelection() {
           {/* Sticky Bottom Button */}
           <View style={styles.footer}>
             <TouchableOpacity
-              style={styles.continueButton}
+              style={[
+                styles.continueButton,
+                !selectedField && { opacity: 0.5 }
+              ]}
+              disabled={!selectedField}
               onPress={() => router.push("/setup/academics")}
             >
               <Text style={styles.continueButtonText}>Continue</Text>
@@ -190,7 +201,7 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
-    paddingTop: 80,
+    paddingTop: Platform.OS === 'android' ? 40 : 0,
   },
   header: {
     flexDirection: "row",
@@ -249,7 +260,7 @@ const styles = StyleSheet.create({
   list: {
     gap: 12,
   },
-  fieldItem: {
+  levelItem: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",

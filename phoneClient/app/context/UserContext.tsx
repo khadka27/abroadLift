@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type UserData = {
   name: string;
@@ -8,6 +9,9 @@ type UserData = {
   flag: string;
   studyLevel: string;
   fieldOfStudy: string;
+  recentAcademicField?: string;
+  cgpa?: string;
+  englishLevel?: string;
   score?: string;
   testType?: string;
   selectedUniversities: any[];
@@ -15,23 +19,60 @@ type UserData = {
 
 type UserContextType = {
   userData: UserData;
-  setUserData: React.Dispatch<React.SetStateAction<UserData>>;
+  setUserData: (data: UserData | ((prev: UserData) => UserData)) => void;
   selectUniversity: (uni: any) => void;
+  isLoading: boolean;
+};
+
+const DEFAULT_USER_DATA: UserData = {
+  name: "New Student",
+  username: "@student",
+  profileImage: null,
+  country: "",
+  flag: "",
+  studyLevel: "",
+  fieldOfStudy: "",
+  recentAcademicField: "",
+  cgpa: "",
+  englishLevel: "",
+  score: "",
+  testType: "",
+  selectedUniversities: [],
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
-  const [userData, setUserData] = useState<UserData>({
-    name: "Something Surname",
-    username: "@something123",
-    profileImage: null,
-    country: "UK",
-    flag: "🇬🇧",
-    studyLevel: "Master's Degree",
-    fieldOfStudy: "Computer Science",
-    selectedUniversities: [],
-  });
+  const [userData, _setUserData] = useState<UserData>(DEFAULT_USER_DATA);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load data from AsyncStorage on mount
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const jsonValue = await AsyncStorage.getItem('@user_data');
+        if (jsonValue != null) {
+          _setUserData(JSON.parse(jsonValue));
+        }
+      } catch (e) {
+        console.error("Error loading user data:", e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
+  // Wrapper for setUserData that also saves to AsyncStorage
+  const setUserData = async (data: UserData | ((prev: UserData) => UserData)) => {
+    try {
+      const newData = typeof data === 'function' ? data(userData) : data;
+      _setUserData(newData);
+      await AsyncStorage.setItem('@user_data', JSON.stringify(newData));
+    } catch (e) {
+      console.error("Error saving user data:", e);
+    }
+  };
 
   const selectUniversity = (uni: any) => {
     setUserData(prev => ({
@@ -41,7 +82,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <UserContext.Provider value={{ userData, setUserData, selectUniversity }}>
+    <UserContext.Provider value={{ userData, setUserData, selectUniversity, isLoading }}>
       {children}
     </UserContext.Provider>
   );

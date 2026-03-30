@@ -124,6 +124,7 @@ export default function DashboardScreen() {
  
                <TouchableOpacity 
                  style={[styles.statButton, { backgroundColor: THEME.orange }]}
+                 onPress={() => router.push("/university/admission-chance")}
                >
                  <Text style={styles.statButtonText}>Set Goals</Text>
                </TouchableOpacity>

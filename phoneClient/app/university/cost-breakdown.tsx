@@ -17,8 +17,8 @@ import { Feather, Ionicons, MaterialIcons, MaterialCommunityIcons } from "@expo/
 const { width } = Dimensions.get("window");
 
 const THEME = {
-  primary: "#1A8A99",
-  secondary: "#004be3",
+  primary: "#3B82F6", // Blue from screenshot
+  secondary: "#10B981", // Green
   textDark: "#111827",
   textGray: "#64748B",
   bgLight: "#F8FAFF",
@@ -29,29 +29,34 @@ const THEME = {
   divider: "#F1F5F9",
 };
 
-const SectionHeader = ({ title, icon, color, expanded = true }: { title: string; icon: any; color: string; expanded?: boolean }) => (
+const SectionHeader = ({ title, icon, color, expanded = false }: { title: string; icon: any; color: string; expanded?: boolean }) => (
   <View style={styles.sectionHeader}>
     <View style={styles.sectionTitleRow}>
-      <View style={[styles.sectionIconBox, { backgroundColor: color + "15" }]}>
-        <MaterialCommunityIcons name={icon} size={20} color={color} />
+      <View style={[styles.sectionIconBox, { backgroundColor: color + "20" }]}>
+        <MaterialCommunityIcons name={icon} size={18} color={color} />
       </View>
       <Text style={styles.sectionTitleText}>{title}</Text>
     </View>
-    <Feather name={expanded ? "chevron-up" : "chevron-down"} size={20} color={THEME.textGray} />
+    <Feather name={expanded ? "chevron-up" : "chevron-down"} size={20} color="#CBD5E1" />
   </View>
 );
 
-const CostItem = ({ label, value, subValue }: { label: string; value: string; subValue?: string }) => (
-  <View style={styles.costItemRow}>
-    <Text style={styles.costLabel}>{label}</Text>
-    <View style={styles.costValueWrapper}>
-      {subValue && <Text style={styles.costSubValue}>{subValue}</Text>}
-      <Text style={styles.costValueText}>{value}</Text>
+const CostItem = ({ label, value, subValue, footerText }: { label: string; value: string; subValue?: string; footerText?: string }) => (
+  <View style={styles.costItemWrapper}>
+    <View style={styles.costItemRow}>
+      <Text style={styles.costLabel}>{label}</Text>
+      <View style={styles.costValueWrapper}>
+        {subValue && <Text style={styles.costSubLabel}>{subValue}</Text>}
+        <Text style={styles.costValueText}>{value}</Text>
+      </View>
     </View>
+    {footerText && <Text style={styles.itemFooterText}>{footerText}</Text>}
   </View>
 );
 
 export default function CostBreakdownScreen() {
+  const [activeTab, setActiveTab] = React.useState("First year");
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" translucent />
@@ -66,7 +71,10 @@ export default function CostBreakdownScreen() {
           style={styles.profileButton}
           onPress={() => router.push("/(tabs)/profile")}
         >
-          <Ionicons name="person-circle" size={44} color="#E2E8F0" />
+          <Image 
+            source={{ uri: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=100" }} 
+            style={styles.profileImage} 
+          />
         </TouchableOpacity>
       </View>
 
@@ -84,26 +92,80 @@ export default function CostBreakdownScreen() {
               </View>
             </View>
             <View style={styles.chartContainer}>
-              {/* Mock Doughnut Chart using nested Circles */}
-              <View style={[styles.chartBase, { borderColor: '#E2E8F0' }]}>
-                <View style={[styles.chartSegment, { borderColor: '#10B981', borderLeftColor: 'transparent', transform: [{ rotate: '45deg' }] }]} />
-                <View style={[styles.chartSegment, { borderColor: '#F59E0B', borderBottomColor: 'transparent', transform: [{ rotate: '-45deg' }] }]} />
-              </View>
+               <View style={styles.donutBase}>
+                  <View style={[styles.donutSegment, { borderColor: '#3B82F6', borderTopColor: 'transparent', borderLeftColor: 'transparent', transform: [{ rotate: '45deg' }] }]} />
+                  <View style={[styles.donutSegment, { borderColor: '#10B981', borderBottomColor: 'transparent', borderRightColor: 'transparent', transform: [{ rotate: '-45deg' }] }]} />
+                  <View style={[styles.donutSegment, { borderColor: '#F97316', borderTopColor: 'transparent', borderRightColor: 'transparent', width: 66, height: 66, top: 2, left: 2, transform: [{ rotate: '120deg' }] }]} />
+               </View>
             </View>
           </View>
           <View style={styles.summaryDivider} />
           <View style={styles.summaryFooter}>
-            <Ionicons name="information-circle-outline" size={16} color={THEME.textGray} />
+            <Ionicons name="information-circle-outline" size={16} color="#64748B" />
             <Text style={styles.summaryFooterText}>Cost based on country, lifestyle, university.</Text>
           </View>
+        </View>
+
+        {/* Category Tabs */}
+        <View style={styles.tabsContainer}>
+          {["First year", "Year on year", "Month on month"].map((tab) => (
+            <TouchableOpacity 
+              key={tab} 
+              onPress={() => setActiveTab(tab)}
+              style={[styles.tabItem, activeTab === tab && styles.activeTabItem]}
+            >
+              <Text style={[styles.tabText, activeTab === tab && styles.activeTabText]}>{tab}</Text>
+            </TouchableOpacity>
+          ))}
         </View>
 
         {/* Breakdown Sections */}
         <View style={styles.breakdownContainer}>
 
+          {/* Year Breakdown (Tuition/Education) */}
+          <View style={styles.sectionBox}>
+            <SectionHeader title="Year Breakdown" icon="wallet-outline" color="#A3E635" />
+            <View style={styles.sectionBody}>
+              <CostItem label="Year 1" value="NPR 30 Lakhs" />
+              <CostItem label="Year 2" value="NPR 25 Lakhs" />
+              <CostItem label="Year 3" value="NPR 20 Lakhs" />
+              <Text style={styles.footerInfoText}>Tuition may reduce after first year</Text>
+            </View>
+          </View>
+
+          <TouchableOpacity style={styles.primaryActionButton}>
+             <Text style={styles.primaryActionText}>View All Study Cost</Text>
+          </TouchableOpacity>
+
+          {/* Year Breakdown (Living) */}
+          <View style={styles.sectionBox}>
+            <SectionHeader title="Year Breakdown" icon="information-outline" color="#A3E635" />
+            <View style={styles.sectionBody}>
+              <CostItem label="Rent" value="15,000" />
+              <CostItem label="Food" value="10,000" />
+              <CostItem label="Transport" value="3,000" />
+              <CostItem label="Other" value="5,000" />
+              <Text style={styles.footerInfoText}>Part time Incomes (Optional)</Text>
+            </View>
+          </View>
+
+          {/* Total Monthly Cost */}
+          <View style={styles.sectionBox}>
+            <SectionHeader title="Total Monthly Cost" icon="information-outline" color="#A3E635" />
+            <View style={styles.sectionBody}>
+              <View style={styles.compactMonthlyRow}>
+                 <Text style={styles.monthlyValueText}>NPR 33,000 / month - NPR 3.9 Lakhs / year</Text>
+              </View>
+            </View>
+          </View>
+
+          <TouchableOpacity style={styles.primaryActionButton}>
+             <Text style={styles.primaryActionText}>Save Plan</Text>
+          </TouchableOpacity>
+
           {/* Pre-application Cost */}
           <View style={styles.sectionBox}>
-            <SectionHeader title="Pre-application Cost" icon="currency-usd" color={THEME.green} />
+            <SectionHeader title="Pre-application Cost" icon="information-outline" color="#A3E635" />
             <View style={styles.sectionBody}>
               <CostItem label="Consultancy Fee" value="NPR 0 - 50,000" />
               <CostItem label="IELTS Test" value="NPR 27,000 - 30,000" />
@@ -113,19 +175,19 @@ export default function CostBreakdownScreen() {
             </View>
           </View>
 
-          {/* Tuition Fees */}
+          {/* Tuition Fees (Regional) */}
           <View style={styles.sectionBox}>
-            <SectionHeader title="Tuition Fees" icon="school-outline" color={THEME.orange} />
+            <SectionHeader title="Tuition Fees" icon="school-outline" color="#FB923C" />
             <View style={styles.sectionBody}>
-              <CostItem label="USA/UK" value="NPR 17-44 Lakhs" subValue="per year " />
-              <CostItem label="Canada/Australia" value="NPR 17-44 Lakhs" subValue="per year " />
-              <CostItem label="Germany/Europe" value="NPR 17-44 Lakhs" subValue="per year " />
+              <CostItem label="USA/UK" value="NPR 17-44 Lakhs" subValue="per year" />
+              <CostItem label="Canada/Australia" value="NPR 17-44 Lakhs" subValue="per year" />
+              <CostItem label="Germany/Europe" value="NPR 17-44 Lakhs" subValue="per year" />
             </View>
           </View>
 
           {/* Visa & Government Costs */}
           <View style={styles.sectionBox}>
-            <SectionHeader title="Visa & Government Costs" icon="card-account-details-outline" color={THEME.blue} />
+            <SectionHeader title="Visa & Government Costs" icon="card-account-details-outline" color="#60A5FA" />
             <View style={styles.sectionBody}>
               <CostItem label="Visa Fee" value="NPR 1.5-5 Lakhs" subValue="Insurance - " />
               <CostItem label="Biometrics" value="" />
@@ -134,7 +196,7 @@ export default function CostBreakdownScreen() {
 
           {/* Travel & Setup */}
           <View style={styles.sectionBox}>
-            <SectionHeader title="Travel & Setup" icon="airplane-takeoff" color="#A855F7" />
+            <SectionHeader title="Travel & Setup" icon="airplane-takeoff" color="#E879F9" />
             <View style={styles.sectionBody}>
               <CostItem label="Flight Ticket" value="NPR 47,000 - 2 Lakhs" />
             </View>
@@ -188,38 +250,43 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   summaryCard: {
-    backgroundColor: "#FDF9F3", // Warm cream
-    borderRadius: 32,
-    padding: 24,
-    marginBottom: 24,
+    backgroundColor: "#FEF9F2", // Warm cream from screenshot
+    borderRadius: 24,
+    padding: 20,
+    marginBottom: 20,
     borderWidth: 1,
-    borderColor: "#FBEBD6",
+    borderColor: "#FDEED7",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.03,
+    shadowRadius: 10,
+    elevation: 2,
   },
   summaryContent: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 16,
   },
   summaryLeft: {
     flex: 1,
   },
   summaryTitle: {
-    fontSize: 15,
+    fontSize: 13,
     fontWeight: "700",
-    color: THEME.textDark,
-    marginBottom: 12,
+    color: "#64748B",
+    marginBottom: 8,
   },
   summaryValue: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: "900",
     color: THEME.textDark,
-    marginBottom: 12,
+    marginBottom: 10,
   },
   averageBadge: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FBEBD6",
+    backgroundColor: "#FCE8CC",
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
@@ -243,26 +310,27 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  chartBase: {
+  donutBase: {
     width: 70,
     height: 70,
     borderRadius: 35,
-    borderWidth: 10,
+    borderWidth: 12,
+    borderColor: "#E2E8F0",
     position: 'relative',
   },
-  chartSegment: {
+  donutSegment: {
     position: 'absolute',
-    top: -10,
-    left: -10,
+    top: -12,
+    left: -12,
     width: 70,
     height: 70,
     borderRadius: 35,
-    borderWidth: 10,
+    borderWidth: 12,
   },
   summaryDivider: {
     height: 1,
-    backgroundColor: "rgba(0,0,0,0.05)",
-    marginBottom: 16,
+    backgroundColor: "#FDEED7",
+    marginBottom: 12,
   },
   summaryFooter: {
     flexDirection: "row",
@@ -274,20 +342,41 @@ const styles = StyleSheet.create({
     color: THEME.textGray,
     fontWeight: "500",
   },
+  tabsContainer: {
+    flexDirection: "row",
+    backgroundColor: "transparent",
+    borderRadius: 25,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    padding: 4,
+    marginBottom: 24,
+  },
+  tabItem: {
+    flex: 1,
+    paddingVertical: 10,
+    alignItems: "center",
+    borderRadius: 20,
+  },
+  activeTabItem: {
+    backgroundColor: THEME.primary,
+  },
+  tabText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: THEME.textGray,
+  },
+  activeTabText: {
+    color: THEME.white,
+  },
   breakdownContainer: {
     gap: 20,
   },
   sectionBox: {
     borderRadius: 24,
-    borderWidth: 1,
-    borderColor: THEME.divider,
+    borderWidth: 1.5,
+    borderColor: "#F1F5F9",
     backgroundColor: THEME.white,
     overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 2,
   },
   sectionHeader: {
     flexDirection: "row",
@@ -302,48 +391,91 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   sectionIconBox: {
-    width: 36,
-    height: 36,
-    borderRadius: 12,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     justifyContent: "center",
     alignItems: "center",
   },
   sectionTitleText: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "800",
     color: THEME.textDark,
   },
   sectionBody: {
     borderTopWidth: 1,
-    borderTopColor: THEME.divider,
-    paddingVertical: 8,
+    borderTopColor: "#F1F5F9",
+    paddingBottom: 12,
+  },
+  costItemWrapper: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F1F5F9",
   },
   costItemRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: THEME.divider,
   },
   costLabel: {
-    fontSize: 14,
-    color: "#475569",
+    fontSize: 13,
+    color: "#64748B",
     fontWeight: "600",
   },
   costValueWrapper: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 4,
   },
-  costSubValue: {
-    fontSize: 11,
-    color: THEME.textGray,
+  costSubLabel: {
+    fontSize: 10,
+    color: "#94A3B8",
     fontWeight: "500",
   },
   costValueText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "800",
     color: THEME.textDark,
+  },
+  itemFooterText: {
+    fontSize: 12,
+    color: THEME.textGray,
+    marginTop: 4,
+  },
+  footerInfoText: {
+    fontSize: 13,
+    color: THEME.textDark,
+    fontWeight: "600",
+    textAlign: "center",
+    paddingVertical: 12,
+  },
+  compactMonthlyRow: {
+    padding: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  monthlyValueText: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: THEME.textDark,
+  },
+  primaryActionButton: {
+    backgroundColor: THEME.primary,
+    height: 52,
+    borderRadius: 26,
+    justifyContent: "center",
+    alignItems: "center",
+    marginVertical: 4,
+    shadowColor: THEME.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  primaryActionText: {
+    color: THEME.white,
+    fontSize: 15,
+    fontWeight: "800",
   },
 });
