@@ -20,7 +20,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 const { width, height } = Dimensions.get("window");
 
 const THEME = {
-  primary: "#33BFFF", 
+  primary: "#33BFFF",
   secondary: "#004be3",
   textDark: "#111827",
   textGray: "#6B7280",
@@ -80,11 +80,11 @@ const ProgressTracker = ({ percentage }: { percentage: number }) => {
   return (
     <View style={styles.progressContainer}>
       <View style={styles.progressBarBackground}>
-        <View 
+        <View
           style={[
-            styles.progressBarFill, 
+            styles.progressBarFill,
             { width: `${percentage}%`, backgroundColor: getColor(percentage) }
-          ]} 
+          ]}
         />
       </View>
       <Text style={[styles.progressText, { color: getColor(percentage) }]}>{percentage}%</Text>
@@ -98,7 +98,7 @@ export default function UniversitySelectionSetup() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredUniversities = useMemo(() => {
-    return MATCHED_UNIVERSITIES.filter(uni => 
+    return MATCHED_UNIVERSITIES.filter(uni =>
       uni.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       uni.course.toLowerCase().includes(searchQuery.toLowerCase()) ||
       uni.location.toLowerCase().includes(searchQuery.toLowerCase())
@@ -114,7 +114,7 @@ export default function UniversitySelectionSetup() {
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
       <Stack.Screen options={{ headerShown: false }} />
-      
+
       <View style={[styles.header, { paddingTop: Platform.OS === 'android' ? (insets.top || 30) + 10 : insets.top + 10 }]}>
         {/* Header Top Row */}
         <View style={styles.topRow}>
@@ -128,12 +128,12 @@ export default function UniversitySelectionSetup() {
         {/* Progress Dots */}
         <View style={styles.trackerContainer}>
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <View 
-              key={i} 
+            <View
+              key={i}
               style={[
-                styles.trackerSegment, 
+                styles.trackerSegment,
                 i === 6 ? styles.trackerSegmentActive : styles.trackerSegmentInactive
-              ]} 
+              ]}
             />
           ))}
         </View>
@@ -145,7 +145,7 @@ export default function UniversitySelectionSetup() {
             Study in <Text style={styles.studyPlanCountry}>{userData.country}</Text> • {userData.studyLevel}
           </Text>
         </View>
-        
+
         <Text style={styles.title}>Recommended For You</Text>
         <Text style={styles.subtitle}>
           Compare costs and admission chances based on your profile
@@ -165,8 +165,8 @@ export default function UniversitySelectionSetup() {
         </View>
       </View>
 
-      <ScrollView 
-        showsVerticalScrollIndicator={false} 
+      <ScrollView
+        showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.scrollContent,
           { paddingBottom: 40 + insets.bottom }
@@ -174,13 +174,13 @@ export default function UniversitySelectionSetup() {
       >
         {filteredUniversities.length > 0 ? (
           filteredUniversities.map((uni) => (
-            <View 
-              key={uni.id} 
+            <View
+              key={uni.id}
               style={styles.card}
             >
               {/* Top part is clickable for selection */}
-              <TouchableOpacity 
-                activeOpacity={0.9} 
+              <TouchableOpacity
+                activeOpacity={0.9}
                 onPress={() => handleSelect(uni)}
                 style={{ flex: 1 }}
               >
@@ -250,14 +250,14 @@ export default function UniversitySelectionSetup() {
               {/* Action Buttons are separate from the main card click area */}
               <View style={[styles.cardInfo, { paddingTop: 0 }]}>
                 <View style={styles.actionButtons}>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={styles.detailsButton}
                     onPress={() => router.push(`/university/${uni.id}`)}
                   >
                     <Text style={styles.detailsButtonText}>View Details</Text>
                   </TouchableOpacity>
 
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={styles.selectButton}
                     onPress={() => handleSelect(uni)}
                   >

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   StyleSheet,
   View,
@@ -11,18 +11,19 @@ import {
   StatusBar,
   TextInput,
   Platform,
+  Modal,
 } from "react-native";
-import { router } from "expo-router";
+import { router, Stack } from "expo-router";
 import { Feather, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 
 const THEME = {
-  primary: "#1A8A99",
+  primary: "#33BFFF",
   secondary: "#004be3",
   textDark: "#111827",
-  textGray: "#6B7280",
+  textGray: "#64748B",
   bgLight: "#F8FAFF",
   orange: "#F59E0B",
   green: "#10B981",
@@ -92,9 +93,15 @@ const ProgressTracker = ({ percentage }: { percentage: number }) => {
 };
 
 export default function UniversitySelection() {
+  const [filterVisible, setFilterVisible] = useState(false);
+  const [admissionChance, setAdmissionChance] = useState("High");
+  const [matchRating, setMatchRating] = useState("4.5");
+  const [fee, setFee] = useState(60);
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
+      <Stack.Screen options={{ headerShown: false }} />
       
       {/* Search and Header Section */}
       <View style={styles.header}>
@@ -117,7 +124,10 @@ export default function UniversitySelection() {
             <MaterialIcons name="swap-vert" size={20} color={THEME.textDark} />
             <Text style={styles.actionButtonText}>Sort</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity 
+            style={styles.actionButton} 
+            onPress={() => setFilterVisible(true)}
+          >
             <Ionicons name="options-outline" size={20} color={THEME.textDark} />
             <Text style={styles.actionButtonText}>Filters</Text>
           </TouchableOpacity>
@@ -135,7 +145,6 @@ export default function UniversitySelection() {
             style={styles.card}
             onPress={() => router.push(`/university/${uni.id}`)}
           >
-            {/* Banner Image */}
             <View style={styles.imageContainer}>
               <Image source={{ uri: uni.image }} style={styles.cardImage} />
               <View style={styles.rankBadge}>
@@ -146,7 +155,6 @@ export default function UniversitySelection() {
               </View>
             </View>
 
-            {/* University Info */}
             <View style={styles.cardInfo}>
               <View style={styles.locationRow}>
                 <View style={styles.locationLeft}>
@@ -155,7 +163,7 @@ export default function UniversitySelection() {
                 </View>
                 {uni.recommended && (
                   <View style={styles.recommendedBadge}>
-                    <Text style={styles.recommendedText}>Recommended</Text>
+                    <Text style={styles.recommendedText}>Matched</Text>
                   </View>
                 )}
               </View>
@@ -191,8 +199,8 @@ export default function UniversitySelection() {
 
               <View style={styles.acceptanceRow}>
                 <View style={styles.acceptanceLabelBox}>
-                    <Ionicons name="checkmark-done" size={14} color="#64748B" />
-                    <Text style={styles.acceptanceLabel}>Acceptance Rate</Text>
+                    <Ionicons name="stats-chart" size={14} color="#64748B" />
+                    <Text style={styles.acceptanceLabel}>Admission Chance</Text>
                 </View>
                 <ProgressTracker percentage={uni.acceptanceRate} />
               </View>
@@ -208,6 +216,149 @@ export default function UniversitySelection() {
           </TouchableOpacity>
         ))}
       </ScrollView>
+
+      {/* Filter Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={filterVisible}
+        onRequestClose={() => setFilterVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <TouchableOpacity 
+            style={styles.modalDismiss} 
+            activeOpacity={1} 
+            onPress={() => setFilterVisible(false)} 
+          />
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Filters</Text>
+              <TouchableOpacity onPress={() => setFilterVisible(false)}>
+                <Ionicons name="close" size={24} color={THEME.textGray} />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
+              
+              {/* Admission Chances */}
+              <View style={styles.filterSection}>
+                <Text style={styles.filterLabel}>Admission Chances</Text>
+                <View style={styles.chipRow}>
+                  {["High", "Moderate", "Low"].map((level) => (
+                    <TouchableOpacity 
+                      key={level} 
+                      style={[
+                        styles.filterChip, 
+                        admissionChance === level && styles.activeChip,
+                        level === "High" && admissionChance === level && { backgroundColor: "#DCFCE7", borderColor: THEME.green }
+                      ]}
+                      onPress={() => setAdmissionChance(level)}
+                    >
+                      <Text style={[
+                        styles.chipText, 
+                        admissionChance === level && styles.activeChipText,
+                        level === "High" && admissionChance === level && { color: THEME.green }
+                      ]}>{level}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+
+              {/* Match Rating */}
+              <View style={styles.filterSection}>
+                <Text style={styles.filterLabel}>Match Rating</Text>
+                {[
+                  { id: "4.5", label: "4.5 & above", stars: 4 },
+                  { id: "4.0", label: "4.0 - 4.5", stars: 4 },
+                  { id: "3.5", label: "3.5 - 4.0", stars: 3 },
+                ].map((item) => (
+                  <TouchableOpacity 
+                    key={item.id} 
+                    style={[styles.ratingRow, matchRating === item.id && styles.activeRatingRow]}
+                    onPress={() => setMatchRating(item.id)}
+                  >
+                    <View style={styles.ratingStars}>
+                      {[1, 2, 3, 4, 5].map((s) => (
+                        <Ionicons 
+                          key={s} 
+                          name={s <= item.stars ? "star" : "star-outline"} 
+                          size={16} 
+                          color={s <= item.stars ? "#FBBF24" : "#E2E8F0"} 
+                          style={{ marginRight: 2 }}
+                        />
+                      ))}
+                      <Text style={[styles.ratingText, matchRating === item.id && styles.activeRatingText]}>{item.label}</Text>
+                    </View>
+                    <Ionicons 
+                      name={matchRating === item.id ? "checkmark-circle" : "ellipse-outline"} 
+                      size={24} 
+                      color={matchRating === item.id ? "#6366F1" : "#E2E8F0"} 
+                    />
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              {/* Estimated Fee */}
+              <View style={styles.filterSection}>
+                <View style={styles.feeHeader}>
+                  <Text style={styles.filterLabel}>Estimated Fee / yr</Text>
+                  <Text style={styles.feeValue}>$60k</Text>
+                </View>
+                <View style={styles.sliderMock}>
+                  <View style={styles.sliderTrack} />
+                  <View style={[styles.sliderFill, { width: '60%' }]} />
+                  <View style={[styles.sliderThumb, { left: '60%' }]} />
+                </View>
+                <View style={styles.feeRange}>
+                  <Text style={styles.rangeText}>$20k</Text>
+                  <Text style={styles.rangeText}>$100k+</Text>
+                </View>
+              </View>
+
+              {/* Country Dropdown */}
+              <View style={styles.filterSection}>
+                <Text style={styles.filterLabel}>Country</Text>
+                <TouchableOpacity style={styles.dropdown}>
+                  <Text style={styles.dropdownText}>All Countries</Text>
+                  <Feather name="chevron-down" size={20} color={THEME.textGray} />
+                </TouchableOpacity>
+              </View>
+
+              {/* City Dropdown */}
+              <View style={styles.filterSection}>
+                <Text style={styles.filterLabel}>City</Text>
+                <TouchableOpacity style={styles.dropdown}>
+                  <Text style={styles.dropdownText}>Any City</Text>
+                  <Feather name="chevron-down" size={20} color={THEME.textGray} />
+                </TouchableOpacity>
+              </View>
+
+              {/* Locality Input */}
+              <View style={[styles.filterSection, { borderBottomWidth: 0 }]}>
+                <Text style={styles.filterLabel}>Locality</Text>
+                <View style={styles.textInputWrap}>
+                  <TextInput 
+                    placeholder="e.g. Urban, Suburban..." 
+                    style={styles.localityInput}
+                    placeholderTextColor="#94A3B8"
+                  />
+                </View>
+              </View>
+
+            </ScrollView>
+
+            <View style={styles.modalFooter}>
+              <TouchableOpacity style={styles.resetBtn} onPress={() => setFilterVisible(false)}>
+                <Text style={styles.resetBtnText}>Reset</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.applyBtn} onPress={() => setFilterVisible(false)}>
+                <Text style={styles.applyBtnText}>Apply Filters</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
     </SafeAreaView>
   );
 }
@@ -219,17 +370,7 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'ios' ? 10 : 20,
     backgroundColor: THEME.white,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#F1F5F9",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 20,
   },
   title: {
     fontSize: 26,
@@ -237,7 +378,7 @@ const styles = StyleSheet.create({
     color: THEME.textDark,
     lineHeight: 32,
     marginBottom: 8,
-    marginTop: 30,
+    marginTop: 20,
     letterSpacing: -0.5,
   },
   subtitle: {
@@ -355,7 +496,7 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
   },
   recommendedBadge: {
-    backgroundColor: "#FFF3E0",
+    backgroundColor: "rgba(51, 191, 255, 0.1)",
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
@@ -363,7 +504,7 @@ const styles = StyleSheet.create({
   recommendedText: {
     fontSize: 11,
     fontWeight: "800",
-    color: "#F97316",
+    color: THEME.primary,
   },
   nameRow: {
     flexDirection: "row",
@@ -463,14 +604,14 @@ const styles = StyleSheet.create({
     textAlign: "right",
   },
   selectButton: {
-    backgroundColor: "#004be3", // Standard Academic Blue from Design MD
+    backgroundColor: THEME.secondary,
     height: 60,
     borderRadius: 20,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 10,
-    shadowColor: "#004be3",
+    shadowColor: THEME.secondary,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.25,
     shadowRadius: 12,
@@ -480,5 +621,230 @@ const styles = StyleSheet.create({
     color: THEME.white,
     fontSize: 16,
     fontWeight: "800",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
+    justifyContent: "flex-end",
+  },
+  modalDismiss: {
+    flex: 1,
+  },
+  modalContent: {
+    backgroundColor: THEME.white,
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    maxHeight: height * 0.85,
+    paddingTop: 20,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 24,
+    paddingBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F1F5F9",
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "900",
+    color: THEME.textDark,
+  },
+  filterScroll: {
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    paddingBottom: 100,
+  },
+  filterSection: {
+    marginBottom: 28,
+    paddingBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F1F5F9",
+  },
+  filterLabel: {
+    fontSize: 14,
+    fontWeight: "800",
+    color: THEME.textDark,
+    marginBottom: 16,
+  },
+  chipRow: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  filterChip: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: "#F1F5F9",
+    backgroundColor: "transparent",
+  },
+  activeChip: {
+    borderColor: "#6366F1",
+    backgroundColor: "transparent",
+  },
+  chipText: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: THEME.textGray,
+  },
+  activeChipText: {
+    color: "#6366F1",
+  },
+  ratingRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "#F8FAFC",
+    padding: 16,
+    borderRadius: 16,
+    marginBottom: 12,
+    borderWidth: 1.5,
+    borderColor: "transparent",
+  },
+  activeRatingRow: {
+    backgroundColor: "rgba(99, 102, 241, 0.05)",
+    borderColor: "rgba(99, 102, 241, 0.2)",
+  },
+  ratingStars: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  ratingText: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#6366F1",
+    marginLeft: 10,
+  },
+  activeRatingText: {
+    color: "#4F46E5",
+  },
+  feeHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "baseline",
+    marginBottom: 20,
+  },
+  feeValue: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: "#6366F1",
+  },
+  sliderMock: {
+    height: 30,
+    justifyContent: "center",
+    position: "relative",
+    marginBottom: 12,
+  },
+  sliderTrack: {
+    height: 6,
+    backgroundColor: "#E2E8F0",
+    borderRadius: 3,
+  },
+  sliderFill: {
+    position: "absolute",
+    height: 6,
+    backgroundColor: "#6366F1",
+    borderRadius: 3,
+    top: 12,
+  },
+  sliderThumb: {
+    position: "absolute",
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: "#6366F1",
+    borderWidth: 4,
+    borderColor: THEME.white,
+    top: 3,
+    marginLeft: -12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  feeRange: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  rangeText: {
+    fontSize: 12,
+    color: "#94A3B8",
+    fontWeight: "600",
+  },
+  dropdown: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "#F8FAFC",
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    borderRadius: 16,
+    height: 56,
+    paddingHorizontal: 16,
+  },
+  dropdownText: {
+    fontSize: 14,
+    color: THEME.textGray,
+    fontWeight: "600",
+  },
+  textInputWrap: {
+    backgroundColor: "#F8FAFC",
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    borderRadius: 16,
+    height: 56,
+    paddingHorizontal: 16,
+    justifyContent: "center",
+  },
+  localityInput: {
+    fontSize: 14,
+    color: THEME.textDark,
+    fontWeight: "600",
+  },
+  modalFooter: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    padding: 24,
+    backgroundColor: THEME.white,
+    borderTopWidth: 1,
+    borderTopColor: "#F1F5F9",
+    gap: 12,
+  },
+  resetBtn: {
+    flex: 1,
+    height: 54,
+    backgroundColor: "#F8FAFC",
+    borderRadius: 16,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  resetBtnText: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: THEME.textDark,
+  },
+  applyBtn: {
+    flex: 2,
+    height: 54,
+    backgroundColor: "#3B82F6",
+    borderRadius: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#3B82F6",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  applyBtnText: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: THEME.white,
   },
 });
