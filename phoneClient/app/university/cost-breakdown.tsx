@@ -55,14 +55,14 @@ export default function CostBreakdownScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" translucent />
-      
+
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Feather name="arrow-left" size={28} color={THEME.textDark} />
+          <Feather name="chevron-left" size={28} color={THEME.textDark} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Cost Breakdown</Text>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.profileButton}
           onPress={() => router.push("/(tabs)/profile")}
         >
@@ -71,7 +71,7 @@ export default function CostBreakdownScreen() {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        
+
         {/* Summary Card */}
         <View style={styles.summaryCard}>
           <View style={styles.summaryContent}>
@@ -100,7 +100,7 @@ export default function CostBreakdownScreen() {
 
         {/* Breakdown Sections */}
         <View style={styles.breakdownContainer}>
-          
+
           {/* Pre-application Cost */}
           <View style={styles.sectionBox}>
             <SectionHeader title="Pre-application Cost" icon="currency-usd" color={THEME.green} />
@@ -163,6 +163,8 @@ const styles = StyleSheet.create({
   backButton: {
     width: 44,
     height: 44,
+    borderRadius: 22,
+    backgroundColor: THEME.white,
     justifyContent: "center",
     alignItems: "flex-start",
   },

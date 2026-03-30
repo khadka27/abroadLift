@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: 20,
     backgroundColor: THEME.white,
-    paddingTop: 10,
+    paddingTop: 40,
   },
   topRow: {
     flexDirection: "row",

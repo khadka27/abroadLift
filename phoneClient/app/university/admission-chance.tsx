@@ -61,14 +61,14 @@ export default function AdmissionChanceScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" translucent />
-      
+
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Feather name="arrow-left" size={28} color={THEME.textDark} />
+          <Feather name="chevron-left" size={28} color={THEME.textDark} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Admission Chance</Text>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.profileButton}
           onPress={() => router.push("/(tabs)/profile")}
         >
@@ -77,7 +77,7 @@ export default function AdmissionChanceScreen() {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        
+
         {/* Summary Card */}
         <View style={styles.summaryCard}>
           <View style={styles.summaryContent}>
@@ -90,7 +90,7 @@ export default function AdmissionChanceScreen() {
               </View>
             </View>
             <View style={styles.chartContainer}>
-               <Ionicons name="pie-chart" size={60} color={THEME.primary} />
+              <Ionicons name="pie-chart" size={60} color={THEME.primary} />
             </View>
           </View>
           <View style={styles.summaryDivider} />
@@ -102,110 +102,110 @@ export default function AdmissionChanceScreen() {
 
         {/* Profile Analysis */}
         <View style={styles.sectionBox}>
-           <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitleText}>Your Profile Analysis</Text>
-              <Feather name="chevron-up" size={20} color={THEME.textGray} />
-           </View>
-           <View style={styles.sectionBody}>
-              <AnalysisItem label="CGPA" value="Strong (3.5/4.0)" status="success" />
-              <AnalysisItem label="IELTS" value="Need improvement (6.0)" status="warning" />
-              <AnalysisItem label="Course Competitiveness" value="" status="success" />
-           </View>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitleText}>Your Profile Analysis</Text>
+            <Feather name="chevron-up" size={20} color={THEME.textGray} />
+          </View>
+          <View style={styles.sectionBody}>
+            <AnalysisItem label="CGPA" value="Strong (3.5/4.0)" status="success" />
+            <AnalysisItem label="IELTS" value="Need improvement (6.0)" status="warning" />
+            <AnalysisItem label="Course Competitiveness" value="" status="success" />
+          </View>
         </View>
 
         {/* Key Admission Factors */}
         <View style={styles.sectionBox}>
-           <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitleText}>Key Admission Factors</Text>
-              <Feather name="chevron-down" size={20} color={THEME.textGray} />
-           </View>
-           <View style={styles.sectionBody}>
-              <FactorItem label="CGPA" icon="star" iconType="feather" />
-              <FactorItem label="IELTS Score" icon="checkmark-circle-outline" iconType="ionicons" />
-              <FactorItem label="Course Competitiveness" icon="target" iconType="material" />
-           </View>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitleText}>Key Admission Factors</Text>
+            <Feather name="chevron-down" size={20} color={THEME.textGray} />
+          </View>
+          <View style={styles.sectionBody}>
+            <FactorItem label="CGPA" icon="star" iconType="feather" />
+            <FactorItem label="IELTS Score" icon="checkmark-circle-outline" iconType="ionicons" />
+            <FactorItem label="Course Competitiveness" icon="target" iconType="material" />
+          </View>
         </View>
 
         {/* Universities By Risk Level */}
         <Text style={styles.riskTitle}>Universities By Risk Level</Text>
         <View style={styles.riskTabs}>
-           <TouchableOpacity style={[styles.riskTab, styles.riskTabActive]}>
-              <Text style={styles.riskTabTextActive}>Safe</Text>
-           </TouchableOpacity>
-           <TouchableOpacity style={styles.riskTab}>
-              <Text style={styles.riskTabText}>Moderate</Text>
-           </TouchableOpacity>
-           <TouchableOpacity style={styles.riskTab}>
-              <Text style={styles.riskTabText}>Ambitious</Text>
-           </TouchableOpacity>
+          <TouchableOpacity style={[styles.riskTab, styles.riskTabActive]}>
+            <Text style={styles.riskTabTextActive}>Safe</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.riskTab}>
+            <Text style={styles.riskTabText}>Moderate</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.riskTab}>
+            <Text style={styles.riskTabText}>Ambitious</Text>
+          </TouchableOpacity>
         </View>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.uniCardsScroll}>
-           <View style={styles.uniCard}>
-              <View style={styles.uniImageContainer}>
-                 <Image 
-                   source={{ uri: "https://images.unsplash.com/photo-1541339907198-e08756ebafe3?auto=format&fit=crop&q=80&w=400" }} 
-                   style={styles.uniImage} 
-                 />
-                 <View style={styles.matchBadge}>
-                    <Text style={styles.matchText}>85% Match</Text>
-                 </View>
+          <View style={styles.uniCard}>
+            <View style={styles.uniImageContainer}>
+              <Image
+                source={{ uri: "https://images.unsplash.com/photo-1541339907198-e08756ebafe3?auto=format&fit=crop&q=80&w=400" }}
+                style={styles.uniImage}
+              />
+              <View style={styles.matchBadge}>
+                <Text style={styles.matchText}>85% Match</Text>
               </View>
-              <View style={styles.uniCardContent}>
-                 <Text style={styles.uniCardName}>University of Melbourne</Text>
-                 <View style={styles.uniLocationRow}>
-                    <Ionicons name="location" size={14} color={THEME.orange} />
-                    <Text style={styles.uniLocationText}>Melbourne, Australia</Text>
-                 </View>
-                 <View style={styles.uniCostRow}>
-                    <Text style={styles.uniCostValue}>NPR 20,500,00<Text style={styles.uniCostUnit}>/ year</Text></Text>
-                    <View style={styles.safeBadge}>
-                        <Text style={styles.safeText}>Safe</Text>
-                    </View>
-                 </View>
-                 <View style={styles.uniActions}>
-                    <TouchableOpacity style={styles.saveBtn}>
-                        <Text style={styles.saveBtnText}>Save</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.compareBtn}>
-                        <Text style={styles.compareBtnText}>Compare</Text>
-                    </TouchableOpacity>
-                 </View>
+            </View>
+            <View style={styles.uniCardContent}>
+              <Text style={styles.uniCardName}>University of Melbourne</Text>
+              <View style={styles.uniLocationRow}>
+                <Ionicons name="location" size={14} color={THEME.orange} />
+                <Text style={styles.uniLocationText}>Melbourne, Australia</Text>
               </View>
-           </View>
+              <View style={styles.uniCostRow}>
+                <Text style={styles.uniCostValue}>NPR 20,500,00<Text style={styles.uniCostUnit}>/ year</Text></Text>
+                <View style={styles.safeBadge}>
+                  <Text style={styles.safeText}>Safe</Text>
+                </View>
+              </View>
+              <View style={styles.uniActions}>
+                <TouchableOpacity style={styles.saveBtn}>
+                  <Text style={styles.saveBtnText}>Save</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.compareBtn}>
+                  <Text style={styles.compareBtnText}>Compare</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
 
-           <View style={styles.uniCard}>
-              <View style={styles.uniImageContainer}>
-                 <Image 
-                   source={{ uri: "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&q=80&w=400" }} 
-                   style={styles.uniImage} 
-                 />
-                 <View style={styles.matchBadge}>
-                    <Text style={styles.matchText}>72% Match</Text>
-                 </View>
+          <View style={styles.uniCard}>
+            <View style={styles.uniImageContainer}>
+              <Image
+                source={{ uri: "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&q=80&w=400" }}
+                style={styles.uniImage}
+              />
+              <View style={styles.matchBadge}>
+                <Text style={styles.matchText}>72% Match</Text>
               </View>
-              <View style={styles.uniCardContent}>
-                 <Text style={styles.uniCardName}>University of Toronto</Text>
-                 <View style={styles.uniLocationRow}>
-                    <Ionicons name="location" size={14} color={THEME.orange} />
-                    <Text style={styles.uniLocationText}>Toronto, Canada</Text>
-                 </View>
-                 <View style={styles.uniCostRow}>
-                    <Text style={styles.uniCostValue}>NPR 11,500,00<Text style={styles.uniCostUnit}>/ year</Text></Text>
-                    <View style={[styles.safeBadge, { backgroundColor: "#DCFCE7" }]}>
-                        <Text style={[styles.safeText, { color: THEME.green }]}>Safe</Text>
-                    </View>
-                 </View>
-                 <View style={styles.uniActions}>
-                    <TouchableOpacity style={styles.saveBtn}>
-                        <Text style={styles.saveBtnText}>Save</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.compareBtn}>
-                        <Text style={styles.compareBtnText}>Compare</Text>
-                    </TouchableOpacity>
-                 </View>
+            </View>
+            <View style={styles.uniCardContent}>
+              <Text style={styles.uniCardName}>University of Toronto</Text>
+              <View style={styles.uniLocationRow}>
+                <Ionicons name="location" size={14} color={THEME.orange} />
+                <Text style={styles.uniLocationText}>Toronto, Canada</Text>
               </View>
-           </View>
+              <View style={styles.uniCostRow}>
+                <Text style={styles.uniCostValue}>NPR 11,500,00<Text style={styles.uniCostUnit}>/ year</Text></Text>
+                <View style={[styles.safeBadge, { backgroundColor: "#DCFCE7" }]}>
+                  <Text style={[styles.safeText, { color: THEME.green }]}>Safe</Text>
+                </View>
+              </View>
+              <View style={styles.uniActions}>
+                <TouchableOpacity style={styles.saveBtn}>
+                  <Text style={styles.saveBtnText}>Save</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.compareBtn}>
+                  <Text style={styles.compareBtnText}>Compare</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
         </ScrollView>
 
       </ScrollView>
@@ -229,6 +229,8 @@ const styles = StyleSheet.create({
   backButton: {
     width: 44,
     height: 44,
+    borderRadius: 22,
+    backgroundColor: THEME.white,
     justifyContent: "center",
     alignItems: "flex-start",
   },
