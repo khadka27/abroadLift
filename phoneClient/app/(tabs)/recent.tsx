@@ -31,7 +31,7 @@ export default function RecentUniversities() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" translucent />
       
       <View style={styles.header}>
         <Text style={styles.title}>Recent Universities</Text>
