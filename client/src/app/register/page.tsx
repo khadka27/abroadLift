@@ -5,47 +5,26 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import {
+  AlertCircle,
   Eye,
   EyeOff,
-  AlertCircle,
-  ChevronRight,
-  ChevronLeft,
-  Sparkles,
-  User,
-  Globe,
+  Facebook,
 } from "lucide-react";
-
-const COUNTRIES_LIST = [
-  "Nepal", "India", "Bangladesh", "Pakistan", "Sri Lanka", "China",
-  "Vietnam", "Philippines", "Nigeria", "Ghana", "Kenya", "Ethiopia",
-  "Brazil", "Colombia", "Mexico", "Indonesia", "Malaysia", "Thailand",
-  "Egypt", "Morocco", "UAE", "Saudi Arabia", "Turkey", "Ukraine",
-  "United States", "United Kingdom", "Canada", "Australia", "Germany",
-  "France", "Netherlands", "Ireland", "New Zealand", "Singapore",
-];
-
-const STEPS = [
-  { title: "Account Setup", subtitle: "Login credentials", icon: User },
-  { title: "Your Background", subtitle: "Tell us where you're from", icon: Globe },
-];
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [step, setStep] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [agreed, setAgreed] = useState(false);
 
   const [form, setForm] = useState({
-    name: "",
     username: "",
     email: "",
+    phone: "",
     password: "",
     confirmPassword: "",
-    nationality: "",
-    currentCountry: "",
-    gpa: "",
   });
 
   const handleChange = (k: string, v: string) => {
@@ -54,32 +33,22 @@ export default function RegisterPage() {
     setServerError("");
   };
 
-  const validateStep = () => {
+  const validate = () => {
     const e: Record<string, string> = {};
-    if (step === 0) {
-      if (!form.name.trim()) e.name = "Full name is required.";
-      if (!form.username.trim()) e.username = "Username is required.";
-      if (form.username.length < 3) e.username = "At least 3 characters.";
-      if (!form.email) e.email = "Email is required.";
-      if (!form.password) e.password = "Password is required.";
-      if (form.password.length < 8) e.password = "Min. 8 characters.";
-      if (form.password !== form.confirmPassword) e.confirmPassword = "Passwords don't match.";
-    } else {
-      if (!form.nationality) e.nationality = "Required.";
-      if (!form.currentCountry) e.currentCountry = "Required.";
-    }
+    if (!form.username.trim()) e.username = "Username required.";
+    if (!form.email.trim()) e.email = "Email required.";
+    if (!form.phone.trim()) e.phone = "Phone number required.";
+    if (!form.password) e.password = "Password required.";
+    if (form.password !== form.confirmPassword) e.confirmPassword = "Mismatch.";
+    if (!agreed) e.agreed = "Required.";
+    
     setErrors(e);
     return Object.keys(e).length === 0;
   };
 
-  const handleNext = () => {
-    if (validateStep()) {
-      if (step < STEPS.length - 1) setStep(step + 1);
-      else handleSubmit();
-    }
-  };
-
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validate()) return;
     setSubmitting(true);
     setServerError("");
 
@@ -89,9 +58,12 @@ export default function RegisterPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
+          name: form.username,
           username: form.username.toLowerCase(),
           email: form.email.toLowerCase(),
-          // Default extra fields for matching API
+          nationality: "",
+          currentCountry: "",
+          gpa: "",
           preferredCountry: "",
           degreeLevel: "",
           fieldOfStudy: "",
@@ -104,197 +76,163 @@ export default function RegisterPage() {
         }),
       });
 
-      const data = await res.json();
       if (!res.ok) {
+        const data = await res.json();
         setServerError(data.error || "Registration failed.");
         return;
       }
-
       router.push("/login?registered=1");
     } catch {
-      setServerError("Something went wrong. Please try again.");
+      setServerError("Something went wrong.");
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col font-sans">
+    <div className="min-h-screen bg-white flex flex-col font-poppins">
       <div className="flex-1 flex flex-col lg:flex-row relative">
-        {/* Left Side: Image */}
-        <div className="hidden lg:block lg:w-[40%] relative overflow-hidden">
+        {/* Left Side: Premium Image for Desktop */}
+        <div className="hidden lg:block lg:w-[50%] xl:w-[55%] relative overflow-hidden">
           <Image
             src="/signup-bg.png"
-            alt="Library"
+            alt="University Campus"
             fill
             className="object-cover"
             priority
           />
-          <div className="absolute inset-0 bg-linear-to-r from-transparent via-transparent to-white/10" />
+          <div className="absolute inset-0 bg-linear-to-r from-black/10 to-transparent" />
+          <div className="absolute bottom-12 left-12 right-12 z-10 text-white drop-shadow-lg">
+            <h2 className="text-4xl font-bold mb-4">Dream Big. Go Global.</h2>
+            <p className="text-lg opacity-90 max-w-md">Your future starts here. Join thousands of students who found their perfect university match with AbroadLift.</p>
+          </div>
         </div>
 
         {/* Right Side: Form Container */}
-        <div className="flex-1 relative flex items-center justify-center p-6 lg:p-12 overflow-hidden bg-[#F4F7FF]">
-          {/* Slanted background decoration */}
+        <div className="flex-1 relative flex items-center justify-center p-6 lg:bg-[#F9FAFB] overflow-hidden">
+          {/* Decorative element for desktop transition */}
           <div 
-            className="absolute left-[-150px] top-0 bottom-0 w-[300px] bg-white hidden lg:block"
+            className="absolute left-[-100px] top-0 bottom-0 w-[200px] bg-[#F9FAFB] hidden lg:block"
             style={{ 
               clipPath: "polygon(100% 0, 0 0, 100% 100%)",
-              transform: "translateX(-1px)"
             }}
           />
 
-          <div className="w-full max-w-[520px] relative z-10 fade-up">
-            {/* Header */}
-            <div className="mb-10 text-center lg:text-left">
-              <h2 className="text-[20px] font-bold text-gray-400 mb-1">Welcome To!</h2>
-              <h1 className="text-[42px] lg:text-[52px] font-black text-[#3366FF] leading-none mb-6">AbroadLift</h1>
-              
-              {/* Step indicator */}
-              <div className="flex items-center gap-3">
-                {STEPS.map((s, i) => (
-                  <div key={i} className="flex-1 h-1.5 rounded-full overflow-hidden bg-gray-200">
-                    <div 
-                      className={`h-full bg-[#3366FF] transition-all duration-500 ${i <= step ? "w-full" : "w-0"}`}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
+          <div className="w-full max-w-[400px] flex flex-col items-center py-4 fade-up lg:mt-0 relative z-10">
+            {/* Title */}
+            <h1 className="text-[34px] font-semibold text-[#0f172a] mb-12 leading-[1.1] tracking-tight text-center">
+              Create New Account
+            </h1>
 
-            {/* Error Message */}
+            {/* Error Notification */}
             {serverError && (
-              <div className="mb-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl flex items-center gap-3 text-sm">
-                <AlertCircle className="w-5 h-5 shrink-0" />
+              <div className="w-full mb-4 bg-red-50 text-red-600 px-4 py-3 rounded-2xl flex items-center gap-2 text-xs font-bold border border-red-100">
+                <AlertCircle className="w-4 h-4 shrink-0" />
                 {serverError}
               </div>
             )}
 
-            {/* Form Card */}
-            <div className="bg-white border border-gray-100 rounded-[32px] p-8 shadow-xl shadow-blue-500/5">
-              <div className="flex items-center gap-4 mb-8">
-                <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-[#3366FF]">
-                  {step === 0 ? <User className="w-6 h-6" /> : <Globe className="w-6 h-6" />}
-                </div>
-                <div>
-                  <h3 className="text-xl font-black text-gray-900">{STEPS[step].title}</h3>
-                  <p className="text-sm text-gray-400 font-medium">{STEPS[step].subtitle}</p>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                {step === 0 && (
-                  <>
-                    <InputField
-                      label="Full Name"
-                      placeholder="Jane Doe"
-                      value={form.name}
-                      error={errors.name}
-                      onChange={(v: string) => handleChange("name", v)}
-                    />
-                    <InputField
-                      label="Username"
-                      placeholder="janedoe123"
-                      value={form.username}
-                      error={errors.username}
-                      onChange={(v: string) => handleChange("username", v.replace(/\s/g, ""))}
-                    />
-                    <InputField
-                      label="Email Address"
-                      type="email"
-                      placeholder="jane@example.com"
-                      value={form.email}
-                      error={errors.email}
-                      onChange={(v: string) => handleChange("email", v)}
-                    />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <InputField
-                        label="Password"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="••••••••"
-                        value={form.password}
-                        error={errors.password}
-                        onChange={(v: string) => handleChange("password", v)}
-                        suffix={
-                          <button 
-                            type="button" 
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="text-gray-300 hover:text-gray-500"
-                          >
-                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                          </button>
-                        }
-                      />
-                      <InputField
-                        label="Confirm"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="••••••••"
-                        value={form.confirmPassword}
-                        error={errors.confirmPassword}
-                        onChange={(v: string) => handleChange("confirmPassword", v)}
-                      />
-                    </div>
-                  </>
-                )}
-
-                {step === 1 && (
-                  <>
-                    <SelectField
-                      label="Nationality"
-                      placeholder="Select country"
-                      options={COUNTRIES_LIST}
-                      value={form.nationality}
-                      error={errors.nationality}
-                      onChange={(v: string) => handleChange("nationality", v)}
-                    />
-                    <SelectField
-                      label="Current Residence"
-                      placeholder="Where do you live?"
-                      options={COUNTRIES_LIST}
-                      value={form.currentCountry}
-                      error={errors.currentCountry}
-                      onChange={(v: string) => handleChange("currentCountry", v)}
-                    />
-                    <InputField
-                      label="GPA (optional)"
-                      type="number"
-                      placeholder="e.g. 3.8"
-                      value={form.gpa}
-                      onChange={(v: string) => handleChange("gpa", v)}
-                    />
-                  </>
-                )}
-              </div>
-
-              {/* Navigation */}
-              <div className="flex gap-4 mt-10">
-                {step > 0 && (
-                  <button
-                    onClick={() => setStep(step - 1)}
-                    className="h-[60px] px-6 rounded-2xl bg-gray-50 border border-gray-100 text-gray-500 font-bold hover:bg-gray-100 transition-all flex items-center justify-center"
+            <form onSubmit={handleSubmit} className="w-full space-y-4">
+              <InputField
+                placeholder="Username"
+                value={form.username}
+                error={errors.username}
+                onChange={(v) => handleChange("username", v)}
+              />
+              <InputField
+                placeholder="example@gmail.com"
+                type="email"
+                value={form.email}
+                error={errors.email}
+                onChange={(v) => handleChange("email", v)}
+              />
+              <InputField
+                placeholder="Phone number"
+                type="tel"
+                value={form.phone}
+                error={errors.phone}
+                onChange={(v) => handleChange("phone", v)}
+              />
+              <InputField
+                placeholder="Password"
+                type={showPassword ? "text" : "password"}
+                value={form.password}
+                error={errors.password}
+                onChange={(v) => handleChange("password", v)}
+                suffix={
+                  <button 
+                    type="button" 
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="text-gray-300 hover:text-gray-500 pr-2 pt-1"
                   >
-                    <ChevronLeft className="w-5 h-5" />
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
-                )}
-                <button
-                  onClick={handleNext}
-                  disabled={submitting}
-                  className="flex-1 h-[60px] bg-[#3366FF] text-white font-bold rounded-2xl text-[17px] shadow-lg shadow-blue-500/20 hover:bg-[#2952cc] transition-all flex items-center justify-center gap-2 hover:-translate-y-0.5"
-                >
-                  {submitting ? "Processing..." : step === 0 ? (
-                    <>Next Step <ChevronRight className="w-5 h-5" /></>
-                  ) : (
-                    <><Sparkles className="w-5 h-5" /> Create Account</>
-                  )}
-                </button>
+                }
+              />
+              <InputField
+                placeholder="Confirm password"
+                type={showPassword ? "text" : "password"}
+                value={form.confirmPassword}
+                error={errors.confirmPassword}
+                onChange={(v) => handleChange("confirmPassword", v)}
+              />
+
+              {/* Terms & Conditions */}
+              <div className="pt-2">
+                <label className="flex items-center gap-2.5 cursor-pointer group">
+                  <div className="relative flex items-center">
+                    <input 
+                      type="checkbox"
+                      checked={agreed}
+                      onChange={() => setAgreed(!agreed)}
+                      className="peer appearance-none w-5 h-5 border-2 border-black rounded-md checked:bg-black checked:border-black cursor-pointer transition-all hover:border-gray-300"
+                    />
+                    <svg
+                      className="absolute left-[2.5px] w-4 h-4 text-white scale-0 peer-checked:scale-100 transition-transform pointer-events-none"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <span className="text-[14px] font-regular text-black select-none">
+                    Agree with <Link href="/terms" className="text-gray-700 underline decoration-gray-300 underline-offset-4">Terms & Conditions</Link>
+                  </span>
+                </label>
+                {errors.agreed && <p className="text-[10px] text-red-500 font-bold mt-1.5 px-1">{errors.agreed}</p>}
               </div>
+
+              {/* Register Button */}
+              <button
+                type="submit"
+                disabled={submitting}
+                className="w-full h-[60px] bg-[#3381FF] text-white font-bold rounded-[30px] text-[16px] shadow-sm hover:bg-[#2970E6] transition-all active:scale-[0.98] disabled:opacity-70 mt-2"
+              >
+                {submitting ? "Processing..." : "Register"}
+              </button>
+            </form>
+
+            {/* Divider */}
+            <div className="w-full mt-6 mb-5 flex items-center justify-center">
+              <div className="h-[1px] flex-1 bg-gray-100" />
+              <span className="px-4 text-[16px] font-regular text-black tracking-widest uppercase">OR</span>
+              <div className="h-[1px] flex-1 bg-gray-100" />
+            </div>
+
+            {/* Social Options */}
+            <div className="flex gap-4 mb-3">
+              <SocialButton icon={<GoogleIcon />} />
+              <SocialButton icon={<AppleIcon />} />
+              <SocialButton icon={<Facebook className="w-6 h-6 text-blue-600 fill-blue-600" />} />
             </div>
 
             {/* Footer */}
-            <p className="text-center mt-8 text-[14px] font-semibold text-gray-400">
-              Already has an account?{" "}
-              <Link href="/login" className="text-[#3366FF] font-bold hover:underline transition-all">
-                Sign In
+            <p className="text-[14px] font-regular text-black">
+              Already have an account?{" "}
+              <Link href="/login" className="text-[#3381FF] font-bold hover:underline">
+                Login
               </Link>
             </p>
           </div>
@@ -305,7 +243,6 @@ export default function RegisterPage() {
 }
 
 function InputField({ 
-  label, 
   placeholder, 
   value, 
   onChange, 
@@ -313,7 +250,6 @@ function InputField({
   error, 
   suffix 
 }: {
-  label: string;
   placeholder: string;
   value: string;
   onChange: (v: string) => void;
@@ -322,50 +258,45 @@ function InputField({
   suffix?: React.ReactNode;
 }) {
   return (
-    <div className="space-y-1.5">
-      <label className="text-[12px] font-black text-gray-400 uppercase tracking-widest px-1">{label}</label>
+    <div className="w-full">
       <div className="relative">
         <input
           type={type}
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className={`w-full h-[54px] bg-gray-50/50 border ${error ? "border-red-200" : "border-gray-100"} rounded-xl px-4 text-[15px] font-medium text-gray-700 outline-none focus:border-[#3366FF]/30 focus:bg-white transition-all`}
+          className={`w-full h-[56px] bg-[#F4F4F4] border-none rounded-[20px] px-6 text-[16px] font-regular text-[#1e293b] placeholder:text-[#666666] outline-none focus:ring-2 focus:ring-blue-500/10 transition-all`}
         />
-        {suffix && <div className="absolute right-4 top-1/2 -translate-y-1/2">{suffix}</div>}
+        {suffix && <div className="absolute right-5 top-1/2 -translate-y-1/2">{suffix}</div>}
       </div>
-      {error && <p className="text-[11px] text-red-500 font-bold px-1">{error}</p>}
+      {error && <p className="mt-1 text-[10px] text-red-500 font-bold px-2">{error}</p>}
     </div>
   );
 }
 
-function SelectField({ 
-  label, 
-  placeholder, 
-  options, 
-  value, 
-  onChange, 
-  error 
-}: {
-  label: string;
-  placeholder: string;
-  options: string[];
-  value: string;
-  onChange: (v: string) => void;
-  error?: string;
-}) {
+function SocialButton({ icon }: { icon: React.ReactNode }) {
   return (
-    <div className="space-y-1.5">
-      <label className="text-[12px] font-black text-gray-400 uppercase tracking-widest px-1">{label}</label>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className={`w-full h-[54px] bg-gray-50/50 border ${error ? "border-red-200" : "border-gray-100"} rounded-xl px-4 text-[15px] font-medium text-gray-700 outline-none focus:border-[#3366FF]/30 focus:bg-white transition-all appearance-none cursor-pointer`}
-      >
-        <option value="" disabled>{placeholder}</option>
-        {options.map((o: string) => <option key={o} value={o}>{o}</option>)}
-      </select>
-      {error && <p className="text-[11px] text-red-500 font-bold px-1">{error}</p>}
-    </div>
+    <button className="w-[56px] h-[56px] rounded-full border border-gray-100 flex items-center justify-center hover:bg-gray-100 transition-all active:scale-95">
+      {icon}
+    </button>
+  );
+}
+
+function GoogleIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24">
+      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+      <path d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.83z" fill="#FBBC05"/>
+      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.83c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+    </svg>
+  );
+}
+
+function AppleIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701z" />
+    </svg>
   );
 }

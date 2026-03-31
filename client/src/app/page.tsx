@@ -83,39 +83,17 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="relative max-w-[1280px] mx-auto z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="fade-up">
-            <h1 className="text-[56px] lg:text-[72px] font-extrabold leading-[1.1] mb-6 tracking-tight">
+        <div className="relative max-w-[1280px] mx-auto z-10 grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-10 lg:gap-y-0 items-center">
+          {/* ── TITLE ── */}
+          <div className="fade-up order-1 lg:col-start-1 lg:row-start-1">
+            <h1 className="text-[56px] lg:text-[72px] font-extrabold leading-[1.1] mb-6 tracking-tight text-center lg:text-left">
               Your Path to <br /> Studying Abroad <br />
               <span className="text-[#3366FF]">Begins Here</span>
             </h1>
-            <p className="text-[18px] text-gray-500 mb-8 max-w-[500px] leading-relaxed">
-              Discover research programs, academic excellence, and global
-              opportunities tailored for your specific career path.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-6 mb-10">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-green-500" />
-                <span className="text-[15px] font-semibold text-gray-700">
-                  160+ Countries
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-red-500" />
-                <span className="text-[15px] font-semibold text-gray-700">
-                  1000+ Universities
-                </span>
-              </div>
-            </div>
-            <Link
-              href="/matches"
-              className="inline-flex items-center gap-3 bg-[#3366FF] text-white font-bold px-8 py-4 rounded-xl text-[17px] shadow-xl shadow-blue-500/25 hover:bg-[#2952cc] transition-all hover:scale-[1.02]"
-            >
-              Get Started
-              <ArrowRight className="w-5 h-5" />
-            </Link>
           </div>
-          <div className="relative flex justify-center lg:justify-end">
+
+          {/* ── IMAGE ── */}
+          <div className="relative flex justify-center lg:justify-end order-2 lg:order-none lg:col-start-2 lg:row-start-1 lg:row-span-3">
             <div className="relative w-full max-w-[320px] sm:max-w-[400px] lg:max-w-[500px] aspect-square mx-auto lg:mx-0">
               <div className="absolute inset-x-0 bottom-0 top-[10%] bg-blue-50 rounded-full -z-10 blur-2xl" />
               <Image
@@ -153,6 +131,39 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* ── DESCRIPTION ── */}
+          <div className="fade-up order-3 lg:col-start-1 lg:row-start-2 delay-100 flex justify-center lg:justify-start">
+            <p className="text-[18px] text-gray-500 mb-8 max-w-[500px] leading-relaxed text-center lg:text-left">
+              Discover research programs, academic excellence, and global
+              opportunities tailored for your specific career path.
+            </p>
+          </div>
+
+          {/* ── OTHER CONTENT (Features & Button) ── */}
+          <div className="fade-up order-4 lg:col-start-1 lg:row-start-3 delay-200 flex flex-col items-center lg:items-start">
+            <div className="flex flex-col sm:flex-row gap-6 mb-10">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-green-500" />
+                <span className="text-[15px] font-semibold text-gray-700">
+                  160+ Countries
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-red-500" />
+                <span className="text-[15px] font-semibold text-gray-700">
+                  1000+ Universities
+                </span>
+              </div>
+            </div>
+            <Link
+              href="/matches"
+              className="inline-flex items-center gap-3 bg-[#3366FF] text-white font-bold px-8 py-4 rounded-xl text-[17px] shadow-xl shadow-blue-500/25 hover:bg-[#2952cc] transition-all hover:scale-[1.02]"
+            >
+              Get Started
+              <ArrowRight className="w-5 h-5" />
+            </Link>
           </div>
         </div>
       </section>
