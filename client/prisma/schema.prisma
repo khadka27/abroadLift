@@ -19,14 +19,22 @@ enum ApplicationStatus {
 }
 
 model User {
-    id        String   @id @default(uuid())
-    name      String
-    username  String   @unique
-    email     String   @unique
-    password  String
-    role      Role     @default(STUDENT)
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    id              String    @id @default(uuid())
+    name            String
+    username        String    @unique
+    email           String    @unique
+    countryDialCode String?
+    phoneNumber     String?
+    phoneE164       String?   @unique
+    prefersWhatsApp Boolean   @default(true)
+    phoneVerified   Boolean   @default(false)
+    otpCodeHash     String?
+    otpExpiresAt    DateTime?
+    otpLastChannel  String?
+    password        String
+    role            Role      @default(STUDENT)
+    createdAt       DateTime  @default(now())
+    updatedAt       DateTime  @updatedAt
 
     profile      StudentProfile?
     applications Application[]
@@ -38,15 +46,15 @@ model StudentProfile {
     userId String @unique
     user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    nationality      String?
-    currentCountry   String?
-    gpa              Float?
-    yearlyBudget     Float?
-    englishScore     Float?
-    degreeLevel      String?
-    preferredCountry String?
+    nationality       String?
+    currentCountry    String?
+    gpa               Float?
+    yearlyBudget      Float?
+    englishScore      Float?
+    degreeLevel       String?
+    preferredCountry  String?
     scholarshipNeeded Boolean? @default(false)
-    loanWilling      Boolean?  @default(false)
+    loanWilling       Boolean? @default(false)
 }
 
 model University {
@@ -90,18 +98,18 @@ model Application {
 }
 
 model VisaRateCheck {
-    id        String   @id @default(uuid())
-    userId    String
-    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-    
+    id     String @id @default(uuid())
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
     nationality    String
     destination    String
     degreeLevel    String
     fundsAvailable Float
     ieltsScore     Float?
-    pastRejections Int      @default(0)
-    
-    successRate    Int      // Percentage
-    createdAt      DateTime @default(now())
-    updatedAt      DateTime @updatedAt
+    pastRejections Int    @default(0)
+
+    successRate Int // Percentage
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
 }

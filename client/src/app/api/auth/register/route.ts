@@ -1,6 +1,15 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import prisma from "@/lib/db";
+import {
+  generateOtpCode,
+  getOtpExpiry,
+  hashOtpCode,
+  normalizeDialCode,
+  normalizePhoneNumber,
+  toE164,
+  trySendOtp,
+} from "@/lib/phoneVerification";
 
 export async function POST(req: Request) {
   try {
@@ -10,59 +19,115 @@ export async function POST(req: Request) {
       username,
       email,
       password,
+      countryDialCode,
+      phoneNumber,
+      prefersWhatsApp,
       // Student profile fields
       nationality,
       currentCountry,
       gpa,
     } = body;
 
+    const normalizedName = (name || "").trim();
+    const normalizedUsername = (username || "").toLowerCase().trim();
+    const normalizedEmail = (email || "").toLowerCase().trim();
+    const normalizedDialCode = normalizeDialCode(countryDialCode || "");
+    const normalizedPhoneNumber = normalizePhoneNumber(phoneNumber || "");
+    const phoneE164 = toE164(normalizedDialCode, normalizedPhoneNumber);
+    const wantsWhatsApp =
+      typeof prefersWhatsApp === "boolean" ? prefersWhatsApp : true;
+
     // Validate required fields
-    if (!name || !username || !email || !password) {
+    if (
+      !normalizedName ||
+      !normalizedUsername ||
+      !normalizedEmail ||
+      !password
+    ) {
       return NextResponse.json(
         { error: "Name, username, email and password are required." },
-        { status: 400 }
+        { status: 400 },
+      );
+    }
+
+    if (!normalizedDialCode || !normalizedPhoneNumber) {
+      return NextResponse.json(
+        { error: "Country code and phone number are required." },
+        { status: 400 },
+      );
+    }
+
+    if (!phoneE164) {
+      return NextResponse.json(
+        { error: "Invalid phone number format." },
+        { status: 400 },
       );
     }
 
     if (password.length < 8) {
       return NextResponse.json(
         { error: "Password must be at least 8 characters." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Check existing email
-    const existingEmail = await prisma.user.findUnique({ where: { email } });
+    const existingEmail = await prisma.user.findUnique({
+      where: { email: normalizedEmail },
+    });
     if (existingEmail) {
       return NextResponse.json(
         { error: "An account with this email already exists." },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
     // Check existing username
-    const existingUsername = await prisma.user.findUnique({ where: { username } });
+    const existingUsername = await prisma.user.findUnique({
+      where: { username: normalizedUsername },
+    });
     if (existingUsername) {
       return NextResponse.json(
         { error: "This username is already taken." },
-        { status: 409 }
+        { status: 409 },
+      );
+    }
+
+    // Check existing phone
+    const existingPhone = await prisma.user.findUnique({
+      where: { phoneE164 },
+    });
+    if (existingPhone) {
+      return NextResponse.json(
+        { error: "An account with this phone number already exists." },
+        { status: 409 },
       );
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
+    const otpCode = generateOtpCode();
+    const otpHash = hashOtpCode(otpCode);
+    const otpExpiresAt = getOtpExpiry();
 
     const user = await prisma.user.create({
       data: {
-        name,
-        username: username.toLowerCase().trim(),
-        email: email.toLowerCase().trim(),
+        name: normalizedName,
+        username: normalizedUsername,
+        email: normalizedEmail,
+        countryDialCode: normalizedDialCode,
+        phoneNumber: normalizedPhoneNumber,
+        phoneE164,
+        prefersWhatsApp: wantsWhatsApp,
+        phoneVerified: false,
+        otpCodeHash: otpHash,
+        otpExpiresAt,
         password: hashedPassword,
         role: "STUDENT",
         profile: {
           create: {
             nationality: nationality || null,
             currentCountry: currentCountry || null,
-            gpa: gpa ? parseFloat(gpa) : null,
+            gpa: gpa ? Number.parseFloat(gpa) : null,
           },
         },
       },
@@ -71,16 +136,52 @@ export async function POST(req: Request) {
         name: true,
         username: true,
         email: true,
+        countryDialCode: true,
+        phoneNumber: true,
+        phoneE164: true,
+        phoneVerified: true,
         role: true,
       },
     });
 
-    return NextResponse.json({ user }, { status: 201 });
+    const otpSendResult = await trySendOtp({
+      phoneE164,
+      otpCode,
+      prefersWhatsApp: wantsWhatsApp,
+    });
+
+    if (!otpSendResult.sent) {
+      await prisma.user.delete({ where: { id: user.id } });
+      return NextResponse.json(
+        {
+          error: "Unable to send OTP right now. Please try again in a moment.",
+        },
+        { status: 503 },
+      );
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        otpLastChannel: otpSendResult.channel,
+      },
+    });
+
+    return NextResponse.json(
+      {
+        user,
+        otp: {
+          sent: true,
+          channel: otpSendResult.channel,
+        },
+      },
+      { status: 201 },
+    );
   } catch (error) {
     console.error("[REGISTER_ERROR]", error);
     return NextResponse.json(
       { error: "Something went wrong. Please try again." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
