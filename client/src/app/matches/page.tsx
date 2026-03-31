@@ -40,6 +40,8 @@ import {
   ShieldAlert,
   Download,
   Info,
+  Calendar,
+  Check,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
@@ -118,6 +120,12 @@ interface Form {
   scholarship: boolean;
   name: string;
   email: string;
+  highestEducation: string;
+  passingYear: string;
+  hasEnglishTest: boolean | null;
+  passportReady: boolean;
+  testDone: boolean;
+  docsReady: boolean;
 }
 
 interface Match {
@@ -533,12 +541,11 @@ const BUDGET_PRESETS = [
 const STEPS = [
   { label: "Welcome", question: "Your Journey Starts Here." },
   { label: "Country", question: "Where do you want to study?" },
-  { label: "Degree Level", question: "What is your target degree?" },
-  { label: "Study Area", question: "What do you want to study?" },
+  { label: "Study Level", question: "What level of study are you planning?" },
+  { label: "Field Of Study", question: "What do you want to study?" },
+  { label: "Academics", question: "Tell us about your background" },
+  { label: "English", question: "Do you have an English test score?" },
   { label: "Target Intake", question: "When do you want to start?" },
-  { label: "English Proficiency", question: "Do you have a test score?" },
-  { label: "Budget", question: "What is your annual budget?" },
-  { label: "Student Profile", question: "A few final details!" },
   { label: "Your Matches", question: "Choose your future!" },
   {
     label: "Cost Estimation",
@@ -606,6 +613,12 @@ const DEF: Form = {
   scholarship: false,
   name: "",
   email: "",
+  highestEducation: "",
+  passingYear: "",
+  hasEnglishTest: null,
+  passportReady: false,
+  testDone: false,
+  docsReady: false,
 };
 
 /* ─────────────── UI Components ─────────────── */
@@ -635,37 +648,47 @@ function SearchSelect({
           setOpen(!open);
           setQuery("");
         }}
-        className={`w-full relative flex items-center pl-10 pr-4 h-[54px] bg-white border border-gray-200 rounded-[14px] text-left transition-all shadow-sm ${open
-          ? "border-blue-500 ring-4 ring-blue-500/10"
-          : "hover:border-gray-300"
-          }`}
+        className={`w-full relative flex items-center pl-10 pr-4 h-[60px] bg-[#f8fafc] border rounded-[22px] text-left transition-all ${
+          open
+            ? "border-blue-500 ring-4 ring-blue-500/5 bg-white shadow-lg"
+            : "border-slate-200 hover:border-blue-200 shadow-sm"
+        }`}
       >
         <Search
-          className="w-[20px] h-[20px] text-[#7c8b9f] absolute left-3.5 top-1/2 -translate-y-1/2"
-          strokeWidth={1.5}
+          className={`w-[20px] h-[20px] absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${
+            open ? "text-blue-500" : "text-slate-400"
+          }`}
+          strokeWidth={2}
         />
         <span
-          className={`text-[14px] font-medium leading-none truncate ${value ? "text-gray-900 font-bold" : "text-[#8a98ac]"}`}
+          className={`text-[15px] font-semibold truncate ${
+            value ? "text-slate-900" : "text-slate-400"
+          }`}
         >
           {value || placeholder}
         </span>
+        <ChevronDown
+          className={`ml-auto w-5 h-5 text-slate-400 transition-transform ${
+            open ? "rotate-180 text-blue-500" : ""
+          }`}
+        />
       </button>
 
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute top-[calc(100%+8px)] left-0 w-full bg-white border border-gray-200 shadow-xl rounded-2xl z-50 overflow-hidden flex flex-col max-h-[250px] animate-in fade-in slide-in-from-top-1 duration-200">
-            <div className="p-3 border-b border-gray-100 flex items-center gap-2 bg-gray-50/50">
-              <Search className="w-4 h-4 ml-1 text-gray-400" />
+          <div className="absolute top-[calc(100%+12px)] left-0 w-full bg-white border border-slate-100 shadow-[0_20px_50px_rgba(0,0,0,0.1)] rounded-[28px] z-50 overflow-hidden flex flex-col max-h-[300px] animate-in fade-in slide-in-from-top-4 duration-300">
+            <div className="p-4 border-b border-slate-50 flex items-center gap-3 bg-slate-50/30">
+              <Search className="w-4 h-4 text-blue-500" strokeWidth={2.5} />
               <input
                 autoFocus
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search..."
-                className="w-full bg-transparent p-1 text-[15px] font-medium text-gray-900 outline-none placeholder:text-gray-400"
+                placeholder="Type to search..."
+                className="w-full bg-transparent p-1 text-[15px] font-semibold text-slate-900 outline-none placeholder:text-slate-400 placeholder:italic"
               />
             </div>
-            <div className="overflow-y-auto flex-1 p-2 space-y-1">
+            <div className="overflow-y-auto flex-1 p-2 space-y-1 override-scroll">
               {filtered.map((opt) => (
                 <button
                   key={opt}
@@ -673,14 +696,20 @@ function SearchSelect({
                     onChange(opt);
                     setOpen(false);
                   }}
-                  className={`w-full text-left px-3 min-h-[44px] flex items-center rounded-xl text-[14px] font-medium transition-colors ${value === opt
-                    ? "bg-blue-50 text-blue-700"
-                    : "text-gray-700 hover:bg-gray-100"
-                    }`}
+                  className={`w-full text-left px-5 min-h-[50px] flex items-center rounded-[18px] text-[14px] font-semibold transition-all ${
+                    value === opt
+                      ? "bg-blue-600 text-white shadow-md"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-blue-600"
+                  }`}
                 >
                   {opt}
                 </button>
               ))}
+              {filtered.length === 0 && (
+                <div className="p-8 text-center">
+                   <p className="text-slate-400 text-sm font-medium italic">No results found</p>
+                </div>
+              )}
             </div>
           </div>
         </>
@@ -1224,6 +1253,7 @@ export default function AbroadLiftMatchesPage() {
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [searchQuery, setSearchQuery] = useState(""); // For Step 3 (Field of Study)
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -1265,24 +1295,23 @@ export default function AbroadLiftMatchesPage() {
     if (step === 0) return form.name.trim().length > 0;
     if (step === 1) return form.countries.length > 0;
     if (step === 2) return !!form.degree;
-    if (step === 4) return !!form.field && !!form.program;
-    if (step === 5) return !!form.intake;
-    if (step === 6) return !!form.testScore;
-    if (step === 7) return !!form.budget;
-    if (step === 8) return !!form.email && !!form.name;
-    if (step === 9) return !!selectedMatch; // Matches step
-    if (step === 10) return true; // Cost step
-    if (step === 11) return true; // Admission step
-    if (step === 12) return true; // Visa step
-    if (step === 13) return true; // Checklist step
-    if (step === 14) return true; // Financial Summary step
+    if (step === 3) return !!form.field && !!form.program;
+    if (step === 4) return !!form.highestEducation && !!form.gpa && !!form.passingYear;
+    if (step === 5) {
+      if (form.hasEnglishTest === false) return true;
+      if (form.hasEnglishTest === true) return !!form.testType && !!form.testScore && form.testType !== "NONE";
+      return false;
+    }
+    if (step === 6) return !!form.intake;
+    if (step === 7) return !!selectedMatch; // Matches step
+    if (step >= 8) return true; // Preview/Result steps
     return false;
   };
 
   const handleNext = () => {
-    if (step === 8) {
-      // This was step 6 before, now it's step 7 (Student Profile)
-      setStep(9); // Move to Matches step
+    if (step === 6) {
+      // Step 6 is the last input step
+      setStep(7);
       runMatch();
     } else if (step < STEPS.length - 1) {
       setStep(step + 1);
@@ -1519,23 +1548,20 @@ export default function AbroadLiftMatchesPage() {
     // 1: Destination Countries
     if (step === 1) {
       return (
-        <div className="flex flex-col items-center animate-in fade-in zoom-in-95 duration-700 w-full max-w-2xl mx-auto pb-8 ">
-          <div className="mb-4 text-center flex flex-col items-center">
-            <h2 className="text-[20px] sm:text-[16px] font-medium text-[#111827] mb-3 tracking-tight">
+        <div className="flex flex-col items-center animate-in fade-in zoom-in-95 duration-700 w-full max-w-2xl mx-auto pb-2 ">
+          <div className="mb-2 text-center flex flex-col items-center">
+            <h2 className="text-[18px] font-semibold text-[#111827] mb-0 tracking-tight">
               Where do you want to study?
             </h2>
-            <p className="text-[#64748b] font-regular text-[14px] sm:text-[15px] leading-snug w-full">
-              We'll match universities and estimate your cost & visa chances
-            </p>
           </div>
 
-          <div className="w-full mb-10 overflow-hidden rounded-[20px] shadow-xl shadow-slate-100 border border-slate-100 lg:hidden">
+          <div className="w-full mb-3 overflow-hidden rounded-[20px] shadow-xl shadow-slate-100 border border-slate-50 lg:hidden">
             <Image
               src="https://images.unsplash.com/photo-1499856871958-5b9627545d1a?q=80&w=2070&auto=format&fit=crop"
               alt="Destinations"
               width={800}
               height={400}
-              className="w-full h-[180px] object-cover"
+              className="w-full h-[110px] object-cover"
               priority
             />
           </div>
@@ -1578,414 +1604,420 @@ export default function AbroadLiftMatchesPage() {
       );
     }
 
-    // 2: Degree Level (Structured Full List)
+    // 2: Study Level
     if (step === 2) {
-      const categories = Array.from(new Set(DEGREES.map((d) => d.cat)));
+      // Simplified list based on the user's screenshot
+      const DISPLAY_DEGREES = [
+        { v: "bachelor-4", l: "Bachelor's Degree", icon: GraduationCap },
+        { v: "masters", l: "Master's Degree", icon: BookOpen },
+        { v: "doctorate", l: "PHD Degree", icon: BookOpen },
+        { v: "undergrad-dip-2", l: "Diploma", icon: Award },
+      ];
+
       return (
-        <div className="animate-in fade-in zoom-in-95 duration-700 w-full max-w-2xl mx-auto pb-12 mt-2">
-          <div className="mb-5 text-center flex flex-col items-center">
-            <h2 className="text-[20px] sm:text-[28px] font-[700] text-[#111827] mb-3 tracking-tight">
-              {STEPS[step]?.question}
+        <div className="animate-in fade-in zoom-in-95 duration-700 w-full max-w-5xl mx-auto pb-2 px-4">
+          <div className="mb-6 text-center">
+            <h2 className="text-[20px] lg:text-[24px] font-bold text-[#111827] tracking-tight">
+              What level of study are you planning?
             </h2>
-            <p className="text-[#64748b] font-[400] text-[14px] sm:text-[15px] leading-snug w-full">
-              Precisely define your intended level of education.
-            </p>
           </div>
 
-          <div className="space-y-12">
-            {categories.map((cat) => (
-              <div key={cat} className="space-y-6">
-                <div className="flex items-center gap-4">
-                  <h3 className="text-[11px] font-[700] text-blue-600 uppercase tracking-[0.2em] whitespace-nowrap bg-blue-50 px-3 py-1 rounded-full">
-                    {cat}
-                  </h3>
-                  <div className="h-px bg-slate-100 w-full" />
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {DEGREES.filter((d) => d.cat === cat).map((d) => {
-                    const isSel = form.degree === d.v;
-                    const Icon = d.icon;
-                    return (
-                      <button
-                        key={d.v}
-                        onClick={() => updateForm("degree", d.v)}
-                        className={`group relative flex items-center gap-5 p-5 rounded-[24px] border-2 text-left transition-all duration-300 ${isSel
-                          ? "border-blue-500 bg-blue-50/20 shadow-md transform scale-[1.02]"
-                          : "border-slate-50 bg-white hover:border-blue-100 hover:shadow-sm"
-                          }`}
-                      >
-                        <div
-                          className={`shrink-0 w-12 h-12 rounded-[16px] flex items-center justify-center transition-all ${isSel
-                            ? "bg-blue-600 text-white shadow-lg shadow-blue-500/30"
-                            : "bg-slate-50 text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-500"
-                            }`}
-                        >
-                          <Icon className="w-6 h-6" strokeWidth={2} />
-                        </div>
-                        <span
-                          className={`text-[17px] font-[600] leading-tight ${isSel ? "text-slate-900" : "text-slate-600"}`}
-                        >
-                          {d.l}
-                        </span>
-                        {isSel && (
-                          <div className="ml-auto">
-                            <CheckCircle2 className="w-5 h-5 text-blue-500" />
-                          </div>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-    }
-
-    // 3: Field
-    if (step === 3) {
-      const programsList = form.field ? PROGRAMS[form.field] || [] : [];
-      return (
-        <div className="flex flex-col items-center animate-in fade-in zoom-in-95 duration-700 w-full max-w-2xl mx-auto pb-12 mt-2">
-          <div className="mb-5 text-center flex flex-col items-center">
-            <h2 className="text-[20px] sm:text-[28px] font-[700] text-[#111827] mb-3 tracking-tight">
-              {STEPS[step]?.question}
-            </h2>
-            <p className="text-[#64748b] font-[400] text-[14px] sm:text-[15px] leading-snug w-full">
-              Tell us what you want to study so we can match you perfectly.
-            </p>
+          <div className="w-full max-w-3xl mx-auto mb-6 md:mb-12 overflow-hidden rounded-[28px] shadow-sm border border-slate-100 md:hidden">
+            <Image
+              src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2070&auto=format&fit=crop"
+              alt="Study Level"
+              width={800}
+              height={400}
+              className="w-full h-[220px] lg:h-[280px] object-cover"
+              priority
+            />
           </div>
 
-          <div className="flex flex-col gap-8 w-full max-w-md">
-            <div className="space-y-2 w-full">
-              <label className="text-[11px] font-[700] text-slate-400 uppercase tracking-widest ml-1">
-                Main Field of Interest
-              </label>
-              <SearchSelect
-                placeholder="Select a field of study"
-                options={FIELDS.map((f) => f.v)}
-                value={form.field}
-                onChange={(v) => {
-                  updateForm("field", v);
-                  updateForm("program", "");
-                }}
-              />
-            </div>
-            {form.field && (
-              <div className="space-y-2 w-full animate-in fade-in slide-in-from-top-4 duration-500">
-                <label className="text-[11px] font-[700] text-slate-400 uppercase tracking-widest ml-1">
-                  Specific Sub-Program
-                </label>
-                <SearchSelect
-                  placeholder="Select a specific program"
-                  options={programsList}
-                  value={form.program}
-                  onChange={(v) => updateForm("program", v)}
-                />
-              </div>
-            )}
-          </div>
-        </div>
-      );
-    }
-
-    // 4: Intake Selection
-    if (step === 4) {
-      return (
-        <div className="flex flex-col items-center animate-in fade-in zoom-in-95 duration-700 w-full max-w-2xl mx-auto pb-12 mt-2">
-          <div className="mb-5 text-center flex flex-col items-center">
-            <h2 className="text-[20px] sm:text-[28px] font-[700] text-[#111827] mb-3 tracking-tight">
-              {STEPS[step]?.question}
-            </h2>
-            <p className="text-[#64748b] font-[400] text-[14px] sm:text-[15px] leading-snug w-full">
-              When do you plan to start your studies?
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-            {INTAKES.map((i) => {
-              const isSel = form.intake === i;
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-5 w-full">
+            {DISPLAY_DEGREES.map((d) => {
+              const isSel = form.degree === d.v;
+              const Icon = d.icon;
               return (
                 <button
-                  key={i}
-                  onClick={() => updateForm("intake", i)}
-                  className={`p-6 rounded-[24px] border-2 text-center transition-all duration-300 flex items-center justify-center gap-3 ${isSel
-                    ? "border-blue-600 bg-blue-50/20 shadow-md transform scale-[1.02]"
-                    : "border-slate-50 bg-white hover:border-blue-100 hover:shadow-sm"
-                    }`}
+                  key={d.v}
+                  onClick={() => updateForm("degree", d.v)}
+                  className={`group relative flex items-center gap-6 px-8 py-5 rounded-[22px] border transition-all duration-300 ${
+                    isSel
+                      ? "border-blue-500 bg-white shadow-lg shadow-blue-500/5 -translate-y-0.5"
+                      : "border-slate-100 bg-white shadow-sm hover:border-blue-200"
+                  }`}
                 >
-                  <p
-                    className={`text-[18px] font-[600] ${isSel ? "text-slate-900" : "text-slate-600"}`}
+                  <div
+                    className={`shrink-0 w-[52px] h-[52px] rounded-xl flex items-center justify-center transition-all border ${
+                      isSel
+                        ? "bg-white text-slate-900 border-blue-500 shadow-sm"
+                        : "bg-slate-50 text-slate-400 border-slate-100"
+                    }`}
                   >
-                    {i}
-                  </p>
-                  {isSel && <CheckCircle2 className="w-5 h-5 text-blue-500" />}
+                    <Icon className="w-6 h-6" strokeWidth={1.5} />
+                  </div>
+                  <span
+                    className={`text-[17px] font-semibold ${
+                      isSel ? "text-slate-900" : "text-slate-700"
+                    }`}
+                  >
+                    {d.l}
+                  </span>
+                  {isSel && (
+                    <div className="ml-auto w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center shadow-sm">
+                      <CheckCircle2 className="w-4 h-4 text-white" />
+                    </div>
+                  )}
                 </button>
               );
             })}
           </div>
+        </div>
+      );
+    }
+
+    // 3: Field Of Study
+    if (step === 3) {
+      const allFields = FIELDS.map((f) => f.v);
+      
+      const filteredFields = allFields.filter(f => 
+        f.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+
+      return (
+        <div className="flex flex-col animate-in fade-in zoom-in-95 duration-700 w-full max-w-5xl mx-auto pb-2 px-4">
+          <div className="mb-6 text-center">
+            <h2 className="text-[20px] lg:text-[24px] font-bold text-[#111827] tracking-tight">
+              What do you want to study?
+            </h2>
+          </div>
+
+          <div className="relative mb-8 max-w-2xl mx-auto w-full">
+            <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400">
+              <Search className="w-5 h-5" />
+            </div>
+            <input
+              type="text"
+              placeholder='“Search study courses”'
+              className="w-full h-[60px] pl-14 pr-4 bg-[#f8fafc] border border-slate-200 rounded-[20px] text-[16px] font-medium text-slate-900 placeholder:text-slate-400 placeholder:italic focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all shadow-sm"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+            {filteredFields.map((f) => {
+              const isSel = form.field === f;
+              return (
+                <div key={f} className={`transition-all duration-500 ${isSel ? "md:col-span-2" : ""}`}>
+                  <button
+                    onClick={() => {
+                        updateForm("field", isSel ? "" : f);
+                        updateForm("program", "");
+                    }}
+                    className={`w-full h-[64px] px-8 flex items-center justify-between rounded-[22px] border transition-all duration-300 ${
+                      isSel
+                        ? "border-blue-500 bg-white shadow-lg shadow-blue-500/5 -translate-y-0.5"
+                        : "border-slate-100 bg-white shadow-sm hover:border-blue-200"
+                    }`}
+                  >
+                    <span className={`text-[16px] font-semibold ${isSel ? "text-slate-900" : "text-slate-700"}`}>
+                      {f}
+                    </span>
+                    <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform duration-300 ${isSel ? "rotate-180 text-blue-500" : ""}`} />
+                  </button>
+                  
+                  {isSel && (
+                    <div className="mt-3 p-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 animate-in fade-in slide-in-from-top-2 duration-300 bg-slate-50/50 rounded-[24px] border border-slate-100">
+                      {(PROGRAMS[f] || []).map((p) => (
+                        <button
+                          key={p}
+                          onClick={() => updateForm("program", p)}
+                          className={`w-full text-left px-5 py-3.5 rounded-[16px] text-[14px] font-semibold transition-all ${
+                            form.program === p
+                              ? "bg-blue-600 text-white shadow-md"
+                              : "text-slate-600 hover:bg-white hover:shadow-sm"
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+    // 4: Academics
+    if (step === 4) {
+      const EDUCATION_LEVELS = [
+        "10th Grade / SLC",
+        "12th Grade / +2 / HSEB",
+        "3-Year Diploma",
+        "Bachelor's Degree",
+        "Master's Degree",
+        "Integrated Master's"
+      ];
+      
+      const YEARS = Array.from({ length: 15 }, (_, i) => (2026 - i).toString());
+
+      return (
+        <div className="flex flex-col animate-in fade-in zoom-in-95 duration-700 w-full max-w-5xl mx-auto pb-2 px-4 mt-1">
+          <div className="mb-6 text-center">
+            <h2 className="text-[20px] lg:text-[24px] font-bold text-[#111827] tracking-tight">
+              Tell us about your background
+            </h2>
+          </div>
+
+          <div className="w-full max-w-2xl mx-auto mb-10 overflow-hidden rounded-[28px] shadow-sm border border-slate-100 md:hidden">
+            <Image
+              src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2070&auto=format&fit=crop"
+              alt="Academics"
+              width={800}
+              height={400}
+              className="w-full h-[220px] object-cover"
+              priority
+            />
+          </div>
+
+          <div className="flex flex-col gap-6 w-full max-w-[500px] mx-auto md:max-w-4xl md:grid md:grid-cols-2 lg:gap-10">
+            <div className="md:col-span-2 space-y-3">
+              <label className="text-[12px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                Highest Education Level
+              </label>
+              <SearchSelect
+                placeholder="Select Education Level"
+                options={EDUCATION_LEVELS}
+                value={form.highestEducation}
+                onChange={(v) => updateForm("highestEducation", v)}
+              />
+            </div>
+
+            <div className="space-y-3">
+              <label className="text-[12px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                Academics Score
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Academics Score (eg: 3.8/4.0)"
+                  className="w-full h-[60px] px-6 bg-[#f8fafc] border border-slate-200 rounded-[22px] text-[16px] font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all shadow-sm"
+                  value={form.gpa}
+                  onChange={(e) => updateForm("gpa", e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <label className="text-[12px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                Year of Passing
+              </label>
+              <SearchSelect
+                placeholder="Select Passing Year"
+                options={YEARS}
+                value={form.passingYear}
+                onChange={(v) => updateForm("passingYear", v)}
+              />
+            </div>
+          </div>
+          
+          {/* Extra spacing to prevent overlap with the fixed-ish footer on mobile */}
+          <div className="h-32 md:hidden" />
         </div>
       );
     }
 
     // 5: English
     if (step === 5) {
-      const calculateOverall = () => {
-        if (form.testType === "IELTS") {
-          const r = parseFloat(form.ielsReading) || 0;
-          const w = parseFloat(form.ielsWriting) || 0;
-          const l = parseFloat(form.ielsListening) || 0;
-          const s = parseFloat(form.ielsSpeaking) || 0;
-          if (r && w && l && s) {
-            const avg = (r + w + l + s) / 4;
-            updateForm("testScore", (Math.round(avg * 2) / 2).toString());
-          }
-        } else if (form.testType === "TOEFL") {
-          const r = parseInt(form.toeflReading) || 0;
-          const w = parseInt(form.toeflWriting) || 0;
-          const l = parseInt(form.toeflListening) || 0;
-          const s = parseInt(form.toeflSpeaking) || 0;
-          updateForm("testScore", (r + w + l + s).toString());
-        } else if (form.testType === "PTE") {
-          const r = parseInt(form.pteReading) || 0;
-          const w = parseInt(form.pteWriting) || 0;
-          const l = parseInt(form.pteListening) || 0;
-          const s = parseInt(form.pteSpeaking) || 0;
-          if (r && w && l && s) {
-            updateForm("testScore", Math.round((r + w + l + s) / 4).toString());
-          }
-        } else if (form.testType === "Duolingo") {
-          const l = parseInt(form.duoLiteracy) || 0;
-          const c = parseInt(form.duoComprehension) || 0;
-          const co = parseInt(form.duoConversation) || 0;
-          const p = parseInt(form.duoProduction) || 0;
-          if (l && c && co && p) {
-            updateForm(
-              "testScore",
-              Math.round((l + c + co + p) / 4).toString(),
-            );
-          }
-        }
-      };
-
-      const getFields = () => {
-        switch (form.testType) {
-          case "IELTS":
-            return [
-              {
-                k: "ielsReading",
-                l: "Reading",
-                placeholder: "6.5",
-                max: 9,
-                step: 0.5,
-              },
-              {
-                k: "ielsWriting",
-                l: "Writing",
-                placeholder: "6.0",
-                max: 9,
-                step: 0.5,
-              },
-              {
-                k: "ielsListening",
-                l: "Listening",
-                placeholder: "7.0",
-                max: 9,
-                step: 0.5,
-              },
-              {
-                k: "ielsSpeaking",
-                l: "Speaking",
-                placeholder: "6.5",
-                max: 9,
-                step: 0.5,
-              },
-            ];
-          case "TOEFL":
-            return [
-              {
-                k: "toeflReading",
-                l: "Reading",
-                placeholder: "25",
-                max: 30,
-                step: 1,
-              },
-              {
-                k: "toeflWriting",
-                l: "Writing",
-                placeholder: "24",
-                max: 30,
-                step: 1,
-              },
-              {
-                k: "toeflListening",
-                l: "Listening",
-                placeholder: "26",
-                max: 30,
-                step: 1,
-              },
-              {
-                k: "toeflSpeaking",
-                l: "Speaking",
-                placeholder: "25",
-                max: 30,
-                step: 1,
-              },
-            ];
-          case "PTE":
-            return [
-              {
-                k: "pteReading",
-                l: "Reading",
-                placeholder: "65",
-                max: 90,
-                step: 1,
-              },
-              {
-                k: "pteWriting",
-                l: "Writing",
-                placeholder: "60",
-                max: 90,
-                step: 1,
-              },
-              {
-                k: "pteListening",
-                l: "Listening",
-                placeholder: "70",
-                max: 90,
-                step: 1,
-              },
-              {
-                k: "pteSpeaking",
-                l: "Speaking",
-                placeholder: "65",
-                max: 90,
-                step: 1,
-              },
-            ];
-          case "Duolingo":
-            return [
-              {
-                k: "duoLiteracy",
-                l: "Literacy",
-                placeholder: "115",
-                max: 160,
-                step: 5,
-              },
-              {
-                k: "duoComprehension",
-                l: "Comprehension",
-                placeholder: "120",
-                max: 160,
-                step: 5,
-              },
-              {
-                k: "duoConversation",
-                l: "Conversation",
-                placeholder: "105",
-                max: 160,
-                step: 5,
-              },
-              {
-                k: "duoProduction",
-                l: "Production",
-                placeholder: "110",
-                max: 160,
-                step: 5,
-              },
-            ];
-          default:
-            return [];
-        }
-      };
-
+      const TESTS = ["IELTS", "TOEFL", "PTE", "Duolingo", "GRE", "GMAT"];
+      
       return (
-        <div className="flex flex-col items-center animate-in fade-in zoom-in-95 duration-700 w-full max-w-2xl mx-auto pb-12">
-          <div className="mb-5 text-center flex flex-col items-center pt-2">
-            <h2 className="text-[20px] sm:text-[28px] font-[700] text-[#111827] mb-3 tracking-tight">
-              {STEPS[step]?.question}
+        <div className="flex flex-col animate-in fade-in zoom-in-95 duration-700 w-full max-w-5xl mx-auto pb-2 px-4">
+          <div className="mb-2 text-center">
+            <h2 className="text-[20px] lg:text-[24px] font-bold text-[#111827] tracking-tight">
+              Do you have an English test score?
             </h2>
-            <p className="text-[#64748b] font-[400] text-[14px] sm:text-[15px] leading-snug w-full">
-              Standardized tests required for international admissions.
+            <p className="text-[14px] text-slate-500 font-medium mt-1">
+              This helps us estimate your admission chances
             </p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-10 w-full">
-            {TESTS.map((t) => {
-              const isSel = form.testType === t.v;
+          <div className="w-full max-w-2xl mx-auto mb-8 mt-6 overflow-hidden rounded-[28px] shadow-sm border border-slate-100 md:hidden">
+            <Image
+              src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=2073&auto=format&fit=crop"
+              alt="English Test"
+              width={800}
+              height={400}
+              className="w-full h-[180px] object-cover"
+              priority
+            />
+          </div>
+
+          <div className="flex flex-col items-center w-full max-w-2xl mx-auto">
+            <div className="grid grid-cols-2 gap-4 w-full mb-10">
+              <button
+                onClick={() => updateForm("hasEnglishTest", true)}
+                className={`h-[64px] flex items-center justify-center rounded-[22px] font-bold text-[15px] transition-all border ${
+                  form.hasEnglishTest === true
+                    ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/20 shadow-lg"
+                    : "bg-white text-slate-600 border-slate-100 shadow-sm hover:border-blue-200"
+                }`}
+              >
+                Yes, I have
+              </button>
+              <button
+                onClick={() => {
+                  updateForm("hasEnglishTest", false);
+                  updateForm("testType", "NONE");
+                  updateForm("testScore", "0");
+                }}
+                className={`h-[64px] flex items-center justify-center rounded-[22px] font-bold text-[15px] transition-all border ${
+                  form.hasEnglishTest === false
+                    ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/20 shadow-lg"
+                    : "bg-white text-slate-600 border-slate-100 shadow-sm hover:border-blue-200"
+                }`}
+              >
+                No, I haven't
+              </button>
+            </div>
+
+            {form.hasEnglishTest === true && (
+              <div className="w-full space-y-8 animate-in fade-in slide-in-from-top-4 duration-500">
+                <div className="text-center">
+                  <p className="text-[16px] font-bold text-slate-800">Describe your English level?</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+                   <div className="space-y-3">
+                    <label className="text-[12px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                      Choose English Test
+                    </label>
+                    <SearchSelect
+                      placeholder="Select your English Test"
+                      options={TESTS}
+                      value={form.testType === "NONE" ? "" : form.testType}
+                      onChange={(v) => updateForm("testType", v)}
+                    />
+                  </div>
+
+                  <div className="space-y-3">
+                    <label className="text-[12px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                      Your Score
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Enter your score"
+                      className="w-full h-[60px] px-6 bg-[#f8fafc] border border-slate-200 rounded-[22px] text-[16px] font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all shadow-sm"
+                      value={form.testScore === "0" ? "" : form.testScore}
+                      onChange={(e) => updateForm("testScore", e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {form.hasEnglishTest === false && (
+                <div className="text-center p-8 bg-blue-50/30 rounded-[32px] border border-blue-100/50 w-full animate-in zoom-in-95 duration-500">
+                    <p className="text-blue-800 font-semibold mb-1 text-[16px]">No problem!</p>
+                    <p className="text-blue-600/80 text-[14px]">You can continue with your matches, but we recommend taking a test later.</p>
+                </div>
+            )}
+          </div>
+          
+          <div className="h-20 md:hidden" />
+        </div>
+      );
+    }
+
+    // 6: Target Intake
+    if (step === 6) {
+      const INTAKE_OPTIONS = [
+        { main: "Spring 2026", sub: "September Intake" },
+        { main: "Summer 2026", sub: "September Intake" },
+        { main: "Fall 2025", sub: "September Intake" },
+        { main: "Not Sure", sub: "We'll suggest" }
+      ];
+
+      return (
+        <div className="flex flex-col animate-in fade-in zoom-in-95 duration-700 w-full max-w-5xl mx-auto pb-4 px-4">
+          <div className="mb-2 text-center">
+            <h2 className="text-[20px] lg:text-[24px] font-bold text-[#111827] tracking-tight">
+              When do you want to start your studies?
+            </h2>
+            <p className="text-[14px] text-slate-500 font-medium mt-1">
+              This helps us estimate your admission chances
+            </p>
+          </div>
+
+          <div className="w-full max-w-2xl mx-auto mb-10 mt-6 overflow-hidden rounded-[28px] shadow-sm border border-slate-100 md:hidden">
+            <Image
+              src="https://images.unsplash.com/photo-1541339907198-e08756ebafe3?q=80&w=2070&auto=format&fit=crop"
+              alt="World Map"
+              width={800}
+              height={400}
+              className="w-full h-[180px] object-cover"
+              priority
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 w-full max-w-2xl mx-auto mb-10">
+            {INTAKE_OPTIONS.map((opt) => {
+              const isSel = form.intake === opt.main;
               return (
                 <button
-                  key={t.v}
-                  onClick={() => updateForm("testType", t.v)}
-                  className={`p-5 rounded-[24px] border-2 flex flex-col items-center justify-center gap-2 transition-all ${isSel
-                    ? "border-blue-600 bg-blue-50/20 shadow-md transform scale-[1.02]"
-                    : "border-slate-50 bg-white hover:border-blue-100 hover:shadow-sm text-slate-400"
-                    }`}
+                  key={opt.main}
+                  onClick={() => updateForm("intake", opt.main)}
+                  className={`flex flex-col items-start gap-1 p-5 lg:p-6 rounded-[24px] border transition-all text-left group overflow-hidden relative ${
+                    isSel
+                      ? "border-blue-500 bg-blue-50/20 shadow-lg shadow-blue-500/10"
+                      : "border-slate-100 bg-white shadow-sm hover:border-blue-200"
+                  }`}
                 >
-                  <span
-                    className={`text-[12px] font-[700] uppercase tracking-widest ${isSel ? "text-blue-600" : "text-slate-400"}`}
-                  >
-                    {t.v}
+                  <div className="flex items-center gap-2">
+                    <Calendar className={`w-4 h-4 ${isSel ? "text-blue-500" : "text-red-400"}`} />
+                    <span className="text-[15px] font-bold text-slate-800">{opt.main}</span>
+                  </div>
+                  <span className={`text-[12px] font-medium ml-6 ${isSel ? "text-blue-600" : "text-slate-500"}`}>
+                    {opt.sub}
                   </span>
                 </button>
               );
             })}
           </div>
 
-          <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500 w-full">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {getFields().map((field) => (
-                <div
-                  key={field.k}
-                  className="bg-white rounded-[24px] border border-slate-100 p-6 shadow-sm focus-within:border-blue-500 transition-all text-center"
-                >
-                  <label className="block text-[10px] font-[700] text-slate-400 uppercase tracking-[0.2em] mb-3">
-                    {field.l}
-                  </label>
-                  <input
-                    type="number"
-                    step={field.step}
-                    min="0"
-                    max={field.max}
-                    value={(form as any)[field.k]}
-                    onChange={(e) => {
-                      updateForm(field.k as keyof Form, e.target.value);
-                      setTimeout(calculateOverall, 50);
-                    }}
-                    placeholder={field.placeholder}
-                    className="w-full text-2xl font-black text-center text-slate-900 outline-none bg-transparent placeholder:text-slate-100"
-                  />
-                </div>
+          <div className="w-full max-w-md mx-auto space-y-6">
+            <h3 className="text-center text-[16px] font-bold text-slate-800">Are you Ready?</h3>
+            
+            <div className="space-y-4">
+              {[
+                { k: "passportReady", l: "Passport ready" },
+                { k: "testDone", l: "English test done" },
+                { k: "docsReady", l: "Documents ready" }
+              ].map((c) => (
+                <label key={c.k} className="flex items-center gap-3 cursor-pointer group">
+                  <div 
+                    onClick={() => updateForm(c.k as keyof Form, !(form as any)[c.k])}
+                    className={`w-6 h-6 rounded-lg border-2 transition-all flex items-center justify-center ${
+                      (form as any)[c.k] ? "bg-blue-600 border-blue-600" : "border-slate-200 group-hover:border-blue-300"
+                    }`}
+                  >
+                    {(form as any)[c.k] && <Check className="w-4 h-4 text-white" strokeWidth={3} />}
+                  </div>
+                  <span className="text-[15px] font-semibold text-slate-700">{c.l}</span>
+                </label>
               ))}
             </div>
-
-            <div className="p-10 bg-[#0f172a] rounded-[32px] text-white flex flex-col sm:flex-row items-center gap-8 relative overflow-hidden shadow-xl">
-              <div className="absolute top-0 right-0 p-8 opacity-10">
-                <Sparkles className="w-24 h-24 text-blue-500" />
-              </div>
-              <div className="text-center sm:text-left flex-1 z-10">
-                <p className="text-[11px] font-[700] uppercase tracking-[0.3em] text-blue-400 mb-2">
-                  Aggregate Result
-                </p>
-                <h3 className="text-3xl font-[700] mb-1">
-                  Overall {form.testType}
-                </h3>
-                <p className="text-slate-400 text-[13px]">
-                  Automatic conversion enabled.
-                </p>
-              </div>
-              <div className="w-24 h-24 rounded-[28px] bg-blue-600 flex items-center justify-center text-3xl font-[800] shadow-xl z-10">
-                {form.testScore || "0"}
-              </div>
-            </div>
           </div>
+          
+          <div className="h-20 md:hidden" />
         </div>
       );
     }
-
-    // 6: Financial Strategy
-    if (step === 6) {
+    // 7: Budget
+    if (step === 7) {
       return (
         <div className="flex flex-col items-center animate-in fade-in zoom-in-95 duration-700 w-full max-w-2xl mx-auto pb-12 mt-2">
           <div className="mb-5 text-center flex flex-col items-center">
@@ -3853,12 +3885,12 @@ export default function AbroadLiftMatchesPage() {
           </div>
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             {step > 0 && step < 8 && (
-              <span className="text-[25px] font-semibold text-slate-900 tracking-tight">
+              <span className="text-[19px] font-bold text-[#111827] tracking-tight">
                 {STEPS[step]?.label}
               </span>
             )}
             {step >= 8 && (
-              <span className="text-[24px] font-[800] text-slate-900 tracking-tight">
+              <span className="text-[20px] font-bold text-[#111827] tracking-tight">
                 Results
               </span>
             )}
@@ -3867,16 +3899,17 @@ export default function AbroadLiftMatchesPage() {
         </div>
 
         {/* Progress Header - Now below the title */}
-        {step > 0 && (
-          <div className="w-full flex justify-center pt-1 pb-3 bg-white shrink-0 print:hidden z-[60] relative">
+        {step > 0 && step < 7 && (
+          <div className="w-full flex justify-center pt-1 pb-6 bg-white shrink-0 print:hidden z-[60] relative">
             <div className="flex items-center gap-1.5">
-              {Array.from({ length: STEPS.length - 1 }).map((_, i) => (
+              {Array.from({ length: 6 }).map((_, i) => (
                 <div
                   key={i}
-                  className={`h-[4.5px] rounded-full transition-all duration-500 ease-out ${i + 1 <= step
-                    ? "w-8 bg-blue-500"
-                    : "w-8 bg-slate-100"
-                    }`}
+                  className={`h-[4px] rounded-full transition-all duration-500 ease-out ${
+                    i + 1 === step
+                      ? "w-8 bg-blue-500"
+                      : "w-8 bg-slate-100"
+                  }`}
                 />
               ))}
             </div>
@@ -3884,22 +3917,23 @@ export default function AbroadLiftMatchesPage() {
         )}
 
         {/* Step Content Area */}
-        <div className="flex-1 overflow-y-auto px-8 lg:px-12 pt-3 pb-8 lg:py-12 override-scroll">
+        <div className="flex-1 overflow-y-auto px-6 lg:px-12 pt-3 pb-24 lg:pb-32 override-scroll">
           <div
             className={`${step >= 9 ? "max-w-full" : "max-w-4xl"} mx-auto min-h-full flex flex-col`}
           >
             <div className="flex-1">{renderStep()}</div>
 
             {/* Step Navigation Footer */}
-            {step > 0 && step !== 8 && (
-              <div className="mt-4 flex justify-center pb-12 print:hidden w-full max-w-[320px] mx-auto pt-0 z-40">
+            {step > 0 && step !== 8 && step < 9 && (
+              <div className="mt-8 flex justify-center pb-8 print:hidden w-full max-w-[340px] mx-auto pt-0 z-40">
                 <button
                   onClick={handleNext}
                   disabled={!canContinue()}
-                  className={`w-full h-[52px] rounded-full font-[600] text-[15px] transition-all flex items-center justify-center tracking-wide ${canContinue()
-                    ? "bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-500/10"
-                    : "bg-[#eff5fd] text-[#9ca3af] cursor-not-allowed"
-                    }`}
+                  className={`w-full h-[58px] rounded-[20px] font-[600] text-[16px] transition-all flex items-center justify-center tracking-wide ${
+                    canContinue()
+                      ? "bg-blue-500 hover:bg-blue-600 text-white shadow-[0_8px_20px_-6px_rgba(59,130,246,0.35)]"
+                      : "bg-[#eff5fd] text-[#9ca3af] cursor-not-allowed"
+                  }`}
                 >
                   {step === 7 ? "Analyze & Match" : "Continue"}
                 </button>
