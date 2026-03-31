@@ -12,6 +12,8 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { Feather, Ionicons, MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useUser } from "../context/UserContext";
+import { ProfileAvatar } from "../../components/ProfileAvatar";
 
 const { width } = Dimensions.get("window");
 
@@ -87,7 +89,7 @@ export default function CostBreakdownScreen() {
           style={styles.profileButton}
           onPress={() => router.push("/(tabs)/profile")}
         >
-          <Ionicons name="person-circle" size={44} color="#CBD5E1" />
+          <ProfileAvatar size={44} color="#CBD5E1" />
         </TouchableOpacity>
       </View>
 

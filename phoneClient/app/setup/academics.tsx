@@ -33,17 +33,19 @@ export default function AcademicsSetup() {
   const { userData, setUserData } = useUser();
   const [recentField, setRecentField] = useState(userData.recentAcademicField || "");
   const [cgpa, setCgpa] = useState(userData.cgpa || "");
+  const [passoutYear, setPassoutYear] = useState(userData.passoutYear || "");
 
   const handleContinue = () => {
     setUserData(prev => ({
       ...prev,
       recentAcademicField: recentField,
       cgpa: cgpa,
+      passoutYear: passoutYear,
     }));
     router.push("/setup/english-test");
   };
 
-  const isFormValid = recentField.trim().length > 0 && cgpa.trim().length > 0;
+  const isFormValid = recentField.trim().length > 0 && cgpa.trim().length > 0 && passoutYear.trim().length > 0;
 
   return (
     <View style={styles.container}>
@@ -114,6 +116,23 @@ export default function AcademicsSetup() {
                       value={cgpa}
                       onChangeText={setCgpa}
                       keyboardType="numeric"
+                    />
+                  </View>
+                </View>
+
+                {/* Passout Year Card */}
+                <View style={styles.inputCard}>
+                  <Text style={styles.inputLabel}>Passout Year</Text>
+                  <View style={styles.textInputWrapper}>
+                    <Feather name="calendar" size={18} color={COLORS.textGray} style={styles.inputIcon} />
+                    <TextInput
+                      style={styles.textInput}
+                      placeholder="e.g. 2024"
+                      placeholderTextColor={COLORS.textGray}
+                      value={passoutYear}
+                      onChangeText={setPassoutYear}
+                      keyboardType="numeric"
+                      maxLength={4}
                     />
                   </View>
                 </View>

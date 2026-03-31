@@ -106,7 +106,9 @@ export default function ProfileTab() {
             <View style={styles.prefTextContent}>
                 <Text style={styles.prefLabel}>Academics</Text>
                 <Text style={styles.prefValue}>
-                    {userData.recentAcademicField ? `${userData.recentAcademicField} • ${userData.cgpa} CGPA` : "Not Set"}
+                    {userData.recentAcademicField 
+                        ? `${userData.recentAcademicField} • ${userData.cgpa} CGPA${userData.passoutYear ? ` • ${userData.passoutYear}` : ""}` 
+                        : "Not Set"}
                 </Text>
             </View>
           </View>

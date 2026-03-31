@@ -14,6 +14,7 @@ type UserData = {
   englishLevel?: string;
   score?: string;
   testType?: string;
+  passoutYear?: string;
   selectedUniversities: any[];
 };
 
@@ -37,6 +38,7 @@ const DEFAULT_USER_DATA: UserData = {
   englishLevel: "",
   score: "",
   testType: "",
+  passoutYear: "",
   selectedUniversities: [],
 };
 

@@ -15,6 +15,7 @@ import { useLocalSearchParams, router, Stack } from "expo-router";
 import { Feather, Ionicons, MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useUser } from "../context/UserContext";
+import { ProfileAvatar } from "../../components/ProfileAvatar";
 
 const { width, height } = Dimensions.get("window");
 
@@ -322,7 +323,7 @@ export default function UniversityDetails() {
                 style={styles.headerCircleBtn}
                 onPress={() => router.push("/(tabs)/profile")}
               >
-                <Ionicons name="person-circle" size={40} color="rgba(255,255,255,0.7)" />
+                <ProfileAvatar size={40} color="rgba(255,255,255,0.7)" />
               </TouchableOpacity>
             </View>
           </View>

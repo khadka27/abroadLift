@@ -34,6 +34,9 @@ export default function EditProfile() {
     name: userData.name,
     username: userData.username,
     profileImage: userData.profileImage,
+    recentAcademicField: userData.recentAcademicField || "",
+    cgpa: userData.cgpa || "",
+    passoutYear: userData.passoutYear || "",
   });
 
   const pickImage = async () => {
@@ -55,6 +58,9 @@ export default function EditProfile() {
       name: formData.name,
       username: formData.username,
       profileImage: formData.profileImage,
+      recentAcademicField: formData.recentAcademicField,
+      cgpa: formData.cgpa,
+      passoutYear: formData.passoutYear,
     }));
     router.back();
   };
@@ -118,6 +124,39 @@ export default function EditProfile() {
                 onChangeText={(val) => setFormData({...formData, username: val})}
                 placeholder="Username"
                 autoCapitalize="none"
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Recent Field of Study</Text>
+              <TextInput 
+                style={styles.input}
+                value={formData.recentAcademicField}
+                onChangeText={(val) => setFormData({...formData, recentAcademicField: val})}
+                placeholder="e.g. Science"
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>CGPA / Percentage</Text>
+              <TextInput 
+                style={styles.input}
+                value={formData.cgpa}
+                onChangeText={(val) => setFormData({...formData, cgpa: val})}
+                placeholder="e.g. 3.8"
+                keyboardType="numeric"
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Passout Year</Text>
+              <TextInput 
+                style={styles.input}
+                value={formData.passoutYear}
+                onChangeText={(val) => setFormData({...formData, passoutYear: val})}
+                placeholder="e.g. 2024"
+                keyboardType="numeric"
+                maxLength={4}
               />
             </View>
           </View>

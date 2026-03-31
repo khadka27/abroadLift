@@ -11,10 +11,13 @@ import {
   StatusBar,
   TextInput,
   Platform,
+  Modal,
 } from "react-native";
 import { router } from "expo-router";
 import { Feather, Ionicons, MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useUser } from "../context/UserContext";
+import { ProfileAvatar } from "../../components/ProfileAvatar";
 
 const { width } = Dimensions.get("window");
 
@@ -31,8 +34,24 @@ const THEME = {
   red: "#EF4444",
 };
 
+const COUNTRIES = [
+  { id: "usa", name: "USA", flag: "🇺🇸" },
+  { id: "uk", name: "UK", flag: "🇬🇧" },
+  { id: "canada", name: "Canada", flag: "🇨🇦" },
+  { id: "australia", name: "Australia", flag: "🇦🇺" },
+  { id: "germany", name: "Germany", flag: "🇩🇪" },
+  { id: "france", name: "France", flag: "🇫🇷" },
+  { id: "japan", name: "Japan", flag: "🇯🇵" },
+  { id: "italy", name: "Italy", flag: "🇮🇹" },
+  { id: "korea", name: "Korea", flag: "🇰🇷" },
+  { id: "india", name: "India", flag: "🇮🇳" },
+];
+
 export default function DashboardScreen() {
-  const { userData } = useUser();
+  const { userData, setUserData } = useUser();
+  const [showPlanModal, setShowPlanModal] = React.useState(false);
+  const [modalStep, setModalStep] = React.useState<'options' | 'country'>('options');
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" translucent />
@@ -40,7 +59,7 @@ export default function DashboardScreen() {
       {/* Top Bar */}
       <View style={styles.topBar}>
         <View style={styles.greetingSection}>
-          <Text style={styles.greetingText}>Hi, Grishma 👋</Text>
+          <Text style={styles.greetingText}>Hi, {userData.name || "user"} 👋</Text>
           <Text style={styles.subGreetingText}>Here's your abroad study overview</Text>
         </View>
         <View style={styles.topBarIcons}>
@@ -51,7 +70,7 @@ export default function DashboardScreen() {
             style={styles.profileButton}
             onPress={() => router.push("/(tabs)/profile")}
           >
-            <Ionicons name="person-circle" size={44} color="#E2E8F0" />
+            <ProfileAvatar size={44} color="#E2E8F0" />
           </TouchableOpacity>
         </View>
       </View>
@@ -61,7 +80,7 @@ export default function DashboardScreen() {
         {/* Study Plan Card */}
         <TouchableOpacity 
           style={styles.studyPlanCard}
-          onPress={() => router.push("/search")}
+          onPress={() => setShowPlanModal(true)}
         >
           <View style={styles.studyPlanInfo}>
             <Text style={styles.flagEmoji}>{userData.flag}</Text>
@@ -180,11 +199,19 @@ export default function DashboardScreen() {
                 <Text style={styles.viewPlanButtonText}>View Plan</Text>
               </TouchableOpacity>
            </View>
-           <Image 
-             source={{ uri: "https://cdni.iconscout.com/illustration/premium/thumb/searching-for-university-location-illustration-download-in-svg-png-gif-formats--student-search-education-world-pack-people-illustrations-4712431.png" }} 
-             style={styles.improveImage}
-             resizeMode="contain"
-           />
+           <View style={styles.imageFadeContainer}>
+              <Image 
+                source={{ uri: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=400&q=80" }} 
+                style={styles.improveImage}
+                resizeMode="cover"
+              />
+              <LinearGradient
+                colors={["transparent", "#FDF5E1"]}
+                start={{ x: 1, y: 0.5 }}
+                end={{ x: 0, y: 0.5 }}
+                style={styles.fadeOverlay}
+              />
+           </View>
         </View>
 
         {/* Recommended Universities */}
@@ -311,6 +338,112 @@ export default function DashboardScreen() {
         </View>
 
       </ScrollView>
+
+      {/* Plan Edit Modal */}
+      <Modal
+         animationType="slide"
+         transparent={true}
+         visible={showPlanModal}
+         onRequestClose={() => {
+           setShowPlanModal(false);
+           setModalStep('options');
+         }}
+      >
+         <TouchableOpacity 
+           style={styles.modalOverlay} 
+           activeOpacity={1} 
+           onPress={() => {
+             setShowPlanModal(false);
+             setModalStep('options');
+           }}
+         >
+           <View style={[styles.modalContent, modalStep === 'country' && { height: '80%' }]}>
+             <View style={styles.modalIndicator} />
+             
+             {modalStep === 'options' ? (
+               <>
+                 <Text style={styles.modalTitle}>Update Study Plan</Text>
+                 <Text style={styles.modalSubtitle}>What would you like to update first?</Text>
+
+                 <View style={styles.modalOptions}>
+                   <TouchableOpacity 
+                     style={styles.modalOption}
+                     onPress={() => setModalStep('country')}
+                   >
+                     <View style={[styles.modalOptionIcon, { backgroundColor: "#E0F2FE" }]}>
+                       <Ionicons name="globe-outline" size={24} color={THEME.blue} />
+                     </View>
+                     <View style={styles.modalOptionTextWrapper}>
+                       <Text style={styles.modalOptionTitle}>Change Destination</Text>
+                       <Text style={styles.modalOptionDesc}>Current: {userData.flag} {userData.country}</Text>
+                     </View>
+                     <Feather name="chevron-right" size={20} color="#CBD5E1" />
+                   </TouchableOpacity>
+
+                   <TouchableOpacity 
+                     style={styles.modalOption}
+                     onPress={() => {
+                       setShowPlanModal(false);
+                       router.push("/search");
+                     }}
+                   >
+                     <View style={[styles.modalOptionIcon, { backgroundColor: "#F3F4F6" }]}>
+                       <Ionicons name="business-outline" size={24} color={THEME.textDark} />
+                     </View>
+                     <View style={styles.modalOptionTextWrapper}>
+                       <Text style={styles.modalOptionTitle}>Find University</Text>
+                       <Text style={styles.modalOptionDesc}>Search universities in {userData.country}</Text>
+                     </View>
+                     <Feather name="chevron-right" size={20} color="#CBD5E1" />
+                   </TouchableOpacity>
+                 </View>
+               </>
+             ) : (
+               <>
+                 <View style={styles.modalHeaderRow}>
+                   <TouchableOpacity onPress={() => setModalStep('options')}>
+                     <Feather name="chevron-left" size={24} color={THEME.textDark} />
+                   </TouchableOpacity>
+                   <Text style={styles.modalTitle}>Select Destination</Text>
+                   <View style={{ width: 24 }} />
+                 </View>
+                 <Text style={styles.modalSubtitle}>Where do you want to study?</Text>
+
+                 <ScrollView showsVerticalScrollIndicator={false}>
+                   <View style={styles.modalGrid}>
+                     {COUNTRIES.map((c) => (
+                       <TouchableOpacity 
+                         key={c.id}
+                         style={[
+                           styles.modalCountryItem,
+                           userData.country === c.name && styles.modalCountrySelected
+                         ]}
+                         onPress={() => {
+                           setShowPlanModal(false); setModalStep('options'); router.push({ pathname: "/search", params: { pendingCountry: c.name, pendingFlag: c.flag } });
+                           setModalStep('options');
+                         }}
+                       >
+                         <Text style={styles.modalCountryFlag}>{c.flag}</Text>
+                         <Text style={styles.modalCountryName}>{c.name}</Text>
+                       </TouchableOpacity>
+                     ))}
+                   </View>
+                 </ScrollView>
+               </>
+             )}
+
+             <TouchableOpacity 
+               style={styles.modalCloseBtn}
+               onPress={() => {
+                 setShowPlanModal(false);
+                 setModalStep('options');
+               }}
+             >
+               <Text style={styles.modalCloseBtnText}>Close</Text>
+             </TouchableOpacity>
+           </View>
+         </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -546,6 +679,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 32,
     position: "relative",
+    overflow: "hidden", // Ensure image doesn't bleed out of rounded corners
   },
   improveContent: {
     width: "60%",
@@ -590,13 +724,21 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "800",
   },
-  improveImage: {
+  imageFadeContainer: {
     position: "absolute",
-    right: -10,
-    bottom: -10,
-    width: 160,
-    height: 160,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    width: "50%",
     zIndex: 5,
+  },
+  improveImage: {
+    width: "100%",
+    height: "100%",
+  },
+  fadeOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    width: "100%",
   },
   sectionHeader: {
     flexDirection: "row",
@@ -805,5 +947,121 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     justifyContent: "center",
     alignItems: "center",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "flex-end",
+  },
+  modalContent: {
+    backgroundColor: "white",
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    padding: 24,
+    paddingBottom: Platform.OS === 'ios' ? 40 : 24,
+  },
+  modalIndicator: {
+    width: 40,
+    height: 4,
+    backgroundColor: "#E2E8F0",
+    borderRadius: 2,
+    alignSelf: "center",
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "800",
+    color: THEME.textDark,
+    textAlign: "center",
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    color: THEME.textGray,
+    textAlign: "center",
+    marginTop: 8,
+    marginBottom: 32,
+  },
+  modalOptions: {
+    gap: 16,
+  },
+  modalOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F8FAFC",
+    padding: 16,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#F1F5F9",
+  },
+  modalOptionIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalOptionTextWrapper: {
+    flex: 1,
+    marginLeft: 16,
+  },
+  modalOptionTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: THEME.textDark,
+  },
+  modalOptionDesc: {
+    fontSize: 12,
+    color: THEME.textGray,
+    marginTop: 2,
+  },
+  modalCloseBtn: {
+    marginTop: 24,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: "#F3F4F6",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalCloseBtnText: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: THEME.textGray,
+  },
+  modalHeaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  modalGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    paddingTop: 10,
+  },
+  modalCountryItem: {
+    width: "30%",
+    aspectRatio: 1,
+    backgroundColor: "#F8FAFC",
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#F1F5F9",
+  },
+  modalCountrySelected: {
+    borderColor: THEME.blue,
+    backgroundColor: "rgba(59, 130, 246, 0.05)",
+    borderWidth: 2,
+  },
+  modalCountryFlag: {
+    fontSize: 24,
+    marginBottom: 4,
+  },
+  modalCountryName: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: THEME.textDark,
   },
 });

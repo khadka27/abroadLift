@@ -13,6 +13,7 @@ import {
 import { router, Stack } from "expo-router";
 import { Feather, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ProfileAvatar } from "../components/ProfileAvatar";
 
 const { width } = Dimensions.get("window");
 
@@ -84,7 +85,7 @@ export default function VisaReadinessPage() {
           style={styles.profileButton}
           onPress={() => router.push("/(tabs)/profile")}
         >
-          <Ionicons name="person-circle" size={44} color="#CBD5E1" />
+          <ProfileAvatar size={44} color="#CBD5E1" />
         </TouchableOpacity>
       </View>
 
