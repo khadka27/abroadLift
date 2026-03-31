@@ -1,0 +1,21 @@
+@@ -532,14 +532,15 @@
+ ];
+ const STEPS = [
+   { label: "Welcome", question: "Your Journey Starts Here." },
+-  { label: "Destination", question: "Where do you want to study?" },
+-  { label: "Degree Level", question: "What is your target degree?" },
+-  { label: "Study Area", question: "What do you want to study?" },
+-  { label: "Target Intake", question: "When do you want to start?" },
+-  { label: "English Proficiency", question: "Do you have a test score?" },
++  { label: "Country", question: "Where do you want to study?" },
++  { label: "Study Level", question: "What level of study are you planning?" },
++  { label: "Field Of Study", question: "What do you want to study?" },
++  { label: "Academics", question: "Tell us about your background" },
++  { label: "Target Intake", question: "When do you want to start?" }, // we can leave this
++  { label: "English", question: "Do you have an English test score?" },
+   { label: "Budget", question: "What is your annual budget?" },
+   { label: "Student Profile", question: "A few final details!" },
+   { label: "Your Matches", question: "Choose your future!" },
+ 
+ 
+ 
