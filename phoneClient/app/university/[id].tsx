@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   View,
@@ -16,6 +16,8 @@ import { Feather, Ionicons, MaterialIcons, MaterialCommunityIcons } from "@expo/
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useUser } from "../context/UserContext";
 import { ProfileAvatar } from "../../components/ProfileAvatar";
+import { getWorqnowUniversityDetail, WorqnowUniversity } from "../../lib/worqnow";
+import { ActivityIndicator } from "react-native";
 
 const { width, height } = Dimensions.get("window");
 
@@ -68,19 +70,48 @@ const UNIVERSITIES: Record<string, any> = {
 const TABS = ["Estimates", "Overview", "Rankings", "Courses & Fees"];
 
 export default function UniversityDetails() {
-  const { id } = useLocalSearchParams();
+  const { id, country, name } = useLocalSearchParams();
   const insets = useSafeAreaInsets();
   const { selectUniversity } = useUser();
   const [selectedTab, setSelectedTab] = useState("Estimates");
   const [courseSearch, setCourseSearch] = useState("");
-  
-  const details = UNIVERSITIES[id as string] || UNIVERSITIES["3"];
+  const [loading, setLoading] = useState(true);
+  const [uniData, setUniData] = useState<WorqnowUniversity | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      setLoading(true);
+      const data = await getWorqnowUniversityDetail(id as string, country as string);
+      if (mounted) {
+        setUniData(data);
+        setLoading(false);
+      }
+    };
+    load();
+    return () => { mounted = false; };
+  }, [id, country]);
+
+  const fallback = UNIVERSITIES["3"];
+  const details = {
+    title: uniData?.name || (name as string) || fallback.title,
+    location: uniData?.city ? `${uniData.city}${uniData.region ? ", " + uniData.region : ""}` : fallback.location,
+    image: fallback.image, // Placeholder since WorqNow API doesn't return images
+    description: "This data is powered by WorqNow. " + fallback.description,
+    type: uniData?.is_russell_group ? "Russell Group" : fallback.type,
+    established: fallback.established,
+    campus: fallback.campus,
+    students: fallback.students,
+    ranking_world: uniData?.ranking_world || "N/A",
+    ranking_national: uniData?.ranking_national || "N/A",
+    fee_usd: uniData?.estimatedFeeUSD || 65000,
+  };
 
   const renderEstimates = () => (
     <View style={styles.tabContent}>
       <View style={styles.estimateCard}>
         <Text style={styles.estimateLabel}>ESTIMATED TOTAL COST / YR</Text>
-        <Text style={styles.estimateValue}>$65,000</Text>
+        <Text style={styles.estimateValue}>${details.fee_usd?.toLocaleString() || "65,000"}</Text>
         <View style={styles.costBar}>
           <View style={[styles.costSegment, { width: '65%', backgroundColor: '#6366F1' }]} />
           <View style={[styles.costSegment, { width: '25%', backgroundColor: '#FBBF24' }]} />
@@ -215,15 +246,15 @@ export default function UniversityDetails() {
           </View>
         </View>
         <View style={styles.globalRanksRow}>
-          <View style={styles.rankSubCard}>
+           <View style={styles.rankSubCard}>
              <Text style={styles.rankAgency}>QS WORLD</Text>
-             <Text style={styles.rankNumber}>#3</Text>
+             <Text style={styles.rankNumber}>#{details.ranking_world}</Text>
              <Text style={styles.rankScope}>Global</Text>
           </View>
           <View style={styles.rankSubCard}>
-             <Text style={styles.rankAgency}>THE WORLD</Text>
-             <Text style={styles.rankNumber}>#2</Text>
-             <Text style={styles.rankScope}>Global</Text>
+             <Text style={styles.rankAgency}>NATIONAL</Text>
+             <Text style={styles.rankNumber}>#{details.ranking_national}</Text>
+             <Text style={styles.rankScope}>National</Text>
           </View>
         </View>
         <View style={styles.ribbonOverlay}>
@@ -261,11 +292,17 @@ export default function UniversityDetails() {
         />
       </View>
 
-      {[
+      {(uniData?.courses?.length ? uniData.courses.map(c => ({
+          name: c.name,
+          duration: c.level.join(", ") || "Unknown",
+          mode: "Full-time",
+          fee: details.fee_usd ? `$${details.fee_usd}/yr` : "Unknown",
+          category: c.category.toUpperCase() || "GENERAL"
+      })) : [
         { name: "MSc Computer Science", duration: "2 Years", mode: "Full-time", fee: "$62,000/yr", category: "ENGINEERING" },
         { name: "MBA", duration: "2 Years", mode: "Full-time", fee: "$75,000/yr", category: "BUSINESS" },
         { name: "MSc Data Science", duration: "1.5 Years", mode: "Full-time", fee: "$58,000/yr", category: "ENGINEERING" },
-      ].map((course, idx) => (
+      ]).map((course, idx) => (
         <View key={idx} style={styles.courseCard}>
           <View style={styles.courseCardHeader}>
             <Text style={styles.courseName}>{course.name}</Text>
@@ -292,6 +329,15 @@ export default function UniversityDetails() {
       ))}
     </View>
   );
+
+  if (loading) {
+    return (
+      <View style={[styles.container, { justifyContent: "center", alignItems: "center" }]}>
+        <ActivityIndicator size="large" color={THEME.primary} />
+        <Text style={{ marginTop: 12, color: THEME.textGray, fontWeight: "600" }}>Loading University Details...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -370,7 +416,7 @@ export default function UniversityDetails() {
                 name: details.title,
                 location: details.location,
                 image: details.image,
-                course: details.offered?.[0] || "MSc Computer Science",
+                course: uniData?.courses?.[0]?.name || "MSc Computer Science",
               });
               router.push("/(tabs)/explore");
             }}
