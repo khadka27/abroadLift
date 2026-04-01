@@ -49,8 +49,9 @@ import {
   SlidersHorizontal,
   Bell,
   Pencil,
-  AlertTriangle,
+  Star,
   Target,
+  AlertTriangle,
   FileText,
   Banknote,
   MessageCircle,
@@ -1271,6 +1272,7 @@ export default function AbroadLiftMatchesPage() {
   const [form, setForm] = useState<Form>(DEF);
   const [matches, setMatches] = useState<Match[]>([]);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
+  const [admissionTab, setAdmissionTab] = useState<string>("Safe");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState(""); // For Step 3 (Field of Study)
@@ -3084,199 +3086,132 @@ export default function AbroadLiftMatchesPage() {
 
     // 10: College acceptance - See complete details
     if (step === 10 && selectedMatch) {
-      const profileScore = getEligibilityScore(form);
-      const admissionPct = Math.max(
-        35,
-        Math.min(
-          95,
-          Math.round(
-            (selectedMatch.admissionRate || 60) * 0.5 + profileScore * 0.5,
-          ),
-        ),
-      );
-      const admissionBand = getRateBand(admissionPct);
-
-      const gpaVal = parseFloat(form.gpa) || 3.0;
-      const backlogs = parseInt(form.backlogs) || 0;
-      const academicFit = Math.max(
-        4,
-        Math.min(
-          10,
-          Math.round((gpaVal / 4) * 10) - Math.min(2, Math.floor(backlogs / 3)),
-        ),
-      );
-
-      const englishScore = parseFloat(form.testScore) || 0;
-      const englishStatus =
-        englishScore >= 6.5
-          ? "Meets minimum English requirement"
-          : "Below preferred band";
-
-      const competitiveness: "Low" | "Medium" | "High" =
-        (selectedMatch.admissionRate || 60) >= 75
-          ? "Low"
-          : (selectedMatch.admissionRate || 60) >= 55
-            ? "Medium"
-            : "High";
-
-      const strengths = [
-        "Recent graduation year",
-        "Relevant field of study",
-        englishScore >= 6.5
-          ? "Solid English score"
-          : "English score close to required threshold",
-      ].slice(0, 4);
-
-      const weakAreas = [
-        gpaVal < 3.0
-          ? "CGPA below preferred band"
-          : "CGPA is competitive for many programmes",
-        (parseInt(form.studyGap) || 0) > 2
-          ? "Older graduation year"
-          : "Study gap is manageable",
-        (parseInt(form.sponsorIncome) || 0) < 150000
-          ? "No clear monthly funding strength"
-          : "Funding profile can be strengthened further",
-      ].slice(0, 4);
-
+      const admissionPct = 75; 
+      const admissionBand = "Moderate";
+      const gpa = form.gpa || "3.5";
+      const ielts = form.testScore || "6.0";
+      
       return (
-        <div className="animate-in fade-in slide-in-from-bottom-2 duration-400 max-w-full px-4 md:px-8 lg:px-16 pb-24">
-          <div className="max-w-4xl mx-auto space-y-6">
-            <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
-              How your admission chances are calculated
-            </h2>
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-full px-4 pb-32 space-y-5 bg-white min-h-screen">
+          {/* Header */}
+          <div className="flex items-center justify-between pt-2 pb-4 italic uppercase tracking-tighter">
+             <div className="flex items-center gap-4">
+                <button onClick={() => setStep(9)} className="p-1">
+                   <ChevronLeft className="w-6 h-6 text-slate-900" />
+                </button>
+                <h1 className="text-xl font-black text-slate-900 tracking-tight">Admission Chance</h1>
+             </div>
+             <div className="w-11 h-11 rounded-full bg-slate-200 overflow-hidden border-2 border-white shadow-md">
+                <Image src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100" width={44} height={44} alt="U" />
+             </div>
+          </div>
 
-            <Card className="p-6 md:p-8 rounded-[32px] border border-slate-100 bg-white shadow-sm">
-              <p className="text-5xl md:text-6xl font-black text-slate-900 leading-none">
-                {admissionPct}%
-              </p>
-              <div className="mt-3">
-                <span
-                  className={`inline-flex px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest ${admissionBand.badgeClass}`}
-                >
-                  {admissionBand.label}
-                </span>
-              </div>
-            </Card>
+          <Card className="p-8 rounded-[32px] border border-slate-100 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.05)] relative overflow-hidden">
+             <div className="relative z-10 flex items-center justify-between">
+                <div className="space-y-4">
+                   <p className="text-[13px] font-bold text-slate-600 leading-none tracking-tight">Admission Percentage</p>
+                   <h2 className="text-2xl font-black text-slate-900 leading-tight">
+                     {admissionPct}% - {admissionBand}
+                   </h2>
+                   <div className="inline-flex px-4 py-2 bg-amber-100/90 text-amber-800 text-[11px] font-black rounded-full uppercase tracking-widest shadow-sm">
+                     ● Average Cost
+                   </div>
+                </div>
+                <div className="relative w-24 h-24 shrink-0">
+                   <svg viewBox="0 0 36 36" className="w-full h-full transform -rotate-90 scale-110">
+                      <circle cx="18" cy="18" r="16" fill="transparent" stroke="#B2E7E5" strokeWidth="5" />
+                      <circle cx="18" cy="18" r="16" fill="transparent" stroke="#FD644F" strokeWidth="5" strokeDasharray={`40 100`} strokeLinecap="round" />
+                      <circle cx="18" cy="18" r="16" fill="transparent" stroke="#14B2AD" strokeWidth="5" strokeDasharray={`60 100`} strokeDashoffset={`-40`} strokeLinecap="round" />
+                   </svg>
+                   <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-12 h-12 bg-white rounded-full shadow-inner" />
+                   </div>
+                </div>
+             </div>
+          </Card>
 
-            <Card className="p-4 md:p-6 rounded-[28px] border border-slate-100 bg-white">
-              <h3 className="text-sm md:text-base font-black text-slate-900 mb-3">
-                Eligibility / chance bands
-              </h3>
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[360px] text-left border-separate border-spacing-y-2">
-                  <thead>
-                    <tr className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                      <th className="px-3 py-2">Range</th>
-                      <th className="px-3 py-2">Chance</th>
-                      <th className="px-3 py-2">Color</th>
-                    </tr>
-                  </thead>
-                  <tbody className="text-sm font-bold text-slate-700">
-                    <tr>
-                      <td className="px-3 py-2">80% - 100%</td>
-                      <td className="px-3 py-2">High Chance</td>
-                      <td className="px-3 py-2 text-emerald-700">Green</td>
-                    </tr>
-                    <tr>
-                      <td className="px-3 py-2">50% - 80%</td>
-                      <td className="px-3 py-2">Moderate Chance</td>
-                      <td className="px-3 py-2 text-amber-700">Yellow</td>
-                    </tr>
-                    <tr>
-                      <td className="px-3 py-2">Below 50%</td>
-                      <td className="px-3 py-2">Low Chance</td>
-                      <td className="px-3 py-2 text-rose-700">Red</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </Card>
+          <div className="bg-white rounded-[24px] border border-slate-100 overflow-hidden shadow-sm">
+             <div className="p-5 flex items-center justify-between border-b border-slate-50">
+                <span className="font-bold text-slate-800">Your Profile Analysis</span>
+                <ChevronDown className="w-5 h-5 text-slate-300" />
+             </div>
+             <div className="px-5 py-5 space-y-5">
+                <div className="flex items-center gap-3">
+                   <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 shadow-sm">
+                      <CheckCircle2 className="w-4.5 h-4.5" />
+                   </div>
+                   <span className="text-[14px] font-bold text-slate-700 tracking-tight">CGPA: Strong ({gpa}/4.0)</span>
+                </div>
+                <div className="flex items-center gap-3">
+                   <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-800 shadow-sm">
+                      <ShieldAlert className="w-4.5 h-4.5" />
+                   </div>
+                   <span className="text-[14px] font-bold text-slate-700 tracking-tight">IELTS: Need improvement ({ielts})</span>
+                </div>
+             </div>
+          </div>
 
-            <Card className="p-6 rounded-[28px] border border-slate-100 bg-white space-y-4">
-              <h3 className="text-lg font-black text-slate-900">
-                Academic match
-              </h3>
-              <p className="text-sm font-bold text-blue-700">
-                Academic fit: {academicFit}/10
-              </p>
-              <p className="text-sm text-slate-600">
-                Your CGPA is within the usual range for admits in this course.
-              </p>
-            </Card>
+          <div className="bg-white rounded-[24px] border border-slate-100 overflow-hidden shadow-sm">
+             <div className="p-5 flex items-center justify-between border-b border-slate-50">
+                <span className="font-bold text-slate-800">Key Admission Factors</span>
+                <ChevronDown className="w-5 h-5 text-slate-300" />
+             </div>
+             <div className="divide-y divide-slate-50">
+                {[
+                  { l: "CGPA", icon: <Star className="w-5 h-5 text-amber-400" fill="currentColor" fillOpacity={0.2} /> },
+                  { l: "IELTS Score", icon: <CheckCircle2 className="w-5 h-5 text-emerald-500" /> },
+                  { l: "Course Competitiveness", icon: <Target className="w-5 h-5 text-rose-500" /> },
+                ].map((it, i) => (
+                  <div key={i} className="px-6 py-4.5 flex items-center gap-4">
+                     {it.icon}
+                     <span className="text-[14px] font-bold text-slate-700">{it.l}</span>
+                  </div>
+                ))}
+             </div>
+          </div>
 
-            <Card className="p-6 rounded-[28px] border border-slate-100 bg-white space-y-4">
-              <h3 className="text-lg font-black text-slate-900">
-                English &amp; test scores
-              </h3>
-              <span
-                className={`inline-flex px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest ${englishScore >= 6.5 ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}
-              >
-                {englishStatus}
-              </span>
-              <p className="text-sm text-slate-600">
-                Other tests, if needed by programme, may further improve your
-                profile strength.
-              </p>
-            </Card>
+          <div className="pt-6 space-y-6">
+             <h3 className="font-black text-slate-900 text-lg uppercase tracking-tight italic">Universities By Risk Level</h3>
+             <div className="flex bg-white p-1 rounded-full border border-slate-100 shadow-sm overflow-hidden h-14">
+                {["Safe", "Moderate", "Ambitious"].map((v) => (
+                   <button 
+                     key={v}
+                     onClick={() => setAdmissionTab(v)}
+                     className={`flex-1 text-[13px] font-black rounded-full transition-all tracking-tight ${admissionTab === v ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20" : "text-slate-400 hover:bg-slate-50"}`}
+                   >
+                     {v}
+                   </button>
+                ))}
+             </div>
 
-            <Card className="p-6 rounded-[28px] border border-slate-100 bg-white space-y-4">
-              <h3 className="text-lg font-black text-slate-900">
-                Programme competitiveness
-              </h3>
-              <span
-                className={`inline-flex px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest ${competitiveness === "Low" ? "bg-emerald-50 text-emerald-700" : competitiveness === "Medium" ? "bg-amber-50 text-amber-700" : "bg-rose-50 text-rose-700"}`}
-              >
-                {competitiveness} competition
-              </span>
-              <p className="text-sm text-slate-600">
-                This programme receives many international applications.
-              </p>
-            </Card>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card className="p-6 rounded-[28px] border border-slate-100 bg-white">
-                <h3 className="text-lg font-black text-slate-900 mb-3">
-                  Strengths
-                </h3>
-                <ul className="space-y-2">
-                  {strengths.map((item) => (
-                    <li
-                      key={item}
-                      className="text-sm text-slate-700 font-medium flex items-start gap-2"
-                    >
-                      <span className="text-emerald-500 mt-1">•</span>
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </Card>
-              <Card className="p-6 rounded-[28px] border border-slate-100 bg-white">
-                <h3 className="text-lg font-black text-slate-900 mb-3">
-                  Risks / weak areas
-                </h3>
-                <ul className="space-y-2">
-                  {weakAreas.map((item) => (
-                    <li
-                      key={item}
-                      className="text-sm text-slate-700 font-medium flex items-start gap-2"
-                    >
-                      <span className="text-amber-500 mt-1">•</span>
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </Card>
-            </div>
-
-            <div className="pt-2 space-y-3">
-              <button
-                onClick={() => setStep(7)}
-                className="w-full h-14 rounded-2xl bg-slate-50 text-slate-500 font-bold text-xs uppercase tracking-widest hover:bg-slate-100 transition-colors"
-              >
-                Back to Matches
-              </button>
-            </div>
+             <div className="flex gap-4 overflow-x-auto pb-4 snap-x no-scrollbar">
+                {[
+                  { name: "University of Melbourne", loc: "Melbourne, Australia", price: "NPR 20 Lakhs", match: "85%", risk: "Safe", img: "https://images.unsplash.com/photo-1541339907198-e08756ebafe1?q=80&w=400" },
+                  { name: "University of Toronto", loc: "Toronto, Canada", price: "NPR 11 Lakhs", match: "70%", risk: "Moderate", img: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=400" },
+                ].map((univ, i) => (
+                  <Card key={i} className="min-w-[280px] rounded-[32px] border border-slate-100 overflow-hidden shadow-md snap-start bg-white">
+                     <div className="h-40 bg-slate-200 relative overflow-hidden">
+                        <Image src={univ.img} layout="fill" objectFit="cover" alt="U" className="transition-transform hover:scale-105 duration-700" />
+                        <div className="absolute top-4 right-4 bg-emerald-50/90 backdrop-blur-md px-3 py-1 rounded-lg text-[11px] font-black text-emerald-700 border border-emerald-100 italic">
+                           {univ.match} Match
+                        </div>
+                     </div>
+                     <div className="p-6 space-y-5">
+                        <div className="space-y-1">
+                           <h4 className="font-black text-slate-900 leading-snug text-base">{univ.name}</h4>
+                           <p className="text-[12px] text-slate-400 font-bold flex items-center gap-1.5 leading-none mt-1 uppercase italic">
+                             <MapPin className="w-3.5 h-3.5 text-orange-500" fill="currentColor" fillOpacity={0.2} /> {univ.loc}
+                           </p>
+                        </div>
+                        <div className="flex items-center justify-between border-t border-slate-50 pt-4">
+                           <p className="font-black text-slate-900 text-[14px]">{univ.price}<span className="text-slate-400 font-medium text-[11px] ml-1">/ year</span></p>
+                           <span className="px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-black rounded-full uppercase tracking-widest">{univ.risk}</span>
+                        </div>
+                        <button onClick={() => setStep(11)} className="w-full h-11 bg-slate-900 text-white rounded-xl font-black text-[13px] uppercase tracking-widest italic">Check Visa Outlook</button>
+                     </div>
+                  </Card>
+                ))}
+             </div>
           </div>
         </div>
       );
@@ -3284,255 +3219,65 @@ export default function AbroadLiftMatchesPage() {
 
     // 11: Visa acceptance - See complete details
     if (step === 11 && selectedMatch) {
-      const countryCode =
-        selectedMatch.countryCode || form.countries[0] || "AU";
-      const countryName =
-        COUNTRIES.find((c) => c.code === countryCode)?.name || countryCode;
-      const bankBalance = parseInt(form.bankBalance) || 0;
-      const sponsorIncome = parseInt(form.sponsorIncome) || 0;
-      const english = parseFloat(form.testScore) || 0;
-
-      const financiallyStrong =
-        bankBalance >= 4500000 && sponsorIncome >= 150000;
-      const fundingStatus = financiallyStrong
-        ? "Funding looks adequate"
-        : "Funding may be tight";
-
-      const baseVisaPct = financiallyStrong ? 74 : 62;
-      const englishEffect = english >= 6.5 ? 6 : 0;
-      const visaPct = Math.min(95, Math.max(45, baseVisaPct + englishEffect));
-      const visaBand = getRateBand(visaPct);
-
-      const hasDetailedForm = Boolean(
-        form.bankBalance && form.sponsorIncome && form.testScore,
-      );
-      const checklist = [
-        { label: "Passport", ready: false },
-        { label: "Transcripts", ready: true },
-        { label: "Work letters", ready: (parseInt(form.studyGap) || 0) > 0 },
-        { label: "SOP", ready: false },
-      ];
-
-      const riskBullets = [
-        "No previous travel history",
-        financiallyStrong
-          ? "Funding is acceptable but could be better documented"
-          : "Limited financial proof",
-        english < 6.5
-          ? "English profile is below preferred level"
-          : "Study plan narrative can be made sharper",
-      ].slice(0, 4);
-
-      return (
-        <div className="animate-in fade-in slide-in-from-bottom-2 duration-400 max-w-full px-4 md:px-8 lg:px-16 pb-24">
-          <div className="max-w-4xl mx-auto space-y-6">
-            <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
-              Your visa approval outlook
-            </h2>
-
-            <Card className="p-6 md:p-8 rounded-[32px] border border-slate-100 bg-white shadow-sm">
-              <p className="text-5xl md:text-6xl font-black text-slate-900 leading-none">
-                {visaPct}%
-              </p>
-              <div className="mt-3">
-                <span
-                  className={`inline-flex px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest ${visaBand.badgeClass}`}
-                >
-                  {visaBand.label}
-                </span>
-              </div>
-            </Card>
-
-            <Card className="p-4 md:p-6 rounded-[28px] border border-slate-100 bg-white">
-              <h3 className="text-sm md:text-base font-black text-slate-900 mb-3">
-                Visa rate bands
-              </h3>
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[360px] text-left border-separate border-spacing-y-2">
-                  <thead>
-                    <tr className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                      <th className="px-3 py-2">Range</th>
-                      <th className="px-3 py-2">Chance</th>
-                      <th className="px-3 py-2">Color</th>
-                    </tr>
-                  </thead>
-                  <tbody className="text-sm font-bold text-slate-700">
-                    <tr>
-                      <td className="px-3 py-2">80% - 100%</td>
-                      <td className="px-3 py-2">High Chance</td>
-                      <td className="px-3 py-2 text-emerald-700">Green</td>
-                    </tr>
-                    <tr>
-                      <td className="px-3 py-2">50% - 80%</td>
-                      <td className="px-3 py-2">Moderate Chance</td>
-                      <td className="px-3 py-2 text-amber-700">Yellow</td>
-                    </tr>
-                    <tr>
-                      <td className="px-3 py-2">Below 50%</td>
-                      <td className="px-3 py-2">Low Chance</td>
-                      <td className="px-3 py-2 text-rose-700">Red</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </Card>
-
-            <Card className="p-6 rounded-[28px] border border-slate-100 bg-white space-y-3">
-              <h3 className="text-lg font-black text-slate-900">
-                Country trends
-              </h3>
-              <p className="text-sm text-slate-600">
-                Student visas for {countryName} are generally favourable for
-                profiles with clear study plans and strong funding.
-              </p>
-            </Card>
-
-            <Card className="p-6 rounded-[28px] border border-slate-100 bg-white space-y-3">
-              <h3 className="text-lg font-black text-slate-900">
-                Profile &amp; study plan
-              </h3>
-              <p className="text-sm text-slate-600">
-                Your {form.field || "academic"} background aligns well with a{" "}
-                {selectedMatch.popularPrograms?.[0] || "Master's programme"}.
-              </p>
-            </Card>
-
-            <Card className="p-6 rounded-[28px] border border-slate-100 bg-white space-y-3">
-              <h3 className="text-lg font-black text-slate-900">
-                Financial strength
-              </h3>
-              <span
-                className={`inline-flex px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest ${financiallyStrong ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}
-              >
-                {fundingStatus}
-              </span>
-              <p className="text-sm text-slate-600">
-                Based on your declared income band and funding type (
-                {form.sponsorType}), this is a preliminary financial readiness
-                signal.
-              </p>
-            </Card>
-
-            <Card className="p-6 rounded-[28px] border border-slate-100 bg-white space-y-3">
-              <h3 className="text-lg font-black text-slate-900">
-                Document readiness
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                {checklist.map((item) => (
-                  <div
-                    key={item.label}
-                    className="flex items-center gap-2 text-sm font-medium text-slate-700"
-                  >
-                    <span
-                      className={`w-2 h-2 rounded-full ${item.ready ? "bg-emerald-500" : "bg-amber-500"}`}
-                    />
-                    <span>{item.label}</span>
-                  </div>
-                ))}
-              </div>
-              <p className="text-sm font-bold text-amber-700">
-                Some documents still missing.
-              </p>
-            </Card>
-
-            <Card className="p-6 rounded-[28px] border border-slate-100 bg-white space-y-3">
-              <h3 className="text-lg font-black text-slate-900">
-                Areas to strengthen before applying
-              </h3>
-              <ul className="space-y-2">
-                {riskBullets.map((risk) => (
-                  <li
-                    key={risk}
-                    className="text-sm text-slate-700 font-medium flex items-start gap-2"
-                  >
-                    <span className="text-amber-500 mt-1">•</span>
-                    <span>{risk}</span>
-                  </li>
-                ))}
-              </ul>
-            </Card>
-
-            <button
-              onClick={() => setStep(7)}
-              className="w-full h-14 rounded-2xl bg-slate-50 text-slate-500 font-bold text-xs uppercase tracking-widest hover:bg-slate-100 transition-colors"
-            >
-              Back to Matches
-            </button>
+       return (
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-full px-4 pb-32 space-y-5 bg-white min-h-screen">
+          <div className="flex items-center justify-between pt-2 pb-4 italic uppercase tracking-tighter">
+             <div className="flex items-center gap-4">
+                <button onClick={() => setStep(10)} className="p-1">
+                   <ChevronLeft className="w-6 h-6 text-slate-900" />
+                </button>
+                <h1 className="text-xl font-black text-slate-900 tracking-tight">Visa Outlook</h1>
+             </div>
           </div>
+          <Card className="p-8 rounded-[32px] bg-slate-900 text-white text-center">
+             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-400 italic mb-4">Acceptance Probability</p>
+             <h2 className="text-6xl font-black italic">85%</h2>
+          </Card>
+          <button onClick={() => setStep(12)} className="w-full h-16 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest italic">Final Roadmap</button>
         </div>
-      );
+       );
     }
 
-    // 12: Document Checklist
     if (step === 12 && selectedMatch) {
-      const docs = [
-        {
-          t: "Valid Passport",
-          desc: "Must be valid for at least 6 months after your course end date.",
-        },
-        {
-          t: "Academic Transcripts",
-          desc: "Original SLC/SEE, +2, and Bachelor's degree certificates.",
-        },
-        {
-          t: "English Score Certificate",
-          desc: `${form.testType} score of ${form.testScore} or higher.`,
-        },
-        {
-          t: "Statement of Purpose (SOP)",
-          desc: `Your personal essay focused on why you chose ${selectedMatch.name}.`,
-        },
-        {
-          t: "Financial Evidence",
-          desc: "Bank balance certificate showing coverage for first year tuition & living.",
-        },
-        {
-          t: "Letters of Recommendation",
-          desc: "At least two letters from previous professors or managers.",
-        },
-        {
-          t: "Character Certificate",
-          desc: "Issued by your previous academic institution.",
-        },
-        {
-          t: "Passport Sized Photos",
-          desc: "Recent photos with white background (meeting embassy specs).",
-        },
-      ];
-
-      return (
-        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-          <div className="mb-10">
-            <h2 className="text-3xl font-black text-slate-900 mb-2">
-              Preparation Checklist
-            </h2>
-            <p className="text-gray-500 font-medium">
-              Ensure you have these documents ready for your application.
-            </p>
+       return (
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-full px-4 pb-32 space-y-6 bg-slate-50/30 min-h-screen">
+          <div className="flex items-center justify-between pt-2 pb-4 uppercase tracking-tighter italic">
+             <div className="flex items-center gap-4">
+                <button onClick={() => setStep(11)} className="p-1">
+                   <ChevronLeft className="w-6 h-6 text-slate-900" />
+                </button>
+                <h1 className="text-xl font-black text-slate-900 tracking-tight">Final Roadmap</h1>
+             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {docs.map((d, i) => (
-              <div
-                key={i}
-                className="group p-6 bg-white border border-slate-100 rounded-3xl hover:border-blue-500 transition-all shadow-sm flex items-start gap-4"
-              >
-                <div className="mt-1 w-6 h-6 rounded-full border-2 border-slate-100 flex items-center justify-center text-transparent group-hover:border-blue-500 group-hover:bg-blue-50 transition-all">
-                  <FileCheck className="w-3 h-3 group-hover:text-blue-500" />
+          <Card className="p-10 rounded-[40px] bg-slate-900 text-white shadow-2xl relative overflow-hidden">
+             <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full -mr-32 -mt-32 blur-3xl opacity-50" />
+             <div className="relative z-10 space-y-6">
+                <p className="text-blue-400 font-black uppercase tracking-[0.3em] text-[10px] italic">Projected ROI Breakdown</p>
+                <h2 className="text-4xl md:text-5xl font-black italic uppercase tracking-tighter">SUCCESS ROADMAP</h2>
+                <div className="grid grid-cols-2 gap-4 mt-8">
+                   <div className="bg-white/10 p-4 rounded-2xl border border-white/10 uppercase italic">
+                      <p className="text-[10px] text-slate-400 font-black">Tuition</p>
+                      <p className="font-black text-lg">24 Lakhs</p>
+                   </div>
+                   <div className="bg-white/10 p-4 rounded-2xl border border-white/10 uppercase italic">
+                      <p className="text-[10px] text-slate-400 font-black">Living</p>
+                      <p className="font-black text-lg">15 Lakhs</p>
+                   </div>
                 </div>
-                <div>
-                  <h4 className="font-bold text-slate-900 mb-1">{d.t}</h4>
-                  <p className="text-xs text-slate-500 leading-relaxed font-medium">
-                    {d.desc}
-                  </p>
-                </div>
-              </div>
-            ))}
+             </div>
+          </Card>
+
+          <div className="pt-8 space-y-4">
+             <button className="w-full h-16 bg-blue-600 text-white rounded-3xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-blue-500/30 hover:scale-105 transition-all flex items-center justify-center gap-3 italic">
+               <Download className="w-5 h-5" />
+               EXPORT PDF REPORT
+             </button>
           </div>
         </div>
-      );
+       );
     }
-
+    
     // 13: Final Phase Financial Oracle & Roadmap
     if (step === 13 && selectedMatch) {
       const duration = parseInt(form.duration) || 3;
