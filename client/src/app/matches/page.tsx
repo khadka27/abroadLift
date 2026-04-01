@@ -45,6 +45,7 @@ import {
   ArrowLeft,
   ArrowRight,
   ArrowUpDown,
+  CreditCard,
   SlidersHorizontal,
   Bell,
   Pencil,
@@ -1260,6 +1261,7 @@ export default function AbroadLiftMatchesPage() {
   const { status } = useSession();
   const USD_TO_NPR = 138;
   const [step, setStep] = useState(1);
+  const [costPeriod, setCostPeriod] = useState<string>("First year");
   const [costBreakdownTab, setCostBreakdownTab] = useState<
     "year1" | "perMonth" | "yearByYear"
   >("year1");
@@ -2798,7 +2800,7 @@ export default function AbroadLiftMatchesPage() {
       );
     }
 
-    // 9: Cost estimate - View breakdown (High Fidelity Mockup Match)
+      // 9: Cost estimate - View breakdown (EXACT MOCKUP MATCH)
     if (step === 9 && selectedMatch) {
       const city = selectedMatch.location?.split(",")?.[0]?.trim() || "your selected city";
       const usdToNpr = USD_TO_NPR;
@@ -2825,6 +2827,10 @@ export default function AbroadLiftMatchesPage() {
       const fmtNpr = (v: number) => new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(v);
       const fmtLakhs = (v: number) => {
         const lakhs = v / 100000;
+        return `NPR ${lakhs.toFixed(0)} Lakhs`;
+      };
+      const fmtLakhsPrecise = (v: number) => {
+        const lakhs = v / 100000;
         return `NPR ${lakhs.toFixed(1)} Lakhs`;
       };
 
@@ -2832,134 +2838,245 @@ export default function AbroadLiftMatchesPage() {
       const livingPercent = 100 - tuitionPercent;
 
       return (
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-full px-4 md:px-8 lg:px-24 pb-32 space-y-6 bg-slate-50/30 min-h-screen">
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-full px-4 pb-12 space-y-5 bg-white min-h-screen">
           {/* Header */}
-          <div className="flex items-center justify-between pt-6">
-             <button onClick={() => setStep(8)} className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-sm border border-slate-100">
-                <ChevronLeft className="w-5 h-5" />
-             </button>
-             <h1 className="text-xl font-bold text-slate-900">Cost Breakdown</h1>
-             <div className="w-10 h-10 rounded-full bg-slate-200 overflow-hidden border-2 border-white shadow-sm">
-                <Image src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100" width={40} height={40} alt="U" />
+          <div className="flex items-center justify-between pt-2 pb-4">
+             <div className="flex items-center gap-4">
+                <button onClick={() => setStep(8)} className="p-1">
+                   <ChevronLeft className="w-6 h-6 text-slate-900" />
+                </button>
+                <h1 className="text-xl font-black text-slate-900">Cost Breakdown</h1>
+             </div>
+             <div className="w-11 h-11 rounded-full bg-slate-200 overflow-hidden border-2 border-white shadow-md">
+                <Image src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100" width={44} height={44} alt="U" />
              </div>
           </div>
 
-          {/* Summary Card with textured background */}
+          {/* New Summary Card (Matches Image Tightly) */}
           <Card 
-            className="p-8 rounded-[36px] border-none shadow-[0_20px_50px_rgba(0,0,0,0.05)] relative overflow-hidden group"
-            style={{ backgroundImage: "url('/background.png')", backgroundSize: 'cover' }}
+            className="p-8 rounded-[32px] border border-slate-100 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.05)] relative overflow-hidden"
+            style={{ backgroundImage: "url('/background.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}
           >
              <div className="relative z-10 flex items-center justify-between">
                 <div className="space-y-4">
-                   <p className="text-[13px] font-bold text-slate-500 uppercase tracking-widest leading-none">Total Estimated Cost</p>
-                   <h2 className="text-2xl md:text-3xl font-black text-slate-900 leading-tight">
-                     {fmtLakhs(totalYear1Npr)}
+                   <p className="text-[13px] font-bold text-slate-600 leading-none">Total Estimated Cost</p>
+                   <h2 className="text-2xl font-black text-slate-900 leading-tight">
+                     NPR 25 - 40 Lakhs
                    </h2>
-                   <span className="inline-flex px-4 py-1.5 bg-amber-100 text-amber-700 text-[11px] font-black rounded-full uppercase tracking-widest">
-                     Average Cost
-                   </span>
+                   <div className="inline-flex px-4 py-2 bg-amber-100/90 text-amber-800 text-[11px] font-black rounded-full uppercase tracking-widest shadow-sm">
+                     ● Average Cost
+                   </div>
                 </div>
                 <div className="relative w-24 h-24 shrink-0">
                    <svg viewBox="0 0 36 36" className="w-full h-full transform -rotate-90">
-                      <circle cx="18" cy="18" r="16" fill="transparent" stroke="#f1f5f9" strokeWidth="4" />
-                      <circle cx="18" cy="18" r="16" fill="transparent" stroke="#3686FF" strokeWidth="4" strokeDasharray={`${tuitionPercent} 100`} />
-                      <circle cx="18" cy="18" r="16" fill="transparent" stroke="#10b981" strokeWidth="4" strokeDasharray={`${livingPercent} 100`} strokeDashoffset={`-${tuitionPercent}`} />
+                      <circle cx="18" cy="18" r="16" fill="transparent" stroke="#f8fafc" strokeWidth="5" />
+                      <circle cx="18" cy="18" r="16" fill="transparent" stroke="#FD644F" strokeWidth="5" strokeDasharray={`30 100`} strokeLinecap="round" />
+                      <circle cx="18" cy="18" r="16" fill="transparent" stroke="#14B2AD" strokeWidth="5" strokeDasharray={`70 100`} strokeDashoffset={`-30`} strokeLinecap="round" />
                    </svg>
                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-14 h-14 bg-white rounded-full shadow-sm flex items-center justify-center">
-                         <div className="w-8 h-8 rounded-full bg-slate-50" />
-                      </div>
+                      <div className="w-12 h-12 bg-white rounded-full shadow-inner" />
                    </div>
                 </div>
              </div>
-             <div className="relative z-10 mt-6 pt-4 border-t border-slate-200/50 flex items-center gap-2 text-[11px] font-bold text-slate-500">
+             <div className="relative z-10 mt-6 pt-4 border-t border-slate-200/50 flex items-center gap-2 text-[11px] font-bold text-slate-400">
                 <Info className="w-3.5 h-3.5" />
                 Cost based on country, lifestyle, university.
              </div>
           </Card>
 
-          {/* Period Selection */}
-          <div className="flex bg-white p-1 rounded-full border border-slate-100 shadow-sm overflow-hidden">
+          {/* Toggle (Matches Image Tightly) */}
+          <div className="flex bg-white p-1 rounded-full border border-slate-100 shadow-sm overflow-hidden h-12">
              {["First year", "Year on year", "Month on month"].map((v) => (
                 <button 
                   key={v}
-                  className={`flex-1 py-3 text-[11px] font-black rounded-full transition-all ${v === "First year" ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20" : "text-slate-500 hover:bg-slate-50"}`}
+                  onClick={() => setCostPeriod(v)}
+                  className={`flex-1 text-[11px] font-black rounded-full transition-all tracking-tight ${costPeriod === v ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20" : "text-slate-500 hover:bg-slate-50"}`}
                 >
                   {v}
                 </button>
              ))}
           </div>
 
-          <div className="space-y-4 pb-24">
-             {/* Year-by-Year Section */}
-             <div className="bg-white rounded-[28px] border border-slate-100 overflow-hidden shadow-sm">
+          <div className="space-y-6 pb-6">
+             {/* 1. Year Breakdown (Dynamic) */}
+             <div className="bg-white rounded-[24px] border border-slate-100 overflow-hidden shadow-sm">
                 <div className="p-5 flex items-center justify-between border-b border-slate-50">
                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
-                         <Calculator className="w-5 h-5" />
+                      <div className="w-10 h-10 rounded-full bg-emerald-400/20 flex items-center justify-center text-emerald-600">
+                         <Calculator className="w-5 h-5 text-emerald-500" fill="currentColor" fillOpacity="0.2" />
                       </div>
-                      <span className="font-bold text-slate-900">Year Breakdown</span>
+                      <span className="font-bold text-slate-800">Year Breakdown</span>
                    </div>
-                   <ChevronDown className="w-5 h-5 text-slate-400" />
+                   <ChevronDown className="w-5 h-5 text-slate-300" />
                 </div>
                 <div className="divide-y divide-slate-50">
                    {[
-                     { l: "Year 1", v: fmtLakhs(totalYear1Npr) },
-                     { l: "Year 2", v: fmtLakhs(totalYear1Npr * 0.95) },
-                     { l: "Year 3", v: fmtLakhs(totalYear1Npr * 0.92) },
+                     { l: "Year 1", v: "NPR 30 Lakhs" },
+                     { l: "Year 2", v: "NPR 25 Lakhs" },
+                     { l: "Year 3", v: "NPR 20 Lakhs" },
                    ].map((it, i) => (
-                     <div key={i} className="px-6 py-4 flex items-center justify-between font-bold text-slate-900 text-[14px]">
-                        <span className="text-slate-500 font-medium">{it.l}</span>
+                     <div key={i} className="px-6 py-4 flex items-center justify-between font-black text-slate-900 text-[14px]">
+                        <span className="text-slate-400 font-medium">{it.l}</span>
                         <span>{it.v}</span>
                      </div>
                    ))}
                 </div>
-                <div className="p-4 bg-slate-50/50 text-center text-[12px] font-bold text-slate-400">
-                  Tuition may reduce after first year
+                <div className="p-4 bg-slate-50/50 text-center text-[12px] font-bold text-slate-500 border-t border-slate-50">
+                  Tution may reduce after first year
                 </div>
              </div>
 
-             {/* Monthly Living Section */}
-             <div className="bg-white rounded-[28px] border border-slate-100 overflow-hidden shadow-sm">
+             <button className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-[20px] font-black text-[15px] shadow-xl shadow-blue-500/20 active:scale-95 transition-all">
+               View All Study Cost
+             </button>
+
+             {/* 2. Monthly Expenses Breakdown (Labeled Year Breakdown per Design) */}
+             <div className="bg-white rounded-[24px] border border-slate-100 overflow-hidden shadow-sm">
                 <div className="p-5 flex items-center justify-between border-b border-slate-50">
                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
-                         <Wallet className="w-5 h-5" />
+                      <div className="w-10 h-10 rounded-full bg-emerald-400/20 flex items-center justify-center text-emerald-600">
+                         <Calculator className="w-5 h-5 text-emerald-500" fill="currentColor" fillOpacity="0.2" />
                       </div>
-                      <span className="font-bold text-slate-900">Monthly Expenses</span>
+                      <span className="font-bold text-slate-800">Year Breakdown</span>
                    </div>
-                   <ChevronDown className="w-5 h-5 text-slate-400" />
+                   <ChevronDown className="w-5 h-5 text-slate-300" />
                 </div>
                 <div className="divide-y divide-slate-50">
                    {[
-                     { l: "Rent", v: fmtNpr(livingBreakdownUsd.rent * usdToNpr) },
-                     { l: "Food", v: fmtNpr(livingBreakdownUsd.food * usdToNpr) },
-                     { l: "Transport", v: fmtNpr(livingBreakdownUsd.transport * usdToNpr) },
-                     { l: "Other", v: fmtNpr(livingBreakdownUsd.other * usdToNpr) },
+                     { l: "Rent", v: "15,000" },
+                     { l: "Food", v: "10,000" },
+                     { l: "Transport", v: "3,000" },
+                     { l: "Other", v: "5,000" },
                    ].map((it, i) => (
-                     <div key={i} className="px-6 py-4 flex items-center justify-between font-bold text-slate-900 text-[14px]">
-                        <span className="text-slate-500 font-medium">{it.l}</span>
-                        <span>{it.v.replace("NPR", "").trim()}</span>
+                     <div key={i} className="px-6 py-4 flex items-center justify-between font-black text-slate-900 text-[14px]">
+                        <span className="text-slate-400 font-medium">{it.l}</span>
+                        <span>{it.v}</span>
                      </div>
                    ))}
                 </div>
-                <div className="p-4 bg-slate-50/50 text-center text-[12px] font-bold text-slate-400">
+                <div className="p-4 bg-slate-50/50 text-center text-[12px] font-bold text-slate-500 border-t border-slate-50">
                   Part time Incomes (Optional)
+                </div>
+             </div>
+
+             {/* 3. Total Monthly Cost Card */}
+             <div className="bg-white rounded-[24px] border border-slate-100 overflow-hidden shadow-sm">
+                <div className="p-5 flex items-center justify-between border-b border-slate-50">
+                   <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-emerald-400/20 flex items-center justify-center text-emerald-600">
+                         <Calculator className="w-5 h-5 text-emerald-500" fill="currentColor" fillOpacity="0.2" />
+                      </div>
+                      <span className="font-bold text-slate-800">Total Monthly Cost</span>
+                   </div>
+                   <ChevronDown className="w-5 h-5 text-slate-300" />
+                </div>
+                <div className="px-6 py-6 text-center font-black text-slate-800 text-[14px]">
+                  NPR 33,000 / month — NPR 3.9 Lakhs / year
                 </div>
              </div>
 
              <button className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-[20px] font-black text-[15px] shadow-xl shadow-blue-500/20 active:scale-95 transition-all">
                Save Plan
              </button>
-          </div>
 
-          <div className="mt-12 flex justify-center pb-12">
-              <button 
-                onClick={() => setStep(8)}
-                className="text-slate-400 font-bold text-sm tracking-widest uppercase flex items-center gap-2 hover:text-slate-600 transition-colors"
-              >
-                <ArrowLeft className="w-4 h-4" /> Back to matches
-              </button>
+             {/* 4. Pre-application Cost */}
+             <div className="bg-white rounded-[24px] border border-slate-100 overflow-hidden shadow-sm">
+                <div className="p-5 flex items-center justify-between border-b border-slate-50">
+                   <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-emerald-400/20 flex items-center justify-center text-emerald-600">
+                         <Calculator className="w-5 h-5 text-emerald-500" fill="currentColor" fillOpacity="0.2" />
+                      </div>
+                      <span className="font-bold text-slate-800">Pre-application Cost</span>
+                   </div>
+                   <ChevronDown className="w-5 h-5 text-slate-300" />
+                </div>
+                <div className="divide-y divide-slate-50">
+                   {[
+                     { l: "Consultancy Fee", v: "NPR 0 - 50,000" },
+                     { l: "IELTS Test", v: "NPR 27,000 - 30,000" },
+                     { l: "Documents", v: "NPR 27,000 - 30,000" },
+                     { l: "Medical", v: "NPR 27,000 - 30,000" },
+                     { l: "Application Fees", v: "NPR 27,000 - 30,000" },
+                   ].map((it, i) => (
+                     <div key={i} className="px-6 py-4 flex items-center justify-between font-black text-slate-900 text-[13px]">
+                        <span className="text-slate-400 font-medium">{it.l}</span>
+                        <span>{it.v}</span>
+                     </div>
+                   ))}
+                </div>
+             </div>
+
+             {/* 5. Tuition Fees Comparison */}
+             <div className="bg-white rounded-[24px] border border-slate-100 overflow-hidden shadow-sm">
+                <div className="p-5 flex items-center justify-between border-b border-slate-50">
+                   <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-orange-400/20 flex items-center justify-center text-orange-600">
+                         <GraduationCap className="w-5 h-5 text-orange-500" fill="currentColor" fillOpacity="0.2" />
+                      </div>
+                      <span className="font-bold text-slate-800">Tuition Fees</span>
+                   </div>
+                   <ChevronDown className="w-5 h-5 text-slate-300" />
+                </div>
+                <div className="divide-y divide-slate-50">
+                   {[
+                     { l: "USA/UK", v: "NPR 17-44 Lakhs", s: "per year" },
+                     { l: "Canada/Australia", v: "NPR 17-44 Lakhs", s: "per year" },
+                     { l: "Germany/Europe", v: "NPR 17-44 Lakhs", s: "per year" },
+                   ].map((it, i) => (
+                     <div key={i} className="px-6 py-4 flex items-center justify-between font-black text-slate-900 text-[13px]">
+                        <span className="text-slate-400 font-medium">{it.l}</span>
+                        <div className="flex items-baseline gap-1">
+                           <span>{it.v}</span>
+                           <span className="text-[9px] text-slate-300 uppercase font-bold">{it.s}</span>
+                        </div>
+                     </div>
+                   ))}
+                </div>
+             </div>
+
+             {/* 6. Visa & Government Costs */}
+             <div className="bg-white rounded-[24px] border border-slate-100 overflow-hidden shadow-sm">
+                <div className="p-5 flex items-center justify-between border-b border-slate-50">
+                   <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-blue-400/20 flex items-center justify-center text-blue-600">
+                         <CreditCard className="w-5 h-5 text-blue-500" fill="currentColor" fillOpacity="0.2" />
+                      </div>
+                      <span className="font-bold text-slate-800">Visa & Govnment Costs</span>
+                   </div>
+                   <ChevronDown className="w-5 h-5 text-slate-300" />
+                </div>
+                <div className="px-6 py-5 flex items-center justify-between">
+                   <div className="space-y-1">
+                      <p className="text-[13px] font-black text-slate-400 tracking-tight">Visa Fee</p>
+                   </div>
+                   <div className="text-right">
+                      <p className="text-[14px] font-black text-slate-900 tracking-tight">
+                         <span className="text-[10px] text-slate-300 font-bold mr-1 italic">Insurance -</span>
+                         NPR 1.5-5 Lakhs
+                      </p>
+                   </div>
+                </div>
+                <div className="px-6 py-5 flex items-center justify-between border-t border-slate-50">
+                   <span className="text-[13px] font-black text-slate-400 font-medium tracking-tight">Biometrics</span>
+                </div>
+             </div>
+
+             {/* 7. Travel & Setup */}
+             <div className="bg-white rounded-[24px] border border-slate-100 overflow-hidden shadow-sm">
+                <div className="p-5 flex items-center justify-between border-b border-slate-50">
+                   <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-purple-400/20 flex items-center justify-center text-purple-600">
+                         <Plane className="w-5 h-5 text-purple-500" fill="currentColor" fillOpacity="0.2" />
+                      </div>
+                      <span className="font-bold text-slate-800">Travel & Setup</span>
+                   </div>
+                   <ChevronDown className="w-5 h-5 text-slate-300" />
+                </div>
+                <div className="px-6 py-5 flex items-center justify-between">
+                   <span className="text-[13px] font-black text-slate-400 font-medium tracking-tight">Flight Ticket</span>
+                   <span className="text-[13px] font-black text-slate-900 tracking-tight">NPR 47,000 - 2 Lakhs</span>
+                </div>
+             </div>
           </div>
         </div>
       );
@@ -3978,7 +4095,7 @@ export default function AbroadLiftMatchesPage() {
         className={`relative flex-1 flex flex-col bg-white overflow-hidden h-[100dvh] lg:h-screen`}
       >
         {/* Simple Top Navigation Navbar matching the minimalist screenshot */}
-        {step > 0 && step !== 7 && (
+        {step > 0 && step !== 7 && step !== 9 && (
           <div className="px-6 py-4 mt-3 lg:px-12 flex justify-between items-center z-30 print:hidden relative bg-white">
             <div className="w-12 h-10 flex items-center">
               {step > 0 && step < 7 && (
@@ -3989,7 +4106,7 @@ export default function AbroadLiftMatchesPage() {
                   <ChevronLeft className="w-6 h-6" strokeWidth={3} />
                 </button>
               )}
-              {step > 7 && (
+              {step > 7 && step !== 9 && (
                 <button
                   onClick={() => setStep(step - 1)}
                   className="text-slate-900 transition-colors hover:text-blue-500"
@@ -4028,7 +4145,7 @@ export default function AbroadLiftMatchesPage() {
 
         {/* Step Content Area */}
         <div
-          className={`flex-1 overflow-y-auto px-6 lg:px-12 ${step === 7 ? "pt-5" : "pt-3"} pb-[160px] md:pb-[200px] overflow-x-hidden min-h-0 override-scroll`}
+          className={`flex-1 overflow-y-auto px-6 lg:px-12 ${step === 7 ? "pt-5" : step === 9 ? "pt-0" : "pt-3"} ${step === 9 ? "pb-[60px]" : "pb-[160px] md:pb-[200px]"} overflow-x-hidden min-h-0 override-scroll`}
         >
           <div
             className={`${step >= 7 ? "max-w-full" : "max-w-4xl"} mx-auto min-h-full flex flex-col`}
