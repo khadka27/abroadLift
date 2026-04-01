@@ -640,35 +640,31 @@ function SearchSelect({
   );
 
   return (
-    <div className="relative w-full z-10">
+    <div className={`relative w-full ${open ? "z-[200]" : ""}`}>
       <button
         onClick={() => {
           setOpen(!open);
           setQuery("");
         }}
-        className={`w-full relative flex items-center pl-10 pr-4 h-[60px] bg-[#f8fafc] border rounded-[22px] text-left transition-all ${
-          open
+        className={`w-full relative flex items-center pl-10 pr-4 h-[60px] bg-[#f8fafc] border rounded-[22px] text-left transition-all ${open
             ? "border-blue-500 ring-4 ring-blue-500/5 bg-white shadow-lg"
             : "border-slate-200 hover:border-blue-200 shadow-sm"
-        }`}
+          }`}
       >
         <Search
-          className={`w-[20px] h-[20px] absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${
-            open ? "text-blue-500" : "text-slate-400"
-          }`}
+          className={`w-[20px] h-[20px] absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${open ? "text-blue-500" : "text-slate-400"
+            }`}
           strokeWidth={2}
         />
         <span
-          className={`text-[15px] font-semibold truncate ${
-            value ? "text-slate-900" : "text-slate-400"
-          }`}
+          className={`text-[15px] font-semibold truncate ${value ? "text-slate-900" : "text-slate-400"
+            }`}
         >
           {value || placeholder}
         </span>
         <ChevronDown
-          className={`ml-auto w-5 h-5 text-slate-400 transition-transform ${
-            open ? "rotate-180 text-blue-500" : ""
-          }`}
+          className={`ml-auto w-5 h-5 text-slate-400 transition-transform ${open ? "rotate-180 text-blue-500" : ""
+            }`}
         />
       </button>
 
@@ -694,18 +690,17 @@ function SearchSelect({
                     onChange(opt);
                     setOpen(false);
                   }}
-                  className={`w-full text-left px-5 min-h-[50px] flex items-center rounded-[18px] text-[14px] font-semibold transition-all ${
-                    value === opt
+                  className={`w-full text-left px-5 min-h-[50px] flex items-center rounded-[18px] text-[14px] font-semibold transition-all ${value === opt
                       ? "bg-blue-600 text-white shadow-md"
                       : "text-slate-600 hover:bg-slate-50 hover:text-blue-600"
-                  }`}
+                    }`}
                 >
                   {opt}
                 </button>
               ))}
               {filtered.length === 0 && (
                 <div className="p-8 text-center">
-                   <p className="text-slate-400 text-sm font-medium italic">No results found</p>
+                  <p className="text-slate-400 text-sm font-medium italic">No results found</p>
                 </div>
               )}
             </div>
@@ -839,102 +834,102 @@ function MatchCard({
         />
         {/* Global Rank Badge - Frosted White with Blue Text as per mockup */}
         <div className="absolute top-5 right-5 px-4 py-2 rounded-full bg-white/90 backdrop-blur-md border border-white flex items-center gap-2 shadow-lg">
-           <Trophy className="w-4 h-4 text-[#3b82f6]" />
-           <span className="text-[11px] font-[800] text-[#3b82f6] uppercase tracking-wider">
-                #{m.rankingWorld || 1} Global
-           </span>
+          <Trophy className="w-4 h-4 text-[#3b82f6]" />
+          <span className="text-[11px] font-[800] text-[#3b82f6] uppercase tracking-wider">
+            #{m.rankingWorld || 1} Global
+          </span>
         </div>
       </div>
 
       <div className="p-8 flex flex-col flex-1">
         {/* Row 1: Location & Recommended Badge */}
         <div className="flex items-center justify-between mb-6">
-           <div className="flex items-center gap-2 text-slate-400">
-                <MapPin className="w-4 h-4" />
-                <span className="text-[11px] font-bold uppercase tracking-widest truncate max-w-[140px] text-slate-500">
-                  {m.location || "LONDON, UK"}
-                </span>
-           </div>
-           <div className="px-5 py-1.5 rounded-full bg-[#ff9f43] text-white text-[9px] font-bold uppercase tracking-widest shadow-sm">
-                Recommended
-           </div>
+          <div className="flex items-center gap-2 text-slate-400">
+            <MapPin className="w-4 h-4" />
+            <span className="text-[11px] font-bold uppercase tracking-widest truncate max-w-[140px] text-slate-500">
+              {m.location || "LONDON, UK"}
+            </span>
+          </div>
+          <div className="px-5 py-1.5 rounded-full bg-[#ff9f43] text-white text-[9px] font-bold uppercase tracking-widest shadow-sm">
+            Recommended
+          </div>
         </div>
 
         {/* Row 2: Identity (Logo and Name) */}
         <div className="flex items-center gap-5 mb-8">
-            <div className="w-16 h-16 rounded-full bg-white border border-slate-100 flex items-center justify-center overflow-hidden shrink-0 shadow-sm relative p-3">
-                 {m.logo ? (
-                    <Image src={m.logo} alt={m.name} fill className="object-contain p-2" />
-                 ) : (
-                    <span className="text-blue-600 font-semibold text-[22px]">{m.name.charAt(0)}</span>
-                 )}
-            </div>
-            <div className="min-w-0">
-                <h3 className="text-[22px] font-bold text-[#111827] leading-tight mb-1">{m.name}</h3>
-                <p className="text-[#4F46E5] font-semibold text-[16px] tracking-tight">
-                  {m.popularPrograms?.[0] || "MSc Computer Science"}
-                </p>
-            </div>
+          <div className="w-16 h-16 rounded-full bg-white border border-slate-100 flex items-center justify-center overflow-hidden shrink-0 shadow-sm relative p-3">
+            {m.logo ? (
+              <Image src={m.logo} alt={m.name} fill className="object-contain p-2" />
+            ) : (
+              <span className="text-blue-600 font-semibold text-[22px]">{m.name.charAt(0)}</span>
+            )}
+          </div>
+          <div className="min-w-0">
+            <h3 className="text-[22px] font-bold text-[#111827] leading-tight mb-1">{m.name}</h3>
+            <p className="text-[#4F46E5] font-semibold text-[16px] tracking-tight">
+              {m.popularPrograms?.[0] || "MSc Computer Science"}
+            </p>
+          </div>
         </div>
 
         {/* Row 3: Key Stats */}
         <div className="space-y-6 mb-10">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3 text-slate-500">
+              <Calendar className="w-5 h-5" />
+              <span className="text-[13px] font-semibold text-black">Duration</span>
+            </div>
+            <span className="text-[13px] font-semibold text-[#111827] ">1 Year</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3 text-slate-500">
+              <Wallet className="w-5 h-5" />
+              <span className="text-[13px] font-semibold text-black">Tuition</span>
+            </div>
+            <span className="text-[13px] font-semibold text-[#111827]">$32,100 / yr</span>
+          </div>
+          <div className="space-y-3">
             <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3 text-slate-500">
-                    <Calendar className="w-5 h-5" />
-                    <span className="text-[13px] font-semibold text-black">Duration</span>
-                </div>
-                <span className="text-[13px] font-semibold text-[#111827] ">1 Year</span>
+              <div className="flex items-center gap-3 text-slate-500">
+                <CheckCircle2 className="w-5 h-5 text-[#10b981]" />
+                <span className="text-[13px] font-semibold text-black ">Acceptance Rate</span>
+              </div>
+              <span className="text-[14px] font-extrabold text-[#10b981] uppercase">{m.admissionRate || 78}%</span>
             </div>
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3 text-slate-500">
-                    <Wallet className="w-5 h-5" />
-                    <span className="text-[13px] font-semibold text-black">Tuition</span>
-                </div>
-                <span className="text-[13px] font-semibold text-[#111827]">$32,100 / yr</span>
+            <div className="h-2 w-full bg-slate-50 rounded-full overflow-hidden border border-slate-100">
+              <div
+                className="h-full bg-[#10b981] rounded-full transition-all duration-1000"
+                style={{ width: `${m.admissionRate || 78}%` }}
+              />
             </div>
-            <div className="space-y-3">
-                 <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 text-slate-500">
-                        <CheckCircle2 className="w-5 h-5 text-[#10b981]" />
-                        <span className="text-[13px] font-semibold text-black ">Acceptance Rate</span>
-                    </div>
-                    <span className="text-[14px] font-extrabold text-[#10b981] uppercase">{m.admissionRate || 78}%</span>
-                 </div>
-                 <div className="h-2 w-full bg-slate-50 rounded-full overflow-hidden border border-slate-100">
-                    <div 
-                        className="h-full bg-[#10b981] rounded-full transition-all duration-1000" 
-                        style={{ width: `${m.admissionRate || 78}%` }}
-                    />
-                 </div>
-            </div>
+          </div>
         </div>
 
         {/* Row 4: Actions Buttons */}
         <div className="mt-auto space-y-4">
-            <button 
-                onClick={(e) => { e.stopPropagation(); onSelect?.(); }}
-                className="w-full h-16 rounded-[30px] bg-[#3686FF] text-white font-bold text-[16px] shadow-[0_8px_25px_-5px_rgba(37,99,235,0.4)] flex items-center justify-center gap-2 group"
-            >
-                Select University
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
-            </button>
-            <button 
-                 onClick={(e) => { e.stopPropagation(); setShowDetails(!showDetails); }}
-                 className="w-full py-2 text-slate-400 font-bold text-[14px] hover:text-slate-600 transition-colors text-center"
-                >
-                {showDetails ? "Hide Details" : "View Details"}
-            </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); onSelect?.(); }}
+            className="w-full h-16 rounded-[30px] bg-[#3686FF] text-white font-bold text-[16px] shadow-[0_8px_25px_-5px_rgba(37,99,235,0.4)] flex items-center justify-center gap-2 group"
+          >
+            Select University
+            <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); setShowDetails(!showDetails); }}
+            className="w-full py-2 text-slate-400 font-bold text-[14px] hover:text-slate-600 transition-colors text-center"
+          >
+            {showDetails ? "Hide Details" : "View Details"}
+          </button>
         </div>
       </div>
-      
+
       {/* Expanded Details - optional animation */}
       {showDetails && (
-          <div className="px-6 pb-6 animate-in slide-in-from-top-4 duration-300">
-               <p className="text-xs font-medium text-slate-500 leading-relaxed border-t border-slate-50 pt-4">
-                    {m.description || "World-class research facilities and a diverse student community focused on academic excellence."}
-               </p>
-          </div>
+        <div className="px-6 pb-6 animate-in slide-in-from-top-4 duration-300">
+          <p className="text-xs font-medium text-slate-500 leading-relaxed border-t border-slate-50 pt-4">
+            {m.description || "World-class research facilities and a diverse student community focused on academic excellence."}
+          </p>
+        </div>
       )}
     </div>
   );
@@ -1406,78 +1401,11 @@ export default function AbroadLiftMatchesPage() {
     };
   };
 
+  const handleBack = () => {
+    if (step > 1) setStep(step - 1);
+  };
+
   const renderStep = () => {
-    // 0: Welcome
-    if (step === 0) {
-      return (
-        <div className="flex flex-col gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-md">
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-2 bg-blue-50 w-fit px-3 py-1.5 rounded-full text-blue-600 font-bold text-[11px] tracking-wider uppercase">
-              <Globe className="w-3.5 h-3.5" />
-              JOIN 50K+ INTERNATIONAL STUDENTS
-            </div>
-            <h1 className="text-4xl md:text-5xl font-black text-slate-900 leading-[1.1]">
-              Your Global Education{" "}
-              <span className="text-blue-600">Journey</span> Starts Here.
-            </h1>
-            <p className="text-gray-500 font-medium text-lg leading-relaxed">
-              We&apos;ll help you find the perfect university based on your
-              goals, budget, and dreams.
-            </p>
-          </div>
-
-          <div className="space-y-4">
-            <div className="relative group">
-              <input
-                type="text"
-                value={form.name}
-                onChange={(e) => updateForm("name", e.target.value)}
-                placeholder="What's your name?"
-                className="w-full h-16 bg-white border border-gray-100 rounded-2xl px-6 text-lg font-bold text-gray-900 outline-none shadow-sm focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-gray-300"
-                autoFocus
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && canContinue()) handleNext();
-                }}
-              />
-            </div>
-
-            <button
-              onClick={handleNext}
-              disabled={!canContinue()}
-              className={`w-full h-16 rounded-2xl text-lg font-bold flex items-center justify-center gap-3 transition-all duration-300 ${canContinue()
-                ? "bg-blue-500 hover:bg-blue-600 text-white shadow-xl shadow-blue-500/25 hover:-translate-y-0.5 cursor-pointer"
-                : "bg-blue-100 text-blue-300 cursor-not-allowed"
-                }`}
-            >
-              Get Started
-              <ChevronLeft className="w-5 h-5 rotate-180" strokeWidth={3} />
-            </button>
-          </div>
-
-          <div className="grid grid-cols-3 gap-6 pt-8 border-t border-gray-100">
-            <div>
-              <p className="text-2xl font-black text-slate-900">800+</p>
-              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-                Universities
-              </p>
-            </div>
-            <div>
-              <p className="text-2xl font-black text-slate-900">32</p>
-              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-                Countries
-              </p>
-            </div>
-            <div>
-              <p className="text-2xl font-black text-slate-900">12k+</p>
-              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-                Admissions
-              </p>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
     // 1: Destination Countries
     if (step === 1) {
       return (
@@ -1491,9 +1419,9 @@ export default function AbroadLiftMatchesPage() {
             </p>
           </div>
 
-          <div className="w-full mb-8 overflow-hidden rounded-[24px] shadow-sm border border-slate-50">
+          <div className="w-full mb-8 overflow-hidden rounded-[24px] shadow-sm border border-slate-50 lg:hidden">
             <Image
-              src="/abroad.jpg"
+              src="/country.png"
               alt="Destinations"
               width={800}
               height={400}
@@ -1514,11 +1442,10 @@ export default function AbroadLiftMatchesPage() {
                       className="group flex flex-col items-center gap-2.5 transition-all active:scale-95 w-[84px] sm:w-[96px]"
                     >
                       <div
-                        className={`relative w-[72px] h-[52px] sm:w-[88px] sm:h-[62px] rounded-[18px] sm:rounded-[22px] overflow-hidden bg-white flex items-center justify-center p-[2.5px] sm:p-[3px] transition-all ${
-                          isSel 
-                            ? "ring-[2.5px] ring-blue-500 shadow-lg transform scale-[1.05]" 
+                        className={`relative w-[72px] h-[52px] sm:w-[88px] sm:h-[62px] rounded-[18px] sm:rounded-[22px] overflow-hidden bg-white flex items-center justify-center p-[2.5px] sm:p-[3px] transition-all ${isSel
+                            ? "ring-[2.5px] ring-blue-500 shadow-lg transform scale-[1.05]"
                             : "shadow-[0_4px_12px_-4px_rgba(0,0,0,0.08)] border border-slate-50 hover:border-blue-200"
-                        }`}
+                          }`}
                       >
                         <div className="w-full h-full rounded-[14px] sm:rounded-[18px] overflow-hidden">
                           <FlagIcon
@@ -1528,9 +1455,8 @@ export default function AbroadLiftMatchesPage() {
                         </div>
                       </div>
                       <span
-                        className={`text-[13px] sm:text-[15px] font-[600] text-center tracking-tight transition-colors ${
-                          isSel ? "text-blue-600" : "text-[#475569]"
-                        }`}
+                        className={`text-[13px] sm:text-[15px] font-[600] text-center tracking-tight transition-colors ${isSel ? "text-blue-600" : "text-[#475569]"
+                          }`}
                       >
                         {c.name}
                       </span>
@@ -1562,13 +1488,13 @@ export default function AbroadLiftMatchesPage() {
             </h2>
           </div>
 
-          <div className="w-full max-w-3xl mx-auto mb-6 md:mb-12 overflow-hidden rounded-[28px] shadow-sm border border-slate-100 md:hidden">
+          <div className="w-full mb-8 overflow-hidden rounded-[24px] shadow-sm border border-slate-50 lg:hidden">
             <Image
-              src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2070&auto=format&fit=crop"
+              src="/abrd.png"
               alt="Study Level"
               width={800}
               height={400}
-              className="w-full h-[220px] lg:h-[280px] object-cover"
+              className="w-full h-[180px] object-cover"
               priority
             />
           </div>
@@ -1581,25 +1507,22 @@ export default function AbroadLiftMatchesPage() {
                 <button
                   key={d.v}
                   onClick={() => updateForm("degree", d.v)}
-                  className={`group relative flex items-center gap-6 px-8 py-5 rounded-[22px] border transition-all duration-300 ${
-                    isSel
+                  className={`group relative flex items-center gap-6 px-8 py-5 rounded-[22px] border transition-all duration-300 ${isSel
                       ? "border-blue-500 bg-white shadow-lg shadow-blue-500/5 -translate-y-0.5"
                       : "border-slate-100 bg-white shadow-sm hover:border-blue-200"
-                  }`}
+                    }`}
                 >
                   <div
-                    className={`shrink-0 w-[52px] h-[52px] rounded-xl flex items-center justify-center transition-all border ${
-                      isSel
+                    className={`shrink-0 w-[52px] h-[52px] rounded-xl flex items-center justify-center transition-all border ${isSel
                         ? "bg-white text-slate-900 border-blue-500 shadow-sm"
                         : "bg-slate-50 text-slate-400 border-slate-100"
-                    }`}
+                      }`}
                   >
                     <Icon className="w-6 h-6" strokeWidth={1.5} />
                   </div>
                   <span
-                    className={`text-[17px] font-semibold ${
-                      isSel ? "text-slate-900" : "text-slate-700"
-                    }`}
+                    className={`text-[17px] font-semibold ${isSel ? "text-slate-900" : "text-slate-700"
+                      }`}
                   >
                     {d.l}
                   </span>
@@ -1619,8 +1542,8 @@ export default function AbroadLiftMatchesPage() {
     // 3: Field Of Study
     if (step === 3) {
       const allFields = FIELDS.map((f) => f.v);
-      
-      const filteredFields = allFields.filter(f => 
+
+      const filteredFields = allFields.filter(f =>
         f.toLowerCase().includes(searchQuery.toLowerCase())
       );
 
@@ -1630,6 +1553,17 @@ export default function AbroadLiftMatchesPage() {
             <h2 className="text-[20px] lg:text-[24px] font-bold text-[#111827] tracking-tight">
               What do you want to study?
             </h2>
+          </div>
+
+          <div className="w-full mb-8 overflow-hidden rounded-[24px] shadow-sm border border-slate-50 lg:hidden">
+            <Image
+              src="/studies.png"
+              alt="Field of Study"
+              width={800}
+              height={400}
+              className="w-full h-[180px] object-cover"
+              priority
+            />
           </div>
 
           <div className="relative mb-8 max-w-2xl mx-auto w-full">
@@ -1652,32 +1586,30 @@ export default function AbroadLiftMatchesPage() {
                 <div key={f} className={`transition-all duration-500 ${isSel ? "md:col-span-2" : ""}`}>
                   <button
                     onClick={() => {
-                        updateForm("field", isSel ? "" : f);
-                        updateForm("program", "");
+                      updateForm("field", isSel ? "" : f);
+                      updateForm("program", "");
                     }}
-                    className={`w-full h-[64px] px-8 flex items-center justify-between rounded-[22px] border transition-all duration-300 ${
-                      isSel
+                    className={`w-full h-[64px] px-8 flex items-center justify-between rounded-[22px] border transition-all duration-300 ${isSel
                         ? "border-blue-500 bg-white shadow-lg shadow-blue-500/5 -translate-y-0.5"
                         : "border-slate-100 bg-white shadow-sm hover:border-blue-200"
-                    }`}
+                      }`}
                   >
                     <span className={`text-[16px] font-semibold ${isSel ? "text-slate-900" : "text-slate-700"}`}>
                       {f}
                     </span>
                     <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform duration-300 ${isSel ? "rotate-180 text-blue-500" : ""}`} />
                   </button>
-                  
+
                   {isSel && (
                     <div className="mt-3 p-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 animate-in fade-in slide-in-from-top-2 duration-300 bg-slate-50/50 rounded-[24px] border border-slate-100">
                       {(PROGRAMS[f] || []).map((p) => (
                         <button
                           key={p}
                           onClick={() => updateForm("program", p)}
-                          className={`w-full text-left px-5 py-3.5 rounded-[16px] text-[14px] font-semibold transition-all ${
-                            form.program === p
+                          className={`w-full text-left px-5 py-3.5 rounded-[16px] text-[14px] font-semibold transition-all ${form.program === p
                               ? "bg-blue-600 text-white shadow-md"
                               : "text-slate-600 hover:bg-white hover:shadow-sm"
-                          }`}
+                            }`}
                         >
                           {p}
                         </button>
@@ -1701,7 +1633,7 @@ export default function AbroadLiftMatchesPage() {
         "Master's Degree",
         "Integrated Master's"
       ];
-      
+
       const YEARS = Array.from({ length: 15 }, (_, i) => (2026 - i).toString());
 
       return (
@@ -1712,13 +1644,13 @@ export default function AbroadLiftMatchesPage() {
             </h2>
           </div>
 
-          <div className="w-full max-w-2xl mx-auto mb-10 overflow-hidden rounded-[28px] shadow-sm border border-slate-100 md:hidden">
+          <div className="w-full mb-8 overflow-hidden rounded-[24px] shadow-sm border border-slate-50 lg:hidden">
             <Image
-              src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2070&auto=format&fit=crop"
+              src="/graduation.png"
               alt="Academics"
               width={800}
               height={400}
-              className="w-full h-[220px] object-cover"
+              className="w-full h-[180px] object-cover"
               priority
             />
           </div>
@@ -1763,7 +1695,7 @@ export default function AbroadLiftMatchesPage() {
               />
             </div>
           </div>
-          
+
           {/* Extra spacing to prevent overlap with the fixed-ish footer on mobile */}
           <div className="h-32 md:hidden" />
         </div>
@@ -1773,7 +1705,7 @@ export default function AbroadLiftMatchesPage() {
     // 5: English
     if (step === 5) {
       const TESTS = ["IELTS", "TOEFL", "PTE", "Duolingo", "GRE", "GMAT"];
-      
+
       return (
         <div className="flex flex-col animate-in fade-in zoom-in-95 duration-700 w-full max-w-5xl mx-auto pb-2 px-4">
           <div className="mb-2 text-center">
@@ -1785,9 +1717,9 @@ export default function AbroadLiftMatchesPage() {
             </p>
           </div>
 
-          <div className="w-full max-w-2xl mx-auto mb-8 mt-6 overflow-hidden rounded-[28px] shadow-sm border border-slate-100 md:hidden">
+          <div className="w-full mb-8 overflow-hidden rounded-[24px] shadow-sm border border-slate-50 lg:hidden">
             <Image
-              src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=2073&auto=format&fit=crop"
+              src="/ielts.png"
               alt="English Test"
               width={800}
               height={400}
@@ -1800,11 +1732,10 @@ export default function AbroadLiftMatchesPage() {
             <div className="grid grid-cols-2 gap-4 w-full mb-10">
               <button
                 onClick={() => updateForm("hasEnglishTest", true)}
-                className={`h-[64px] flex items-center justify-center rounded-[22px] font-bold text-[15px] transition-all border ${
-                  form.hasEnglishTest === true
+                className={`h-[64px] flex items-center justify-center rounded-[22px] font-bold text-[15px] transition-all border ${form.hasEnglishTest === true
                     ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/20 shadow-lg"
                     : "bg-white text-slate-600 border-slate-100 shadow-sm hover:border-blue-200"
-                }`}
+                  }`}
               >
                 Yes, I have
               </button>
@@ -1814,11 +1745,10 @@ export default function AbroadLiftMatchesPage() {
                   updateForm("testType", "NONE");
                   updateForm("testScore", "0");
                 }}
-                className={`h-[64px] flex items-center justify-center rounded-[22px] font-bold text-[15px] transition-all border ${
-                  form.hasEnglishTest === false
+                className={`h-[64px] flex items-center justify-center rounded-[22px] font-bold text-[15px] transition-all border ${form.hasEnglishTest === false
                     ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/20 shadow-lg"
                     : "bg-white text-slate-600 border-slate-100 shadow-sm hover:border-blue-200"
-                }`}
+                  }`}
               >
                 No, I haven&apos;t
               </button>
@@ -1831,7 +1761,7 @@ export default function AbroadLiftMatchesPage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
-                   <div className="space-y-3">
+                  <div className="space-y-3">
                     <label className="text-[12px] font-bold text-slate-400 uppercase tracking-widest ml-1">
                       Choose English Test
                     </label>
@@ -1858,15 +1788,15 @@ export default function AbroadLiftMatchesPage() {
                 </div>
               </div>
             )}
-            
+
             {form.hasEnglishTest === false && (
-                <div className="text-center p-8 bg-blue-50/30 rounded-[32px] border border-blue-100/50 w-full animate-in zoom-in-95 duration-500">
-                    <p className="text-blue-800 font-semibold mb-1 text-[16px]">No problem!</p>
-                    <p className="text-blue-600/80 text-[14px]">You can continue with your matches, but we recommend taking a test later.</p>
-                </div>
+              <div className="text-center p-8 bg-blue-50/30 rounded-[32px] border border-blue-100/50 w-full animate-in zoom-in-95 duration-500">
+                <p className="text-blue-800 font-semibold mb-1 text-[16px]">No problem!</p>
+                <p className="text-blue-600/80 text-[14px]">You can continue with your matches, but we recommend taking a test later.</p>
+              </div>
             )}
           </div>
-          
+
           <div className="h-20 md:hidden" />
         </div>
       );
@@ -1892,9 +1822,9 @@ export default function AbroadLiftMatchesPage() {
             </p>
           </div>
 
-          <div className="w-full max-w-2xl mx-auto mb-10 mt-6 overflow-hidden rounded-[28px] shadow-sm border border-slate-100 md:hidden">
+          <div className="w-full mb-8 overflow-hidden rounded-[24px] shadow-sm border border-slate-50 lg:hidden">
             <Image
-              src="https://images.unsplash.com/photo-1541339907198-e08756ebafe3?q=80&w=2070&auto=format&fit=crop"
+              src="/intake.png"
               alt="World Map"
               width={800}
               height={400}
@@ -1910,11 +1840,10 @@ export default function AbroadLiftMatchesPage() {
                 <button
                   key={opt.main}
                   onClick={() => updateForm("intake", opt.main)}
-                  className={`flex flex-col items-start gap-1 p-5 lg:p-6 rounded-[24px] border transition-all text-left group overflow-hidden relative ${
-                    isSel
+                  className={`flex flex-col items-start gap-1 p-5 lg:p-6 rounded-[24px] border transition-all text-left group overflow-hidden relative ${isSel
                       ? "border-blue-500 bg-blue-50/20 shadow-lg shadow-blue-500/10"
                       : "border-slate-100 bg-white shadow-sm hover:border-blue-200"
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center gap-2">
                     <Calendar className={`w-4 h-4 ${isSel ? "text-blue-500" : "text-red-400"}`} />
@@ -1930,7 +1859,7 @@ export default function AbroadLiftMatchesPage() {
 
           <div className="w-full max-w-md mx-auto space-y-6">
             <h3 className="text-center text-[16px] font-bold text-slate-800">Are you Ready?</h3>
-            
+
             <div className="space-y-4">
               {[
                 { k: "passportReady", l: "Passport ready" },
@@ -1938,11 +1867,10 @@ export default function AbroadLiftMatchesPage() {
                 { k: "docsReady", l: "Documents ready" }
               ].map((c) => (
                 <label key={c.k} className="flex items-center gap-3 cursor-pointer group">
-                  <div 
+                  <div
                     onClick={() => updateForm(c.k as keyof Form, !(form as any)[c.k])}
-                    className={`w-6 h-6 rounded-lg border-2 transition-all flex items-center justify-center ${
-                      (form as any)[c.k] ? "bg-blue-600 border-blue-600" : "border-slate-200 group-hover:border-blue-300"
-                    }`}
+                    className={`w-6 h-6 rounded-lg border-2 transition-all flex items-center justify-center ${(form as any)[c.k] ? "bg-blue-600 border-blue-600" : "border-slate-200 group-hover:border-blue-300"
+                      }`}
                   >
                     {(form as any)[c.k] && <Check className="w-4 h-4 text-white" strokeWidth={3} />}
                   </div>
@@ -1951,7 +1879,7 @@ export default function AbroadLiftMatchesPage() {
               ))}
             </div>
           </div>
-          
+
           <div className="h-20 md:hidden" />
         </div>
       );
@@ -2322,43 +2250,43 @@ export default function AbroadLiftMatchesPage() {
     // 8: Results
     if (step === 7) {
       return (
-        <div className="animate-in fade-in duration-700 max-w-full mx-auto px-4 md:px-12 lg:px-24">
+        <div className="animate-in fade-in duration-700 max-w-full mx-auto px-2 md:px-4 lg:px-6">
           {/* Mockup Navigation Header */}
           <div className="mb-12">
-             <button 
-                onClick={() => setStep(6)}
-                className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-all mb-8 shadow-sm"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </button>
-              <h1 className="text-[24px] md:text-[26px] lg:text-[48px] font-semibold text-[#111827] tracking-tight leading-[1.05] mb-4">
-                Find Universities That Match Your Profile
-              </h1>
-              <p className="text-slate-500 font-semibold text-[14px] md:text-[16px]">
-                Compare costs, admission chances, and visa success — all in one place
-              </p>
+            <button
+              onClick={() => setStep(6)}
+              className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-all mb-8 shadow-sm"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <h1 className="text-[24px] md:text-[26px] lg:text-[48px] font-semibold text-[#111827] tracking-tight leading-[1.05] mb-4">
+              Find Universities That Match Your Profile
+            </h1>
+            <p className="text-slate-500 font-semibold text-[14px] md:text-[16px]">
+              Compare costs, admission chances, and visa success — all in one place
+            </p>
           </div>
 
           {/* Search & Filter Row - Refined to match third pic spacing */}
           <div className="bg-white rounded-[32px] border border-slate-100 shadow-xl shadow-slate-200/30 p-3 md:p-4 mb-10 md:mb-16 flex flex-col md:flex-row items-center gap-3 md:gap-4">
-               <div className="relative flex-1 group w-full">
-                    <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-                    <input 
-                        type="text" 
-                        placeholder="Search universities, courses..." 
-                        className="w-full h-14 md:h-16 pl-14 pr-8 bg-slate-50/50 rounded-[20px] md:rounded-2xl text-[15px] font-regular text-slate-900 outline-none focus:bg-white focus:ring-4 ring-blue-500/5 focus:border-blue-200 transition-all placeholder:text-slate-400"
-                    />
-               </div>
-               <div className="flex items-center gap-2 md:gap-3 w-full md:w-auto">
-                    <button className="flex-1 md:flex-none h-14 md:h-16 px-8 md:px-10 rounded-[20px] md:rounded-2xl bg-white border border-slate-100 flex items-center justify-center gap-2 text-slate-900 font-semibold text-[13px] md:text-sm tracking-tight shadow-sm hover:bg-slate-50 transition-all">
-                        <ArrowUpDown className="w-[16px] h-[16px] text-slate-400" />
-                        Sort
-                    </button>
-                    <button className="flex-1 md:flex-none h-14 md:h-16 px-8 md:px-10 rounded-[20px] md:rounded-2xl bg-white border border-slate-100 flex items-center justify-center gap-2 text-slate-900 font-semibold text-[13px] md:text-sm tracking-tight shadow-sm hover:bg-slate-50 transition-all">
-                        <SlidersHorizontal className="w-[16px] h-[16px] text-slate-400" />
-                        Filters
-                    </button>
-               </div>
+            <div className="relative flex-1 group w-full">
+              <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+              <input
+                type="text"
+                placeholder="Search universities, courses..."
+                className="w-full h-14 md:h-16 pl-14 pr-8 bg-slate-50/50 rounded-[20px] md:rounded-2xl text-[15px] font-regular text-slate-900 outline-none focus:bg-white focus:ring-4 ring-blue-500/5 focus:border-blue-200 transition-all placeholder:text-slate-400"
+              />
+            </div>
+            <div className="flex items-center gap-2 md:gap-3 w-full md:w-auto">
+              <button className="flex-1 md:flex-none h-14 md:h-16 px-8 md:px-10 rounded-[20px] md:rounded-2xl bg-white border border-slate-100 flex items-center justify-center gap-2 text-slate-900 font-semibold text-[13px] md:text-sm tracking-tight shadow-sm hover:bg-slate-50 transition-all">
+                <ArrowUpDown className="w-[16px] h-[16px] text-slate-400" />
+                Sort
+              </button>
+              <button className="flex-1 md:flex-none h-14 md:h-16 px-8 md:px-10 rounded-[20px] md:rounded-2xl bg-white border border-slate-100 flex items-center justify-center gap-2 text-slate-900 font-semibold text-[13px] md:text-sm tracking-tight shadow-sm hover:bg-slate-50 transition-all">
+                <SlidersHorizontal className="w-[16px] h-[16px] text-slate-400" />
+                Filters
+              </button>
+            </div>
           </div>
 
           {/* Results Grid - Expanding the layout */}
@@ -2372,7 +2300,6 @@ export default function AbroadLiftMatchesPage() {
                     selected={selectedMatch?.id === m.id}
                     onSelect={() => {
                       setSelectedMatch(m);
-                      setStep(10);
                     }}
                   />
                 </div>
@@ -2383,17 +2310,17 @@ export default function AbroadLiftMatchesPage() {
           {/* Loading State */}
           {loading && (
             <div className="py-32 flex flex-col items-center justify-center text-center space-y-8 animate-in fade-in duration-500">
-               <div className="relative w-24 h-24">
-                   <div className="absolute inset-0 rounded-full border-4 border-slate-100 w-full h-full" />
-                   <div className="absolute inset-0 rounded-full border-4 border-blue-600 border-t-transparent animate-spin w-full h-full shadow-[0_0_40px_rgba(37,99,235,0.2)]" />
-                   <div className="absolute inset-0 flex items-center justify-center">
-                       <Sparkles className="w-8 h-8 text-blue-600 animate-pulse" />
-                   </div>
-               </div>
-               <div className="space-y-3">
-                   <h3 className="text-xl font-black text-slate-900">Searching World-Class Institutions...</h3>
-                   <p className="text-slate-400 font-bold text-sm uppercase tracking-widest tracking-[0.2em]">Running Eligibility Engine</p>
-               </div>
+              <div className="relative w-24 h-24">
+                <div className="absolute inset-0 rounded-full border-4 border-slate-100 w-full h-full" />
+                <div className="absolute inset-0 rounded-full border-4 border-blue-600 border-t-transparent animate-spin w-full h-full shadow-[0_0_40px_rgba(37,99,235,0.2)]" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Sparkles className="w-8 h-8 text-blue-600 animate-pulse" />
+                </div>
+              </div>
+              <div className="space-y-3">
+                <h3 className="text-xl font-black text-slate-900">Searching World-Class Institutions...</h3>
+                <p className="text-slate-400 font-bold text-sm uppercase tracking-widest tracking-[0.2em]">Running Eligibility Engine</p>
+              </div>
             </div>
           )}
 
@@ -3665,9 +3592,6 @@ export default function AbroadLiftMatchesPage() {
     return null;
   };
 
-  const handleBack = () => {
-    if (step > 0) setStep(step - 1);
-  };
 
   /* ─────────────── RENDER ─────────────── */
   return (
@@ -3676,13 +3600,29 @@ export default function AbroadLiftMatchesPage() {
       {step < 7 && (
         <div className="relative hidden lg:flex lg:w-[45%] h-screen bg-slate-100 overflow-hidden animate-in fade-in slide-in-from-left duration-700">
           <Image
-            src="/abroad.jpg"
-            alt="Global Destinations"
+            src={
+              step === 1 ? "/country.png" : 
+              step === 2 ? "/abrd.png" : 
+              step === 3 ? "/studies.png" : 
+              step === 4 ? "/graduation.png" : 
+              step === 5 ? "/ielts.png" : 
+              step === 6 ? "/intake.png" : 
+              "/abroad.jpg"
+            }
+            alt={
+              step === 1 ? "Study Destinations" : 
+              step === 2 ? "Study Level" : 
+              step === 3 ? "Program Selection" : 
+              step === 4 ? "Academic History" : 
+              step === 5 ? "English proficiency" : 
+              step === 6 ? "Target Intake" : 
+              "Global Destinations"
+            }
             fill
-            className="object-cover"
+            className="object-cover "
             priority
           />
-          <div className="absolute inset-0 bg-linear-to-br from-blue-600/40 via-blue-800/60 to-slate-900/80 mix-blend-multiply" />
+
           <div className="absolute top-8 left-8 lg:top-12 lg:left-12 z-20">
             <div className="flex items-center gap-2 group">
               <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform">
@@ -3727,7 +3667,7 @@ export default function AbroadLiftMatchesPage() {
 
       {/* Right Panel - Dynamic Flow Area */}
       <div
-        className={`relative flex-1 flex flex-col bg-white overflow-hidden h-[100dvh]`}
+        className={`relative flex-1 flex flex-col bg-white overflow-hidden h-[100dvh] lg:h-screen`}
       >
         {/* Simple Top Navigation Navbar matching the minimalist screenshot */}
         {step > 0 && step !== 7 && (
@@ -3768,11 +3708,10 @@ export default function AbroadLiftMatchesPage() {
               {Array.from({ length: 6 }).map((_, i) => (
                 <div
                   key={i}
-                  className={`h-[4px] rounded-full transition-all duration-500 ease-out ${
-                    i + 1 === step
+                  className={`h-[4px] rounded-full transition-all duration-500 ease-out ${i + 1 === step
                       ? "w-8 bg-blue-500"
                       : "w-8 bg-slate-100"
-                  }`}
+                    }`}
                 />
               ))}
             </div>
@@ -3781,7 +3720,7 @@ export default function AbroadLiftMatchesPage() {
 
         {/* Step Content Area */}
         <div
-          className={`flex-1 overflow-y-auto px-6 lg:px-12 ${step === 7 ? "pt-5" : "pt-3"} pb-12 md:pb-32 overflow-x-hidden min-h-0 override-scroll`}
+          className={`flex-1 overflow-y-auto px-6 lg:px-12 ${step === 7 ? "pt-5" : "pt-3"} pb-[160px] md:pb-[200px] overflow-x-hidden min-h-0 override-scroll`}
         >
           <div
             className={`${step >= 7 ? "max-w-full" : "max-w-4xl"} mx-auto min-h-full flex flex-col`}
@@ -3790,18 +3729,17 @@ export default function AbroadLiftMatchesPage() {
           </div>
         </div>
 
-        {/* Step Navigation Footer - Sticky Bottom */}
-        {step > 0 && step < 7 && (
-          <div className="pb-[calc(1.2rem+env(safe-area-inset-bottom))] px-6 md:pb-12 bg-white/95 backdrop-blur-md pt-4 z-[70] border-t border-slate-100 flex justify-center shrink-0">
+        {/* Step Navigation Footer - Fixed Bottom for absolute stickiness */}
+        {step > 0 && step < 11 && (
+          <div className={`fixed bottom-0 left-0 right-0 ${step < 7 ? "lg:left-[45%]" : "lg:left-0"} pb-8 px-6 md:pb-12 bg-white/95 backdrop-blur-md pt-4 z-[70] border-t border-slate-100 flex justify-center shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.03)]`}>
             <div className="w-full max-w-[340px] flex justify-center pt-0">
               <button
                 onClick={handleNext}
                 disabled={!canContinue()}
-                className={`w-full h-[58px] rounded-[22px] font-[600] text-[16px] transition-all flex items-center justify-center tracking-wide ${
-                  canContinue()
-                    ? "bg-blue-500 hover:bg-blue-600 text-white shadow-[0_8px_20px_-6px_rgba(59,130,246,0.35)]"
+                className={`w-full h-14 rounded-[30px] font-bold text-[16px] transition-all flex items-center justify-center tracking-wide ${canContinue()
+                    ? "bg-[#3686FF] text-white shadow-[0_8px_20px_-6px_rgba(59,130,246,0.35)]"
                     : "bg-[#eff5fd] text-[#9ca3af] cursor-not-allowed"
-                }`}
+                  }`}
               >
                 {step === 7 ? "Analyze & Match" : "Continue"}
               </button>
@@ -3809,31 +3747,7 @@ export default function AbroadLiftMatchesPage() {
           </div>
         )}
 
-        {/* Branding Global Footer (Only on Step 0) */}
-        {step === 0 && (
-          <div className="p-8 lg:px-12 border-t border-slate-50 flex flex-wrap items-center justify-between gap-6">
-            <div className="flex items-center gap-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
-              <span>&copy; 2026 ABROADLIFT GLOBAL ADMISSIONS</span>
-              <div className="hidden sm:flex items-center gap-4 border-l border-slate-100 pl-6 ml-2">
-                <button className="hover:text-slate-900 transition-colors">
-                  Privacy
-                </button>
-                <button className="hover:text-slate-900 transition-colors">
-                  Legal
-                </button>
-                <button className="hover:text-slate-900 transition-colors">
-                  Cookie Policy
-                </button>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 grayscale hover:grayscale-0 transition-all opacity-50">
-              <Globe className="w-4 h-4 text-slate-400" />
-              <span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter italic">
-                Global Presence in 20+ Countries
-              </span>
-            </div>
-          </div>
-        )}
+
       </div>
 
       <style
