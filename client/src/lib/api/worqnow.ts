@@ -41,9 +41,16 @@ export interface WorqnowUniversity {
   is_russell_group?: boolean;
 }
 
+const universityCache: Record<string, WorqnowUniversity[]> = {};
+
 export async function fetchWorqnowUniversities(
   countryCode: string,
 ): Promise<WorqnowUniversity[]> {
+  const code = countryCode.toLowerCase();
+  if (universityCache[code]) {
+    return universityCache[code];
+  }
+
   const apiKey = process.env.WORQNOW_API_KEY;
 
   const url = `${BASE_URL}/${countryCode.toLowerCase()}/universities`;
@@ -74,8 +81,11 @@ export async function fetchWorqnowUniversities(
       : [];
 
   // Enrich each university with an estimated numeric fee
-  return list.map((u: any) => ({
+  const transformed = list.map((u: any) => ({
     ...u,
     estimatedFeeUSD: FEE_BAND_USD[u.international_fee_band] ?? 0,
   }));
+
+  universityCache[code] = transformed;
+  return transformed;
 }

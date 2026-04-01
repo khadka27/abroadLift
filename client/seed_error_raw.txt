@@ -1,0 +1,25 @@
+
+Invalid `prisma.application.deleteMany()` invocation in
+C:\Projects\fishtail\abroadLift\client\prisma\seed.ts:15:28
+
+  12 
+  13 async function main() {
+  14   console.log("Cleaning database...");
+→ 15   await prisma.application.deleteMany(
+Can't reach database server at base
+
+PrismaClientKnownRequestError: 
+Invalid `prisma.application.deleteMany()` invocation in
+C:\Projects\fishtail\abroadLift\client\prisma\seed.ts:15:28
+
+  12 
+  13 async function main() {
+  14   console.log("Cleaning database...");
+→ 15   await prisma.application.deleteMany(
+Can't reach database server at base
+    at Gr.handleRequestError (C:\Projects\fishtail\abroadLift\client\node_modules\@prisma\client\src\runtime\RequestHandler.ts:237:13)
+    at Gr.handleAndLogRequestError (C:\Projects\fishtail\abroadLift\client\node_modules\@prisma\client\src\runtime\RequestHandler.ts:183:12)
+    at Gr.request (C:\Projects\fishtail\abroadLift\client\node_modules\@prisma\client\src\runtime\RequestHandler.ts:152:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\Projects\fishtail\abroadLift\client\node_modules\@prisma\client\src\runtime\getPrismaClient.ts:938:24)
+    at async main (C:\Projects\fishtail\abroadLift\client\prisma\seed.ts:15:3)
