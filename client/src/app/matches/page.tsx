@@ -2359,8 +2359,8 @@ export default function AbroadLiftMatchesPage() {
       );
     }
 
-    // 9: Cost estimate - View breakdown
-    if (step === 10 && selectedMatch) {
+    // 8: Cost estimate - View breakdown
+    if (step === 8 && selectedMatch) {
       const city =
         selectedMatch.location?.split(",")?.[0]?.trim() || "your selected city";
       const countryCode =
@@ -2640,10 +2640,10 @@ export default function AbroadLiftMatchesPage() {
 
             <div className="sticky bottom-0 pt-2 pb-4 bg-linear-to-t from-white via-white to-transparent">
               <button
-                onClick={() => setStep(10)}
-                className="w-full h-14 rounded-2xl bg-slate-900 text-white font-black text-xs uppercase tracking-widest hover:bg-black transition-colors"
+                onClick={() => setStep(7)}
+                className="w-full h-14 rounded-2xl bg-slate-50 text-slate-500 font-bold text-xs uppercase tracking-widest hover:bg-slate-100 transition-colors"
               >
-                Refine with detailed financials
+                Back to Matches
               </button>
             </div>
           </div>
@@ -2651,8 +2651,8 @@ export default function AbroadLiftMatchesPage() {
       );
     }
 
-    // 10: College acceptance - See complete details
-    if (step === 11 && selectedMatch) {
+    // 9: College acceptance - See complete details
+    if (step === 9 && selectedMatch) {
       const profileScore = getEligibilityScore(form);
       const admissionPct = Math.max(
         35,
@@ -2840,16 +2840,10 @@ export default function AbroadLiftMatchesPage() {
 
             <div className="pt-2 space-y-3">
               <button
-                onClick={() => setStep(8)}
-                className="w-full h-14 rounded-2xl bg-slate-900 text-white font-black text-xs uppercase tracking-widest hover:bg-black transition-colors"
+                onClick={() => setStep(7)}
+                className="w-full h-14 rounded-2xl bg-slate-50 text-slate-500 font-bold text-xs uppercase tracking-widest hover:bg-slate-100 transition-colors"
               >
-                See how to improve my admission chances
-              </button>
-              <button
-                onClick={() => setStep(4)}
-                className="w-full text-sm font-bold text-blue-700 hover:text-blue-800 transition-colors"
-              >
-                Try a different programme
+                Back to Matches
               </button>
             </div>
           </div>
@@ -2857,8 +2851,8 @@ export default function AbroadLiftMatchesPage() {
       );
     }
 
-    // 11: Visa acceptance - See complete details
-    if (step === 12 && selectedMatch) {
+    // 10: Visa acceptance - See complete details
+    if (step === 10 && selectedMatch) {
       const countryCode =
         selectedMatch.countryCode || form.countries[0] || "AU";
       const countryName =
@@ -3028,18 +3022,18 @@ export default function AbroadLiftMatchesPage() {
             </Card>
 
             <button
-              onClick={() => setStep(hasDetailedForm ? 12 : 7)}
-              className="w-full h-14 rounded-2xl bg-slate-900 text-white font-black text-xs uppercase tracking-widest hover:bg-black transition-colors"
+              onClick={() => setStep(7)}
+              className="w-full h-14 rounded-2xl bg-slate-50 text-slate-500 font-bold text-xs uppercase tracking-widest hover:bg-slate-100 transition-colors"
             >
-              Strengthen my visa profile
+              Back to Matches
             </button>
           </div>
         </div>
       );
     }
 
-    // 12: Document Checklist
-    if (step === 13 && selectedMatch) {
+    // 11: Document Checklist
+    if (step === 11 && selectedMatch) {
       const docs = [
         {
           t: "Valid Passport",
@@ -3108,8 +3102,8 @@ export default function AbroadLiftMatchesPage() {
       );
     }
 
-    // 13: Final Phase Financial Oracle & Roadmap
-    if (step === 14 && selectedMatch) {
+    // 12: Final Phase Financial Oracle & Roadmap
+    if (step === 12 && selectedMatch) {
       const duration = parseInt(form.duration) || 3;
       const eligScore = getEligibilityScore(form);
       const scholPercent = eligScore >= 90 ? 50 : eligScore >= 80 ? 20 : 0;
@@ -3683,7 +3677,7 @@ export default function AbroadLiftMatchesPage() {
               )}
               {step > 7 && (
                 <button
-                  onClick={() => setStep(6)}
+                  onClick={() => setStep(step - 1)}
                   className="text-slate-900 transition-colors hover:text-blue-500"
                 >
                   <ChevronLeft className="w-6 h-6" strokeWidth={3} />
@@ -3730,7 +3724,7 @@ export default function AbroadLiftMatchesPage() {
         </div>
 
         {/* Step Navigation Footer - Fixed Bottom for absolute stickiness */}
-        {step > 0 && step < 11 && (
+        {step > 0 && step < 12 && (
           <div className={`fixed bottom-0 left-0 right-0 ${step < 7 ? "lg:left-[45%]" : "lg:left-0"} pb-8 px-6 md:pb-12 bg-white/95 backdrop-blur-md pt-4 z-[70] border-t border-slate-100 flex justify-center shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.03)]`}>
             <div className="w-full max-w-[340px] flex justify-center pt-0">
               <button
