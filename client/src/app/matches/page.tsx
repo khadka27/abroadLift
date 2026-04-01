@@ -46,6 +46,8 @@ import {
   ArrowRight,
   ArrowUpDown,
   SlidersHorizontal,
+  Shield,
+  Heart,
   Trophy,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -163,18 +165,13 @@ interface Match {
 
 /* ─────────────── Static data ─────────────── */
 const COUNTRIES = [
-  { code: "US", name: "USA" },
-  { code: "GB", name: "UK" },
+  { code: "USA", name: "USA" },
+  { code: "UK", name: "UK" },
   { code: "CA", name: "Canada" },
-  { code: "JP", name: "Japan" },
-  { code: "NZ", name: "New Ze" },
-  { code: "KR", name: "Korea" },
-  { code: "DE", name: "Germany" },
   { code: "AU", name: "Australia" },
+  { code: "DE", name: "Germany" },
   { code: "IE", name: "Ireland" },
   { code: "NL", name: "Netherlands" },
-  { code: "SG", name: "Singapore" },
-  { code: "FR", name: "France" },
 ];
 
 const DEGREES = [
@@ -1266,6 +1263,37 @@ export default function AbroadLiftMatchesPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState(""); // For Step 3 (Field of Study)
+  const [dynamicLivingCost, setDynamicLivingCost] = useState<any>(null);
+  const [relocationStats, setRelocationStats] = useState<any>(null);
+
+  useEffect(() => {
+    if (step === 8 && selectedMatch) {
+      setDynamicLivingCost(null);
+      setRelocationStats(null);
+      const code = selectedMatch.countryCode || form.countries[0] || "AU";
+      
+      // Cost of Living
+      fetch(`/api/cost-of-living?countryCode=${code}`)
+        .then((res) => res.json())
+        .then((data) => {
+           if (data && data.breakdown) {
+             setDynamicLivingCost(data.breakdown);
+           }
+        })
+        .catch(console.error);
+
+       // Relocation Index
+       fetch(`/api/relocation-index?countryCode=${code}`)
+        .then((res) => res.json())
+        .then((data) => {
+           if (data && !data.error) {
+             setRelocationStats(data);
+           }
+        })
+        .catch(console.error);
+    }
+  }, [step, selectedMatch, form.countries]);
+
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -2483,15 +2511,15 @@ export default function AbroadLiftMatchesPage() {
       const docAndApplicationFeesUsd = 400;
       const consultancyFeesUsd = form.sponsorType === "Self" ? 450 : 0;
       const flightsUsd = 620;
-      const livingBreakdownUsd = {
+      const livingBreakdownUsd = dynamicLivingCost || {
         rent: 3800,
         food: 1300,
         transport: 500,
         insurance: 320,
         other: 700,
       };
-      const livingCostUsd = Object.values(livingBreakdownUsd).reduce(
-        (sum, val) => sum + val,
+      const livingCostUsd = Object.values(livingBreakdownUsd as Record<string, number>).reduce(
+        (sum: number, val: number) => sum + val,
         0,
       );
 
@@ -2499,37 +2527,37 @@ export default function AbroadLiftMatchesPage() {
         {
           label: "Tuition fees",
           info: "Estimated first-year tuition based on selected university and programme.",
-          amountUsd: tuitionUsd,
+          amountUsd: tuitionUsd as number,
         },
         {
           label: "Visa fees",
-          info: "Government visa application and biometrics fee estimate.",
-          amountUsd: visaFeesUsd,
+          info: "Official embassy processing fees for student visa.",
+          amountUsd: visaFeesUsd as number,
         },
         {
-          label: "Documentation & application fees",
-          info: "Application portal fees, courier, attestations, and transcript processing.",
-          amountUsd: docAndApplicationFeesUsd,
+          label: "Documentation",
+          info: "Translation, attestation and processing of academic documents.",
+          amountUsd: docAndApplicationFeesUsd as number,
         },
         {
-          label: "Consultancy/service fees (if applicable)",
-          info: "Advisory and processing support fee. May be waived depending on your package.",
-          amountUsd: consultancyFeesUsd,
+          label: "Consultancy",
+          info: "Expert counseling and admission processing fees.",
+          amountUsd: consultancyFeesUsd as number,
         },
         {
-          label: "Flights",
-          info: "One-way initial travel estimate from Nepal to destination.",
-          amountUsd: flightsUsd,
+          label: "Airfare",
+          info: "Estimated one-way flight ticket to destination.",
+          amountUsd: flightsUsd as number,
         },
         {
-          label: "Living cost (rent, food, transport, insurance, other)",
-          info: "Typical annual living expense for an international student.",
-          amountUsd: livingCostUsd,
+          label: "Living expenses",
+          info: "Yearly estimate for rent, food, and local transport.",
+          amountUsd: livingCostUsd as number,
         },
       ];
 
       const totalYear1Usd = year1Items.reduce(
-        (sum, item) => sum + item.amountUsd,
+        (acc: number, item: any) => acc + (item.amountUsd as number),
         0,
       );
       const budgetRaw = Number.parseFloat(form.budget) || 0;
@@ -2595,6 +2623,25 @@ export default function AbroadLiftMatchesPage() {
                 </span>
               </div>
             </Card>
+
+            {relocationStats && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[
+                  { label: "Safety Score", val: relocationStats.safety, icon: Shield, color: "text-blue-600" },
+                  { label: "Edu Quality", val: relocationStats.education, icon: GraduationCap, color: "text-emerald-600" },
+                  { label: "Healthcare", val: relocationStats.healthcare, icon: Heart, color: "text-rose-600" },
+                  { label: "Infrastructure", val: relocationStats.infrastructure, icon: Building2, color: "text-amber-600" },
+                ].map((stat, i) => (
+                  <Card key={i} className="p-4 rounded-2xl border border-slate-100 bg-white flex flex-col items-center text-center space-y-2">
+                    <stat.icon className={`w-5 h-5 ${stat.color}`} />
+                    <div>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{stat.label}</p>
+                      <p className="text-lg font-black text-slate-900">{stat.val}/100</p>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
 
             <Card className="p-4 md:p-6 rounded-[28px] border border-slate-100 bg-white">
               <h3 className="text-sm md:text-base font-black text-slate-900 mb-3">
