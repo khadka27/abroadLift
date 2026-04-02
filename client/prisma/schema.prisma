@@ -47,21 +47,53 @@ model StudentProfile {
     userId String @unique
     user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    nationality         String?
-    currentCountry      String?
-    gpa                 Float?
-    yearlyBudget        Float?
-    englishScore        Float?
-    degreeLevel         String?
-    preferredCountry    String?
-    scholarshipNeeded   Boolean? @default(false)
-    loanWilling         Boolean? @default(false)
-    fieldOfStudy        String?
-    testType            String?
-    recentAcademicField String?
-    passoutYear         String?
-    intake              String?
-    englishLevel        String?
+    nationality       String?
+    currentCountry    String?
+    highestEducation  String?
+    passingYear       String?
+    gpa               Float?
+    backlogs          Int?     @default(0)
+    studyGap          Int?     @default(0)
+    
+    // Test Scores
+    hasEnglishTest    Boolean?
+    testType          String?
+    englishScore      Float?
+    
+    // Aptitude Tests
+    aptitudeTest      String?  @default("NONE")
+    greVerbal         Float?
+    greQuant          Float?
+    greAwa            Float?
+    gmatTotal         Float?
+
+    // Study Preferences
+    degreeLevel       String?
+    field             String?
+    program           String?
+    preferredCountry  String?
+    intake            String?
+    
+    // Financials
+    yearlyBudget      Float?
+    currency          String?  @default("USD")
+    bankBalance       Float?
+    sponsorType       String?
+    sponsorIncome     Float?
+    
+    // Preferences
+    univType          String?
+    cityType          String?
+    duration          Int?
+
+    // Requirements
+    scholarshipNeeded Boolean? @default(false)
+    loanWilling       Boolean? @default(false)
+    passportReady     Boolean? @default(false)
+    testDone          Boolean? @default(false)
+    docsReady         Boolean? @default(false)
+
+    updatedAt         DateTime @updatedAt
 }
 
 model University {

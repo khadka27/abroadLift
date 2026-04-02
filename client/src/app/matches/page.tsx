@@ -64,6 +64,7 @@ import {
   Square,
   Info as InfoIcon,
   CheckCircle,
+  Save,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
@@ -477,6 +478,8 @@ const STEPS = [
 
 const DEF: Form = {
   countries: [],
+  nationality: "",
+  currentCountry: "",
   degree: "",
   field: "",
   program: "",
@@ -1545,7 +1548,34 @@ export default function AbroadLiftMatchesPage() {
               ...prev,
               name: data.name || prev.name,
               email: data.email || prev.email,
+              nationality: p.nationality || prev.nationality,
+              currentCountry: p.currentCountry || prev.currentCountry,
+              highestEducation: p.highestEducation || prev.highestEducation,
+              passingYear: p.passingYear || prev.passingYear,
               gpa: p.gpa?.toString() || prev.gpa,
+              backlogs: p.backlogs?.toString() || prev.backlogs,
+              studyGap: p.studyGap?.toString() || prev.studyGap,
+              testType: p.testType || prev.testType,
+              testScore: p.englishScore?.toString() || prev.testScore,
+              aptitudeTest: p.aptitudeTest || prev.aptitudeTest,
+              greVerbal: p.greVerbal?.toString() || prev.greVerbal,
+              greQuant: p.greQuant?.toString() || prev.greQuant,
+              greAwa: p.greAwa?.toString() || prev.greAwa,
+              gmatTotal: p.gmatTotal?.toString() || prev.gmatTotal,
+              degree: p.degreeLevel || prev.degree,
+              field: p.field || prev.field,
+              program: p.program || prev.program,
+              intake: p.intake || prev.intake,
+              budget: p.yearlyBudget?.toString() || prev.budget,
+              bankBalance: p.bankBalance?.toString() || prev.bankBalance,
+              sponsorType: p.sponsorType || prev.sponsorType,
+              sponsorIncome: p.sponsorIncome?.toString() || prev.sponsorIncome,
+              duration: p.duration?.toString() || prev.duration,
+              scholarship: !!p.scholarshipNeeded,
+              passportReady: !!p.passportReady,
+              testDone: !!p.testDone,
+              docsReady: !!p.docsReady,
+              countries: p.preferredCountry ? [p.preferredCountry] : prev.countries,
             }));
           }
         } catch (e) {
@@ -1590,6 +1620,10 @@ export default function AbroadLiftMatchesPage() {
 
   const handleNext = () => {
     if (step === 8) {
+       setStep(9);
+       return;
+    }
+    if (step === 9) {
        setTransitionType("admission");
        setStep(10);
        return;
@@ -1604,6 +1638,15 @@ export default function AbroadLiftMatchesPage() {
       setTransitionType("matching");
       setStep(7);
       runMatch();
+      
+      // Auto-save profile progress if authenticated
+      if (status === "authenticated") {
+        fetch("/api/profile", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(form),
+        }).catch(console.error);
+      }
     } else if (step < STEPS.length - 1) {
       setStep(step + 1);
     }
@@ -2653,6 +2696,7 @@ export default function AbroadLiftMatchesPage() {
           admissionBand={admissionBand} 
           costBand={costBand} 
           totalYear1Npr={totalYear1Npr} 
+          onAdvanceToCost={() => setStep(9)}
           onAdvanceToAdmission={() => { setTransitionType("admission"); setStep(10); }} 
           onAdvanceToVisa={() => { setTransitionType("visa"); setStep(11); }} 
           onGoToMatches={() => setStep(7)}
@@ -2784,8 +2828,11 @@ export default function AbroadLiftMatchesPage() {
                 </div>
              </div>
 
-             <button className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-[20px] font-black text-[15px] shadow-xl shadow-blue-500/20 active:scale-95 transition-all">
-               View All Study Cost
+             <button 
+               onClick={() => { setTransitionType("admission"); setStep(10); }}
+               className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-[20px] font-black text-[15px] shadow-xl shadow-blue-500/20 active:scale-95 transition-all"
+             >
+               Next: Admission Chance
              </button>
 
              {/* 2. Monthly Expenses Breakdown (Labeled Year Breakdown per Design) */}
@@ -2828,8 +2875,12 @@ export default function AbroadLiftMatchesPage() {
                 </div>
              </div>
 
-             <button className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-[20px] font-black text-[15px] shadow-xl shadow-blue-500/20 active:scale-95 transition-all">
-               Save Plan
+             <button 
+               onClick={handleSavePlan}
+               disabled={saving}
+               className={`w-full h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-[20px] font-black text-[15px] shadow-xl shadow-blue-500/20 active:scale-95 transition-all flex items-center justify-center ${saving ? "opacity-70 cursor-not-allowed" : ""}`}
+             >
+               {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : "Save Plan"}
              </button>
 
              {/* 4. Pre-application Cost */}
@@ -3466,8 +3517,20 @@ export default function AbroadLiftMatchesPage() {
 
                 <div className="w-full space-y-4">
                   <button
+                    onClick={handleSavePlan}
+                    disabled={saving}
+                    className={`w-full h-16 bg-blue-600 text-white rounded-3xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-blue-500/30 hover:scale-105 transition-all flex items-center justify-center gap-3 italic ${saving ? "opacity-70" : ""}`}
+                  >
+                    {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : (
+                      <>
+                        <Save className="w-5 h-5" />
+                        SAVE PLAN & FINISH
+                      </>
+                    )}
+                  </button>
+                  <button
                     onClick={() => window.print()}
-                    className="w-full h-16 bg-blue-600 text-white rounded-3xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-blue-500/30 hover:scale-105 transition-all flex items-center justify-center gap-3 print:hidden"
+                    className="w-full h-14 bg-white text-blue-600 border-2 border-blue-600 rounded-3xl font-black text-xs uppercase tracking-[0.2em] hover:bg-blue-50 transition-all flex items-center justify-center gap-3 print:hidden"
                   >
                     <Download className="w-5 h-5" />
                     Export Financial PDF

@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 export interface Form {
+  nationality: string;
+  currentCountry: string;
   countries: string[];
   degree: string;
   field: string;

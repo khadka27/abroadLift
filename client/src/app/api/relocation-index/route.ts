@@ -3,7 +3,17 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const countryCode = (searchParams.get("countryCode") || "US").toLowerCase();
+  const rawCode = (searchParams.get("countryCode") || "US").toUpperCase();
+
+  const normalization: Record<string, string> = {
+    "USA": "US",
+    "UK": "GB",
+    "CAN": "CA",
+    "AUS": "AU",
+    "GER": "DE",
+  };
+
+  const targetCode = (normalization[rawCode] || rawCode).toLowerCase();
 
   try {
     const url = process.env.WHERENEXT_RELOCATION_URL || "https://getwherenext.com/api/data/relocation-index";
@@ -13,7 +23,14 @@ export async function GET(req: NextRequest) {
     const json = await res.json();
     const data = json.data || [];
     
-    const countryData = data.find((d: any) => d.country_code?.toLowerCase() === countryCode);
+    let countryData = data.find((d: any) => d.country_code?.toLowerCase() === targetCode);
+    
+    if (!countryData && targetCode === "gb") {
+        countryData = data.find((d: any) => d.country_code?.toLowerCase() === "uk");
+    }
+    if (!countryData && targetCode === "uk") {
+        countryData = data.find((d: any) => d.country_code?.toLowerCase() === "gb");
+    }
     
     if (countryData) {
       return NextResponse.json(countryData);
