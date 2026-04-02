@@ -44,6 +44,25 @@ async function main() {
     },
   });
 
+  const adminHashedPassword = await bcrypt.hash("admin@123", 12);
+  const adminUser = await prisma.user.create({
+    data: {
+      username: "admin",
+      email: "admin@abroadlift.com",
+      name: "System Administrator",
+      password: adminHashedPassword,
+      role: "ADMIN",
+      phoneVerified: true,
+      profile: {
+        create: {
+          nationality: "System",
+          currentCountry: "Cloud",
+        },
+      },
+    },
+  });
+
+  console.log(`✅ Admin user created: ${adminUser.username} (${adminUser.email})`);
   console.log(`✅ Test user created: ${testUser.username} (${testUser.email})`);
 
   console.log("Seeding universities...");
@@ -207,8 +226,7 @@ async function main() {
 
 main()
   .catch((e) => {
-    require("fs").writeFileSync("seed_error_raw.txt", e.message + "\n\n" + e.stack);
-    console.error("❌ Seed error written to seed_error_raw.txt");
+    console.error("❌ Seed error: ", e);
     process.exit(1);
   })
   .finally(async () => {
