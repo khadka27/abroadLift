@@ -3,7 +3,17 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const countryCode = (searchParams.get("countryCode") || "US").toUpperCase();
+  const rawCode = (searchParams.get("countryCode") || "US").toUpperCase();
+
+  const normalization: Record<string, string> = {
+    "USA": "US",
+    "UK": "GB",
+    "CAN": "CA",
+    "AUS": "AU",
+    "GER": "DE",
+  };
+
+  let targetCode = normalization[rawCode] || rawCode;
 
   try {
     const url = process.env.WHERENEXT_API_URL || "https://getwherenext.com/api/data/cost-of-living";
@@ -13,16 +23,16 @@ export async function GET(req: NextRequest) {
     const json = await res.json();
     const data = json.data || [];
     
-    // Default AU mapping: WhereNext uses AU.
-    let targetCode = countryCode;
-    if (targetCode === "GB") targetCode = "GB"; // "uk" API usage typically correlates to GB in standard lists or UK. Let's see if WhereNext has GB or UK. WhereNext has UK? 
-    // In fact ISO 3166-1 alpha-2 for United Kingdom is GB.
-    
     // Find precise country
     let countryData = data.find((d: any) => d.country_code?.toUpperCase() === targetCode);
     
+    // Fallback if targetCode was GB, try UK
     if (!countryData && targetCode === "GB") {
         countryData = data.find((d: any) => d.country_code?.toUpperCase() === "UK");
+    }
+    // Fallback if targetCode was UK, try GB
+    if (!countryData && targetCode === "UK") {
+        countryData = data.find((d: any) => d.country_code?.toUpperCase() === "GB");
     }
     
     if (countryData) {

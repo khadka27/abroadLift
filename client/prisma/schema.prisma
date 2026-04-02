@@ -49,13 +49,56 @@ model StudentProfile {
 
     nationality       String?
     currentCountry    String?
+    highestEducation  String?
+    passingYear       String?
     gpa               Float?
-    yearlyBudget      Float?
+    backlogs          Int?     @default(0)
+    studyGap          Int?     @default(0)
+    
+    // Test Scores
+    hasEnglishTest    Boolean?
+    testType          String?
     englishScore      Float?
+    
+    // Aptitude Tests
+    aptitudeTest      String?  @default("NONE")
+    greVerbal         Float?
+    greQuant          Float?
+    greAwa            Float?
+    gmatTotal         Float?
+
+    // Study Preferences
     degreeLevel       String?
+    field             String?
+    program           String?
     preferredCountry  String?
+    intake            String?
+    
+    // Financials
+    yearlyBudget      Float?
+    currency          String?  @default("USD")
+    bankBalance       Float?
+    sponsorType       String?
+    sponsorIncome     Float?
+    
+    // Preferences
+    univType          String?
+    cityType          String?
+    duration          Int?
+
+    // Requirements
     scholarshipNeeded Boolean? @default(false)
     loanWilling       Boolean? @default(false)
+    passportReady     Boolean? @default(false)
+    testDone          Boolean? @default(false)
+    docsReady         Boolean? @default(false)
+
+    // Calculated Scores
+    admissionProb     Float?
+    visaSuccessProb   Float?
+    estimatedAnnualCost Float?
+
+    updatedAt         DateTime @updatedAt
 }
 
 model University {
@@ -110,7 +153,12 @@ model MatchingRecord {
     formData  Json
     matchData Json
 
-    createdAt DateTime @default(now())
+    // Explicit calculated stats for tracking
+    admissionChance Float?
+    visaSuccess     Float?
+    costEstimate    Float?
+
+    createdAt DateTime @updatedAt
     updatedAt DateTime @updatedAt
 }
 

@@ -48,6 +48,7 @@ export default function EnglishTestSelection() {
   const [testType, setTestType] = useState<string>(userData.testType === "Not Taken" ? "" : userData.testType || "");
   const [score, setScore] = useState(userData.score === "Pending" ? "" : userData.score || "");
   const [englishLevel, setEnglishLevel] = useState(userData.englishLevel || "");
+  const [scoreError, setScoreError] = useState("");
 
   const handleToggle = (taken: boolean) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -64,11 +65,36 @@ export default function EnglishTestSelection() {
         testType: hasTakenTest ? testType : "Not Taken",
         englishLevel: hasTakenTest ? "N/A" : englishLevel
     }));
-    router.push("/setup/university-select");
+    router.push("/setup/target");
+  };
+
+  const isScoreValid = (type: string, val: string) => {
+    if (!val) return false;
+    const num = parseFloat(val);
+    if (isNaN(num)) return false;
+    if (type === "IELTS") return num <= 9.0;
+    if (type === "PTE") return num <= 90;
+    if (type === "TOEFL") return num <= 120;
+    if (type === "Duolingo") return num <= 160;
+    return true;
+  };
+
+  const handleScoreChange = (text: string) => {
+    setScore(text);
+    if (text) {
+      const num = parseFloat(text);
+      if (testType === "IELTS" && num > 9.0) setScoreError("IELTS score cannot be above 9.0");
+      else if (testType === "PTE" && num > 90) setScoreError("PTE score cannot be above 90");
+      else if (testType === "TOEFL" && num > 120) setScoreError("TOEFL score cannot be above 120");
+      else if (testType === "Duolingo" && num > 160) setScoreError("Duolingo score cannot be above 160");
+      else setScoreError("");
+    } else {
+      setScoreError("");
+    }
   };
 
   const isFormValid = hasTakenTest === true 
-    ? (testType !== "" && score.trim().length > 0)
+    ? (testType !== "" && score.trim().length > 0 && isScoreValid(testType, score))
     : (hasTakenTest === false && englishLevel !== "");
 
   return (
@@ -92,7 +118,7 @@ export default function EnglishTestSelection() {
           </View>
 
           <View style={styles.trackerContainer}>
-            {[1, 2, 3, 4, 5].map((i) => (
+            {[1, 2, 3, 4, 5, 6, 7].map((i) => (
               <View 
                 key={i} 
                 style={[
@@ -189,9 +215,10 @@ export default function EnglishTestSelection() {
                       }
                       placeholderTextColor={COLORS.textGray}
                       value={score}
-                      onChangeText={setScore}
+                      onChangeText={handleScoreChange}
                       keyboardType="numeric"
                     />
+                    {scoreError ? <Text style={styles.errorText}>{scoreError}</Text> : null}
                   </View>
                 )}
               </Animated.View>
@@ -424,5 +451,12 @@ const styles = StyleSheet.create({
   },
   trackerSegmentInactive: {
     backgroundColor: "#E5E7EB",
+  },
+  errorText: {
+    color: "#EF4444",
+    fontSize: 12,
+    fontWeight: "600",
+    marginTop: 8,
+    marginLeft: 4,
   },
 });

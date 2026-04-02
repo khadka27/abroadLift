@@ -34,6 +34,8 @@ export default function AcademicsSetup() {
   const [recentField, setRecentField] = useState(userData.recentAcademicField || "");
   const [cgpa, setCgpa] = useState(userData.cgpa || "");
   const [passoutYear, setPassoutYear] = useState(userData.passoutYear || "");
+  const [cgpaError, setCgpaError] = useState("");
+  const [yearError, setYearError] = useState("");
 
   const handleContinue = () => {
     setUserData(prev => ({
@@ -45,7 +47,38 @@ export default function AcademicsSetup() {
     router.push("/setup/english-test");
   };
 
-  const isFormValid = recentField.trim().length > 0 && cgpa.trim().length > 0 && passoutYear.trim().length > 0;
+  const isFormValid = 
+    recentField.trim().length > 0 && 
+    cgpa.trim().length > 0 && 
+    parseFloat(cgpa) <= 4.0 &&
+    passoutYear.trim().length === 4 &&
+    parseInt(passoutYear) >= 1950 &&
+    parseInt(passoutYear) <= 2030;
+
+  const handleCgpaChange = (text: string) => {
+    setCgpa(text);
+    if (text && parseFloat(text) > 4.0) {
+      setCgpaError("CGPA cannot be above 4.0");
+    } else {
+      setCgpaError("");
+    }
+  };
+
+  const handleYearChange = (text: string) => {
+    setPassoutYear(text);
+    if (text.length === 4) {
+      const year = parseInt(text);
+      if (year < 1950 || year > 2030) {
+        setYearError("Please enter a valid year (1950-2030)");
+      } else {
+        setYearError("");
+      }
+    } else if (text.length > 0) {
+      setYearError(""); 
+    } else {
+        setYearError("");
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -72,7 +105,7 @@ export default function AcademicsSetup() {
             </View>
 
             <View style={styles.trackerContainer}>
-              {[1, 2, 3, 4, 5].map((i) => (
+              {[1, 2, 3, 4, 5, 6, 7].map((i) => (
                 <View 
                   key={i} 
                   style={[
@@ -114,10 +147,11 @@ export default function AcademicsSetup() {
                       placeholder="e.g. 3.8"
                       placeholderTextColor={COLORS.textGray}
                       value={cgpa}
-                      onChangeText={setCgpa}
+                      onChangeText={handleCgpaChange}
                       keyboardType="numeric"
                     />
                   </View>
+                  {cgpaError ? <Text style={styles.errorText}>{cgpaError}</Text> : null}
                 </View>
 
                 {/* Passout Year Card */}
@@ -130,11 +164,12 @@ export default function AcademicsSetup() {
                       placeholder="e.g. 2024"
                       placeholderTextColor={COLORS.textGray}
                       value={passoutYear}
-                      onChangeText={setPassoutYear}
+                      onChangeText={handleYearChange}
                       keyboardType="numeric"
                       maxLength={4}
                     />
                   </View>
+                  {yearError ? <Text style={styles.errorText}>{yearError}</Text> : null}
                 </View>
 
                 {/* Continue Button inside Form Flow */}
@@ -277,5 +312,12 @@ const styles = StyleSheet.create({
   },
   trackerSegmentInactive: {
     backgroundColor: "#E5E7EB",
+  },
+  errorText: {
+    color: "#EF4444",
+    fontSize: 12,
+    fontWeight: "600",
+    marginTop: 8,
+    marginLeft: 4,
   },
 });

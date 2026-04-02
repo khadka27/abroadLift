@@ -1,20 +1,19 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getUserIdFromRequest } from "@/lib/api-auth";
 import prisma from "@/lib/db";
 import { University } from "@prisma/client";
 import { calculateMatchEligibility } from "@/lib/matching";
 
 export async function GET(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const userIdSource = await getUserIdFromRequest(req);
 
-    if (!session || session.user.role !== "STUDENT") {
+    if (!userIdSource) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
     const profile = await prisma.studentProfile.findUnique({
-      where: { userId: session.user.id },
+      where: { userId: userIdSource },
     });
 
     if (!profile) {

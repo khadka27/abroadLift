@@ -21,6 +21,7 @@ interface FinancialDashboardProps {
   admissionBand: any;
   costBand: any;
   totalYear1Npr: number;
+  onAdvanceToCost: () => void;
   onAdvanceToAdmission: () => void;
   onAdvanceToVisa: () => void;
   onGoToMatches: () => void;
@@ -35,6 +36,7 @@ export function FinancialDashboard({
   admissionBand,
   costBand,
   totalYear1Npr,
+  onAdvanceToCost,
   onAdvanceToAdmission,
   onAdvanceToVisa,
   onGoToMatches
@@ -83,20 +85,25 @@ export function FinancialDashboard({
         </Card>
 
         {/* Cost Estimation Card */}
-        <Card className="p-6 rounded-[32px] border-none bg-[#3686FF] text-white shadow-2xl relative overflow-hidden group">
+        <Card className="p-6 rounded-[32px] border-none bg-[#3686FF] text-white shadow-2xl relative overflow-hidden group cursor-pointer hover:scale-[1.02] transition-all" onClick={onAdvanceToCost}>
            <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:scale-110 transition-transform"><Wallet className="w-24 h-24 rotate-12" /></div>
            <div className="relative z-10 space-y-6">
-              <div className="flex items-center gap-2.5">
-                 <div className="w-9 h-9 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center"><TrendingUp className="w-5 h-5 text-white" /></div>
-                 <h4 className="text-[14px] font-bold uppercase tracking-[0.2em] italic opacity-80">Year 1 Estimate</h4>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                   <div className="w-9 h-9 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center"><TrendingUp className="w-5 h-5 text-white" /></div>
+                   <h4 className="text-[14px] font-bold uppercase tracking-[0.2em] italic opacity-80">Year 1 Estimate</h4>
+                </div>
+                <ChevronRight className="w-5 h-5 opacity-60 group-hover:translate-x-1 transition-transform" />
               </div>
               <div className="space-y-1">
                  <h2 className="text-4xl font-black italic tracking-tighter">{fmtNpr(totalYear1Npr)}</h2>
                  <p className="text-sm font-bold text-blue-100/80">Inclusive of tuition & living</p>
               </div>
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
-                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                 <span className="text-[10px] font-black uppercase tracking-widest">{costBand.label}</span>
+              <div className="flex items-center justify-between mt-2">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
+                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                   <span className="text-[10px] font-black uppercase tracking-widest">{costBand.label}</span>
+                </div>
               </div>
            </div>
         </Card>
