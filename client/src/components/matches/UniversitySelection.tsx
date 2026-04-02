@@ -2,16 +2,16 @@
 
 import React from "react";
 import Image from "next/image";
-import { 
-  Search, 
-  ArrowUpDown, 
-  SlidersHorizontal, 
-  MapPin, 
-  Trophy, 
-  Calendar, 
-  Wallet, 
-  CheckCircle2, 
-  ArrowRight 
+import {
+  Search,
+  ArrowUpDown,
+  SlidersHorizontal,
+  MapPin,
+  Trophy,
+  Calendar,
+  Wallet,
+  CheckCircle2,
+  ArrowRight
 } from "lucide-react";
 import { Match, Form } from "@/types/matches";
 import { User } from "next-auth";
@@ -60,15 +60,34 @@ export function UniversitySelection({
 
   if (matches.length === 0) {
     return (
-      <div className="text-center py-16 md:py-24 animate-in fade-in zoom-in-95 duration-500 max-w-2xl mx-auto">
-        <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
-          <Search className="w-6 h-6 text-slate-300" />
+      <div className="text-center py-20 md:py-32 animate-in fade-in zoom-in-95 duration-700 max-w-2xl mx-auto px-6">
+        <div className="relative w-28 h-28 mx-auto mb-8">
+          <div className="absolute inset-0 bg-blue-500/10 rounded-full blur-2xl animate-pulse" />
+          <div className="relative w-28 h-28 bg-white border border-slate-100 rounded-full flex items-center justify-center shadow-lg shadow-blue-500/5">
+            <Search className="w-10 h-10 text-blue-400" />
+          </div>
         </div>
-        <h3 className="text-[20px] font-bold text-slate-900 mb-2">No direct matches found</h3>
-        <p className="text-slate-400 font-medium text-[15px] mb-10">Try adjusting your filters to see more results.</p>
-        <div className="flex flex-col sm:flex-row gap-3 items-center justify-center">
-          <button onClick={onAdjustPreferences} className="w-full sm:w-auto px-8 h-12 bg-slate-900 text-white rounded-full font-bold text-[11px] uppercase tracking-widest">Adjust Preferences</button>
-          <button onClick={onClearFilters} className="w-full sm:w-auto px-8 h-12 bg-white border border-slate-200 text-slate-500 rounded-full font-bold text-[11px] uppercase tracking-widest">Clear Filters</button>
+        
+        <h3 className="text-[28px] font-[900] text-[#111827] mb-4 tracking-tight">
+          No direct matches found
+        </h3>
+        <p className="text-[#64748b] font-medium text-[16px] mb-12 max-w-md mx-auto leading-relaxed">
+          Our engine couldn&apos;t find an exact match for your current filters. Try broadening your criteria for better results.
+        </p>
+        
+        <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
+          <button 
+            onClick={onAdjustPreferences} 
+            className="w-full sm:w-auto px-10 h-14 bg-[#3686FF] hover:bg-[#2970E6] text-white rounded-2xl font-black text-[12px] uppercase tracking-[0.2em] shadow-[0_8px_20px_-6px_rgba(59,130,246,0.35)] transition-all active:scale-95"
+          >
+            Adjust Preferences
+          </button>
+          <button 
+            onClick={onClearFilters} 
+            className="w-full sm:w-auto px-10 h-14 bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 rounded-2xl font-black text-[12px] uppercase tracking-[0.2em] transition-all active:scale-95 shadow-sm"
+          >
+            Clear Filters
+          </button>
         </div>
       </div>
     );
