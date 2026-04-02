@@ -104,10 +104,10 @@ export default function Navbar() {
     <>
       {/* Desktop & Mobile Top Bar (Logo Only on Mobile) */}
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ${
           scrolled
-            ? "bg-white/80 backdrop-blur-xl border-b border-gray-100 py-3 shadow-sm"
-            : "bg-transparent py-5"
+            ? "bg-white/95 backdrop-blur-md border-b border-gray-100 py-3 shadow-[0_4px_20px_rgba(0,0,0,0.03)]"
+            : "bg-white py-5 border-b border-gray-50/50"
         }`}
       >
         <div className="max-w-[1280px] mx-auto flex items-center justify-between px-6 lg:px-12">
@@ -132,7 +132,7 @@ export default function Navbar() {
               <li key={l.label} className="relative group py-4">
                 <Link
                   href={l.href}
-                  className={`text-[15px] font-bold transition-all flex items-center gap-1.5 hover:text-[#009dff]! ${
+                  className={`text-[15px] font-semibold tracking-tight transition-all flex items-center gap-1.5 hover:text-blue-600! ${
                     scrolled ? "text-blue-600!" : "text-blue-700!"
                   }`}
                 >
@@ -188,13 +188,13 @@ export default function Navbar() {
           <div className="hidden lg:flex items-center gap-4 sm:gap-6">
             <Link
               href="/profile"
-              className={`p-2 transition-colors ${
+              className={`p-2 rounded-xl transition-all ${
                 scrolled
-                  ? "text-blue-600! hover:text-blue-700!"
-                  : "text-blue-700! hover:text-blue-600!"
+                  ? "text-blue-600! hover:bg-slate-50 hover:text-blue-700!"
+                  : "text-blue-700! hover:bg-slate-50 hover:text-blue-600!"
               }`}
             >
-              <User className="w-6 h-6" strokeWidth={2} />
+              <User className="w-6 h-6 outline-none" strokeWidth={1.5} />
             </Link>
 
             <Link

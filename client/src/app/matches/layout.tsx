@@ -8,7 +8,7 @@ export default function MatchesLayout({
   return (
     <>
       <Navbar />
-      <div className="pt-20 min-h-screen bg-gray-50/30">
+      <div className="pt-[80px] min-h-screen bg-white">
         {children}
       </div>
     </>

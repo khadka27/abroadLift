@@ -60,6 +60,7 @@ import {
   Shield,
   Heart,
   Trophy,
+  User,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
@@ -1581,16 +1582,15 @@ export default function AbroadLiftMatchesPage() {
             />
           </div>
 
-          <div className="w-full relative px-2 overflow-visible">
-            <div className="w-full overflow-x-auto hide-scrollbar select-none py-2 translate-x-3">
-              <div className="grid grid-rows-2 grid-flow-col gap-y-10 gap-x-6 sm:gap-x-12 w-fit pr-20">
+          <div className="w-full px-4 overflow-visible">
+            <div className="grid grid-cols-4 gap-y-8 gap-x-1 sm:gap-x-4 w-full">
                 {COUNTRIES.map((c: any) => {
                   const isSel = form.countries.includes(c.code);
                   return (
                     <button
                       key={c.code}
                       onClick={() => toggleCountry(c.code)}
-                      className="group flex flex-col items-center gap-2.5 transition-all active:scale-95 w-[84px] sm:w-[96px]"
+                      className="group flex flex-col items-center gap-2.5 transition-all active:scale-95 w-full"
                     >
                       <div
                         className={`relative w-[72px] h-[52px] sm:w-[88px] sm:h-[62px] rounded-[18px] sm:rounded-[22px] overflow-hidden bg-white flex items-center justify-center p-[2.5px] sm:p-[3px] transition-all ${isSel
@@ -1617,7 +1617,7 @@ export default function AbroadLiftMatchesPage() {
               </div>
             </div>
           </div>
-        </div>
+
       );
     }
 
@@ -2008,28 +2008,7 @@ export default function AbroadLiftMatchesPage() {
             })}
           </div>
 
-          <div className="w-full max-w-md mx-auto space-y-6">
-            <h3 className="text-center text-[16px] font-bold text-slate-800">Are you Ready?</h3>
-
-            <div className="space-y-4">
-              {[
-                { k: "passportReady", l: "Passport ready" },
-                { k: "testDone", l: "English test done" },
-                { k: "docsReady", l: "Documents ready" }
-              ].map((c) => (
-                <label key={c.k} className="flex items-center gap-3 cursor-pointer group">
-                  <div
-                    onClick={() => updateForm(c.k as keyof Form, !(form as any)[c.k])}
-                    className={`w-6 h-6 rounded-lg border-2 transition-all flex items-center justify-center ${(form as any)[c.k] ? "bg-blue-600 border-blue-600" : "border-slate-200 group-hover:border-blue-300"
-                      }`}
-                  >
-                    {(form as any)[c.k] && <Check className="w-4 h-4 text-white" strokeWidth={3} />}
-                  </div>
-                  <span className="text-[15px] font-semibold text-slate-700">{c.l}</span>
-                </label>
-              ))}
-            </div>
-          </div>
+           <div className="h-2 md:hidden" />
 
           <div className="h-20 md:hidden" />
         </div>
@@ -2555,7 +2534,7 @@ export default function AbroadLiftMatchesPage() {
       const costBand = getCostBand(totalYear1Usd, budgetUsd);
 
       return (
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-full px-2 md:px-4 lg:px-6 pb-32">
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-full px-2 md:px-4 lg:px-6 pb-12">
           {/* Dashboard Header */}
           <div className="flex items-center justify-between mb-8 mt-4">
             <div className="flex items-center gap-4">
@@ -2576,7 +2555,7 @@ export default function AbroadLiftMatchesPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Main Study Plan Card */}
-            <Card className="p-5 rounded-[28px] border-none bg-white shadow-[0_8px_30px_rgba(0,0,0,0.04)] col-span-1 md:col-span-2 lg:col-span-1">
+            <Card className="p-5 rounded-[28px] border-none bg-white shadow-[0_8px_30px_rgba(0,0,0,0.04)] col-span-1 md:col-span-2 lg:col-span-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                    <div className="w-14 h-10 rounded-lg overflow-hidden shadow-sm border border-slate-50">
@@ -2818,15 +2797,6 @@ export default function AbroadLiftMatchesPage() {
                  </div>
               </div>
             </div>
-          </div>
-
-          <div className="mt-12 flex justify-center">
-              <button 
-                onClick={() => setStep(7)}
-                className="px-8 h-14 bg-slate-100 text-slate-500 rounded-full font-bold text-sm tracking-widest uppercase hover:bg-slate-200 transition-colors"
-              >
-                Back to Matches
-              </button>
           </div>
         </div>
       );
@@ -3249,23 +3219,159 @@ export default function AbroadLiftMatchesPage() {
 
     // 11: Visa acceptance - See complete details
     if (step === 11 && selectedMatch) {
-       return (
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-full px-4 pb-32 space-y-5 bg-white min-h-screen">
+      return (
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-full px-4 lg:px-12 pb-32 space-y-6 bg-white min-h-screen">
+          {/* Header */}
           <div className="flex items-center justify-between pt-2 pb-4 italic uppercase tracking-tighter">
              <div className="flex items-center gap-4">
-                <button onClick={() => setStep(10)} className="p-1">
+                <button onClick={() => setStep(10)} className="p-1 hover:bg-slate-50 rounded-full transition-colors">
                    <ChevronLeft className="w-6 h-6 text-slate-900" />
                 </button>
-                <h1 className="text-xl font-black text-slate-900 tracking-tight">Visa Outlook</h1>
+                <h1 className="text-xl font-black text-slate-900 tracking-tight">Visa Readiness</h1>
+             </div>
+             <div className="w-11 h-11 rounded-full bg-slate-200 overflow-hidden border-2 border-white shadow-md">
+                <Image src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100" width={44} height={44} alt="U" />
              </div>
           </div>
-          <Card className="p-8 rounded-[32px] bg-slate-900 text-white text-center">
-             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-400 italic mb-4">Acceptance Probability</p>
-             <h2 className="text-6xl font-black italic">85%</h2>
+
+          {/* Hero Score Card */}
+          <Card className="p-8 rounded-[38px] border border-slate-100 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.05)] bg-[#FAF8F4] overflow-hidden relative">
+             <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/5 rounded-full -mr-20 -mt-20 blur-3xl" />
+             <div className="relative z-10 flex items-center justify-between">
+                <div className="space-y-4">
+                   <p className="text-[13px] font-bold text-slate-600 leading-none tracking-tight">Visa Readiness Score</p>
+                   <h2 className="text-2xl font-black text-slate-900 leading-tight tracking-tight">
+                     60% - Needs Work
+                   </h2>
+                   <div className="inline-flex px-4 py-2 bg-[#FDE8D1] text-[#A66B3D] text-[11px] font-black rounded-full uppercase tracking-widest shadow-sm">
+                     ● Average Preparation
+                   </div>
+                </div>
+                <div className="relative w-24 h-24 shrink-0">
+                   <svg viewBox="0 0 36 36" className="w-full h-full transform -rotate-90 scale-110">
+                      <circle cx="18" cy="18" r="16" fill="transparent" stroke="#E2E8F0" strokeWidth="5" />
+                      <circle cx="18" cy="18" r="16" fill="transparent" stroke="#14B2AD" strokeWidth="5" strokeDasharray={`60 100`} strokeLinecap="round" />
+                      <circle cx="18" cy="18" r="16" fill="transparent" stroke="#FD644F" strokeWidth="5" strokeDasharray={`20 100`} strokeDashoffset={`-60`} strokeLinecap="round" />
+                   </svg>
+                   <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-12 h-12 bg-white rounded-full shadow-inner" />
+                   </div>
+                </div>
+             </div>
+             
+             {/* Sub Indicators */}
+             <div className="mt-8 pt-6 border-t border-slate-200/50 flex justify-between px-2">
+                {[
+                  { l: "Financial Strength", ok: false },
+                  { l: "Documents", ok: true },
+                  { l: "Country Rules", ok: true }
+                ].map((it, i) => (
+                  <div key={i} className="flex items-center gap-1.5 opacity-70">
+                    <div className={`w-1.5 h-1.5 rounded-full ${it.ok ? "bg-emerald-500" : "bg-orange-400"}`} />
+                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">{it.l}</span>
+                  </div>
+                ))}
+             </div>
           </Card>
-          <button onClick={() => setStep(12)} className="w-full h-16 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest italic">Final Roadmap</button>
+
+          {/* Detailed Analysis Section */}
+          <div className="space-y-4">
+             {/* Section 1: Profile Analysis */}
+             <div className="bg-white rounded-[24px] border border-slate-100 overflow-hidden shadow-sm">
+                <div className="p-5 flex items-center justify-between border-b border-slate-50">
+                   <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shadow-sm">
+                         <User className="w-5 h-5" />
+                      </div>
+                      <span className="font-black text-slate-800 text-[15px] uppercase tracking-tighter italic">Profile Analysis</span>
+                   </div>
+                   <ChevronDown className="w-5 h-5 text-slate-300" />
+                </div>
+                <div className="divide-y divide-slate-50">
+                    {[
+                      { l: "Strong Academics", type: "check" },
+                      { l: "Good Study Plan", type: "check" },
+                      { l: "Financial Proof Weak", type: "alert" },
+                      { l: "Low Bank Balance", type: "alert" }
+                    ].map((it, i) => (
+                      <div key={i} className="px-6 py-4 flex items-center gap-4">
+                         {it.type === "check" ? (
+                           <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                         ) : (
+                           <AlertTriangle className="w-5 h-5 text-amber-500" />
+                         )}
+                         <span className="text-[14px] font-bold text-slate-700 tracking-tight">{it.l}</span>
+                      </div>
+                    ))}
+                </div>
+             </div>
+
+             {/* Section 2: Risk Factors */}
+             <div className="bg-white rounded-[24px] border border-slate-100 overflow-hidden shadow-sm">
+                <div className="p-5 flex items-center justify-between border-b border-slate-50">
+                   <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-amber-50 flex items-center justify-center text-amber-600 shadow-sm">
+                         <ShieldAlert className="w-5 h-5" />
+                      </div>
+                      <span className="font-black text-slate-800 text-[15px] uppercase tracking-tighter italic">Risk Factors</span>
+                   </div>
+                   <ChevronDown className="w-5 h-5 text-slate-300" />
+                </div>
+                <div className="divide-y divide-slate-50">
+                    {[
+                      { l: "Insufficient Bank Balance", type: "alert" },
+                      { l: "Weak Financial Document", type: "alert" },
+                      { l: "No Sponsor Proof", type: "alert" }
+                    ].map((it, i) => (
+                      <div key={i} className="px-6 py-4 flex items-center gap-4">
+                         <AlertTriangle className="w-5 h-5 text-amber-500" />
+                         <span className="text-[14px] font-bold text-slate-700 tracking-tight">{it.l}</span>
+                      </div>
+                    ))}
+                </div>
+             </div>
+
+             {/* Section 3: Document Check */}
+             <div className="bg-white rounded-[24px] border border-slate-100 overflow-hidden shadow-sm">
+                <div className="p-5 flex items-center justify-between border-b border-slate-50">
+                   <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 shadow-sm">
+                         <FileText className="w-5 h-5" />
+                      </div>
+                      <span className="font-black text-slate-800 text-[15px] uppercase tracking-tighter italic">Document Status</span>
+                   </div>
+                   <ChevronDown className="w-5 h-5 text-slate-300" />
+                </div>
+                <div className="divide-y divide-slate-50">
+                    {[
+                      { l: "Financial Proof", type: "check" },
+                      { l: "Academics", type: "check" },
+                      { l: "Country Rules", type: "check" },
+                      { l: "Documents", type: "alert" }
+                    ].map((it, i) => (
+                      <div key={i} className="px-6 py-4 flex items-center gap-4">
+                         {it.type === "check" ? (
+                           <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                         ) : (
+                           <AlertTriangle className="w-5 h-5 text-amber-500" />
+                         )}
+                         <span className="text-[14px] font-bold text-slate-700 tracking-tight">{it.l}</span>
+                      </div>
+                    ))}
+                </div>
+             </div>
+          </div>
+
+          <div className="pt-6">
+            <button 
+              onClick={() => setStep(12)}
+              className="w-full h-16 bg-blue-600 text-white rounded-[24px] font-black uppercase tracking-[0.2em] italic shadow-xl shadow-blue-500/20 hover:scale-[1.02] active:scale-95 transition-all"
+            >
+              Get Final Roadmap
+            </button>
+          </div>
         </div>
-       );
+      );
     }
 
     if (step === 12 && selectedMatch) {
@@ -3823,7 +3929,7 @@ export default function AbroadLiftMatchesPage() {
             priority
           />
 
-          <div className="absolute top-8 left-8 lg:top-12 lg:left-12 z-20">
+          <div className="absolute top-[110px] left-8 lg:left-12 z-20">
             <div className="flex items-center gap-2 group">
               <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform">
                 <GraduationCap className="text-white w-5 h-5" />
@@ -3867,10 +3973,10 @@ export default function AbroadLiftMatchesPage() {
 
       {/* Right Panel - Dynamic Flow Area */}
       <div
-        className={`relative flex-1 flex flex-col bg-white overflow-hidden h-[100dvh] lg:h-screen`}
+        className={`relative flex-1 flex flex-col bg-white overflow-hidden h-full lg:h-[calc(100vh-80px)]`}
       >
         {/* Simple Top Navigation Navbar matching the minimalist screenshot */}
-        {step > 0 && step !== 7 && step !== 9 && (
+        {step > 0 && step !== 7 && step !== 9 && step !== 10 && step !== 11 && step !== 12 && (
           <div className="px-6 py-4 mt-3 lg:px-12 flex justify-between items-center z-30 print:hidden relative bg-white">
             <div className="w-12 h-10 flex items-center">
               {step > 0 && step < 7 && (
@@ -3920,7 +4026,7 @@ export default function AbroadLiftMatchesPage() {
 
         {/* Step Content Area */}
         <div
-          className={`flex-1 overflow-y-auto px-6 lg:px-12 ${step === 7 ? "pt-5" : step === 9 ? "pt-0" : "pt-3"} ${step === 9 ? "pb-[60px]" : "pb-[160px] md:pb-[200px]"} overflow-x-hidden min-h-0 override-scroll`}
+          className={`flex-1 ${step < 7 ? "overflow-hidden" : "overflow-y-auto"} px-6 lg:px-12 ${step === 7 ? "pt-5" : step === 9 ? "pt-0" : "pt-3"} ${step === 9 ? "pb-[60px]" : "pb-[160px] md:pb-[200px]"} overflow-x-hidden min-h-0 hide-scrollbar`}
         >
           <div
             className={`${step >= 7 ? "max-w-full" : "max-w-4xl"} mx-auto min-h-full flex flex-col`}
