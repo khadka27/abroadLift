@@ -1262,62 +1262,73 @@ function GenericEngineScreen({ config, onFinish }: { config: EngineConfig; onFin
   };
 
   return (
-    <div className={`fixed inset-0 z-[200] flex items-center justify-center bg-gray-950 relative overflow-hidden`}>
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-50 overflow-hidden">
       <div className="absolute inset-0 overflow-hidden opacity-30">
-        <motion.div className={`absolute top-1/4 left-1/4 w-96 h-96 ${config.glow} rounded-full blur-3xl`} animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }} transition={{ duration: 4, repeat: Infinity }} />
+        <motion.div 
+          className={`absolute top-1/4 left-1/4 w-[600px] h-[600px] ${config.glow} rounded-full blur-[120px]`} 
+          animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }} 
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }} 
+        />
       </div>
 
-      <div className="relative z-10 w-full max-w-2xl px-8">
-        <div className="text-center mb-12">
-            <div className={`w-20 h-20 mx-auto mb-8 rounded-[30px] ${config.accent.replace('text', 'bg').replace('500', '500/10')} border ${config.accent.replace('text', 'border').replace('500', '500/20')} flex items-center justify-center shadow-2xl`}>
-                <config.icon className={`w-10 h-10 ${config.accent}`} />
+      <div className="relative z-10 w-full max-w-2xl px-12">
+        <div className="text-center mb-16">
+            <div className={`w-24 h-24 mx-auto mb-10 rounded-[38px] ${config.accent.replace('text', 'bg').replace('500', '500/10').replace('400', '400/10')} border ${config.accent.replace('text', 'border').replace('500', '500/20')} flex items-center justify-center shadow-[0_20px_50px_-20px_rgba(0,0,0,0.1)]`}>
+                <config.icon className={`w-12 h-12 ${config.accent}`} />
             </div>
           <AnimatePresence mode="wait">
-            <motion.h1 key={titleIndex} initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} transition={{ duration: 0.5 }} className="text-3xl font-black text-white tracking-tight italic uppercase">
+            <motion.h1 
+              key={titleIndex} 
+              initial={{ opacity: 0, y: 15 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              exit={{ opacity: 0, y: -15 }} 
+              transition={{ duration: 0.6 }} 
+              className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter italic uppercase"
+            >
               {config.titles[titleIndex]}
-              <motion.span animate={{ opacity: showCursor ? 1 : 0 }} className={`inline-block w-0.5 h-8 ${config.accent.replace('text', 'bg')} ml-2 align-middle`} />
+              <motion.span animate={{ opacity: showCursor ? 1 : 0 }} className={`inline-block w-1.5 h-10 ${config.accent.replace('text', 'bg')} ml-3 align-middle`} />
             </motion.h1>
           </AnimatePresence>
         </div>
 
-        <div className="mb-12">
-          <div className="relative h-3 bg-gray-900/50 rounded-full overflow-hidden backdrop-blur-sm border border-gray-800/50">
+        <div className="mb-16">
+          <div className="relative h-4 bg-slate-200/50 rounded-full overflow-hidden backdrop-blur-sm border border-slate-100">
             <motion.div className={`absolute inset-y-0 left-0 rounded-full ${config.gradient}`} style={{ width: `${progress}%` }} initial={{ width: 0 }} />
           </div>
-          <div className="flex justify-between mt-3">
-            <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{config.title} Active</span>
-            <span className={`text-sm ${config.accent} font-black tabular-nums`}>{Math.round(progress)}%</span>
+          <div className="flex justify-between mt-4">
+            <span className="text-[11px] text-slate-400 font-bold uppercase tracking-[0.2em]">{config.title} Status</span>
+            <span className={`text-lg ${config.accent} font-black tabular-nums tracking-tighter`}>{Math.round(progress)}%</span>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-             <div className="bg-gray-900/30 backdrop-blur-md border border-gray-800/30 rounded-[32px] p-8 space-y-5 shadow-2xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+             <div className="bg-white/80 backdrop-blur-md border border-slate-200/50 rounded-[40px] p-10 space-y-7 shadow-[0_15px_45px_-12px_rgba(0,0,0,0.03)]">
               {checklist.map((item, idx) => (
-                <motion.div key={item.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.1 }} className="flex items-center gap-4">
+                <motion.div key={item.id} initial={{ opacity: 0, x: -15 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.1 }} className="flex items-center gap-5">
                   <div className="flex-shrink-0">{getStatusIcon(item.status)}</div>
-                  <span className={`text-xs font-bold tracking-wide transition-colors uppercase italic ${item.status === "complete" ? "text-gray-500 line-through opacity-50" : item.status === "loading" ? "text-white" : "text-gray-700"}`}>
+                  <span className={`text-sm font-bold tracking-tight transition-colors uppercase italic ${item.status === "complete" ? "text-slate-300 line-through" : item.status === "loading" ? "text-slate-800" : "text-slate-400"}`}>
                     {item.text}
                   </span>
                 </motion.div>
               ))}
             </div>
-            <div className="bg-gray-900/20 border border-gray-800/10 rounded-[32px] p-8 space-y-6">
+            <div className="bg-slate-100/50 border border-slate-200/20 rounded-[40px] p-10 space-y-8">
                 {dataIndicators.map((indicator, idx) => (
-                    <div key={idx} className="flex flex-col gap-1">
-                        <span className="text-[9px] font-black text-gray-600 uppercase tracking-widest">{indicator.text}</span>
+                    <div key={idx} className="flex flex-col gap-2">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">{indicator.text}</span>
                         <div className="flex items-center justify-between">
-                            <span className={`text-lg font-black tabular-nums ${indicator.active ? "text-white" : "text-gray-800"}`}>
+                            <span className={`text-xl font-black tabular-nums tracking-tighter ${indicator.active ? "text-slate-900" : "text-slate-300"}`}>
                                 {indicator.active ? indicator.count.toLocaleString() : "---"}
                             </span>
-                            {indicator.active && <div className={`w-1.5 h-1.5 rounded-full ${config.accent.replace('text', 'bg')} animate-pulse`} />}
+                            {indicator.active && <div className={`w-2 h-2 rounded-full ${config.accent.replace('text', 'bg')} animate-pulse`} />}
                         </div>
                     </div>
                 ))}
             </div>
         </div>
 
-        <motion.div className="mt-12 text-center" animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 2, repeat: Infinity }}>
-          <p className="text-gray-600/80 text-[10px] font-bold uppercase tracking-[0.4em] italic">{config.statusText}</p>
+        <motion.div className="mt-16 text-center" animate={{ opacity: [0.4, 0.8, 0.4] }} transition={{ duration: 2.5, repeat: Infinity }}>
+          <p className="text-slate-300 text-[11px] font-black uppercase tracking-[0.5em] italic">{config.statusText}</p>
         </motion.div>
       </div>
     </div>

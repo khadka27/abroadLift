@@ -39,10 +39,15 @@ export function FinancialDashboard({
   onAdvanceToVisa,
   onGoToMatches
 }: FinancialDashboardProps) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const tuitionUsd = Math.round(selectedMatch.currency === "NPR" ? (selectedMatch.tuitionFee || 22000) / USD_TO_NPR : selectedMatch.tuitionFee || 22000);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const livingCostUsd = Object.values((dynamicLivingCost || { rent: 3800, food: 1300, transport: 500, insurance: 320, other: 700 }) as Record<string, number>).reduce((sum: number, val: number) => sum + val, 0);
+
+  const fmtNpr = (v: number) =>
+    new Intl.NumberFormat("en-NP", {
+      style: "currency",
+      currency: "NPR",
+      maximumFractionDigits: 0,
+    }).format(v);
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-full px-2 md:px-4 lg:px-6 pb-12">

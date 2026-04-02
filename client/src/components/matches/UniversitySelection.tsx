@@ -14,6 +14,12 @@ import {
   ArrowRight 
 } from "lucide-react";
 import { Match, Form } from "@/types/matches";
+import { User } from "next-auth";
+
+interface Session {
+  user: User;
+  expires: string;
+}
 
 interface UniversitySelectionProps {
   matches: Match[];
@@ -21,6 +27,7 @@ interface UniversitySelectionProps {
   error: string;
   selectedMatch: Match | null;
   form: Form;
+  session: Session | null;
   onSelect: (match: Match) => void;
   onAdjustPreferences: () => void;
   onClearFilters: () => void;
@@ -33,6 +40,7 @@ export function UniversitySelection({
   error,
   selectedMatch,
   form,
+  session,
   onSelect,
   onAdjustPreferences,
   onClearFilters,
