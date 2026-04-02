@@ -1959,43 +1959,44 @@ export default function AbroadLiftMatchesPage() {
     if (step === 1) {
       return (
         <div className="flex flex-col items-center animate-in fade-in zoom-in-95 duration-700 w-full max-w-2xl mx-auto pb-4">
-          <div className="mb-6 text-center px-4">
-            <h2 className="text-[22px] font-bold text-[#111827] mb-2 tracking-tight">
+          <div className="mb-4 text-center px-4">
+            <h2 className="text-[20px] font-bold text-[#111827] mb-1.5 tracking-tight">
               Where do you want to study?
             </h2>
-            <p className="text-[#64748b] text-[14px] leading-snug font-medium max-w-sm mx-auto">
-              We&apos;ll match universities and estimate your cost & visa chances
+            <p className="text-[#64748b] text-[13px] leading-snug font-medium max-w-sm mx-auto">
+              We&apos;ll match universities and estimate your cost &amp; visa chances
             </p>
           </div>
 
-          <div className="w-full mb-8 overflow-hidden rounded-[24px] shadow-sm border border-slate-50 lg:hidden">
+          {/* Hero image — small on mobile, taller on desktop */}
+          <div className="w-full mb-4 overflow-hidden rounded-[20px] shadow-sm border border-slate-50">
             <Image
               src="/country.png"
               alt="Destinations"
               width={800}
               height={400}
-              className="w-full h-[150px] md:h-[220px] object-cover"
+              className="w-full h-[85px] md:h-[160px] lg:h-[200px] object-cover"
               priority
             />
           </div>
 
           <div className="w-full px-4 overflow-visible">
-            <div className="grid grid-cols-4 gap-y-8 gap-x-1 sm:gap-x-4 w-full">
+            <div className="grid grid-cols-4 gap-y-3 gap-x-1 sm:gap-x-4 w-full">
               {COUNTRIES.map((c: any) => {
                 const isSel = form.countries.includes(c.code);
                 return (
                   <button
                     key={c.code}
                     onClick={() => toggleCountry(c.code)}
-                    className="group flex flex-col items-center gap-2.5 transition-all active:scale-95 w-full"
+                    className="group flex flex-col items-center gap-1 transition-all active:scale-95 w-full"
                   >
                     <div
-                      className={`relative w-[72px] h-[52px] sm:w-[88px] sm:h-[62px] rounded-[18px] sm:rounded-[22px] overflow-hidden bg-white flex items-center justify-center p-[2.5px] sm:p-[3px] transition-all ${isSel
+                      className={`relative w-[58px] h-[42px] sm:w-[80px] sm:h-[58px] rounded-[14px] sm:rounded-[20px] overflow-hidden bg-white flex items-center justify-center p-[2px] transition-all ${isSel
                         ? "ring-[2.5px] ring-blue-500 shadow-lg transform scale-[1.05]"
                         : "shadow-[0_4px_12px_-4px_rgba(0,0,0,0.08)] border border-slate-50 hover:border-blue-200"
                         }`}
                     >
-                      <div className="w-full h-full rounded-[14px] sm:rounded-[18px] overflow-hidden">
+                      <div className="w-full h-full rounded-[12px] sm:rounded-[18px] overflow-hidden">
                         <FlagIcon
                           countryCode={c.code}
                           className="w-full h-full object-cover"
@@ -2003,7 +2004,7 @@ export default function AbroadLiftMatchesPage() {
                       </div>
                     </div>
                     <span
-                      className={`text-[13px] sm:text-[15px] font-[600] text-center tracking-tight transition-colors ${isSel ? "text-blue-600" : "text-[#475569]"
+                      className={`text-[11px] sm:text-[13px] font-[600] text-center tracking-tight transition-colors ${isSel ? "text-blue-600" : "text-[#475569]"
                         }`}
                     >
                       {c.name}
@@ -2040,7 +2041,7 @@ export default function AbroadLiftMatchesPage() {
               alt="Study Level"
               width={800}
               height={400}
-              className="w-full h-[180px] object-cover"
+              className="w-full h-[110px] md:h-[180px] object-cover"
               priority
             />
           </div>
@@ -2106,7 +2107,7 @@ export default function AbroadLiftMatchesPage() {
               alt="Field of Study"
               width={800}
               height={400}
-              className="w-full h-[180px] object-cover"
+              className="w-full h-[110px] md:h-[180px] object-cover"
               priority
             />
           </div>
@@ -2194,7 +2195,7 @@ export default function AbroadLiftMatchesPage() {
               alt="Academics"
               width={800}
               height={400}
-              className="w-full h-[180px] object-cover"
+              className="w-full h-[110px] md:h-[180px] object-cover"
               priority
             />
           </div>
@@ -2271,17 +2272,17 @@ export default function AbroadLiftMatchesPage() {
               alt="English Test"
               width={800}
               height={400}
-              className="w-full h-[180px] object-cover"
+              className="w-full h-[85px] md:h-[160px] lg:h-[200px] object-cover"
               priority
             />
           </div>
 
           <div className="flex flex-col items-center w-full max-w-2xl mx-auto">
-            <div className="grid grid-cols-2 gap-4 w-full mb-10">
+            <div className="grid grid-cols-2 gap-3 w-full mb-5">
               <button
                 onClick={() => updateForm("hasEnglishTest", true)}
-                className={`h-[64px] flex items-center justify-center rounded-[22px] font-bold text-[15px] transition-all border ${form.hasEnglishTest === true
-                  ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/20 shadow-lg"
+                className={`h-[54px] flex items-center justify-center rounded-[22px] font-bold text-[15px] transition-all border ${form.hasEnglishTest === true
+                  ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/20"
                   : "bg-white text-slate-600 border-slate-100 shadow-sm hover:border-blue-200"
                   }`}
               >
@@ -2293,8 +2294,8 @@ export default function AbroadLiftMatchesPage() {
                   updateForm("testType", "NONE");
                   updateForm("testScore", "0");
                 }}
-                className={`h-[64px] flex items-center justify-center rounded-[22px] font-bold text-[15px] transition-all border ${form.hasEnglishTest === false
-                  ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/20 shadow-lg"
+                className={`h-[54px] flex items-center justify-center rounded-[22px] font-bold text-[15px] transition-all border ${form.hasEnglishTest === false
+                  ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/20"
                   : "bg-white text-slate-600 border-slate-100 shadow-sm hover:border-blue-200"
                   }`}
               >
@@ -2350,14 +2351,14 @@ export default function AbroadLiftMatchesPage() {
             )}
 
             {form.hasEnglishTest === false && (
-              <div className="text-center p-8 bg-blue-50/30 rounded-[32px] border border-blue-100/50 w-full animate-in zoom-in-95 duration-500">
-                <p className="text-blue-800 font-semibold mb-1 text-[16px]">No problem!</p>
-                <p className="text-blue-600/80 text-[14px]">You can continue with your matches, but we recommend taking a test later.</p>
+              <div className="text-center p-5 bg-blue-50/30 rounded-[24px] border border-blue-100/50 w-full animate-in zoom-in-95 duration-500">
+                <p className="text-blue-800 font-semibold mb-1 text-[15px]">No problem!</p>
+                <p className="text-blue-600/80 text-[13px]">You can continue with your matches, but we recommend taking a test later.</p>
               </div>
             )}
           </div>
 
-          <div className="h-20 md:hidden" />
+          <div className="h-4 md:hidden" />
         </div>
       );
     }
@@ -2387,7 +2388,7 @@ export default function AbroadLiftMatchesPage() {
               alt="World Map"
               width={800}
               height={400}
-              className="w-full h-[180px] object-cover"
+              className="w-full h-[110px] md:h-[180px] object-cover"
               priority
             />
           </div>
@@ -2399,16 +2400,16 @@ export default function AbroadLiftMatchesPage() {
                 <button
                   key={opt.main}
                   onClick={() => updateForm("intake", opt.main)}
-                  className={`flex flex-col items-start gap-1 p-5 lg:p-6 rounded-[24px] border transition-all text-left group overflow-hidden relative ${isSel
+                  className={`flex flex-col items-start gap-0.5 p-3 md:p-5 lg:p-6 rounded-[20px] border transition-all text-left group overflow-hidden relative ${isSel
                     ? "border-blue-500 bg-blue-50/20 shadow-lg shadow-blue-500/10"
                     : "border-slate-100 bg-white shadow-sm hover:border-blue-200"
                     }`}
                 >
-                  <div className="flex items-center gap-2">
-                    <Calendar className={`w-4 h-4 ${isSel ? "text-blue-500" : "text-red-400"}`} />
-                    <span className="text-[15px] font-bold text-slate-800">{opt.main}</span>
+                  <div className="flex items-center gap-1.5">
+                    <Calendar className={`w-3.5 h-3.5 md:w-4 md:h-4 ${isSel ? "text-blue-500" : "text-red-400"}`} />
+                    <span className="text-[13px] md:text-[15px] font-bold text-slate-800">{opt.main}</span>
                   </div>
-                  <span className={`text-[12px] font-medium ml-6 ${isSel ? "text-blue-600" : "text-slate-500"}`}>
+                  <span className={`text-[11px] md:text-[12px] font-medium ml-5 ${isSel ? "text-blue-600" : "text-slate-500"}`}>
                     {opt.sub}
                   </span>
                 </button>
