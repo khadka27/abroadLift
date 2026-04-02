@@ -10,7 +10,7 @@ export async function GET(req: Request) {
 
   const [user, matchingRecords] = await Promise.all([
     prisma.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: userIdSource },
       select: {
         id: true,
         name: true,
@@ -22,7 +22,7 @@ export async function GET(req: Request) {
       },
     }),
     prisma.matchingRecord.findMany({
-      where: { userId: session.user.id },
+      where: { userId: userIdSource },
       orderBy: { createdAt: "desc" },
       take: 5,
     }),

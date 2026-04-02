@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { getUserIdFromRequest } from "@/lib/api-auth";
 import prisma from "@/lib/db";
-import { authOptions } from "@/lib/auth";
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session || !session.user) {
+    const userIdSource = await getUserIdFromRequest(req);
+    if (!userIdSource) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -52,7 +51,7 @@ export async function POST(req: Request) {
     // Save the matching record
     const record = await prisma.matchingRecord.create({
       data: {
-        userId: session.user.id,
+        userId: userIdSource,
         universityId: universityId,
         formData: formData,
         matchData: matchData,
@@ -110,11 +109,11 @@ export async function POST(req: Request) {
       };
 
       await prisma.studentProfile.upsert({
-        where: { userId: session.user.id },
+        where: { userId: userIdSource },
         update: profileData,
         create: {
           ...profileData,
-          userId: session.user.id,
+          userId: userIdSource,
         }
       });
     } catch (profileError) {
