@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
+import { getUserIdFromRequest } from "@/lib/api-auth";
 import prisma from "@/lib/db";
 
 // Helper function to calculate visa success rate
@@ -36,16 +35,15 @@ function calculateVisaRate(data: {
   return Math.min(95, Math.max(10, rate));
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
-    console.log("Prisma Properties:", Object.keys(prisma).filter(k => !k.startsWith("_")));
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const userId = await getUserIdFromRequest(req);
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const checks = await prisma.visaRateCheck.findMany({
-      where: { userId: session.user.id },
+      where: { userId },
       orderBy: { createdAt: "desc" },
     });
 
@@ -58,8 +56,8 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const userId = await getUserIdFromRequest(req);
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -75,7 +73,7 @@ export async function POST(req: Request) {
 
     const newCheck = await prisma.visaRateCheck.create({
       data: {
-        userId: session.user.id,
+        userId,
         nationality,
         destination,
         degreeLevel,
@@ -95,8 +93,8 @@ export async function POST(req: Request) {
 
 export async function PUT(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const userId = await getUserIdFromRequest(req);
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -111,7 +109,7 @@ export async function PUT(req: Request) {
     });
 
     const updatedCheck = await prisma.visaRateCheck.update({
-      where: { id, userId: session.user.id },
+      where: { id, userId },
       data: {
         nationality,
         destination,

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   StyleSheet,
   View,
@@ -12,11 +12,13 @@ import {
   Platform,
   ScrollView,
   Image,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
 import { Stack, router } from "expo-router";
 import { AntDesign, FontAwesome, Feather } from "@expo/vector-icons";
-import { BlurView } from "expo-blur";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useUser } from "./context/UserContext";
 
 const { width, height } = Dimensions.get("window");
 
@@ -31,6 +33,43 @@ const COLORS = {
 
 export default function LoginScreen() {
   const insets = useSafeAreaInsets();
+  const { login, userData } = useUser();
+  
+  const [identifier, setIdentifier] = useState("");
+  const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleLogin = async () => {
+    if (!identifier || !password) {
+      Alert.alert("Error", "Please enter both identifier and password.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const user = await login(identifier, password);
+      // Sequential check for missing setup fields to decide redirection
+      if (!user.country) {
+          router.push("/setup/country");
+      } else if (!user.studyLevel) {
+          router.push("/setup/study-level");
+      } else if (!user.fieldOfStudy) {
+          router.push("/setup/field-of-study");
+      } else if (!user.cgpa || !user.recentAcademicField) {
+          router.push("/setup/academics");
+      } else if (!user.score && !user.englishLevel) {
+          router.push("/setup/english-test");
+      } else if (!user.intake) {
+          router.push("/setup/target");
+      } else {
+          router.push("/(tabs)/explore");
+      }
+    } catch (error: any) {
+      Alert.alert("Login Failed", error.message || "Something went wrong. Please check your credentials.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <KeyboardAvoidingView
@@ -74,14 +113,16 @@ export default function LoginScreen() {
               />
               <View style={styles.glassOverlay} />
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Email Address</Text>
+                <Text style={styles.label}>Email or Username</Text>
                 <View style={styles.inputWrapper}>
-                  <Feather name="mail" size={20} color={COLORS.primaryBlue} style={styles.inputIcon} />
+                  <Feather name="user" size={20} color={COLORS.primaryBlue} style={styles.inputIcon} />
                   <TextInput
-                    placeholder="example@mail.com"
+                    placeholder="Email or Username"
                     placeholderTextColor="rgba(15, 23, 42, 0.3)"
                     style={styles.input}
                     autoCapitalize="none"
+                    value={identifier}
+                    onChangeText={setIdentifier}
                   />
                 </View>
               </View>
@@ -95,6 +136,8 @@ export default function LoginScreen() {
                     placeholderTextColor="rgba(15, 23, 42, 0.3)"
                     style={styles.input}
                     secureTextEntry
+                    value={password}
+                    onChangeText={setPassword}
                   />
                 </View>
               </View>
@@ -104,11 +147,18 @@ export default function LoginScreen() {
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={styles.signInButton}
-                onPress={() => router.push("/(tabs)/explore")}
+                style={[styles.signInButton, isSubmitting && { opacity: 0.7 }]}
+                onPress={handleLogin}
+                disabled={isSubmitting}
               >
-                <Text style={styles.signInButtonText}>Sign In</Text>
-                <Feather name="arrow-right" size={20} color="white" />
+                {isSubmitting ? (
+                  <ActivityIndicator color="white" />
+                ) : (
+                  <>
+                    <Text style={styles.signInButtonText}>Sign In</Text>
+                    <Feather name="arrow-right" size={20} color="white" />
+                  </>
+                )}
               </TouchableOpacity>
 
               <View style={styles.dividerContainer}>

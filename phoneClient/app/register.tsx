@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   StyleSheet,
   View,
@@ -12,11 +12,13 @@ import {
   Platform,
   ScrollView,
   Image,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
 import { Stack, router } from "expo-router";
 import { AntDesign, FontAwesome, Feather } from "@expo/vector-icons";
-import { BlurView } from "expo-blur";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useUser } from "./context/UserContext";
 
 const { width, height } = Dimensions.get("window");
 
@@ -31,6 +33,65 @@ const COLORS = {
 
 export default function RegisterScreen() {
   const insets = useSafeAreaInsets();
+  const { register, login } = useUser();
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleRegister = async () => {
+    if (!name || !email || !phone || !password) {
+      Alert.alert("Error", "Please fill in all fields.");
+      return;
+    }
+
+    if (password.length < 8) {
+      Alert.alert("Error", "Password must be at least 8 characters.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      // Basic splitting of phone number for the API
+      // In a real app, use a dedicated phone input component
+      let dialCode = "+44"; // Default
+      let number = phone;
+      
+      if (phone.startsWith("+")) {
+        const parts = phone.split(" ");
+        if (parts.length > 1) {
+          dialCode = parts[0];
+          number = parts.slice(1).join("");
+        } else {
+          // Fallback if no space provided
+          dialCode = phone.substring(0, 3);
+          number = phone.substring(3);
+        }
+      }
+
+      await register({
+        name,
+        username: email.split("@")[0] + Math.floor(Math.random() * 1000), // Auto-generate username for now
+        email,
+        password,
+        countryDialCode: dialCode,
+        phoneNumber: number,
+        prefersWhatsApp: true,
+      });
+
+      // Automatically log in after registration to get a valid token
+      await login(email, password);
+
+      // Redirect directly to the setup flow instead of explore or back to login
+      router.push("/setup/country");
+    } catch (error: any) {
+      Alert.alert("Registration Failed", error.message || "Something went wrong.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <KeyboardAvoidingView
@@ -81,6 +142,8 @@ export default function RegisterScreen() {
                     placeholder="Enter your name"
                     placeholderTextColor="rgba(15, 23, 42, 0.3)"
                     style={styles.input}
+                    value={name}
+                    onChangeText={setName}
                   />
                 </View>
               </View>
@@ -95,6 +158,8 @@ export default function RegisterScreen() {
                     style={styles.input}
                     autoCapitalize="none"
                     keyboardType="email-address"
+                    value={email}
+                    onChangeText={setEmail}
                   />
                 </View>
               </View>
@@ -104,10 +169,12 @@ export default function RegisterScreen() {
                 <View style={styles.inputWrapper}>
                   <Feather name="phone" size={20} color={COLORS.primaryBlue} style={styles.inputIcon} />
                   <TextInput
-                    placeholder="Enter phone number"
+                    placeholder="+44 1234 567890"
                     placeholderTextColor="rgba(15, 23, 42, 0.3)"
                     style={styles.input}
                     keyboardType="phone-pad"
+                    value={phone}
+                    onChangeText={setPhone}
                   />
                 </View>
               </View>
@@ -121,16 +188,25 @@ export default function RegisterScreen() {
                     placeholderTextColor="rgba(15, 23, 42, 0.3)"
                     style={styles.input}
                     secureTextEntry
+                    value={password}
+                    onChangeText={setPassword}
                   />
                 </View>
               </View>
 
               <TouchableOpacity
-                style={styles.signUpButton}
-                onPress={() => router.push("/setup/country")}
+                style={[styles.signUpButton, isSubmitting && { opacity: 0.7 }]}
+                onPress={handleRegister}
+                disabled={isSubmitting}
               >
-                <Text style={styles.signUpButtonText}>Create Account</Text>
-                <Feather name="arrow-right" size={20} color="white" />
+                {isSubmitting ? (
+                  <ActivityIndicator color="white" />
+                ) : (
+                  <>
+                    <Text style={styles.signUpButtonText}>Create Account</Text>
+                    <Feather name="arrow-right" size={20} color="white" />
+                  </>
+                )}
               </TouchableOpacity>
 
               <Text style={styles.termsText}>

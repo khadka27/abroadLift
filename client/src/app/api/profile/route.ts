@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getUserIdFromRequest } from "@/lib/api-auth";
 import prisma from "@/lib/db";
 
-export async function GET() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
+export async function GET(req: Request) {
+  const userIdSource = await getUserIdFromRequest(req);
+  if (!userIdSource) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -37,8 +36,8 @@ export async function GET() {
 }
 
 export async function PUT(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
+  const userIdSource = await getUserIdFromRequest(req);
+  if (!userIdSource) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -92,7 +91,7 @@ export async function PUT(req: Request) {
   // Check if username is taken
   if (username) {
     const existing = await prisma.user.findUnique({ where: { username } });
-    if (existing && existing.id !== session.user.id) {
+    if (existing && existing.id !== userIdSource) {
       return NextResponse.json({ error: "Username already taken." }, { status: 409 });
     }
   }
@@ -100,7 +99,7 @@ export async function PUT(req: Request) {
   // Check if email is taken
   if (email) {
     const existingEmail = await prisma.user.findUnique({ where: { email } });
-    if (existingEmail && existingEmail.id !== session.user.id) {
+    if (existingEmail && existingEmail.id !== userIdSource) {
       return NextResponse.json({ error: "Email already in use." }, { status: 409 });
     }
   }
@@ -142,7 +141,7 @@ export async function PUT(req: Request) {
   };
 
   const user = await prisma.user.update({
-    where: { id: session.user.id },
+    where: { id: userIdSource },
     data: {
       ...(name && { name }),
       ...(username && { username: username.toLowerCase().trim() }),

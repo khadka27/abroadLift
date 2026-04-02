@@ -13,6 +13,7 @@ import { Stack, router } from "expo-router";
 import { AntDesign, FontAwesome, Feather } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useUser } from "./context/UserContext";
 
 const { width, height } = Dimensions.get("window");
 
@@ -26,6 +27,21 @@ const COLORS = {
 
 export default function Index() {
   const insets = useSafeAreaInsets();
+  const { isAuthenticated, isLoading } = useUser();
+
+  React.useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      router.replace("/(tabs)/explore");
+    }
+  }, [isAuthenticated, isLoading]);
+
+  if (isLoading || isAuthenticated) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8FBFF' }}>
+        <StatusBar barStyle="dark-content" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>

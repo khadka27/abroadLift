@@ -25,7 +25,7 @@ const COLORS = {
 };
 
 export default function ProfileTab() {
-  const { userData } = useUser();
+  const { userData, logout } = useUser();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -127,6 +127,18 @@ export default function ProfileTab() {
                 </Text>
             </View>
           </View>
+
+          <View style={styles.prefItem}>
+            <View style={styles.prefIconBox}>
+                <Ionicons name="calendar-outline" size={20} color={COLORS.primary} />
+            </View>
+            <View style={styles.prefTextContent}>
+                <Text style={styles.prefLabel}>Intake & Aid</Text>
+                <Text style={styles.prefValue}>
+                    {userData.intake || "Not Set"} {userData.scholarshipNeeded ? "• Financial Aid Needed" : ""}
+                </Text>
+            </View>
+          </View>
         </View>
 
         {/* Menu Options */}
@@ -146,7 +158,7 @@ export default function ProfileTab() {
             <Feather name="chevron-right" size={20} color={COLORS.textDark} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem} onPress={() => router.push("/")}>
+          <TouchableOpacity style={styles.menuItem} onPress={logout}>
             <Text style={[styles.menuItemText, { color: COLORS.red }]}>Log Out</Text>
           </TouchableOpacity>
         </View>
