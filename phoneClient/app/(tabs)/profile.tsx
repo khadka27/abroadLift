@@ -127,6 +127,18 @@ export default function ProfileTab() {
                 </Text>
             </View>
           </View>
+
+          <View style={styles.prefItem}>
+            <View style={styles.prefIconBox}>
+                <Ionicons name="calendar-outline" size={20} color={COLORS.primary} />
+            </View>
+            <View style={styles.prefTextContent}>
+                <Text style={styles.prefLabel}>Intake & Aid</Text>
+                <Text style={styles.prefValue}>
+                    {userData.intake || "Not Set"} {userData.scholarshipNeeded ? "• Financial Aid Needed" : ""}
+                </Text>
+            </View>
+          </View>
         </View>
 
         {/* Menu Options */}

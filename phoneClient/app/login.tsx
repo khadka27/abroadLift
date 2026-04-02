@@ -33,7 +33,7 @@ const COLORS = {
 
 export default function LoginScreen() {
   const insets = useSafeAreaInsets();
-  const { login } = useUser();
+  const { login, userData } = useUser();
   
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
@@ -47,9 +47,23 @@ export default function LoginScreen() {
 
     setIsSubmitting(true);
     try {
-      await login(identifier, password);
-      // On success, the UserProvider will update state and we can navigate
-      router.push("/(tabs)/explore");
+      const user = await login(identifier, password);
+      // Sequential check for missing setup fields to decide redirection
+      if (!user.country) {
+          router.push("/setup/country");
+      } else if (!user.studyLevel) {
+          router.push("/setup/study-level");
+      } else if (!user.fieldOfStudy) {
+          router.push("/setup/field-of-study");
+      } else if (!user.cgpa || !user.recentAcademicField) {
+          router.push("/setup/academics");
+      } else if (!user.score && !user.englishLevel) {
+          router.push("/setup/english-test");
+      } else if (!user.intake) {
+          router.push("/setup/target");
+      } else {
+          router.push("/(tabs)/explore");
+      }
     } catch (error: any) {
       Alert.alert("Login Failed", error.message || "Something went wrong. Please check your credentials.");
     } finally {

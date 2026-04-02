@@ -58,6 +58,52 @@ export const register = async (userData: any): Promise<any> => {
   }
 };
 
+export const getProfile = async (token: string): Promise<any> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/profile`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      },
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Failed to fetch profile");
+    return data;
+  } catch (error) {
+    console.error("Fetch Profile Error:", error);
+    throw error;
+  }
+};
+
+export const updateProfile = async (userData: any, token: string): Promise<any> => {
+  try {
+    // Map mobile field names to backend field names if they differ
+    const payload = {
+      ...userData,
+      nationality: userData.country,
+      currentCountry: userData.country,
+      degreeLevel: userData.studyLevel,
+      gpa: userData.cgpa,
+      englishScore: userData.score,
+    };
+
+    const response = await fetch(`${API_BASE_URL}/profile`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify(payload),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Profile update failed");
+    return data;
+  } catch (error) {
+    console.error("Profile Update Error:", error);
+    throw error;
+  }
+};
+
 export const searchUniversities = async (query: string, countries: string = "All"): Promise<UniversityResult[]> => {
 
   try {

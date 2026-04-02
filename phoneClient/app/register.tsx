@@ -33,7 +33,7 @@ const COLORS = {
 
 export default function RegisterScreen() {
   const insets = useSafeAreaInsets();
-  const { register } = useUser();
+  const { register, login } = useUser();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -81,11 +81,11 @@ export default function RegisterScreen() {
         prefersWhatsApp: true,
       });
 
-      Alert.alert(
-        "Verification Required", 
-        "A verification code has been sent to your phone. Please verify to continue.",
-        [{ text: "OK", onPress: () => router.push("/(tabs)/explore") }] // In real app, go to verification screen
-      );
+      // Automatically log in after registration to get a valid token
+      await login(email, password);
+
+      // Redirect directly to the setup flow instead of explore or back to login
+      router.push("/setup/country");
     } catch (error: any) {
       Alert.alert("Registration Failed", error.message || "Something went wrong.");
     } finally {

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
-import { login as apiLogin, register as apiRegister } from '../../lib/api';
+import { login as apiLogin, register as apiRegister, updateProfile as apiUpdateProfile } from '../../lib/api';
 
 type UserData = {
   id?: string;
@@ -19,6 +19,9 @@ type UserData = {
   score?: string;
   testType?: string;
   passoutYear?: string;
+  yearlyBudget?: string;
+  intake?: string;
+  scholarshipNeeded?: boolean;
   selectedUniversities: any[];
 };
 
@@ -27,8 +30,8 @@ type UserContextType = {
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (identifier: string, password: string) => Promise<void>;
-  register: (data: any) => Promise<void>;
+  login: (identifier: string, password: string) => Promise<any>;
+  register: (data: any) => Promise<any>;
   logout: () => Promise<void>;
   setUserData: (data: UserData | ((prev: UserData) => UserData)) => void;
   selectUniversity: (uni: any) => void;
@@ -48,6 +51,9 @@ const DEFAULT_USER_DATA: UserData = {
   score: "",
   testType: "",
   passoutYear: "",
+  yearlyBudget: "",
+  intake: "",
+  scholarshipNeeded: false,
   selectedUniversities: [],
 };
 
@@ -67,8 +73,33 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         const storedToken = await AsyncStorage.getItem('@auth_token');
         const storedUser = await AsyncStorage.getItem('@user_data');
         
-        if (storedToken) setToken(storedToken);
-        if (storedUser) _setUserData(JSON.parse(storedUser));
+        if (storedToken) {
+          setToken(storedToken);
+          // NEW: Refresh user data from server if we have a token
+          const { getProfile } = require('../../lib/api');
+          getProfile(storedToken).then((data: any) => {
+            const profile = data.profile || {};
+            const refreshedUser = {
+              ...(storedUser ? JSON.parse(storedUser) : DEFAULT_USER_DATA),
+              ...data,
+              country: profile.nationality || profile.currentCountry || "",
+              studyLevel: profile.degreeLevel || "",
+              cgpa: profile.gpa ? String(profile.gpa) : "",
+              score: profile.englishScore ? String(profile.englishScore) : "",
+              fieldOfStudy: profile.fieldOfStudy || "",
+              testType: profile.testType || "",
+              recentAcademicField: profile.recentAcademicField || "",
+              passoutYear: profile.passoutYear || "",
+              intake: profile.intake || "",
+              englishLevel: profile.englishLevel || "",
+              yearlyBudget: profile.yearlyBudget ? String(profile.yearlyBudget) : "",
+              scholarshipNeeded: profile.scholarshipNeeded ?? false,
+            };
+            _setUserData(refreshedUser);
+            AsyncStorage.setItem('@user_data', JSON.stringify(refreshedUser));
+          }).catch((e: any) => console.error("Profile refresh error:", e));
+        }
+        if (storedUser && !storedToken) _setUserData(JSON.parse(storedUser));
       } catch (e) {
         console.error("Error loading auth data:", e);
       } finally {
@@ -83,18 +114,32 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     try {
       const data = await apiLogin(identifier, password);
       // data: { user, token }
+      const incomingUser = data.user;
+      const profile = incomingUser.profile || {};
+      
+      const mappedUser = {
+        ...userData,
+        ...incomingUser,
+        country: profile.nationality || profile.currentCountry || userData.country,
+        studyLevel: profile.degreeLevel || userData.studyLevel,
+        cgpa: profile.gpa ? String(profile.gpa) : userData.cgpa,
+        score: profile.englishScore ? String(profile.englishScore) : userData.score,
+        fieldOfStudy: profile.fieldOfStudy || userData.fieldOfStudy,
+        testType: profile.testType || userData.testType,
+        recentAcademicField: profile.recentAcademicField || userData.recentAcademicField,
+        passoutYear: profile.passoutYear || userData.passoutYear,
+        intake: profile.intake || userData.intake,
+        englishLevel: profile.englishLevel || userData.englishLevel,
+        yearlyBudget: profile.yearlyBudget ? String(profile.yearlyBudget) : userData.yearlyBudget,
+        scholarshipNeeded: profile.scholarshipNeeded ?? userData.scholarshipNeeded,
+      };
+
       setToken(data.token);
-      _setUserData(prev => ({
-        ...prev,
-        ...data.user,
-        // Preserve onboarding fields if they already exist
-      }));
+      _setUserData(mappedUser);
 
       await AsyncStorage.setItem('@auth_token', data.token);
-      await AsyncStorage.setItem('@user_data', JSON.stringify({
-        ...userData,
-        ...data.user,
-      }));
+      await AsyncStorage.setItem('@user_data', JSON.stringify(mappedUser));
+      return mappedUser;
     } catch (error) {
       throw error;
     }
@@ -120,6 +165,12 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         ...data.user,
       }));
       await AsyncStorage.setItem('@user_data', JSON.stringify(data.user));
+
+      // NEW: Automatically log in after registration if token wasn't provided
+      // No, wait, if we got a user object, we can't truly login WITHOUT a token from the backend
+      // But we can call apiLogin here if we have the password.
+      // Instead, we'll let the component handle the auto-login with email and password.
+      return data.user;
     } catch (error) {
       throw error;
     }
@@ -146,6 +197,11 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       const newData = typeof data === 'function' ? data(userData) : data;
       _setUserData(newData);
       await AsyncStorage.setItem('@user_data', JSON.stringify(newData));
+
+      // Sync with backend if authenticated
+      if (token) {
+        apiUpdateProfile(newData, token).catch(e => console.error("Sync error:", e));
+      }
     } catch (e) {
       console.error("Error saving user data:", e);
     }

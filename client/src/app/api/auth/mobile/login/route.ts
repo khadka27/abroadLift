@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import prisma from "@/lib/db";
-import { sign } from "jsonwebtoken"; // Wait, I need to check if jsonwebtoken is available. 
 
 export async function POST(req: Request) {
   try {
@@ -19,11 +18,13 @@ export async function POST(req: Request) {
     // Try email first, then username
     let user = await prisma.user.findUnique({
       where: { email: normalizedIdentifier },
+      include: { profile: true },
     });
 
     if (!user) {
       user = await prisma.user.findUnique({
         where: { username: normalizedIdentifier },
+        include: { profile: true },
       });
     }
 
@@ -57,6 +58,7 @@ export async function POST(req: Request) {
         email: user.email,
         username: user.username,
         role: user.role,
+        profile: user.profile,
       },
       token: "mobile_" + token, // Simple mock token
     });

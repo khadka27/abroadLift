@@ -46,15 +46,21 @@ model StudentProfile {
     userId String @unique
     user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    nationality       String?
-    currentCountry    String?
-    gpa               Float?
-    yearlyBudget      Float?
-    englishScore      Float?
-    degreeLevel       String?
-    preferredCountry  String?
-    scholarshipNeeded Boolean? @default(false)
-    loanWilling       Boolean? @default(false)
+    nationality         String?
+    currentCountry      String?
+    gpa                 Float?
+    yearlyBudget        Float?
+    englishScore        Float?
+    degreeLevel         String?
+    preferredCountry    String?
+    scholarshipNeeded   Boolean? @default(false)
+    loanWilling         Boolean? @default(false)
+    fieldOfStudy        String?
+    testType            String?
+    recentAcademicField String?
+    passoutYear         String?
+    intake              String?
+    englishLevel        String?
 }
 
 model University {
