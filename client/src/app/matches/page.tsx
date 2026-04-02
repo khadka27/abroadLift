@@ -61,7 +61,10 @@ import {
   Heart,
   Trophy,
   User,
+  Loader2,
+  Square,
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
 
 /* ─────────────── Flag component ─────────────── */
@@ -145,6 +148,18 @@ interface Form {
   passportReady: boolean;
   testDone: boolean;
   docsReady: boolean;
+}
+
+interface ChecklistItem {
+  id: number;
+  text: string;
+  status: "complete" | "loading" | "pending";
+}
+
+interface DataIndicator {
+  text: string;
+  count: number;
+  active: boolean;
 }
 
 interface Match {
@@ -836,7 +851,7 @@ function MatchCard({
       {/* Banner Image */}
       <div className="relative w-full h-[180px] sm:h-[230px] overflow-hidden">
         <Image
-          src={m.banner || "https://images.unsplash.com/photo-1541339907198-e08756ebafe3?q=80&w=2070&auto=format&fit=crop"}
+          src={m.banner || "/uni-default.webp"}
           alt={m.name}
           fill
           className="object-cover group-hover:scale-110 transition-transform duration-1000"
@@ -1258,6 +1273,327 @@ function MatchCostEstimator({ match: m }: { match: Match }) {
   );
 }
 
+/* ─────────────── Analyzing Screen Component ─────────────── */
+function AnalyzingScreen({ onFinish }: { onFinish?: () => void }) {
+  const [progress, setProgress] = useState(0);
+  const [titleIndex, setTitleIndex] = useState(0);
+  const [showCursor, setShowCursor] = useState(true);
+  const [checklist, setChecklist] = useState<ChecklistItem[]>([
+    { id: 1, text: "Connecting to servers", status: "complete" },
+    { id: 2, text: "Gathering data", status: "complete" },
+    { id: 3, text: "Processing information", status: "loading" },
+    { id: 4, text: "Finalizing results", status: "pending" },
+  ]);
+
+  const [dataIndicators, setDataIndicators] = useState<DataIndicator[]>([
+    { text: "Scanning sources", count: 0, active: true },
+    { text: "Cross-referencing datasets", count: 0, active: false },
+    { text: "Running neural models", count: 0, active: false },
+  ]);
+
+  const titles = [
+    "Searching global databases...",
+    "Analyzing patterns...",
+    "Compiling insights...",
+    "Running deep analysis...",
+  ];
+
+  // Animate progress with non-linear speed (slow-fast-slow)
+  useEffect(() => {
+    const duration = 12000; // 12 seconds total
+    const startTime = Date.now();
+
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      const t = Math.min(elapsed / duration, 1);
+
+      // Ease-in-out cubic for non-linear progression
+      const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+      const newProgress = eased * 100;
+      setProgress(newProgress);
+
+      // Checklist updates logic moved here to avoid ESLint 'setState in effect' loop
+      if (newProgress > 25) {
+        setChecklist((prev) => {
+          if (prev[2].status === "loading") {
+            const next = [...prev];
+            next[2] = { ...next[2], status: "complete" };
+            // Simulate the delay for the next item starting to load
+            setTimeout(() => {
+              setChecklist((cur) => {
+                const updated = [...cur];
+                if (updated[3].status === "pending") {
+                  updated[3] = { ...updated[3], status: "loading" };
+                }
+                return updated;
+              });
+            }, 500);
+            return next;
+          }
+          return prev;
+        });
+      }
+
+      if (newProgress > 75) {
+        setChecklist((prev) => {
+          if (prev[3].status === "loading") {
+            const next = [...prev];
+            next[3] = { ...next[3], status: "complete" };
+            return next;
+          }
+          return prev;
+        });
+      }
+
+      if (t >= 1) {
+        clearInterval(interval);
+        if (onFinish) onFinish();
+      }
+    }, 30);
+
+    return () => clearInterval(interval);
+  }, [onFinish]);
+
+  // Change titles periodically
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTitleIndex((prev) => (prev + 1) % titles.length);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [titles.length]);
+
+  // Blinking cursor effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setShowCursor((prev) => !prev);
+    }, 530);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Animate data indicators
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDataIndicators((prev) =>
+        prev.map((indicator) => ({
+          ...indicator,
+          count: indicator.active
+            ? Math.floor(Math.random() * 5000) + 8000
+            : indicator.count,
+        })),
+      );
+    }, 1500);
+
+    // Cycle through active indicators
+    const cycleInterval = setInterval(() => {
+      setDataIndicators((prev) => {
+        const currentIndex = prev.findIndex((i) => i.active);
+        const nextIndex = (currentIndex + 1) % prev.length;
+        return prev.map((item, idx) => ({
+          ...item,
+          active: idx === nextIndex,
+        }));
+      });
+    }, 4000);
+
+    return () => {
+      clearInterval(interval);
+      clearInterval(cycleInterval);
+    };
+  }, []);
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "complete":
+        return <Check className="w-5 h-5 text-emerald-400" />;
+      case "loading":
+        return (
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          >
+            <Loader2 className="w-5 h-5 text-blue-400" />
+          </motion.div>
+        );
+      case "pending":
+        return <Square className="w-5 h-5 text-gray-600" />;
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-gradient-to-br from-gray-950 via-slate-900 to-gray-950 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden opacity-30">
+        <motion.div
+          className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl"
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{ duration: 4, repeat: Infinity }}
+        />
+        <motion.div
+          className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl"
+          animate={{
+            scale: [1.2, 1, 1.2],
+            opacity: [0.5, 0.3, 0.5],
+          }}
+          transition={{ duration: 4, repeat: Infinity }}
+        />
+      </div>
+
+      <div className="relative z-10 w-full max-w-2xl px-8">
+        {/* Title with typing cursor */}
+        <div className="text-center mb-12">
+          <AnimatePresence mode="wait">
+            <motion.h1
+              key={titleIndex}
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{ duration: 0.5 }}
+              className="text-3xl font-light text-white tracking-wide"
+              style={{
+                fontFamily: "Inter, SF Pro Display, -apple-system, sans-serif",
+              }}
+            >
+              {titles[titleIndex]}
+              <motion.span
+                animate={{ opacity: showCursor ? 1 : 0 }}
+                className="inline-block w-0.5 h-8 bg-blue-400 ml-1 align-middle"
+              />
+            </motion.h1>
+          </AnimatePresence>
+        </div>
+
+        {/* Progress bar */}
+        <div className="mb-12">
+          <div className="relative h-3 bg-gray-800/50 rounded-full overflow-hidden backdrop-blur-sm border border-gray-700/50">
+            <motion.div
+              className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-blue-400"
+              style={{
+                width: `${progress}%`,
+                boxShadow:
+                  "0 0 20px rgba(59, 130, 246, 0.5), 0 0 40px rgba(147, 51, 234, 0.3)",
+              }}
+              initial={{ width: 0 }}
+            />
+            {/* Animated glow */}
+            <motion.div
+              className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-full"
+              animate={{
+                x: ["-100%", `${progress * 8}px`],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "linear",
+              }}
+            />
+          </div>
+          <div className="flex justify-between mt-3">
+            <span className="text-sm text-gray-500 font-light">Processing</span>
+            <span className="text-sm text-blue-400 font-light tabular-nums">
+              {Math.round(progress)}%
+            </span>
+          </div>
+        </div>
+
+        {/* Data indicators */}
+        <div className="mb-10 space-y-3">
+          {dataIndicators.map((indicator, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{
+                opacity: indicator.active ? 1 : 0.4,
+                x: 0,
+              }}
+              className="flex items-center gap-3 text-sm"
+            >
+              <motion.div
+                className="flex gap-1"
+                animate={indicator.active ? { opacity: [1, 0.5, 1] } : {}}
+                transition={{ duration: 1.5, repeat: Infinity }}
+              >
+                <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+              </motion.div>
+              <span className="text-gray-400 font-light">{indicator.text}</span>
+              {indicator.active && (
+                <motion.span
+                  key={indicator.count}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-blue-400 font-mono text-xs ml-auto tabular-nums"
+                >
+                  {indicator.count.toLocaleString()}
+                </motion.span>
+              )}
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Checklist */}
+        <div className="bg-gray-900/30 backdrop-blur-md border border-gray-700/30 rounded-2xl p-6 space-y-4 shadow-xl">
+          {checklist.map((item, idx) => (
+            <motion.div
+              key={item.id}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: idx * 0.1 }}
+              className="flex items-center gap-4"
+            >
+              <div className="flex-shrink-0">{getStatusIcon(item.status)}</div>
+              <span
+                className={`font-light tracking-wide transition-colors ${
+                  item.status === "complete"
+                    ? "text-gray-400"
+                    : item.status === "loading"
+                    ? "text-white"
+                    : "text-gray-600"
+                }`}
+                style={{
+                  fontFamily: "Inter, SF Pro Display, -apple-system, sans-serif",
+                }}
+              >
+                {item.text}
+              </span>
+              {item.status === "loading" && (
+                <motion.div
+                  className="flex gap-1 ml-auto"
+                  animate={{ opacity: [1, 0.3, 1] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                >
+                  <div className="w-1 h-1 rounded-full bg-blue-400" />
+                  <div className="w-1 h-1 rounded-full bg-blue-400" />
+                  <div className="w-1 h-1 rounded-full bg-blue-400" />
+                </motion.div>
+              )}
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Bottom status text */}
+        <motion.div
+          className="mt-8 text-center"
+          animate={{ opacity: [0.5, 1, 0.5] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          <p className="text-gray-500 text-sm font-light tracking-wider">
+            AI system processing your request
+          </p>
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+
 /* ─────────────── Main Component ─────────────── */
 export default function AbroadLiftMatchesPage() {
   const { data: session, status } = useSession();
@@ -1419,6 +1755,9 @@ export default function AbroadLiftMatchesPage() {
     } catch (err: any) {
       setError(err.message || "Something went wrong fetching matches.");
     } finally {
+      // Keep loading true until AnalyzingScreen finishes if we want, 
+      // but here we just let the API finish.
+      // We will handle the visual finish in the UI.
       setLoading(false);
     }
   };
@@ -2444,19 +2783,7 @@ export default function AbroadLiftMatchesPage() {
 
           {/* Loading State */}
           {loading && (
-            <div className="py-32 flex flex-col items-center justify-center text-center space-y-8 animate-in fade-in duration-500">
-              <div className="relative w-24 h-24">
-                <div className="absolute inset-0 rounded-full border-4 border-slate-100 w-full h-full" />
-                <div className="absolute inset-0 rounded-full border-4 border-blue-600 border-t-transparent animate-spin w-full h-full shadow-[0_0_40px_rgba(37,99,235,0.2)]" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Sparkles className="w-8 h-8 text-blue-600 animate-pulse" />
-                </div>
-              </div>
-              <div className="space-y-3">
-                <h3 className="text-xl font-black text-slate-900">Searching World-Class Institutions...</h3>
-                <p className="text-slate-400 font-bold text-sm uppercase tracking-widest tracking-[0.2em]">Running Eligibility Engine</p>
-              </div>
-            </div>
+            <AnalyzingScreen />
           )}
 
           {/* No Direct Matches Found - Styled exactly as per second mobile screenshot */}
@@ -2740,7 +3067,7 @@ export default function AbroadLiftMatchesPage() {
                     return (
                       <Card key={i} className="min-w-[280px] md:min-w-[320px] rounded-[32px] border-none bg-white shadow-[0_15px_40px_-15px_rgba(0,0,0,0.06)] overflow-hidden snap-center group">
                         <div className="relative h-44 overflow-hidden">
-                           <Image src={m.banner || "https://images.unsplash.com/photo-1541339907198-e08756ebafe1?q=80&w=400"} fill className="object-cover transition-transform duration-500 group-hover:scale-110" alt="Uni Banner" />
+                           <Image src={m.banner || "/uni-default.webp"} fill className="object-cover transition-transform duration-500 group-hover:scale-110" alt="Uni Banner" />
                            <div className="absolute top-3 right-3 px-3 py-1 bg-white/95 backdrop-blur-sm rounded-full text-[11px] font-black text-slate-900 shadow-sm border border-slate-100">
                              {matchPct}% Match
                            </div>
@@ -2804,40 +3131,38 @@ export default function AbroadLiftMatchesPage() {
 
       // 9: Cost estimate - View breakdown (EXACT MOCKUP MATCH)
     if (step === 9 && selectedMatch) {
-      const city = selectedMatch.location?.split(",")?.[0]?.trim() || "your selected city";
       const usdToNpr = USD_TO_NPR;
       const tuitionUsd = Math.round(
         selectedMatch.currency === "NPR"
-          ? (selectedMatch.tuitionFee || 18000) / usdToNpr
-          : selectedMatch.tuitionFee || 18000,
+          ? (selectedMatch.tuitionFee || 22000) / usdToNpr
+          : selectedMatch.tuitionFee || 22000,
       );
-      
       const livingBreakdownUsd = dynamicLivingCost || {
-        rent: 3200,
-        food: 1100,
-        transport: 420,
-        insurance: 300,
-        other: 600,
+        rent: 3800,
+        food: 1300,
+        transport: 500,
+        insurance: 320,
+        other: 700,
       };
       
-      const monthlyLivingUsd = Object.values(livingBreakdownUsd as Record<string, number>).reduce((sum, val) => sum + val, 0);
-      const annualLivingUsd = monthlyLivingUsd * 12;
-      
-      const totalYear1Usd = tuitionUsd + annualLivingUsd + 1500; // includes admin fees
-      const totalYear1Npr = totalYear1Usd * usdToNpr;
+      const yearlyLivingUsd = Object.values(livingBreakdownUsd as Record<string, number>).reduce((s, v) => s + v, 0);
+      const setupCostsUsd = 1500;
+      const totalYear1Usd = tuitionUsd + yearlyLivingUsd + setupCostsUsd;
+      const totalYear1Npr = Math.round(totalYear1Usd * usdToNpr);
       
       const fmtNpr = (v: number) => new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(v);
-      const fmtLakhs = (v: number) => {
-        const lakhs = v / 100000;
-        return `NPR ${lakhs.toFixed(0)} Lakhs`;
-      };
-      const fmtLakhsPrecise = (v: number) => {
-        const lakhs = v / 100000;
-        return `NPR ${lakhs.toFixed(1)} Lakhs`;
+      const fmtLakhs = (v: number) => `NPR ${(v / 100000).toFixed(1)} Lakhs`;
+
+      const monthlyLivingNpr = Math.round((yearlyLivingUsd * usdToNpr) / 12);
+      const itemizedMonthly = {
+        Rent: Math.round(((livingBreakdownUsd as any).rent * usdToNpr) / 12),
+        Food: Math.round(((livingBreakdownUsd as any).food * usdToNpr) / 12),
+        Transport: Math.round(((livingBreakdownUsd as any).transport * usdToNpr) / 12),
+        Other: Math.round(((livingBreakdownUsd as any).other * usdToNpr) / 12),
       };
 
-      const tuitionPercent = Math.round((tuitionUsd / totalYear1Usd) * 100);
-      const livingPercent = 100 - tuitionPercent;
+      const tuitionPct = Math.round((tuitionUsd / totalYear1Usd) * 100);
+      const livingPct = 100 - tuitionPct;
 
       return (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-full px-4 pb-12 space-y-5 bg-white min-h-screen">
@@ -2863,17 +3188,17 @@ export default function AbroadLiftMatchesPage() {
                 <div className="space-y-4">
                    <p className="text-[13px] font-bold text-slate-600 leading-none">Total Estimated Cost</p>
                    <h2 className="text-2xl font-black text-slate-900 leading-tight">
-                     NPR 25 - 40 Lakhs
+                     {fmtLakhs(totalYear1Npr)}
                    </h2>
-                   <div className="inline-flex px-4 py-2 bg-amber-100/90 text-amber-800 text-[11px] font-black rounded-full uppercase tracking-widest shadow-sm">
-                     ● Average Cost
+                   <div className="inline-flex px-4 py-2 bg-blue-600 text-white text-[11px] font-black rounded-full uppercase tracking-widest shadow-sm">
+                     ● {selectedMatch.countryCode} Engine
                    </div>
                 </div>
                 <div className="relative w-24 h-24 shrink-0">
                    <svg viewBox="0 0 36 36" className="w-full h-full transform -rotate-90">
                       <circle cx="18" cy="18" r="16" fill="transparent" stroke="#f8fafc" strokeWidth="5" />
-                      <circle cx="18" cy="18" r="16" fill="transparent" stroke="#FD644F" strokeWidth="5" strokeDasharray={`30 100`} strokeLinecap="round" />
-                      <circle cx="18" cy="18" r="16" fill="transparent" stroke="#14B2AD" strokeWidth="5" strokeDasharray={`70 100`} strokeDashoffset={`-30`} strokeLinecap="round" />
+                      <circle cx="18" cy="18" r="16" fill="transparent" stroke="#FD644F" strokeWidth="5" strokeDasharray={`${livingPct} 100`} strokeLinecap="round" />
+                      <circle cx="18" cy="18" r="16" fill="transparent" stroke="#14B2AD" strokeWidth="5" strokeDasharray={`${tuitionPct} 100`} strokeDashoffset={`-${livingPct}`} strokeLinecap="round" />
                    </svg>
                    <div className="absolute inset-0 flex items-center justify-center">
                       <div className="w-12 h-12 bg-white rounded-full shadow-inner" />
@@ -2882,7 +3207,7 @@ export default function AbroadLiftMatchesPage() {
              </div>
              <div className="relative z-10 mt-6 pt-4 border-t border-slate-200/50 flex items-center gap-2 text-[11px] font-bold text-slate-400">
                 <Info className="w-3.5 h-3.5" />
-                Cost based on country, lifestyle, university.
+                Living cost in {selectedMatch.location} is dynamically calculated.
              </div>
           </Card>
 
@@ -2913,9 +3238,9 @@ export default function AbroadLiftMatchesPage() {
                 </div>
                 <div className="divide-y divide-slate-50">
                    {[
-                     { l: "Year 1", v: "NPR 30 Lakhs" },
-                     { l: "Year 2", v: "NPR 25 Lakhs" },
-                     { l: "Year 3", v: "NPR 20 Lakhs" },
+                     { l: "Year 1 (Total)", v: fmtLakhs(totalYear1Npr) },
+                     { l: "Year 2 (Tuition+Living)", v: fmtLakhs((tuitionUsd + (Object.values(livingBreakdownUsd as Record<string, number>).reduce((s, v) => s + v, 0) * 12)) * usdToNpr) },
+                     { l: "Year 3 (Tuition+Living)", v: fmtLakhs((tuitionUsd + (Object.values(livingBreakdownUsd as Record<string, number>).reduce((s, v) => s + v, 0) * 12)) * usdToNpr) },
                    ].map((it, i) => (
                      <div key={i} className="px-6 py-4 flex items-center justify-between font-black text-slate-900 text-[14px]">
                         <span className="text-slate-400 font-medium">{it.l}</span>
@@ -2924,7 +3249,7 @@ export default function AbroadLiftMatchesPage() {
                    ))}
                 </div>
                 <div className="p-4 bg-slate-50/50 text-center text-[12px] font-bold text-slate-500 border-t border-slate-50">
-                  Tution may reduce after first year
+                   Setup and visa costs occur primarily in Year 1
                 </div>
              </div>
 
@@ -2936,28 +3261,23 @@ export default function AbroadLiftMatchesPage() {
              <div className="bg-white rounded-[24px] border border-slate-100 overflow-hidden shadow-sm">
                 <div className="p-5 flex items-center justify-between border-b border-slate-50">
                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-emerald-400/20 flex items-center justify-center text-emerald-600">
-                         <Calculator className="w-5 h-5 text-emerald-500" fill="currentColor" fillOpacity="0.2" />
+                      <div className="w-10 h-10 rounded-full bg-blue-400/20 flex items-center justify-center text-blue-600">
+                         <Calculator className="w-5 h-5 text-blue-500" fill="currentColor" fillOpacity="0.2" />
                       </div>
-                      <span className="font-bold text-slate-800">Year Breakdown</span>
+                      <span className="font-bold text-slate-800">Monthly Expenses</span>
                    </div>
                    <ChevronDown className="w-5 h-5 text-slate-300" />
                 </div>
                 <div className="divide-y divide-slate-50">
-                   {[
-                     { l: "Rent", v: "15,000" },
-                     { l: "Food", v: "10,000" },
-                     { l: "Transport", v: "3,000" },
-                     { l: "Other", v: "5,000" },
-                   ].map((it, i) => (
+                   {Object.entries(itemizedMonthly).map(([l, v], i) => (
                      <div key={i} className="px-6 py-4 flex items-center justify-between font-black text-slate-900 text-[14px]">
-                        <span className="text-slate-400 font-medium">{it.l}</span>
-                        <span>{it.v}</span>
+                        <span className="text-slate-400 font-medium">{l}</span>
+                        <span>{fmtNpr(v / 12)}</span>
                      </div>
                    ))}
                 </div>
                 <div className="p-4 bg-slate-50/50 text-center text-[12px] font-bold text-slate-500 border-t border-slate-50">
-                  Part time Incomes (Optional)
+                  Calculated based on {selectedMatch.location}
                 </div>
              </div>
 
@@ -2968,12 +3288,12 @@ export default function AbroadLiftMatchesPage() {
                       <div className="w-10 h-10 rounded-full bg-emerald-400/20 flex items-center justify-center text-emerald-600">
                          <Calculator className="w-5 h-5 text-emerald-500" fill="currentColor" fillOpacity="0.2" />
                       </div>
-                      <span className="font-bold text-slate-800">Total Monthly Cost</span>
+                      <span className="font-bold text-slate-800">Total Monthly Expenditure</span>
                    </div>
                    <ChevronDown className="w-5 h-5 text-slate-300" />
                 </div>
                 <div className="px-6 py-6 text-center font-black text-slate-800 text-[14px]">
-                  NPR 33,000 / month — NPR 3.9 Lakhs / year
+                  {fmtNpr(monthlyLivingNpr)} / month — {fmtLakhs(monthlyLivingNpr * 12)} / year
                 </div>
              </div>
 
@@ -2994,11 +3314,11 @@ export default function AbroadLiftMatchesPage() {
                 </div>
                 <div className="divide-y divide-slate-50">
                    {[
-                     { l: "Consultancy Fee", v: "NPR 0 - 50,000" },
-                     { l: "IELTS Test", v: "NPR 27,000 - 30,000" },
-                     { l: "Documents", v: "NPR 27,000 - 30,000" },
-                     { l: "Medical", v: "NPR 27,000 - 30,000" },
-                     { l: "Application Fees", v: "NPR 27,000 - 30,000" },
+                     { l: "Consultancy Fee", v: "NPR 0 - 25,000" },
+                     { l: "IELTS/PTE Test", v: "NPR 29,500" },
+                     { l: "Documents & NOC", v: "NPR 15,000 - 35,000" },
+                     { l: "Medical & Biometrics", v: "NPR 12,000 - 22,000" },
+                     { l: "Visa Application", v: (selectedMatch.countryCode === "AU" ? "NPR 1,600 (AUD)" : selectedMatch.countryCode === "USA" ? "NPR 185 (USD)" : "NPR 85,000 - 150,000") },
                    ].map((it, i) => (
                      <div key={i} className="px-6 py-4 flex items-center justify-between font-black text-slate-900 text-[13px]">
                         <span className="text-slate-400 font-medium">{it.l}</span>
@@ -3186,8 +3506,8 @@ export default function AbroadLiftMatchesPage() {
 
              <div className="flex gap-4 overflow-x-auto pb-4 snap-x no-scrollbar">
                 {[
-                  { name: "University of Melbourne", loc: "Melbourne, Australia", price: "NPR 20 Lakhs", match: "85%", risk: "Safe", img: "https://images.unsplash.com/photo-1541339907198-e08756ebafe1?q=80&w=400" },
-                  { name: "University of Toronto", loc: "Toronto, Canada", price: "NPR 11 Lakhs", match: "70%", risk: "Moderate", img: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=400" },
+                  { name: "University of Melbourne", loc: "Melbourne, Australia", price: "NPR 20 Lakhs", match: "85%", risk: "Safe", img: "/uni-default.webp" },
+                  { name: "University of Toronto", loc: "Toronto, Canada", price: "NPR 11 Lakhs", match: "70%", risk: "Moderate", img: "/uni-default.webp" },
                 ].map((univ, i) => (
                   <Card key={i} className="min-w-[280px] rounded-[32px] border border-slate-100 overflow-hidden shadow-md snap-start bg-white">
                      <div className="h-40 bg-slate-200 relative overflow-hidden">

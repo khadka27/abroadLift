@@ -289,7 +289,7 @@ export default function SearchPage() {
                   {/* Image Area */}
                   <div className="relative h-[240px] w-full overflow-hidden">
                     <Image
-                      src={uni.image || "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=800&auto=format"}
+                      src={uni.image || "/uni-default.webp"}
                       alt={uni.name}
                       fill
                       className="object-cover group-hover:scale-110 transition-transform duration-700"
