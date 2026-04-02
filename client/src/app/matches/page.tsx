@@ -1450,7 +1450,7 @@ export default function AbroadLiftMatchesPage() {
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   const [admissionTab, setAdmissionTab] = useState<string>("Safe");
   const [loading, setLoading] = useState(false);
-  const [transitionType, setTransitionType] = useState<"matching" | "finance" | "admission" | "visa" | null>(null);
+  const [transitionType, setTransitionType] = useState<"matching" | "finance" | "admission" | "visa" | "roadmap" | "summary" | null>(null);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -1615,6 +1615,9 @@ export default function AbroadLiftMatchesPage() {
     if (step === 8) return true; // Preview/Result steps
     if (step === 9) return true;
     if (step === 10) return true;
+    if (step === 11) return true;
+    if (step === 12) return true;
+    if (step === 13) return true;
     return false;
   };
 
@@ -3011,7 +3014,7 @@ export default function AbroadLiftMatchesPage() {
           form={form} 
           selectedMatch={selectedMatch} 
           onBack={() => setStep(8)} 
-          onComplete={() => alert("Roadmap Downloaded!")} 
+          onComplete={() => { setTransitionType("roadmap"); setStep(12); }} 
         />
       );
     }
@@ -3047,14 +3050,21 @@ export default function AbroadLiftMatchesPage() {
           </Card>
 
           <div className="pt-8 space-y-4">
-             <button className="w-full h-16 bg-blue-600 text-white rounded-3xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-blue-500/30 hover:scale-105 transition-all flex items-center justify-center gap-3 italic">
-               <Download className="w-5 h-5" />
+             <button 
+               onClick={() => { setTransitionType("summary"); setStep(13); }}
+               className="w-full h-16 bg-blue-600 text-white rounded-3xl font-black text-[15px] uppercase tracking-widest shadow-2xl shadow-blue-500/30 hover:scale-105 transition-all flex items-center justify-center gap-3 italic"
+             >
+               Next: Financial Summary <ArrowRight className="w-5 h-5" />
+             </button>
+             <button className="w-full h-14 bg-white/50 text-slate-500 rounded-3xl font-bold text-xs uppercase tracking-[0.2em] hover:bg-white transition-all flex items-center justify-center gap-3 italic">
+               <Download className="w-4 h-4" />
                EXPORT PDF REPORT
              </button>
           </div>
         </div>
        );
     }
+
     
     // 13: Final Phase Financial Oracle & Roadmap
     if (step === 13 && selectedMatch) {

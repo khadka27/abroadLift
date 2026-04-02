@@ -93,6 +93,11 @@ model StudentProfile {
     testDone          Boolean? @default(false)
     docsReady         Boolean? @default(false)
 
+    // Calculated Scores
+    admissionProb     Float?
+    visaSuccessProb   Float?
+    estimatedAnnualCost Float?
+
     updatedAt         DateTime @updatedAt
 }
 
@@ -148,7 +153,12 @@ model MatchingRecord {
     formData  Json
     matchData Json
 
-    createdAt DateTime @default(now())
+    // Explicit calculated stats for tracking
+    admissionChance Float?
+    visaSuccess     Float?
+    costEstimate    Float?
+
+    createdAt DateTime @updatedAt
     updatedAt DateTime @updatedAt
 }
 

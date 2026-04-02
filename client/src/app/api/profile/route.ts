@@ -10,7 +10,7 @@ export async function GET(req: Request) {
 
   const [user, matchingRecords] = await Promise.all([
     prisma.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: userIdSource },
       select: {
         id: true,
         name: true,
@@ -22,7 +22,7 @@ export async function GET(req: Request) {
       },
     }),
     prisma.matchingRecord.findMany({
-      where: { userId: session.user.id },
+      where: { userId: userIdSource },
       orderBy: { createdAt: "desc" },
       take: 5,
     }),
@@ -104,6 +104,24 @@ export async function PUT(req: Request) {
     }
   }
 
+  // Calculate probabilities and estimates locally for the Profile
+  const gpaVal = gpa ? parseFloat(gpa) : 3.0;
+  const testScoreVal = englishScore ? parseFloat(englishScore) : 0;
+  
+  let admissionProb = 50; 
+  if (gpaVal >= 3.5) admissionProb += 20;
+  else if (gpaVal >= 3.0) admissionProb += 10;
+  if (testScoreVal >= 7.0 || testScoreVal >= 100) admissionProb += 15;
+  admissionProb = Math.min(95, admissionProb);
+
+  let visaSuccessProb = 60;
+  if (passportReady) visaSuccessProb += 10;
+  if (docsReady) visaSuccessProb += 10;
+  if (bankBalance && parseFloat(bankBalance) > 3000000) visaSuccessProb += 15;
+  visaSuccessProb = Math.min(98, visaSuccessProb);
+
+  const estimatedAnnualCost = (yearlyBudget ? parseFloat(yearlyBudget) : 20000) + 12000;
+
   const profileData = {
     nationality: nationality || null,
     currentCountry: currentCountry || null,
@@ -138,6 +156,9 @@ export async function PUT(req: Request) {
     passportReady: passportReady ?? false,
     testDone: testDone ?? false,
     docsReady: docsReady ?? false,
+    admissionProb,
+    visaSuccessProb,
+    estimatedAnnualCost,
   };
 
   const user = await prisma.user.update({

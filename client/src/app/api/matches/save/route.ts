@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { getUserIdFromRequest } from "@/lib/api-auth";
 import prisma from "@/lib/db";
-import { authOptions } from "@/lib/auth";
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session || !session.user) {
+    const userIdSource = await getUserIdFromRequest(req);
+    if (!userIdSource) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -26,21 +25,45 @@ export async function POST(req: Request) {
         if (univ) universityId = univ.id;
     }
 
+    // Calculate probabilities and estimates locally for the DB
+    const gpaNum = formData.gpa ? parseFloat(formData.gpa) : 3.0;
+    const testScoreNum = formData.testScore ? parseFloat(formData.testScore) : 0;
+    
+    // Admission Chance (simplified version of frontend logic)
+    let admissionChance = 50; 
+    if (gpaNum >= 3.5) admissionChance += 20;
+    else if (gpaNum >= 3.0) admissionChance += 10;
+    if (testScoreNum >= 7.0 || testScoreNum >= 100) admissionChance += 15;
+    admissionChance = Math.min(95, admissionChance);
+
+    // Visa Success (simplified version)
+    let visaSuccess = 60;
+    if (formData.passportReady) visaSuccess += 10;
+    if (formData.docsReady) visaSuccess += 10;
+    if (formData.bankBalance && parseFloat(formData.bankBalance) > 3000000) visaSuccess += 15;
+    visaSuccess = Math.min(98, visaSuccess);
+
+    // Cost Estimate
+    const tuition = matchData.tuitionFee || 20000;
+    const living = 12000; // estimated annual
+    const costEstimate = tuition + living;
+
     // Save the matching record
     const record = await prisma.matchingRecord.create({
       data: {
-        userId: session.user.id,
+        userId: userIdSource,
         universityId: universityId,
         formData: formData,
         matchData: matchData,
+        admissionChance,
+        visaSuccess,
+        costEstimate,
       },
     });
 
     // Also update the user's StudentProfile with the filled details
     try {
-      const gpaNum = formData.gpa ? parseFloat(formData.gpa) : null;
       const budgetNum = formData.budget ? parseFloat(formData.budget) : null;
-      const englishScoreNum = formData.testScore ? parseFloat(formData.testScore) : null;
       const backlogsNum = parseInt(formData.backlogs) || 0;
       const studyGapNum = parseInt(formData.studyGap) || 0;
       const bankBalanceNum = formData.bankBalance ? parseFloat(formData.bankBalance) : null;
@@ -57,7 +80,7 @@ export async function POST(req: Request) {
         studyGap: isNaN(studyGapNum) ? 0 : studyGapNum,
         hasEnglishTest: formData.hasEnglishTest ?? undefined,
         testType: formData.testType || undefined,
-        englishScore: isNaN(englishScoreNum as any) ? null : englishScoreNum,
+        englishScore: isNaN(testScoreNum as any) ? null : testScoreNum,
         aptitudeTest: formData.aptitudeTest || "NONE",
         greVerbal: formData.greVerbal ? parseFloat(formData.greVerbal) : undefined,
         greQuant: formData.greQuant ? parseFloat(formData.greQuant) : undefined,
@@ -80,20 +103,21 @@ export async function POST(req: Request) {
         passportReady: formData.passportReady ?? false,
         testDone: formData.testDone ?? false,
         docsReady: formData.docsReady ?? false,
+        admissionProb: admissionChance,
+        visaSuccessProb: visaSuccess,
+        estimatedAnnualCost: costEstimate,
       };
 
       await prisma.studentProfile.upsert({
-        where: { userId: session.user.id },
+        where: { userId: userIdSource },
         update: profileData,
         create: {
           ...profileData,
-          userId: session.user.id,
+          userId: userIdSource,
         }
       });
     } catch (profileError) {
       console.error("[PROFILE_SYNC_ERROR]", profileError);
-      // We don't fail the whole request if profile sync fails, 
-      // as the matching record itself is more important.
     }
 
     return NextResponse.json({ success: true, id: record.id });
