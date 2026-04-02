@@ -36,9 +36,10 @@ model User {
     createdAt       DateTime  @default(now())
     updatedAt       DateTime  @updatedAt
 
-    profile      StudentProfile?
-    applications Application[]
-    visaChecks   VisaRateCheck[]
+    profile         StudentProfile?
+    applications    Application[]
+    visaChecks      VisaRateCheck[]
+    matchingRecords MatchingRecord[]
 }
 
 model StudentProfile {
@@ -46,21 +47,53 @@ model StudentProfile {
     userId String @unique
     user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    nationality         String?
-    currentCountry      String?
-    gpa                 Float?
-    yearlyBudget        Float?
-    englishScore        Float?
-    degreeLevel         String?
-    preferredCountry    String?
-    scholarshipNeeded   Boolean? @default(false)
-    loanWilling         Boolean? @default(false)
-    fieldOfStudy        String?
-    testType            String?
-    recentAcademicField String?
-    passoutYear         String?
-    intake              String?
-    englishLevel        String?
+    nationality       String?
+    currentCountry    String?
+    highestEducation  String?
+    passingYear       String?
+    gpa               Float?
+    backlogs          Int?     @default(0)
+    studyGap          Int?     @default(0)
+    
+    // Test Scores
+    hasEnglishTest    Boolean?
+    testType          String?
+    englishScore      Float?
+    
+    // Aptitude Tests
+    aptitudeTest      String?  @default("NONE")
+    greVerbal         Float?
+    greQuant          Float?
+    greAwa            Float?
+    gmatTotal         Float?
+
+    // Study Preferences
+    degreeLevel       String?
+    field             String?
+    program           String?
+    preferredCountry  String?
+    intake            String?
+    
+    // Financials
+    yearlyBudget      Float?
+    currency          String?  @default("USD")
+    bankBalance       Float?
+    sponsorType       String?
+    sponsorIncome     Float?
+    
+    // Preferences
+    univType          String?
+    cityType          String?
+    duration          Int?
+
+    // Requirements
+    scholarshipNeeded Boolean? @default(false)
+    loanWilling       Boolean? @default(false)
+    passportReady     Boolean? @default(false)
+    testDone          Boolean? @default(false)
+    docsReady         Boolean? @default(false)
+
+    updatedAt         DateTime @updatedAt
 }
 
 model University {
@@ -78,7 +111,8 @@ model University {
     website          String?
     createdAt        DateTime @default(now())
 
-    applications Application[]
+    applications    Application[]
+    matchingRecords MatchingRecord[]
 }
 
 model Scholarship {
@@ -101,6 +135,21 @@ model Application {
     university University @relation(fields: [universityId], references: [id], onDelete: Cascade)
 
     @@unique([studentId, universityId])
+}
+
+model MatchingRecord {
+    id     String @id @default(uuid())
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    universityId String?
+    university   University? @relation(fields: [universityId], references: [id])
+
+    formData  Json
+    matchData Json
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 }
 
 model VisaRateCheck {

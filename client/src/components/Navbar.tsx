@@ -217,7 +217,7 @@ export default function Navbar() {
 
         {/* Mobile drawer (Backup for deep links) */}
         {mobileOpen && (
-          <div className="lg:hidden absolute top-full left-0 w-full border-b border-gray-100 bg-white px-6 py-10 flex flex-col gap-6 shadow-2xl animate-fade-in">
+          <div className="lg:hidden absolute top-full left-0 w-full border-b border-gray-100 bg-white px-6 py-10 flex flex-col gap-6 shadow-2xl animate-fade-in-nav">
             {NAV_LINKS.map((l) => (
               <div key={l.label} className="flex flex-col gap-4">
                 <Link
@@ -254,7 +254,6 @@ export default function Navbar() {
           </div>
         )}
       </nav>
-
       {/* Mobile Floating Bottom Nav */}
       <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[95%] max-w-[440px] z-50 h-20 bg-white rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-gray-100 flex items-center justify-around px-2">
         {/* Animated Notch/Cutout (SVG for the smooth curve) */}
@@ -312,22 +311,6 @@ export default function Navbar() {
           );
         })}
       </div>
-
-      <style jsx global>{`
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.3s ease-out forwards;
-        }
-      `}</style>
     </>
   );
 }

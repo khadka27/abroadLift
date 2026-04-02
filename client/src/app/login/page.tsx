@@ -184,11 +184,11 @@ function LoginForm() {
 
             {/* Divider */}
             <div className="w-full mt-6 mb-5 flex items-center justify-center">
-              <div className="h-[1px] flex-1 bg-gray-100" />
+              <div className="h-px flex-1 bg-gray-100" />
               <span className="px-4 text-[16px] font-regular text-black tracking-widest uppercase">
                 OR
               </span>
-              <div className="h-[1px] flex-1 bg-gray-100" />
+              <div className="h-px flex-1 bg-gray-100" />
             </div>
 
             {/* Social Options */}

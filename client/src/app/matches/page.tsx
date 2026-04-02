@@ -4,7 +4,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
-import { CA, US, AU, GB, DE, IE, NL } from "country-flag-icons/react/3x2";
 import {
   GraduationCap,
   BookOpen,
@@ -63,132 +62,18 @@ import {
   User,
   Loader2,
   Square,
+  Info as InfoIcon,
+  CheckCircle,
+  Save,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
-
-/* ─────────────── Flag component ─────────────── */
-const FlagIcon = ({
-  countryCode,
-  className = "w-6 h-4",
-  ...props
-}: {
-  countryCode: string;
-  className?: string;
-  [key: string]: any;
-}) => {
-  const map: Record<string, any> = {
-    CA,
-    US,
-    USA: US,
-    AU,
-    GB,
-    UK: GB,
-    DE,
-    IE,
-    NL,
-    CH: US, // Placeholder for Switzerland if not in lucide icons, but let's check
-  };
-  const Fl = map[countryCode?.toUpperCase()];
-  return Fl ? (
-    <Fl className={`${className} rounded shadow-sm`} {...props} />
-  ) : (
-    <div className={`${className} bg-zinc-200 rounded`} />
-  );
-};
-
-/* ─────────────── Types ─────────────── */
-interface Form {
-  countries: string[];
-  degree: string;
-  field: string;
-  program: string;
-  testType: string;
-  testScore: string;
-  ielsReading: string;
-  ielsWriting: string;
-  ielsListening: string;
-  ielsSpeaking: string;
-  toeflReading: string;
-  toeflWriting: string;
-  toeflListening: string;
-  toeflSpeaking: string;
-  pteReading: string;
-  pteWriting: string;
-  pteListening: string;
-  pteSpeaking: string;
-  duoLiteracy: string;
-  duoComprehension: string;
-  duoConversation: string;
-  duoProduction: string;
-  greVerbal: string;
-  greQuant: string;
-  greAwa: string;
-  gmatTotal: string;
-  backlogs: string;
-  studyGap: string;
-  gpa: string;
-  bankBalance: string;
-  sponsorType: string;
-  sponsorIncome: string;
-  univType: string;
-  cityType: string;
-  duration: string;
-  budget: string;
-  currency: string;
-  intake: string;
-  aptitudeTest: string;
-  programTags: string[];
-  scholarship: boolean;
-  name: string;
-  email: string;
-  highestEducation: string;
-  passingYear: string;
-  hasEnglishTest: boolean | null;
-  passportReady: boolean;
-  testDone: boolean;
-  docsReady: boolean;
-}
-
-interface ChecklistItem {
-  id: number;
-  text: string;
-  status: "complete" | "loading" | "pending";
-}
-
-interface DataIndicator {
-  text: string;
-  count: number;
-  active: boolean;
-}
-
-interface Match {
-  currency: string;
-  logo: any;
-  id: string | number;
-  name: string;
-  location?: string;
-  countryCode?: string;
-  tuitionFee?: number;
-  englishReq?: number;
-  website?: string;
-  admissionRate?: number;
-  rankingWorld?: number;
-  rankingNational?: number;
-  scholarships?: { name: string; value: string }[];
-  description?: string;
-  type?: string;
-  founded?: number;
-  studentPopulation?: number;
-  popularPrograms?: string[];
-  applicationDeadline?: string;
-  gpaRequirement?: number;
-  matchType?: string;
-  internationalPercentage?: number;
-  salaryMedian?: number;
-  deadline?: string;
-  banner?: string;
-}
+import { Form, Match, ChecklistItem, DataIndicator } from "@/types/matches";
+import { FlagIcon } from "@/components/matches/FlagIcon";
+import { UniversitySelection } from "@/components/matches/UniversitySelection";
+import { FinancialDashboard } from "@/components/matches/FinancialDashboard";
+import { AdmissionDetails } from "@/components/matches/AdmissionDetails";
+import { VisaEligibility } from "@/components/matches/VisaEligibility";
 
 /* ─────────────── Static data ─────────────── */
 const COUNTRIES = [
@@ -593,6 +478,8 @@ const STEPS = [
 
 const DEF: Form = {
   countries: [],
+  nationality: "",
+  currentCountry: "",
   degree: "",
   field: "",
   program: "",
@@ -1273,76 +1160,65 @@ function MatchCostEstimator({ match: m }: { match: Match }) {
   );
 }
 
-/* ─────────────── Analyzing Screen Component ─────────────── */
-function AnalyzingScreen({ onFinish }: { onFinish?: () => void }) {
+/* ─────────────── Generic Engine Screen Component ─────────────── */
+interface EngineConfig {
+  title: string;
+  titles: string[];
+  checklist: { id: number; text: string; status: "complete" | "loading" | "pending" }[];
+  indicators: { text: string; count: number; active: boolean }[];
+  icon: any;
+  gradient: string;
+  glow: string;
+  accent: string;
+  statusText: string;
+}
+
+function GenericEngineScreen({ config, onFinish }: { config: EngineConfig; onFinish?: () => void }) {
   const [progress, setProgress] = useState(0);
   const [titleIndex, setTitleIndex] = useState(0);
   const [showCursor, setShowCursor] = useState(true);
-  const [checklist, setChecklist] = useState<ChecklistItem[]>([
-    { id: 1, text: "Connecting to servers", status: "complete" },
-    { id: 2, text: "Gathering data", status: "complete" },
-    { id: 3, text: "Processing information", status: "loading" },
-    { id: 4, text: "Finalizing results", status: "pending" },
-  ]);
+  const [checklist, setChecklist] = useState(config.checklist);
+  const [dataIndicators, setDataIndicators] = useState(config.indicators);
 
-  const [dataIndicators, setDataIndicators] = useState<DataIndicator[]>([
-    { text: "Scanning sources", count: 0, active: true },
-    { text: "Cross-referencing datasets", count: 0, active: false },
-    { text: "Running neural models", count: 0, active: false },
-  ]);
-
-  const titles = [
-    "Searching global databases...",
-    "Analyzing patterns...",
-    "Compiling insights...",
-    "Running deep analysis...",
-  ];
-
-  // Animate progress with non-linear speed (slow-fast-slow)
+  // Animate progress with non-linear speed
   useEffect(() => {
-    const duration = 12000; // 12 seconds total
+    const duration = 4000; // 4 seconds total for these sub-engines
     const startTime = Date.now();
 
     const interval = setInterval(() => {
       const elapsed = Date.now() - startTime;
       const t = Math.min(elapsed / duration, 1);
-
-      // Ease-in-out cubic for non-linear progression
       const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-
       const newProgress = eased * 100;
       setProgress(newProgress);
 
-      // Checklist updates logic moved here to avoid ESLint 'setState in effect' loop
-      if (newProgress > 25) {
+      if (newProgress > 30) {
         setChecklist((prev) => {
-          if (prev[2].status === "loading") {
-            const next = [...prev];
-            next[2] = { ...next[2], status: "complete" };
-            // Simulate the delay for the next item starting to load
-            setTimeout(() => {
-              setChecklist((cur) => {
-                const updated = [...cur];
-                if (updated[3].status === "pending") {
-                  updated[3] = { ...updated[3], status: "loading" };
-                }
-                return updated;
-              });
-            }, 500);
-            return next;
+          const next = [...prev];
+          if (next[0].status === "loading") {
+             next[0] = { ...next[0], status: "complete" };
+             if (next[1]) next[1] = { ...next[1], status: "loading" };
           }
-          return prev;
+          return next;
         });
       }
-
-      if (newProgress > 75) {
+      if (newProgress > 60) {
         setChecklist((prev) => {
-          if (prev[3].status === "loading") {
-            const next = [...prev];
-            next[3] = { ...next[3], status: "complete" };
-            return next;
+          const next = [...prev];
+          if (next[1] && next[1].status === "loading") {
+             next[1] = { ...next[1], status: "complete" };
+             if (next[2]) next[2] = { ...next[2], status: "loading" };
           }
-          return prev;
+          return next;
+        });
+      }
+      if (newProgress > 90) {
+        setChecklist((prev) => {
+          const next = [...prev];
+          if (next[next.length - 1].status === "loading") {
+             next[next.length - 1] = { ...next[next.length - 1], status: "complete" };
+          }
+          return next;
         });
       }
 
@@ -1353,245 +1229,208 @@ function AnalyzingScreen({ onFinish }: { onFinish?: () => void }) {
     }, 30);
 
     return () => clearInterval(interval);
-  }, [onFinish]);
+  }, [onFinish, config.checklist]);
 
-  // Change titles periodically
   useEffect(() => {
     const interval = setInterval(() => {
-      setTitleIndex((prev) => (prev + 1) % titles.length);
-    }, 3000);
-
+      setTitleIndex((prev) => (prev + 1) % config.titles.length);
+    }, 1500);
     return () => clearInterval(interval);
-  }, [titles.length]);
+  }, [config.titles.length]);
 
-  // Blinking cursor effect
   useEffect(() => {
-    const interval = setInterval(() => {
-      setShowCursor((prev) => !prev);
-    }, 530);
-
+    const interval = setInterval(() => setShowCursor((prev) => !prev), 530);
     return () => clearInterval(interval);
   }, []);
 
-  // Animate data indicators
   useEffect(() => {
     const interval = setInterval(() => {
       setDataIndicators((prev) =>
         prev.map((indicator) => ({
           ...indicator,
-          count: indicator.active
-            ? Math.floor(Math.random() * 5000) + 8000
-            : indicator.count,
+          count: indicator.active ? Math.floor(Math.random() * 5000) + 8000 : indicator.count,
         })),
       );
-    }, 1500);
-
-    // Cycle through active indicators
-    const cycleInterval = setInterval(() => {
-      setDataIndicators((prev) => {
-        const currentIndex = prev.findIndex((i) => i.active);
-        const nextIndex = (currentIndex + 1) % prev.length;
-        return prev.map((item, idx) => ({
-          ...item,
-          active: idx === nextIndex,
-        }));
-      });
-    }, 4000);
-
-    return () => {
-      clearInterval(interval);
-      clearInterval(cycleInterval);
-    };
+    }, 1000);
+    return () => clearInterval(interval);
   }, []);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "complete":
-        return <Check className="w-5 h-5 text-emerald-400" />;
-      case "loading":
-        return (
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          >
-            <Loader2 className="w-5 h-5 text-blue-400" />
-          </motion.div>
-        );
-      case "pending":
-        return <Square className="w-5 h-5 text-gray-600" />;
-      default:
-        return null;
+      case "complete": return <Check className="w-5 h-5 text-emerald-400" />;
+      case "loading": return <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}><Loader2 className={`w-5 h-5 ${config.accent}`} /></motion.div>;
+      case "pending": return <Square className="w-5 h-5 text-gray-800" />;
+      default: return null;
     }
   };
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-gradient-to-br from-gray-950 via-slate-900 to-gray-950 relative overflow-hidden">
-      {/* Animated background elements */}
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-50 overflow-hidden">
       <div className="absolute inset-0 overflow-hidden opacity-30">
-        <motion.div
-          className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl"
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{ duration: 4, repeat: Infinity }}
-        />
-        <motion.div
-          className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl"
-          animate={{
-            scale: [1.2, 1, 1.2],
-            opacity: [0.5, 0.3, 0.5],
-          }}
-          transition={{ duration: 4, repeat: Infinity }}
+        <motion.div 
+          className={`absolute top-1/4 left-1/4 w-[600px] h-[600px] ${config.glow} rounded-full blur-[120px]`} 
+          animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }} 
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }} 
         />
       </div>
 
-      <div className="relative z-10 w-full max-w-2xl px-8">
-        {/* Title with typing cursor */}
-        <div className="text-center mb-12">
+      <div className="relative z-10 w-full max-w-2xl px-12">
+        <div className="text-center mb-16">
+            <div className={`w-24 h-24 mx-auto mb-10 rounded-[38px] ${config.accent.replace('text', 'bg').replace('500', '500/10').replace('400', '400/10')} border ${config.accent.replace('text', 'border').replace('500', '500/20')} flex items-center justify-center shadow-[0_20px_50px_-20px_rgba(0,0,0,0.1)]`}>
+                <config.icon className={`w-12 h-12 ${config.accent}`} />
+            </div>
           <AnimatePresence mode="wait">
-            <motion.h1
-              key={titleIndex}
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              transition={{ duration: 0.5 }}
-              className="text-3xl font-light text-white tracking-wide"
-              style={{
-                fontFamily: "Inter, SF Pro Display, -apple-system, sans-serif",
-              }}
+            <motion.h1 
+              key={titleIndex} 
+              initial={{ opacity: 0, y: 15 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              exit={{ opacity: 0, y: -15 }} 
+              transition={{ duration: 0.6 }} 
+              className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter italic uppercase"
             >
-              {titles[titleIndex]}
-              <motion.span
-                animate={{ opacity: showCursor ? 1 : 0 }}
-                className="inline-block w-0.5 h-8 bg-blue-400 ml-1 align-middle"
-              />
+              {config.titles[titleIndex]}
+              <motion.span animate={{ opacity: showCursor ? 1 : 0 }} className={`inline-block w-1.5 h-10 ${config.accent.replace('text', 'bg')} ml-3 align-middle`} />
             </motion.h1>
           </AnimatePresence>
         </div>
 
-        {/* Progress bar */}
-        <div className="mb-12">
-          <div className="relative h-3 bg-gray-800/50 rounded-full overflow-hidden backdrop-blur-sm border border-gray-700/50">
-            <motion.div
-              className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-blue-400"
-              style={{
-                width: `${progress}%`,
-                boxShadow:
-                  "0 0 20px rgba(59, 130, 246, 0.5), 0 0 40px rgba(147, 51, 234, 0.3)",
-              }}
-              initial={{ width: 0 }}
-            />
-            {/* Animated glow */}
-            <motion.div
-              className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-full"
-              animate={{
-                x: ["-100%", `${progress * 8}px`],
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                ease: "linear",
-              }}
-            />
+        <div className="mb-16">
+          <div className="relative h-4 bg-slate-200/50 rounded-full overflow-hidden backdrop-blur-sm border border-slate-100">
+            <motion.div className={`absolute inset-y-0 left-0 rounded-full ${config.gradient}`} style={{ width: `${progress}%` }} initial={{ width: 0 }} />
           </div>
-          <div className="flex justify-between mt-3">
-            <span className="text-sm text-gray-500 font-light">Processing</span>
-            <span className="text-sm text-blue-400 font-light tabular-nums">
-              {Math.round(progress)}%
-            </span>
+          <div className="flex justify-between mt-4">
+            <span className="text-[11px] text-slate-400 font-bold uppercase tracking-[0.2em]">{config.title} Status</span>
+            <span className={`text-lg ${config.accent} font-black tabular-nums tracking-tighter`}>{Math.round(progress)}%</span>
           </div>
         </div>
 
-        {/* Data indicators */}
-        <div className="mb-10 space-y-3">
-          {dataIndicators.map((indicator, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{
-                opacity: indicator.active ? 1 : 0.4,
-                x: 0,
-              }}
-              className="flex items-center gap-3 text-sm"
-            >
-              <motion.div
-                className="flex gap-1"
-                animate={indicator.active ? { opacity: [1, 0.5, 1] } : {}}
-                transition={{ duration: 1.5, repeat: Infinity }}
-              >
-                <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-                <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-                <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-              </motion.div>
-              <span className="text-gray-400 font-light">{indicator.text}</span>
-              {indicator.active && (
-                <motion.span
-                  key={indicator.count}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="text-blue-400 font-mono text-xs ml-auto tabular-nums"
-                >
-                  {indicator.count.toLocaleString()}
-                </motion.span>
-              )}
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Checklist */}
-        <div className="bg-gray-900/30 backdrop-blur-md border border-gray-700/30 rounded-2xl p-6 space-y-4 shadow-xl">
-          {checklist.map((item, idx) => (
-            <motion.div
-              key={item.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              className="flex items-center gap-4"
-            >
-              <div className="flex-shrink-0">{getStatusIcon(item.status)}</div>
-              <span
-                className={`font-light tracking-wide transition-colors ${
-                  item.status === "complete"
-                    ? "text-gray-400"
-                    : item.status === "loading"
-                    ? "text-white"
-                    : "text-gray-600"
-                }`}
-                style={{
-                  fontFamily: "Inter, SF Pro Display, -apple-system, sans-serif",
-                }}
-              >
-                {item.text}
-              </span>
-              {item.status === "loading" && (
-                <motion.div
-                  className="flex gap-1 ml-auto"
-                  animate={{ opacity: [1, 0.3, 1] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
-                >
-                  <div className="w-1 h-1 rounded-full bg-blue-400" />
-                  <div className="w-1 h-1 rounded-full bg-blue-400" />
-                  <div className="w-1 h-1 rounded-full bg-blue-400" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+             <div className="bg-white/80 backdrop-blur-md border border-slate-200/50 rounded-[40px] p-10 space-y-7 shadow-[0_15px_45px_-12px_rgba(0,0,0,0.03)]">
+              {checklist.map((item, idx) => (
+                <motion.div key={item.id} initial={{ opacity: 0, x: -15 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.1 }} className="flex items-center gap-5">
+                  <div className="flex-shrink-0">{getStatusIcon(item.status)}</div>
+                  <span className={`text-sm font-bold tracking-tight transition-colors uppercase italic ${item.status === "complete" ? "text-slate-300 line-through" : item.status === "loading" ? "text-slate-800" : "text-slate-400"}`}>
+                    {item.text}
+                  </span>
                 </motion.div>
-              )}
-            </motion.div>
-          ))}
+              ))}
+            </div>
+            <div className="bg-slate-100/50 border border-slate-200/20 rounded-[40px] p-10 space-y-8">
+                {dataIndicators.map((indicator, idx) => (
+                    <div key={idx} className="flex flex-col gap-2">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">{indicator.text}</span>
+                        <div className="flex items-center justify-between">
+                            <span className={`text-xl font-black tabular-nums tracking-tighter ${indicator.active ? "text-slate-900" : "text-slate-300"}`}>
+                                {indicator.active ? indicator.count.toLocaleString() : "---"}
+                            </span>
+                            {indicator.active && <div className={`w-2 h-2 rounded-full ${config.accent.replace('text', 'bg')} animate-pulse`} />}
+                        </div>
+                    </div>
+                ))}
+            </div>
         </div>
 
-        {/* Bottom status text */}
-        <motion.div
-          className="mt-8 text-center"
-          animate={{ opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          <p className="text-gray-500 text-sm font-light tracking-wider">
-            AI system processing your request
-          </p>
+        <motion.div className="mt-16 text-center" animate={{ opacity: [0.4, 0.8, 0.4] }} transition={{ duration: 2.5, repeat: Infinity }}>
+          <p className="text-slate-300 text-[11px] font-black uppercase tracking-[0.5em] italic">{config.statusText}</p>
         </motion.div>
       </div>
     </div>
   );
+}
+
+/* ─────────────── Specialized Engine Wrappers ─────────────── */
+
+function MatchingEngineScreen({ onFinish }: { onFinish?: () => void }) {
+  const config: EngineConfig = {
+    title: "Global Matchmaker",
+    titles: ["Scoping Universities...", "Mapping Eligibility...", "Optimizing Success..."],
+    checklist: [
+      { id: 1, text: "Course Req Mapped", status: "loading" },
+      { id: 2, text: "Budget Alignment Check", status: "pending" },
+      { id: 3, text: "Profile Weights Sync", status: "pending" },
+    ],
+    indicators: [
+      { text: "Index Scanned", count: 124500, active: true },
+      { text: "Models Active", count: 12, active: false },
+    ],
+    icon: Search,
+    gradient: "bg-gradient-to-r from-blue-600 to-indigo-500",
+    glow: "bg-blue-500/20",
+    accent: "text-blue-500",
+    statusText: "AbroadLift Neural Core Online"
+  };
+  return <GenericEngineScreen config={config} onFinish={onFinish} />;
+}
+
+function FinancialEngineScreen({ onFinish }: { onFinish?: () => void }) {
+  const config: EngineConfig = {
+    title: "Fiscal Projection Oracle",
+    titles: ["Fetching Live FX...", "Modeling Inflation...", "Scaling Living Costs..."],
+    checklist: [
+      { id: 1, text: "Live NPR conversion", status: "loading" },
+      { id: 2, text: "3-Year tuition matrix", status: "pending" },
+      { id: 3, text: "Rent database indexing", status: "pending" },
+    ],
+    indicators: [
+      { text: "Rate Scanned", count: 138.45, active: true },
+      { text: "Categories", count: 42, active: false },
+    ],
+    icon: Calculator,
+    gradient: "bg-gradient-to-r from-emerald-500 to-teal-400",
+    glow: "bg-emerald-500/20",
+    accent: "text-emerald-400",
+    statusText: "Geo-Financial Engine Processing"
+  };
+  return <GenericEngineScreen config={config} onFinish={onFinish} />;
+}
+
+function AdmissionEngineScreen({ onFinish }: { onFinish?: () => void }) {
+  const config: EngineConfig = {
+      title: "Admission Probability engine",
+      titles: ["Analyzing GPA Signals...", " intake Trending...", "Scoring profile..."],
+      checklist: [
+        { id: 1, text: "CGPA verification", status: "loading" },
+        { id: 2, text: "History Benchmark", status: "pending" },
+        { id: 3, text: "Risk Assessment", status: "pending" },
+      ],
+      indicators: [
+        { text: "Profiles Scanned", count: 85200, active: true },
+        { text: "Signals Weighing", count: 140, active: false },
+      ],
+      icon: Target,
+      gradient: "bg-gradient-to-r from-indigo-500 to-purple-600",
+      glow: "bg-indigo-500/20",
+      accent: "text-indigo-400",
+      statusText: "Eligibility Neural Matrix Active"
+    };
+    return <GenericEngineScreen config={config} onFinish={onFinish} />;
+}
+
+function VisaEngineScreen({ onFinish }: { onFinish?: () => void }) {
+  const config: EngineConfig = {
+      title: "Visa Oracle engine",
+      titles: ["Scanning GTE Rules...", "Evaluating Solvency...", "Interview Simulator..."],
+      checklist: [
+        { id: 1, text: "Embassy Trends Scanned", status: "loading" },
+        { id: 2, text: "Proof of Funds Scale", status: "pending" },
+        { id: 3, text: "Success Probability", status: "pending" },
+      ],
+      indicators: [
+        { text: "Approvals Scanned", count: 3200, active: true },
+        { text: "Policies Indexed", count: 18, active: false },
+      ],
+      icon: Shield,
+      gradient: "bg-gradient-to-r from-amber-500 to-rose-600",
+      glow: "bg-amber-500/20",
+      accent: "text-amber-400",
+      statusText: "Global Visa Success Modeling"
+    };
+    return <GenericEngineScreen config={config} onFinish={onFinish} />;
+}
+
+
+function AnalyzingScreen({ onFinish }: { onFinish?: () => void }) {
+   return <MatchingEngineScreen onFinish={onFinish} />;
 }
 
 /* ─────────────── Main Component ─────────────── */
@@ -1611,7 +1450,33 @@ export default function AbroadLiftMatchesPage() {
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   const [admissionTab, setAdmissionTab] = useState<string>("Safe");
   const [loading, setLoading] = useState(false);
+  const [transitionType, setTransitionType] = useState<"matching" | "finance" | "admission" | "visa" | null>(null);
   const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const handleSavePlan = async () => {
+    if (!selectedMatch) return;
+    setSaving(true);
+    try {
+      const response = await fetch("/api/matches/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ formData: form, matchData: selectedMatch }),
+      });
+      if (response.ok) {
+        // Redirect to profile or show success
+        window.location.href = "/profile";
+      } else {
+        const data = await response.json();
+        setError(data.error || "Failed to save plan");
+      }
+    } catch (e) {
+      setError("Something went wrong");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const [searchQuery, setSearchQuery] = useState(""); // For Step 3 (Field of Study)
   const [dynamicLivingCost, setDynamicLivingCost] = useState<any>(null);
   const [relocationStats, setRelocationStats] = useState<any>(null);
@@ -1683,7 +1548,34 @@ export default function AbroadLiftMatchesPage() {
               ...prev,
               name: data.name || prev.name,
               email: data.email || prev.email,
+              nationality: p.nationality || prev.nationality,
+              currentCountry: p.currentCountry || prev.currentCountry,
+              highestEducation: p.highestEducation || prev.highestEducation,
+              passingYear: p.passingYear || prev.passingYear,
               gpa: p.gpa?.toString() || prev.gpa,
+              backlogs: p.backlogs?.toString() || prev.backlogs,
+              studyGap: p.studyGap?.toString() || prev.studyGap,
+              testType: p.testType || prev.testType,
+              testScore: p.englishScore?.toString() || prev.testScore,
+              aptitudeTest: p.aptitudeTest || prev.aptitudeTest,
+              greVerbal: p.greVerbal?.toString() || prev.greVerbal,
+              greQuant: p.greQuant?.toString() || prev.greQuant,
+              greAwa: p.greAwa?.toString() || prev.greAwa,
+              gmatTotal: p.gmatTotal?.toString() || prev.gmatTotal,
+              degree: p.degreeLevel || prev.degree,
+              field: p.field || prev.field,
+              program: p.program || prev.program,
+              intake: p.intake || prev.intake,
+              budget: p.yearlyBudget?.toString() || prev.budget,
+              bankBalance: p.bankBalance?.toString() || prev.bankBalance,
+              sponsorType: p.sponsorType || prev.sponsorType,
+              sponsorIncome: p.sponsorIncome?.toString() || prev.sponsorIncome,
+              duration: p.duration?.toString() || prev.duration,
+              scholarship: !!p.scholarshipNeeded,
+              passportReady: !!p.passportReady,
+              testDone: !!p.testDone,
+              docsReady: !!p.docsReady,
+              countries: p.preferredCountry ? [p.preferredCountry] : prev.countries,
             }));
           }
         } catch (e) {
@@ -1720,15 +1612,41 @@ export default function AbroadLiftMatchesPage() {
     }
     if (step === 6) return !!form.intake;
     if (step === 7) return !!selectedMatch; // Matches step
-    if (step >= 8) return true; // Preview/Result steps
+    if (step === 8) return true; // Preview/Result steps
+    if (step === 9) return true;
+    if (step === 10) return true;
     return false;
   };
 
   const handleNext = () => {
+    if (step === 8) {
+       setStep(9);
+       return;
+    }
+    if (step === 9) {
+       setTransitionType("admission");
+       setStep(10);
+       return;
+    }
+    if (step === 10) {
+       setTransitionType("visa");
+       setStep(11);
+       return;
+    }
     if (step === 6) {
       // Step 6 is the last input step
+      setTransitionType("matching");
       setStep(7);
       runMatch();
+      
+      // Auto-save profile progress if authenticated
+      if (status === "authenticated") {
+        fetch("/api/profile", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(form),
+        }).catch(console.error);
+      }
     } else if (step < STEPS.length - 1) {
       setStep(step + 1);
     }
@@ -2473,11 +2391,6 @@ export default function AbroadLiftMatchesPage() {
 
     // 7: Enhanced Profile
     if (step === -1) {
-      const isGraduate =
-        form.degree.includes("Master") ||
-        form.degree.includes("Doctoral") ||
-        form.degree.includes("Postgraduate");
-
       return (
         <div className="flex flex-col items-center animate-in fade-in zoom-in-95 duration-700 w-full max-w-2xl mx-auto pb-12 mt-8">
           <div className="mb-14 text-center flex flex-col items-center">
@@ -2716,107 +2629,45 @@ export default function AbroadLiftMatchesPage() {
         </div>
       );
     }
-    // 8: Results
+    // Transition Screens Integration
+    if (transitionType === "matching") return <MatchingEngineScreen onFinish={() => setTransitionType(null)} />;
+    if (transitionType === "finance") return <FinancialEngineScreen onFinish={() => setTransitionType(null)} />;
+    if (transitionType === "admission") return <AdmissionEngineScreen onFinish={() => setTransitionType(null)} />;
+    if (transitionType === "visa") return <VisaEngineScreen onFinish={() => setTransitionType(null)} />;
+
+    // 7: Matches Step
     if (step === 7) {
       return (
-        <div className="animate-in fade-in duration-700 max-w-full mx-auto px-2 md:px-4 lg:px-6">
-          {/* Mockup Navigation Header */}
-          <div className="mb-12">
-            <button
-              onClick={() => setStep(6)}
-              className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-all mb-8 shadow-sm"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <h1 className="text-[24px] md:text-[26px] lg:text-[48px] font-semibold text-[#111827] tracking-tight leading-[1.05] mb-4">
-              Find Universities That Match Your Profile
-            </h1>
-            <p className="text-slate-500 font-semibold text-[14px] md:text-[16px]">
-              Compare costs, admission chances, and visa success — all in one place
+        <div className="flex flex-col animate-in fade-in zoom-in-95 duration-700 w-full max-w-7xl mx-auto px-4 pb-20">
+          <div className="mb-8 text-center pt-8">
+            <h2 className="text-[28px] font-[900] text-[#111827] mb-3 tracking-tighter">
+              Your Personalized Matches 🎓
+            </h2>
+            <p className="text-[#64748b] text-[16px] leading-relaxed font-medium max-w-xl mx-auto italic">
+              Analyzing 1,200+ global universities against your background...
             </p>
           </div>
 
-          {/* Search & Filter Row - Refined to match third pic spacing */}
-          <div className="bg-white rounded-[32px] border border-slate-100 shadow-xl shadow-slate-200/30 p-3 md:p-4 mb-10 md:mb-16 flex flex-col md:flex-row items-center gap-3 md:gap-4">
-            <div className="relative flex-1 group w-full">
-              <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-              <input
-                type="text"
-                placeholder="Search universities, courses..."
-                className="w-full h-14 md:h-16 pl-14 pr-8 bg-slate-50/50 rounded-[20px] md:rounded-2xl text-[15px] font-regular text-slate-900 outline-none focus:bg-white focus:ring-4 ring-blue-500/5 focus:border-blue-200 transition-all placeholder:text-slate-400"
-              />
-            </div>
-            <div className="flex items-center gap-2 md:gap-3 w-full md:w-auto">
-              <button className="flex-1 md:flex-none h-14 md:h-16 px-8 md:px-10 rounded-[20px] md:rounded-2xl bg-white border border-slate-100 flex items-center justify-center gap-2 text-slate-900 font-semibold text-[13px] md:text-sm tracking-tight shadow-sm hover:bg-slate-50 transition-all">
-                <ArrowUpDown className="w-[16px] h-[16px] text-slate-400" />
-                Sort
-              </button>
-              <button className="flex-1 md:flex-none h-14 md:h-16 px-8 md:px-10 rounded-[20px] md:rounded-2xl bg-white border border-slate-100 flex items-center justify-center gap-2 text-slate-900 font-semibold text-[13px] md:text-sm tracking-tight shadow-sm hover:bg-slate-50 transition-all">
-                <SlidersHorizontal className="w-[16px] h-[16px] text-slate-400" />
-                Filters
-              </button>
-            </div>
-          </div>
-
-          {/* Results Grid - Expanding the layout */}
-          {!loading && matches.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10 md:gap-12 pb-32">
-              {matches.map((m) => (
-                <div key={m.id} className="relative h-full">
-                  <MatchCard
-                    match={m}
-                    currency={form.currency}
-                    selected={selectedMatch?.id === m.id}
-                    onSelect={() => {
-                      if (!session) {
-                        window.location.href = `/register?callbackUrl=${encodeURIComponent('/matches')}`;
-                        return;
-                      }
-                      setSelectedMatch(m);
-                      setStep(8);
-                    }}
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Loading State */}
-          {loading && (
-            <AnalyzingScreen />
-          )}
-
-          {/* No Direct Matches Found - Styled exactly as per second mobile screenshot */}
-          {!loading && !error && matches.length === 0 && (
-            <div className="text-center py-16 md:py-24 animate-in fade-in zoom-in-95 duration-500">
-              <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Search className="w-6 h-6 text-slate-300" />
-              </div>
-              <h3 className="text-[20px] font-bold text-slate-900 mb-2">
-                No direct matches found
-              </h3>
-              <p className="text-slate-400 font-medium text-[15px] mb-10">
-                Try adjusting your filters to see more results.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 items-center justify-center">
-                <button
-                  onClick={() => setStep(6)}
-                  className="w-full sm:w-auto px-8 h-12 bg-slate-900 text-white rounded-full font-bold text-[11px] uppercase tracking-[0.1em] hover:bg-black transition-all"
-                >
-                  Adjust Preferences
-                </button>
-                <button
-                  onClick={() => {
-                    setForm({ ...form, budget: "100000", field: "" });
-                    runMatch();
-                  }}
-                  className="w-full sm:w-auto px-8 h-12 bg-white border border-slate-200 text-slate-500 rounded-full font-bold text-[11px] uppercase tracking-[0.1em] hover:bg-slate-50 transition-all"
-                >
-                  Clear Filters
-                </button>
-              </div>
-            </div>
-          )}
+          <UniversitySelection 
+            matches={matches} 
+            loading={loading} 
+            error={error} 
+            selectedMatch={selectedMatch} 
+            form={form} 
+            session={session}
+            onSelect={(m: Match) => {
+              if (!session) {
+                window.location.href = `/register?callbackUrl=${encodeURIComponent('/matches')}`;
+                return;
+              }
+              setSelectedMatch(m);
+              setTransitionType("finance");
+              setStep(8);
+            }} 
+            onAdjustPreferences={() => setStep(6)}
+            onClearFilters={() => { setForm({ ...form, budget: "100000", field: "" }); runMatch(); }}
+            runMatch={runMatch}
+          />
         </div>
       );
     }
@@ -2824,308 +2675,32 @@ export default function AbroadLiftMatchesPage() {
     // 8: University overview dashboard (The First Page)
     if (step === 8 && selectedMatch) {
       const profileScore = getEligibilityScore(form);
-      const admissionPct = Math.max(
-        35,
-        Math.min(
-          95,
-          Math.round(
-            (selectedMatch.admissionRate || 60) * 0.5 + profileScore * 0.5,
-          ),
-        ),
-      );
+      const admissionPct = Math.max(35, Math.min(95, Math.round((selectedMatch.admissionRate || 60) * 0.5 + profileScore * 0.5)));
       const admissionBand = getRateBand(admissionPct);
-
-      const usdToNpr = USD_TO_NPR;
-      const tuitionUsd = Math.round(
-        selectedMatch.currency === "NPR"
-          ? (selectedMatch.tuitionFee || 22000) / usdToNpr
-          : selectedMatch.tuitionFee || 22000,
-      );
-      const livingBreakdownUsd = dynamicLivingCost || {
-        rent: 3800,
-        food: 1300,
-        transport: 500,
-        insurance: 320,
-        other: 700,
-      };
-      const livingCostUsd = Object.values(livingBreakdownUsd as Record<string, number>).reduce(
-        (sum: number, val: number) => sum + val,
-        0,
-      );
-      const totalYear1Usd = tuitionUsd + 300 + 400 + (form.sponsorType === "Self" ? 450 : 0) + 620 + livingCostUsd;
-      const totalYear1Npr = Math.round(totalYear1Usd * usdToNpr);
-      const fmtNpr = (v: number) => new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(v);
-      
       const budgetRaw = Number.parseFloat(form.budget) || 0;
-      const budgetUsd = form.currency === "NPR" ? budgetRaw / usdToNpr : budgetRaw;
+      const budgetUsd = form.currency === "NPR" ? budgetRaw / USD_TO_NPR : budgetRaw;
+      const tuitionUsd = Math.round(selectedMatch.currency === "NPR" ? (selectedMatch.tuitionFee || 22000) / USD_TO_NPR : selectedMatch.tuitionFee || 22000);
+      const livingBreakdown = dynamicLivingCost || { rent: 3800, food: 1300, transport: 500, insurance: 320, other: 700 };
+      const livingCostUsd = Object.values(livingBreakdown as Record<string, number>).reduce((s: number, v: number) => s + v, 0);
+      const totalYear1Usd = tuitionUsd + 300 + 400 + (form.sponsorType === "Self" ? 450 : 0) + 620 + livingCostUsd;
+      const totalYear1Npr = Math.round(totalYear1Usd * USD_TO_NPR);
       const costBand = getCostBand(totalYear1Usd, budgetUsd);
 
       return (
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-full px-2 md:px-4 lg:px-6 pb-12">
-          {/* Dashboard Header */}
-          <div className="flex items-center justify-between mb-8 mt-4">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-100 border-2 border-white shadow-sm ring-1 ring-slate-200">
-                <Image src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200&auto=format&fit=crop" width={48} height={48} alt="User Avatar" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                  Hi, {form.name.split(' ')[0] || "Student"} <span className="animate-wave origin-bottom-right">👋</span>
-                </h1>
-                <p className="text-[13px] font-medium text-slate-500">Here’s your abroad study overview</p>
-              </div>
-            </div>
-            <button className="w-10 h-10 rounded-full bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-blue-500 transition-colors shadow-sm">
-              <Bell className="w-5 h-5" />
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Main Study Plan Card */}
-            <Card className="p-5 rounded-[28px] border-none bg-white shadow-[0_8px_30px_rgba(0,0,0,0.04)] col-span-1 md:col-span-2 lg:col-span-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                   <div className="w-14 h-10 rounded-lg overflow-hidden shadow-sm border border-slate-50">
-                      <Image 
-                        src={`https://flagcdn.com/w160/${(selectedMatch.countryCode === "USA" ? "us" : selectedMatch.countryCode === "UK" ? "gb" : selectedMatch.countryCode || form.countries[0] || "AU").toLowerCase()}.png`} 
-                        width={80} 
-                        height={40} 
-                        alt="Flag" 
-                        className="object-cover h-full w-full"
-                      />
-                   </div>
-                   <div>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Target Path</p>
-                      <h3 className="text-lg font-bold text-slate-900 leading-none">Study Plan <span className="text-blue-600 uppercase">{selectedMatch.countryCode || form.countries[0]}</span></h3>
-                   </div>
-                </div>
-                <button onClick={() => setStep(1)} className="flex items-center gap-1 px-4 py-2 bg-blue-50 text-blue-600 rounded-full text-[12px] font-bold hover:bg-blue-100 transition-colors">
-                  <Pencil className="w-3.5 h-3.5" /> Edit
-                </button>
-              </div>
-            </Card>
-
-            {/* Comparison Cards - Scrollable on Mobile, Grid on Desktop */}
-            <div className="col-span-1 md:col-span-2 lg:col-span-3 flex overflow-x-auto pb-6 gap-6 hide-scrollbar lg:grid lg:grid-cols-3 lg:pb-0">
-               {/* Estimated Cost Card */}
-               <Card className="min-w-[290px] lg:min-w-0 p-6 rounded-[32px] border-none bg-white shadow-[0_12px_40px_rgba(0,0,0,0.03)] relative overflow-hidden group snap-center">
-                  <div className="absolute top-0 right-0 p-6 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity">
-                    <Wallet className="w-24 h-24 rotate-12" />
-                  </div>
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-white">
-                      <Wallet className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h4 className="text-[14px] font-black text-slate-900 tracking-tight">Estimated Cost</h4>
-                    </div>
-                  </div>
-                  <div className="mb-2">
-                    <p className="text-2xl font-black text-slate-900 tracking-tight">{fmtNpr(totalYear1Npr)} <span className="text-slate-400 text-sm font-bold uppercase">/ year</span></p>
-                  </div>
-                  <div className="mb-8">
-                    <span className={`inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${costBand.badgeClass}`}>
-                      {costBand.label}
-                    </span>
-                    <p className="text-[12px] font-semibold text-slate-500 mt-2">Tuition + Living expenses</p>
-                  </div>
-                  <button onClick={() => setStep(9)} className="w-full h-12 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-bold text-sm transition-all shadow-[0_8px_20px_-4px_rgba(16,185,129,0.3)] hover:-translate-y-0.5">
-                    View Breakdown
-                  </button>
-               </Card>
-
-               {/* Admission Chances Card */}
-               <Card className="min-w-[290px] lg:min-w-0 p-6 rounded-[32px] border-none bg-white shadow-[0_12px_40px_rgba(0,0,0,0.03)] relative overflow-hidden group snap-center">
-                  <div className="absolute top-0 right-0 p-6 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity">
-                    <Trophy className="w-24 h-24 -rotate-12" />
-                  </div>
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center text-white">
-                      <Award className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h4 className="text-[14px] font-black text-slate-900 tracking-tight">Admission Chances</h4>
-                    </div>
-                  </div>
-                  <div className="mb-2">
-                    <p className="text-2xl font-black text-slate-900 tracking-tight">{admissionPct}% <span className="text-orange-500 font-bold uppercase text-xs ml-1">-{admissionBand.label}</span></p>
-                  </div>
-                  <div className="space-y-3 mb-6">
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center">
-                        <Check className="w-2.5 h-2.5 text-white" />
-                      </div>
-                      <span className="text-[12px] font-bold text-slate-600">Good GPA match</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full bg-amber-500 flex items-center justify-center text-white">
-                        <AlertTriangle className="w-2.5 h-2.5" />
-                      </div>
-                      <span className="text-[12px] font-bold text-slate-600">Improve Profile</span>
-                    </div>
-                  </div>
-                  <button onClick={() => setStep(10)} className="w-full h-12 bg-blue-500 hover:bg-blue-600 text-white rounded-2xl font-bold text-sm transition-all shadow-[0_8px_20px_-4px_rgba(59,130,246,0.3)] hover:-translate-y-0.5">
-                    See Acceptance Details
-                  </button>
-               </Card>
-
-               {/* Visa Readiness Card */}
-               <Card className="min-w-[290px] lg:min-w-0 p-6 rounded-[32px] border-none bg-white shadow-[0_12px_40px_rgba(0,0,0,0.03)] relative overflow-hidden group snap-center">
-                  <div className="absolute top-0 right-0 p-6 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity">
-                    <Shield className="w-24 h-24 rotate-12" />
-                  </div>
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center overflow-hidden">
-                      <span className="text-[10px] font-black text-white px-1">VISA</span>
-                    </div>
-                    <div>
-                      <h4 className="text-[14px] font-black text-slate-900 tracking-tight">Visa Readiness</h4>
-                    </div>
-                  </div>
-                  <div className="mb-2">
-                    <p className="text-2xl font-black text-slate-900 tracking-tight">60% <span className="text-rose-500 font-bold uppercase text-xs ml-1">-Needs Work</span></p>
-                  </div>
-                  <div className="space-y-3 mb-6">
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center">
-                        <Check className="w-2.5 h-2.5 text-white" />
-                      </div>
-                      <span className="text-[12px] font-bold text-slate-600">Strong Academics</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full bg-amber-500 flex items-center justify-center text-white">
-                        <AlertTriangle className="w-2.5 h-2.5" />
-                      </div>
-                      <span className="text-[12px] font-bold text-slate-600">Financial Proof Weak</span>
-                    </div>
-                  </div>
-                  <button onClick={() => setStep(11)} className="w-full h-12 bg-[#3686FF] hover:bg-blue-600 text-white rounded-2xl font-bold text-sm transition-all shadow-[0_8px_20px_-4px_rgba(54,134,255,0.3)] hover:-translate-y-0.5">
-                    Improve
-                  </button>
-               </Card>
-            </div>
-
-            {/* Improve Your Chances Banner - High Fidelity Mockup Match */}
-            <Card 
-              className="p-6 md:p-10 rounded-[32px] border-none shadow-[0_15px_40px_-15px_rgba(0,0,0,0.1)] col-span-1 md:col-span-2 lg:col-span-3 flex flex-row items-center gap-4 md:gap-12 border border-white/40 relative overflow-hidden group"
-              style={{ 
-                backgroundImage: "url('/background.png')", 
-                backgroundSize: 'cover', 
-                backgroundPosition: 'center' 
-              }}
-            >
-               {/* Minimalist content alignment */}
-               <div className="flex-[1.4] space-y-4 md:space-y-6 relative z-10">
-                  <div className="flex items-center gap-3">
-                    <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-amber-500 fill-amber-500/10" />
-                    <h3 className="text-lg md:text-2xl font-black text-slate-900 tracking-tight leading-none">Improve Your Chances</h3>
-                  </div>
-                  <div className="space-y-2 md:space-y-4">
-                    <p className="text-[12px] md:text-[15px] font-bold text-slate-700 leading-tight md:leading-relaxed max-w-[220px] md:max-w-md">
-                      Follow these steps to boost your success rate.
-                    </p>
-                    <ul className="space-y-1.5 md:space-y-2">
-                      <li className="flex items-center gap-2 text-[11px] md:text-sm font-bold text-slate-800">
-                        <div className="w-1 md:w-1.5 h-1 md:h-1.5 rounded-full bg-slate-900 shrink-0" /> Increase IELTS
-                      </li>
-                      <li className="flex items-center gap-2 text-[11px] md:text-sm font-bold text-slate-800">
-                        <div className="w-1 md:w-1.5 h-1 md:h-1.5 rounded-full bg-slate-900 shrink-0" /> Apply for safer Unis
-                      </li>
-                    </ul>
-                  </div>
-                  <button className="px-8 md:px-12 h-12 md:h-16 bg-[#3686FF] hover:bg-blue-600 text-white rounded-[24px] font-black text-[13px] md:text-base transition-all shadow-xl shadow-blue-500/25 active:scale-95">
-                    View Plan
-                  </button>
-               </div>
-
-               <div className="flex-1 h-36 md:h-64 relative shrink-0 z-10 flex items-center justify-center">
-                  <Image src="/group.png" width={480} height={360} alt="Admissions" className="w-full h-full object-contain" />
-               </div>
-            </Card>
-
-            {/* Recommended Universities Section - High Fidelity Horizontal Scroll */}
-            <div className="col-span-1 md:col-span-2 lg:col-span-3 space-y-6 pt-8">
-               <div className="flex items-end justify-between px-2 lg:px-0">
-                  <div>
-                    <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">Recommended Universities</h3>
-                    <p className="text-[13px] font-bold text-slate-500 mt-1">Based on your profile & budget</p>
-                  </div>
-                  <button onClick={() => setStep(7)} className="text-sm font-black text-blue-600 hover:text-blue-700 underline underline-offset-4">
-                    See All
-                  </button>
-               </div>
-
-               <div className="flex overflow-x-auto pb-8 gap-6 hide-scrollbar snap-x snap-mandatory px-2 lg:px-0">
-                  {([...matches].sort(() => Math.random() - 0.5)).slice(0, 3).map((m, i) => {
-                    const priceNpr = Math.round((m.tuitionFee || 15000) * USD_TO_NPR);
-                    const fmt = (v: number) => new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(v);
-                    
-                    const profileScore = getEligibilityScore(form);
-                    const matchPct = Math.max(75, Math.min(98, Math.round((m.admissionRate || 60) * 0.4 + profileScore * 0.6)));
-                    const costBandLabel = getCostBand((m.tuitionFee || 15000), (Number.parseFloat(form.budget) || 4000000) / USD_TO_NPR).label;
-                    
-                    return (
-                      <Card key={i} className="min-w-[280px] md:min-w-[320px] rounded-[32px] border-none bg-white shadow-[0_15px_40px_-15px_rgba(0,0,0,0.06)] overflow-hidden snap-center group">
-                        <div className="relative h-44 overflow-hidden">
-                           <Image src={m.banner || "/uni-default.webp"} fill className="object-cover transition-transform duration-500 group-hover:scale-110" alt="Uni Banner" />
-                           <div className="absolute top-3 right-3 px-3 py-1 bg-white/95 backdrop-blur-sm rounded-full text-[11px] font-black text-slate-900 shadow-sm border border-slate-100">
-                             {matchPct}% Match
-                           </div>
-                        </div>
-                        <div className="p-6 space-y-4">
-                           <div className="space-y-1">
-                              <h4 className="text-[16px] font-black text-slate-900 leading-tight">{m.name}</h4>
-                              <div className="flex items-center gap-1.5 text-slate-500">
-                                <MapPin className="w-3.5 h-3.5 text-orange-500" />
-                                <span className="text-[12px] font-bold">{m.location}</span>
-                              </div>
-                           </div>
-                           
-                           <div className="pt-2 flex items-center justify-between border-t border-slate-50">
-                              <div>
-                                <p className="text-[14px] font-black text-slate-900">{fmt(priceNpr)}<span className="text-slate-400 text-[10px] uppercase ml-1">/ year</span></p>
-                              </div>
-                              <span className="px-3 py-1 bg-emerald-50 text-emerald-700 text-[10px] font-black rounded-full uppercase tracking-widest">
-                                {costBandLabel}
-                              </span>
-                           </div>
-
-                           <div className="grid grid-cols-2 gap-3 pt-2">
-                              <button className="h-11 bg-orange-400 hover:bg-orange-500 text-white rounded-2xl font-black text-xs transition-all">Save</button>
-                              <button className="h-11 bg-blue-500 hover:bg-blue-600 text-white rounded-2xl font-black text-xs transition-all">Compare</button>
-                           </div>
-                        </div>
-                      </Card>
-                    );
-                  })}
-               </div>
-            </div>
-
-            {/* Quick Actions Grid - High Fidelity Mockup Sync */}
-            <div className="col-span-1 md:col-span-2 lg:col-span-3 space-y-6 pt-10 pb-4">
-              <h3 className="text-xl md:text-2xl font-black text-slate-900 px-2 lg:px-0">Quick Actions</h3>
-              <div className="flex overflow-x-auto pb-4 hide-scrollbar md:block md:pb-0">
-                 <div className="grid grid-rows-2 grid-flow-col gap-4 snap-x snap-mandatory md:grid-rows-none md:grid-flow-row md:grid-cols-2 lg:grid-cols-3">
-                   {[
-                     { label: "Compare Universities", icon: Search, color: "bg-blue-600", shadow: "shadow-blue-500/20" },
-                     { label: "Improve My Chances", icon: Target, color: "bg-emerald-600", shadow: "shadow-emerald-500/20" },
-                     { label: "View Full Report", icon: FileText, color: "bg-indigo-600", shadow: "shadow-indigo-500/20" },
-                     { label: "Saved", icon: Bookmark, color: "bg-orange-500", shadow: "shadow-orange-500/20" },
-                     { label: "Documentation Helper", icon: FileCheck, color: "bg-rose-500", shadow: "shadow-rose-500/20" },
-                     { label: "Book Expert Call", icon: MessageCircle, color: "bg-slate-900", shadow: "shadow-slate-500/20" },
-                   ].map((action, i) => (
-                     <button key={i} className="min-w-[260px] md:min-w-0 flex items-center gap-5 p-4 bg-white border border-slate-100 rounded-[24px] hover:border-blue-200 hover:bg-slate-50/50 transition-all shadow-[0_4px_20px_rgba(0,0,0,0.02)] active:scale-98 text-left group snap-center">
-                        <div className={`w-12 h-12 shrink-0 rounded-[18px] ${action.color} flex items-center justify-center text-white transition-transform group-hover:scale-105 shadow-md ${action.shadow}`}>
-                          <action.icon className="w-6 h-6" />
-                        </div>
-                        <span className="text-[15px] md:text-[17px] font-black text-slate-900 tracking-tight leading-tight">{action.label}</span>
-                     </button>
-                   ))}
-                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <FinancialDashboard 
+          form={form} 
+          selectedMatch={selectedMatch} 
+          dynamicLivingCost={livingBreakdown} 
+          USD_TO_NPR={USD_TO_NPR} 
+          admissionPct={admissionPct} 
+          admissionBand={admissionBand} 
+          costBand={costBand} 
+          totalYear1Npr={totalYear1Npr} 
+          onAdvanceToCost={() => setStep(9)}
+          onAdvanceToAdmission={() => { setTransitionType("admission"); setStep(10); }} 
+          onAdvanceToVisa={() => { setTransitionType("visa"); setStep(11); }} 
+          onGoToMatches={() => setStep(7)}
+        />
       );
     }
 
@@ -3253,8 +2828,11 @@ export default function AbroadLiftMatchesPage() {
                 </div>
              </div>
 
-             <button className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-[20px] font-black text-[15px] shadow-xl shadow-blue-500/20 active:scale-95 transition-all">
-               View All Study Cost
+             <button 
+               onClick={() => { setTransitionType("admission"); setStep(10); }}
+               className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-[20px] font-black text-[15px] shadow-xl shadow-blue-500/20 active:scale-95 transition-all"
+             >
+               Next: Admission Chance
              </button>
 
              {/* 2. Monthly Expenses Breakdown (Labeled Year Breakdown per Design) */}
@@ -3297,8 +2875,12 @@ export default function AbroadLiftMatchesPage() {
                 </div>
              </div>
 
-             <button className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-[20px] font-black text-[15px] shadow-xl shadow-blue-500/20 active:scale-95 transition-all">
-               Save Plan
+             <button 
+               onClick={handleSavePlan}
+               disabled={saving}
+               className={`w-full h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-[20px] font-black text-[15px] shadow-xl shadow-blue-500/20 active:scale-95 transition-all flex items-center justify-center ${saving ? "opacity-70 cursor-not-allowed" : ""}`}
+             >
+               {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : "Save Plan"}
              </button>
 
              {/* 4. Pre-application Cost */}
@@ -3406,291 +2988,31 @@ export default function AbroadLiftMatchesPage() {
 
     // 10: College acceptance - See complete details
     if (step === 10 && selectedMatch) {
-      const admissionPct = 75; 
-      const admissionBand = "Moderate";
-      const gpa = form.gpa || "3.5";
-      const ielts = form.testScore || "6.0";
-      
+      const profileScore = getEligibilityScore(form);
+      const admissionPct = Math.max(35, Math.min(95, Math.round((selectedMatch.admissionRate || 60) * 0.5 + profileScore * 0.5)));
+      const admissionBand = getRateBand(admissionPct);
+
       return (
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-full px-4 pb-32 space-y-5 bg-white min-h-screen">
-          {/* Header */}
-          <div className="flex items-center justify-between pt-2 pb-4 italic uppercase tracking-tighter">
-             <div className="flex items-center gap-4">
-                <button onClick={() => setStep(9)} className="p-1">
-                   <ChevronLeft className="w-6 h-6 text-slate-900" />
-                </button>
-                <h1 className="text-xl font-black text-slate-900 tracking-tight">Admission Chance</h1>
-             </div>
-             <div className="w-11 h-11 rounded-full bg-slate-200 overflow-hidden border-2 border-white shadow-md">
-                <Image src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100" width={44} height={44} alt="U" />
-             </div>
-          </div>
-
-          <Card className="p-8 rounded-[32px] border border-slate-100 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.05)] relative overflow-hidden">
-             <div className="relative z-10 flex items-center justify-between">
-                <div className="space-y-4">
-                   <p className="text-[13px] font-bold text-slate-600 leading-none tracking-tight">Admission Percentage</p>
-                   <h2 className="text-2xl font-black text-slate-900 leading-tight">
-                     {admissionPct}% - {admissionBand}
-                   </h2>
-                   <div className="inline-flex px-4 py-2 bg-amber-100/90 text-amber-800 text-[11px] font-black rounded-full uppercase tracking-widest shadow-sm">
-                     ● Average Cost
-                   </div>
-                </div>
-                <div className="relative w-24 h-24 shrink-0">
-                   <svg viewBox="0 0 36 36" className="w-full h-full transform -rotate-90 scale-110">
-                      <circle cx="18" cy="18" r="16" fill="transparent" stroke="#B2E7E5" strokeWidth="5" />
-                      <circle cx="18" cy="18" r="16" fill="transparent" stroke="#FD644F" strokeWidth="5" strokeDasharray={`40 100`} strokeLinecap="round" />
-                      <circle cx="18" cy="18" r="16" fill="transparent" stroke="#14B2AD" strokeWidth="5" strokeDasharray={`60 100`} strokeDashoffset={`-40`} strokeLinecap="round" />
-                   </svg>
-                   <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-12 h-12 bg-white rounded-full shadow-inner" />
-                   </div>
-                </div>
-             </div>
-          </Card>
-
-          <div className="bg-white rounded-[24px] border border-slate-100 overflow-hidden shadow-sm">
-             <div className="p-5 flex items-center justify-between border-b border-slate-50">
-                <span className="font-bold text-slate-800">Your Profile Analysis</span>
-                <ChevronDown className="w-5 h-5 text-slate-300" />
-             </div>
-             <div className="px-5 py-5 space-y-5">
-                <div className="flex items-center gap-3">
-                   <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 shadow-sm">
-                      <CheckCircle2 className="w-4.5 h-4.5" />
-                   </div>
-                   <span className="text-[14px] font-bold text-slate-700 tracking-tight">CGPA: Strong ({gpa}/4.0)</span>
-                </div>
-                <div className="flex items-center gap-3">
-                   <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-800 shadow-sm">
-                      <ShieldAlert className="w-4.5 h-4.5" />
-                   </div>
-                   <span className="text-[14px] font-bold text-slate-700 tracking-tight">IELTS: Need improvement ({ielts})</span>
-                </div>
-             </div>
-          </div>
-
-          <div className="bg-white rounded-[24px] border border-slate-100 overflow-hidden shadow-sm">
-             <div className="p-5 flex items-center justify-between border-b border-slate-50">
-                <span className="font-bold text-slate-800">Key Admission Factors</span>
-                <ChevronDown className="w-5 h-5 text-slate-300" />
-             </div>
-             <div className="divide-y divide-slate-50">
-                {[
-                  { l: "CGPA", icon: <Star className="w-5 h-5 text-amber-400" fill="currentColor" fillOpacity={0.2} /> },
-                  { l: "IELTS Score", icon: <CheckCircle2 className="w-5 h-5 text-emerald-500" /> },
-                  { l: "Course Competitiveness", icon: <Target className="w-5 h-5 text-rose-500" /> },
-                ].map((it, i) => (
-                  <div key={i} className="px-6 py-4.5 flex items-center gap-4">
-                     {it.icon}
-                     <span className="text-[14px] font-bold text-slate-700">{it.l}</span>
-                  </div>
-                ))}
-             </div>
-          </div>
-
-          <div className="pt-6 space-y-6">
-             <h3 className="font-black text-slate-900 text-lg uppercase tracking-tight italic">Universities By Risk Level</h3>
-             <div className="flex bg-white p-1 rounded-full border border-slate-100 shadow-sm overflow-hidden h-14">
-                {["Safe", "Moderate", "Ambitious"].map((v) => (
-                   <button 
-                     key={v}
-                     onClick={() => setAdmissionTab(v)}
-                     className={`flex-1 text-[13px] font-black rounded-full transition-all tracking-tight ${admissionTab === v ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20" : "text-slate-400 hover:bg-slate-50"}`}
-                   >
-                     {v}
-                   </button>
-                ))}
-             </div>
-
-             <div className="flex gap-4 overflow-x-auto pb-4 snap-x no-scrollbar">
-                {[
-                  { name: "University of Melbourne", loc: "Melbourne, Australia", price: "NPR 20 Lakhs", match: "85%", risk: "Safe", img: "/uni-default.webp" },
-                  { name: "University of Toronto", loc: "Toronto, Canada", price: "NPR 11 Lakhs", match: "70%", risk: "Moderate", img: "/uni-default.webp" },
-                ].map((univ, i) => (
-                  <Card key={i} className="min-w-[280px] rounded-[32px] border border-slate-100 overflow-hidden shadow-md snap-start bg-white">
-                     <div className="h-40 bg-slate-200 relative overflow-hidden">
-                        <Image src={univ.img} layout="fill" objectFit="cover" alt="U" className="transition-transform hover:scale-105 duration-700" />
-                        <div className="absolute top-4 right-4 bg-emerald-50/90 backdrop-blur-md px-3 py-1 rounded-lg text-[11px] font-black text-emerald-700 border border-emerald-100 italic">
-                           {univ.match} Match
-                        </div>
-                     </div>
-                     <div className="p-6 space-y-5">
-                        <div className="space-y-1">
-                           <h4 className="font-black text-slate-900 leading-snug text-base">{univ.name}</h4>
-                           <p className="text-[12px] text-slate-400 font-bold flex items-center gap-1.5 leading-none mt-1 uppercase italic">
-                             <MapPin className="w-3.5 h-3.5 text-orange-500" fill="currentColor" fillOpacity={0.2} /> {univ.loc}
-                           </p>
-                        </div>
-                        <div className="flex items-center justify-between border-t border-slate-50 pt-4">
-                           <p className="font-black text-slate-900 text-[14px]">{univ.price}<span className="text-slate-400 font-medium text-[11px] ml-1">/ year</span></p>
-                           <span className="px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-black rounded-full uppercase tracking-widest">{univ.risk}</span>
-                        </div>
-                        <button onClick={() => setStep(11)} className="w-full h-11 bg-slate-900 text-white rounded-xl font-black text-[13px] uppercase tracking-widest italic">Check Visa Outlook</button>
-                     </div>
-                  </Card>
-                ))}
-             </div>
-          </div>
-        </div>
+        <AdmissionDetails 
+          form={form} 
+          selectedMatch={selectedMatch} 
+          admissionPct={admissionPct} 
+          admissionBand={admissionBand} 
+          onBack={() => setStep(8)} 
+          onAdvanceToVisa={() => { setTransitionType("visa"); setStep(11); }}
+        />
       );
     }
 
-    // 11: Visa acceptance - See complete details
+    // 11: Visa Readiness
     if (step === 11 && selectedMatch) {
       return (
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-full px-4 lg:px-12 pb-32 space-y-6 bg-white min-h-screen">
-          {/* Header */}
-          <div className="flex items-center justify-between pt-2 pb-4 italic uppercase tracking-tighter">
-             <div className="flex items-center gap-4">
-                <button onClick={() => setStep(10)} className="p-1 hover:bg-slate-50 rounded-full transition-colors">
-                   <ChevronLeft className="w-6 h-6 text-slate-900" />
-                </button>
-                <h1 className="text-xl font-black text-slate-900 tracking-tight">Visa Readiness</h1>
-             </div>
-             <div className="w-11 h-11 rounded-full bg-slate-200 overflow-hidden border-2 border-white shadow-md">
-                <Image src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100" width={44} height={44} alt="U" />
-             </div>
-          </div>
-
-          {/* Hero Score Card */}
-          <Card className="p-8 rounded-[38px] border border-slate-100 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.05)] bg-[#FAF8F4] overflow-hidden relative">
-             <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/5 rounded-full -mr-20 -mt-20 blur-3xl" />
-             <div className="relative z-10 flex items-center justify-between">
-                <div className="space-y-4">
-                   <p className="text-[13px] font-bold text-slate-600 leading-none tracking-tight">Visa Readiness Score</p>
-                   <h2 className="text-2xl font-black text-slate-900 leading-tight tracking-tight">
-                     60% - Needs Work
-                   </h2>
-                   <div className="inline-flex px-4 py-2 bg-[#FDE8D1] text-[#A66B3D] text-[11px] font-black rounded-full uppercase tracking-widest shadow-sm">
-                     ● Average Preparation
-                   </div>
-                </div>
-                <div className="relative w-24 h-24 shrink-0">
-                   <svg viewBox="0 0 36 36" className="w-full h-full transform -rotate-90 scale-110">
-                      <circle cx="18" cy="18" r="16" fill="transparent" stroke="#E2E8F0" strokeWidth="5" />
-                      <circle cx="18" cy="18" r="16" fill="transparent" stroke="#14B2AD" strokeWidth="5" strokeDasharray={`60 100`} strokeLinecap="round" />
-                      <circle cx="18" cy="18" r="16" fill="transparent" stroke="#FD644F" strokeWidth="5" strokeDasharray={`20 100`} strokeDashoffset={`-60`} strokeLinecap="round" />
-                   </svg>
-                   <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-12 h-12 bg-white rounded-full shadow-inner" />
-                   </div>
-                </div>
-             </div>
-             
-             {/* Sub Indicators */}
-             <div className="mt-8 pt-6 border-t border-slate-200/50 flex justify-between px-2">
-                {[
-                  { l: "Financial Strength", ok: false },
-                  { l: "Documents", ok: true },
-                  { l: "Country Rules", ok: true }
-                ].map((it, i) => (
-                  <div key={i} className="flex items-center gap-1.5 opacity-70">
-                    <div className={`w-1.5 h-1.5 rounded-full ${it.ok ? "bg-emerald-500" : "bg-orange-400"}`} />
-                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">{it.l}</span>
-                  </div>
-                ))}
-             </div>
-          </Card>
-
-          {/* Detailed Analysis Section */}
-          <div className="space-y-4">
-             {/* Section 1: Profile Analysis */}
-             <div className="bg-white rounded-[24px] border border-slate-100 overflow-hidden shadow-sm">
-                <div className="p-5 flex items-center justify-between border-b border-slate-50">
-                   <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shadow-sm">
-                         <User className="w-5 h-5" />
-                      </div>
-                      <span className="font-black text-slate-800 text-[15px] uppercase tracking-tighter italic">Profile Analysis</span>
-                   </div>
-                   <ChevronDown className="w-5 h-5 text-slate-300" />
-                </div>
-                <div className="divide-y divide-slate-50">
-                    {[
-                      { l: "Strong Academics", type: "check" },
-                      { l: "Good Study Plan", type: "check" },
-                      { l: "Financial Proof Weak", type: "alert" },
-                      { l: "Low Bank Balance", type: "alert" }
-                    ].map((it, i) => (
-                      <div key={i} className="px-6 py-4 flex items-center gap-4">
-                         {it.type === "check" ? (
-                           <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                         ) : (
-                           <AlertTriangle className="w-5 h-5 text-amber-500" />
-                         )}
-                         <span className="text-[14px] font-bold text-slate-700 tracking-tight">{it.l}</span>
-                      </div>
-                    ))}
-                </div>
-             </div>
-
-             {/* Section 2: Risk Factors */}
-             <div className="bg-white rounded-[24px] border border-slate-100 overflow-hidden shadow-sm">
-                <div className="p-5 flex items-center justify-between border-b border-slate-50">
-                   <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-amber-50 flex items-center justify-center text-amber-600 shadow-sm">
-                         <ShieldAlert className="w-5 h-5" />
-                      </div>
-                      <span className="font-black text-slate-800 text-[15px] uppercase tracking-tighter italic">Risk Factors</span>
-                   </div>
-                   <ChevronDown className="w-5 h-5 text-slate-300" />
-                </div>
-                <div className="divide-y divide-slate-50">
-                    {[
-                      { l: "Insufficient Bank Balance", type: "alert" },
-                      { l: "Weak Financial Document", type: "alert" },
-                      { l: "No Sponsor Proof", type: "alert" }
-                    ].map((it, i) => (
-                      <div key={i} className="px-6 py-4 flex items-center gap-4">
-                         <AlertTriangle className="w-5 h-5 text-amber-500" />
-                         <span className="text-[14px] font-bold text-slate-700 tracking-tight">{it.l}</span>
-                      </div>
-                    ))}
-                </div>
-             </div>
-
-             {/* Section 3: Document Check */}
-             <div className="bg-white rounded-[24px] border border-slate-100 overflow-hidden shadow-sm">
-                <div className="p-5 flex items-center justify-between border-b border-slate-50">
-                   <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 shadow-sm">
-                         <FileText className="w-5 h-5" />
-                      </div>
-                      <span className="font-black text-slate-800 text-[15px] uppercase tracking-tighter italic">Document Status</span>
-                   </div>
-                   <ChevronDown className="w-5 h-5 text-slate-300" />
-                </div>
-                <div className="divide-y divide-slate-50">
-                    {[
-                      { l: "Financial Proof", type: "check" },
-                      { l: "Academics", type: "check" },
-                      { l: "Country Rules", type: "check" },
-                      { l: "Documents", type: "alert" }
-                    ].map((it, i) => (
-                      <div key={i} className="px-6 py-4 flex items-center gap-4">
-                         {it.type === "check" ? (
-                           <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                         ) : (
-                           <AlertTriangle className="w-5 h-5 text-amber-500" />
-                         )}
-                         <span className="text-[14px] font-bold text-slate-700 tracking-tight">{it.l}</span>
-                      </div>
-                    ))}
-                </div>
-             </div>
-          </div>
-
-          <div className="pt-6">
-            <button 
-              onClick={() => setStep(12)}
-              className="w-full h-16 bg-blue-600 text-white rounded-[24px] font-black uppercase tracking-[0.2em] italic shadow-xl shadow-blue-500/20 hover:scale-[1.02] active:scale-95 transition-all"
-            >
-              Get Final Roadmap
-            </button>
-          </div>
-        </div>
+        <VisaEligibility 
+          form={form} 
+          selectedMatch={selectedMatch} 
+          onBack={() => setStep(8)} 
+          onComplete={() => alert("Roadmap Downloaded!")} 
+        />
       );
     }
 
@@ -4195,8 +3517,20 @@ export default function AbroadLiftMatchesPage() {
 
                 <div className="w-full space-y-4">
                   <button
+                    onClick={handleSavePlan}
+                    disabled={saving}
+                    className={`w-full h-16 bg-blue-600 text-white rounded-3xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-blue-500/30 hover:scale-105 transition-all flex items-center justify-center gap-3 italic ${saving ? "opacity-70" : ""}`}
+                  >
+                    {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : (
+                      <>
+                        <Save className="w-5 h-5" />
+                        SAVE PLAN & FINISH
+                      </>
+                    )}
+                  </button>
+                  <button
                     onClick={() => window.print()}
-                    className="w-full h-16 bg-blue-600 text-white rounded-3xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-blue-500/30 hover:scale-105 transition-all flex items-center justify-center gap-3 print:hidden"
+                    className="w-full h-14 bg-white text-blue-600 border-2 border-blue-600 rounded-3xl font-black text-xs uppercase tracking-[0.2em] hover:bg-blue-50 transition-all flex items-center justify-center gap-3 print:hidden"
                   >
                     <Download className="w-5 h-5" />
                     Export Financial PDF
