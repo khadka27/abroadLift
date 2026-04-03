@@ -16,14 +16,14 @@ import {
   Alert,
 } from "react-native";
 import { Stack, router } from "expo-router";
-import { AntDesign, FontAwesome, Feather } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useUser } from "./context/UserContext";
 
 const { width, height } = Dimensions.get("window");
 
 const COLORS = {
-  primaryBlue: "#33BFFF", 
+  primaryBlue: "#33BFFF",
   textDark: "#0F172A",
   white: "#FFFFFF",
   glassBlue: "rgba(51, 191, 255, 0.12)", // Light blue tint for glass
@@ -58,7 +58,7 @@ export default function RegisterScreen() {
       // In a real app, use a dedicated phone input component
       let dialCode = "+977"; // Default
       let number = phone;
-      
+
       if (phone.startsWith("+")) {
         const parts = phone.split(" ");
         if (parts.length > 1) {
@@ -87,7 +87,10 @@ export default function RegisterScreen() {
       // Redirect directly to the setup flow instead of explore or back to login
       router.push("/setup/country");
     } catch (error: any) {
-      Alert.alert("Registration Failed", error.message || "Something went wrong.");
+      Alert.alert(
+        "Registration Failed",
+        error.message || "Something went wrong.",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -108,27 +111,39 @@ export default function RegisterScreen() {
         resizeMode="cover"
       >
         <View style={styles.mainContent}>
-          <ScrollView 
+          <ScrollView
             contentContainerStyle={[
-              styles.scrollContent, 
-              { paddingTop: 20 + insets.top, paddingBottom: 60 + insets.bottom }
+              styles.scrollContent,
+              {
+                paddingTop: 20 + insets.top,
+                paddingBottom: 60 + insets.bottom,
+              },
             ]}
             showsVerticalScrollIndicator={false}
           >
             {/* Horizontal Header with Arrow and Title */}
             <View style={styles.horizontalHeader}>
-              <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-                <Feather name="chevron-left" size={28} color={COLORS.textDark} />
+              <TouchableOpacity
+                style={styles.backButton}
+                onPress={() => router.back()}
+              >
+                <Feather
+                  name="chevron-left"
+                  size={28}
+                  color={COLORS.textDark}
+                />
               </TouchableOpacity>
               <View style={styles.headerText}>
                 <Text style={styles.title}>Create Account</Text>
-                <Text style={styles.subtitle}>Join AbroadLift and start your global journey.</Text>
+                <Text style={styles.subtitle}>
+                  Join AbroadLift and start your global journey.
+                </Text>
               </View>
             </View>
 
             {/* Distinctive Blue Glass Form with True Native Blur */}
             <View style={styles.glassCard}>
-              <Image 
+              <Image
                 source={require("../assets/images/onboarding-bg-4k.png")}
                 style={styles.glassImageBackground}
                 blurRadius={40}
@@ -137,7 +152,12 @@ export default function RegisterScreen() {
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Full Name</Text>
                 <View style={styles.inputWrapper}>
-                  <Feather name="user" size={20} color={COLORS.primaryBlue} style={styles.inputIcon} />
+                  <Feather
+                    name="user"
+                    size={20}
+                    color={COLORS.primaryBlue}
+                    style={styles.inputIcon}
+                  />
                   <TextInput
                     placeholder="Enter your name"
                     placeholderTextColor="rgba(15, 23, 42, 0.3)"
@@ -151,7 +171,12 @@ export default function RegisterScreen() {
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Email Address</Text>
                 <View style={styles.inputWrapper}>
-                  <Feather name="mail" size={20} color={COLORS.primaryBlue} style={styles.inputIcon} />
+                  <Feather
+                    name="mail"
+                    size={20}
+                    color={COLORS.primaryBlue}
+                    style={styles.inputIcon}
+                  />
                   <TextInput
                     placeholder="example@mail.com"
                     placeholderTextColor="rgba(15, 23, 42, 0.3)"
@@ -167,7 +192,12 @@ export default function RegisterScreen() {
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Phone Number</Text>
                 <View style={styles.inputWrapper}>
-                  <Feather name="phone" size={20} color={COLORS.primaryBlue} style={styles.inputIcon} />
+                  <Feather
+                    name="phone"
+                    size={20}
+                    color={COLORS.primaryBlue}
+                    style={styles.inputIcon}
+                  />
                   <TextInput
                     placeholder="+977 98XXXXXXXX"
                     placeholderTextColor="rgba(15, 23, 42, 0.3)"
@@ -182,7 +212,12 @@ export default function RegisterScreen() {
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Password</Text>
                 <View style={styles.inputWrapper}>
-                  <Feather name="lock" size={20} color={COLORS.primaryBlue} style={styles.inputIcon} />
+                  <Feather
+                    name="lock"
+                    size={20}
+                    color={COLORS.primaryBlue}
+                    style={styles.inputIcon}
+                  />
                   <TextInput
                     placeholder="Create a password"
                     placeholderTextColor="rgba(15, 23, 42, 0.3)"
@@ -248,7 +283,7 @@ const styles = StyleSheet.create({
   horizontalHeader: {
     flexDirection: "row",
     alignItems: "flex-start",
-    marginBottom: 28, 
+    marginBottom: 28,
     gap: 20,
   },
   backButton: {
@@ -294,12 +329,12 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     width: width,
     height: height,
-    top: -240, 
+    top: -240,
     left: -24,
   },
   glassOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(255, 255, 255, 0.3)", 
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
   },
   inputGroup: {
     marginBottom: 24,
@@ -318,7 +353,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "rgba(255, 255, 255, 0.5)",
     borderRadius: 18,
-    height: 54, 
+    height: 54,
     paddingHorizontal: 20,
     borderWidth: 1,
     borderColor: COLORS.glassBorder,
