@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import bcrypt from "bcrypt";
 import prisma from "@/lib/db";
 import {
   generateOtpCode,
@@ -18,7 +17,6 @@ export async function POST(req: Request) {
       name,
       username,
       email,
-      password,
       countryDialCode,
       phoneNumber,
       prefersWhatsApp,
@@ -38,14 +36,9 @@ export async function POST(req: Request) {
       typeof prefersWhatsApp === "boolean" ? prefersWhatsApp : true;
 
     // Validate required fields
-    if (
-      !normalizedName ||
-      !normalizedUsername ||
-      !normalizedEmail ||
-      !password
-    ) {
+    if (!normalizedName || !normalizedUsername || !normalizedEmail) {
       return NextResponse.json(
-        { error: "Name, username, email and password are required." },
+        { error: "Name, username and email are required." },
         { status: 400 },
       );
     }
@@ -60,13 +53,6 @@ export async function POST(req: Request) {
     if (!phoneE164) {
       return NextResponse.json(
         { error: "Invalid phone number format." },
-        { status: 400 },
-      );
-    }
-
-    if (password.length < 8) {
-      return NextResponse.json(
-        { error: "Password must be at least 8 characters." },
         { status: 400 },
       );
     }
@@ -104,7 +90,6 @@ export async function POST(req: Request) {
       );
     }
 
-    const hashedPassword = await bcrypt.hash(password, 12);
     const otpCode = generateOtpCode();
     const otpHash = hashOtpCode(otpCode);
     const otpExpiresAt = getOtpExpiry();
@@ -121,7 +106,6 @@ export async function POST(req: Request) {
         phoneVerified: false,
         otpCodeHash: otpHash,
         otpExpiresAt,
-        password: hashedPassword,
         role: "STUDENT",
         profile: {
           create: {
