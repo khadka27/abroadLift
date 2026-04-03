@@ -321,7 +321,7 @@ function MatchCard({
 
       {detailsOpen && (
         <div
-          className="fixed inset-0 z-[120] bg-black/50 backdrop-blur-[1px] p-3 md:p-6"
+          className="fixed inset-0 z-[120] bg-slate-900/55 backdrop-blur-md p-3 md:p-6 flex items-center justify-center"
           onClick={(e) => e.stopPropagation()}
         >
           <button
@@ -333,282 +333,288 @@ function MatchCard({
             }}
           />
           <div
-            className="relative mx-auto h-full w-full max-w-md md:max-w-2xl rounded-[24px] bg-white overflow-hidden flex flex-col"
+            className="relative w-full max-w-[430px] h-[86vh] rounded-[34px] bg-gradient-to-b from-[#f8faff] to-white p-2 shadow-[0_30px_80px_-25px_rgba(15,23,42,0.6)]"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="relative h-24 md:h-36 shrink-0">
-              <Image
-                src={m.banner || "/uni-default.webp"}
-                alt={m.name}
-                fill
-                className="object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-              <div className="absolute left-4 bottom-3 text-white">
-                <h3 className="text-[20px] md:text-[24px] font-black leading-none">
-                  {m.name}
-                </h3>
-                <p className="text-[11px] md:text-[12px] opacity-90 mt-1 flex items-center gap-1.5">
-                  <MapPin className="w-3.5 h-3.5" />
-                  {m.location || "Unknown location"}
-                </p>
+            <div className="h-full w-full rounded-[28px] bg-white border border-blue-100/70 overflow-hidden flex flex-col">
+              <div className="relative h-24 md:h-36 shrink-0">
+                <Image
+                  src={m.banner || "/uni-default.webp"}
+                  alt={m.name}
+                  fill
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                <div className="absolute left-4 bottom-3 text-white">
+                  <h3 className="text-[20px] md:text-[24px] font-black leading-none">
+                    {m.name}
+                  </h3>
+                  <p className="text-[11px] md:text-[12px] opacity-90 mt-1 flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5" />
+                    {m.location || "Unknown location"}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setDetailsOpen(false)}
+                  className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/95 text-slate-700 flex items-center justify-center shadow-md"
+                  aria-label="Close details"
+                >
+                  <X className="w-4 h-4" />
+                </button>
               </div>
-              <button
-                onClick={() => setDetailsOpen(false)}
-                className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/95 text-slate-700 flex items-center justify-center"
-                aria-label="Close details"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
 
-            <div className="shrink-0 border-b border-slate-100 px-2 md:px-4 overflow-x-auto">
-              <div className="flex min-w-max">
-                {tabs.map((tab) => (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setActiveTab(tab.id);
-                    }}
-                    className={`px-4 md:px-5 h-11 text-[12px] font-bold border-b-2 transition-colors ${
-                      activeTab === tab.id
-                        ? "text-blue-600 border-blue-600"
-                        : "text-slate-400 border-transparent"
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-4 md:p-6">
-              {activeTab === "estimates" && (
-                <div className="space-y-4">
-                  <div className="rounded-2xl border border-slate-100 p-4">
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-                      Estimated Total Cost / Yr
-                    </p>
-                    <p className="text-[34px] font-black text-slate-900 leading-none">
-                      {fmtVal((m.tuitionFee || 0) + yearlyLiving)}
-                    </p>
-                    <div className="mt-4 h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                      <div
-                        className="h-full bg-blue-500"
-                        style={{ width: "58%" }}
-                      />
-                    </div>
-                    <div className="mt-3 flex items-center gap-4 text-[11px] text-slate-500 font-semibold">
-                      <span className="flex items-center gap-1">
-                        <span className="w-2 h-2 rounded-full bg-blue-500" />{" "}
-                        Tuition
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <span className="w-2 h-2 rounded-full bg-amber-400" />{" "}
-                        Living
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500" />{" "}
-                        Other
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="rounded-2xl border border-slate-100 p-4">
-                    <p className="text-[20px] font-extrabold text-slate-900 mb-2">
-                      Your Chances
-                    </p>
-                    <div className="flex items-end gap-2">
-                      <span className="text-[34px] font-black text-blue-600 leading-none">
-                        {admissionChance}%
-                      </span>
-                      <span className="text-[12px] font-semibold text-slate-500 pb-1">
-                        admission chance
-                      </span>
-                    </div>
-                    <p className="text-[12px] text-slate-500 mt-3">
-                      Based on your profile and this university&apos;s trend
-                      data.
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {activeTab === "overview" && (
-                <div className="space-y-4">
-                  <div className="rounded-2xl border border-slate-100 p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Info className="w-4 h-4 text-blue-500" />
-                      <h4 className="font-bold text-slate-900">
-                        About University
-                      </h4>
-                    </div>
-                    <p className="text-[13px] text-slate-600 leading-relaxed">
-                      {m.description ||
-                        `${m.name} offers strong academics, modern campus facilities, and excellent global exposure for international students.`}
-                    </p>
-                  </div>
-
-                  <div className="rounded-2xl border border-slate-100 p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Sparkles className="w-4 h-4 text-amber-500" />
-                      <h4 className="font-bold text-slate-900">Highlights</h4>
-                    </div>
-                    <div className="space-y-2">
-                      {courses.slice(0, 3).map((program) => (
-                        <div
-                          key={program}
-                          className="rounded-xl bg-slate-50 border border-slate-100 px-3 py-2 text-[13px] font-medium text-slate-700"
-                        >
-                          {program}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {activeTab === "rankings" && (
-                <div className="space-y-4">
-                  <div className="rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white p-5">
-                    <div className="flex items-center gap-2 mb-4">
-                      <Award className="w-4 h-4" />
-                      <p className="text-[13px] font-bold">Global Excellence</p>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="rounded-xl bg-white/10 border border-white/15 p-3">
-                        <p className="text-[10px] uppercase font-bold opacity-80">
-                          QS World
-                        </p>
-                        <p className="text-[30px] leading-none font-black mt-1">
-                          #{m.rankingWorld || "-"}
-                        </p>
-                      </div>
-                      <div className="rounded-xl bg-white/10 border border-white/15 p-3">
-                        <p className="text-[10px] uppercase font-bold opacity-80">
-                          National
-                        </p>
-                        <p className="text-[30px] leading-none font-black mt-1">
-                          #{m.rankingNational || "-"}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {activeTab === "courses" && (
-                <div className="space-y-3">
-                  {courses.map((program, idx) => (
-                    <div
-                      key={`${program}-${idx}`}
-                      className="rounded-2xl border border-slate-100 p-4"
+              <div className="shrink-0 border-b border-slate-100 px-2 md:px-4 overflow-x-auto bg-white">
+                <div className="flex min-w-max">
+                  {tabs.map((tab) => (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveTab(tab.id);
+                      }}
+                      className={`px-4 md:px-5 h-11 text-[12px] font-bold border-b-2 transition-colors ${
+                        activeTab === tab.id
+                          ? "text-blue-600 border-blue-600"
+                          : "text-slate-400 border-transparent"
+                      }`}
                     >
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <p className="font-bold text-slate-900 text-[14px]">
-                            {program}
-                          </p>
-                          <p className="text-[12px] text-slate-500 mt-1 flex items-center gap-1.5">
-                            <Calendar className="w-3.5 h-3.5" />
-                            {m.deadline || m.applicationDeadline || "Rolling"}
-                          </p>
-                        </div>
-                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-blue-50 text-blue-600">
-                          {formProgramTag(program)}
-                        </span>
-                      </div>
-                      <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
-                        <p className="text-[11px] text-slate-500">
-                          Tuition Fee
-                        </p>
-                        <p className="text-[18px] font-black text-slate-900">
-                          {m.tuitionFee ? `${fmtVal(m.tuitionFee)}/yr` : "TBD"}
-                        </p>
-                      </div>
-                    </div>
+                      {tab.label}
+                    </button>
                   ))}
                 </div>
-              )}
+              </div>
 
-              {activeTab === "facts" && (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="rounded-2xl border border-slate-100 p-3">
-                      <div className="flex items-center gap-1.5 text-slate-400 text-[11px] font-bold uppercase">
-                        <Building2 className="w-3.5 h-3.5" /> Type
-                      </div>
-                      <p className="text-[15px] font-extrabold text-slate-900 mt-2">
-                        {m.type || "Public"}
+              <div className="flex-1 overflow-y-auto p-4 md:p-6">
+                {activeTab === "estimates" && (
+                  <div className="space-y-4">
+                    <div className="rounded-2xl border border-slate-100 p-4">
+                      <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+                        Estimated Total Cost / Yr
                       </p>
-                    </div>
-                    <div className="rounded-2xl border border-slate-100 p-3">
-                      <div className="flex items-center gap-1.5 text-slate-400 text-[11px] font-bold uppercase">
-                        <Award className="w-3.5 h-3.5" /> Established
-                      </div>
-                      <p className="text-[15px] font-extrabold text-slate-900 mt-2">
-                        {m.founded || "N/A"}
+                      <p className="text-[34px] font-black text-slate-900 leading-none">
+                        {fmtVal((m.tuitionFee || 0) + yearlyLiving)}
                       </p>
-                    </div>
-                    <div className="rounded-2xl border border-slate-100 p-3">
-                      <div className="flex items-center gap-1.5 text-slate-400 text-[11px] font-bold uppercase">
-                        <MapPin className="w-3.5 h-3.5" /> Campus
+                      <div className="mt-4 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                        <div
+                          className="h-full bg-blue-500"
+                          style={{ width: "58%" }}
+                        />
                       </div>
-                      <p className="text-[15px] font-extrabold text-slate-900 mt-2 line-clamp-1">
-                        {m.location || "N/A"}
+                      <div className="mt-3 flex items-center gap-4 text-[11px] text-slate-500 font-semibold">
+                        <span className="flex items-center gap-1">
+                          <span className="w-2 h-2 rounded-full bg-blue-500" />{" "}
+                          Tuition
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <span className="w-2 h-2 rounded-full bg-amber-400" />{" "}
+                          Living
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500" />{" "}
+                          Other
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-slate-100 p-4">
+                      <p className="text-[20px] font-extrabold text-slate-900 mb-2">
+                        Your Chances
                       </p>
-                    </div>
-                    <div className="rounded-2xl border border-slate-100 p-3">
-                      <div className="flex items-center gap-1.5 text-slate-400 text-[11px] font-bold uppercase">
-                        <Users className="w-3.5 h-3.5" /> Students
+                      <div className="flex items-end gap-2">
+                        <span className="text-[34px] font-black text-blue-600 leading-none">
+                          {admissionChance}%
+                        </span>
+                        <span className="text-[12px] font-semibold text-slate-500 pb-1">
+                          admission chance
+                        </span>
                       </div>
-                      <p className="text-[15px] font-extrabold text-slate-900 mt-2">
-                        {m.studentPopulation
-                          ? `${m.studentPopulation.toLocaleString()}+`
-                          : "N/A"}
+                      <p className="text-[12px] text-slate-500 mt-3">
+                        Based on your profile and this university&apos;s trend
+                        data.
                       </p>
                     </div>
                   </div>
+                )}
 
-                  <div className="rounded-2xl border border-slate-100 p-4">
-                    <div className="space-y-2 text-[13px] text-slate-600">
-                      <p>
-                        <span className="font-semibold text-slate-800">
-                          English Requirement:
-                        </span>{" "}
-                        IELTS {m.englishReq || "6.5"}
-                      </p>
-                      <p>
-                        <span className="font-semibold text-slate-800">
-                          Minimum GPA:
-                        </span>{" "}
-                        {m.gpaRequirement || "3.0"}/4.0
-                      </p>
-                      <p>
-                        <span className="font-semibold text-slate-800">
-                          International Students:
-                        </span>{" "}
-                        {m.internationalPercentage || "N/A"}%
+                {activeTab === "overview" && (
+                  <div className="space-y-4">
+                    <div className="rounded-2xl border border-slate-100 p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Info className="w-4 h-4 text-blue-500" />
+                        <h4 className="font-bold text-slate-900">
+                          About University
+                        </h4>
+                      </div>
+                      <p className="text-[13px] text-slate-600 leading-relaxed">
+                        {m.description ||
+                          `${m.name} offers strong academics, modern campus facilities, and excellent global exposure for international students.`}
                       </p>
                     </div>
-                  </div>
-                </div>
-              )}
-            </div>
 
-            <div className="shrink-0 border-t border-slate-100 p-4">
-              <button
-                type="button"
-                onClick={() => {
-                  setDetailsOpen(false);
-                  onSelect?.();
-                }}
-                className="w-full h-12 rounded-[14px] bg-[#3686FF] text-white font-bold text-[14px]"
-              >
-                Shortlist University
-              </button>
+                    <div className="rounded-2xl border border-slate-100 p-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Sparkles className="w-4 h-4 text-amber-500" />
+                        <h4 className="font-bold text-slate-900">Highlights</h4>
+                      </div>
+                      <div className="space-y-2">
+                        {courses.slice(0, 3).map((program) => (
+                          <div
+                            key={program}
+                            className="rounded-xl bg-slate-50 border border-slate-100 px-3 py-2 text-[13px] font-medium text-slate-700"
+                          >
+                            {program}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === "rankings" && (
+                  <div className="space-y-4">
+                    <div className="rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white p-5">
+                      <div className="flex items-center gap-2 mb-4">
+                        <Award className="w-4 h-4" />
+                        <p className="text-[13px] font-bold">
+                          Global Excellence
+                        </p>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="rounded-xl bg-white/10 border border-white/15 p-3">
+                          <p className="text-[10px] uppercase font-bold opacity-80">
+                            QS World
+                          </p>
+                          <p className="text-[30px] leading-none font-black mt-1">
+                            #{m.rankingWorld || "-"}
+                          </p>
+                        </div>
+                        <div className="rounded-xl bg-white/10 border border-white/15 p-3">
+                          <p className="text-[10px] uppercase font-bold opacity-80">
+                            National
+                          </p>
+                          <p className="text-[30px] leading-none font-black mt-1">
+                            #{m.rankingNational || "-"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === "courses" && (
+                  <div className="space-y-3">
+                    {courses.map((program, idx) => (
+                      <div
+                        key={`${program}-${idx}`}
+                        className="rounded-2xl border border-slate-100 p-4"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <p className="font-bold text-slate-900 text-[14px]">
+                              {program}
+                            </p>
+                            <p className="text-[12px] text-slate-500 mt-1 flex items-center gap-1.5">
+                              <Calendar className="w-3.5 h-3.5" />
+                              {m.deadline || m.applicationDeadline || "Rolling"}
+                            </p>
+                          </div>
+                          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-blue-50 text-blue-600">
+                            {formProgramTag(program)}
+                          </span>
+                        </div>
+                        <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
+                          <p className="text-[11px] text-slate-500">
+                            Tuition Fee
+                          </p>
+                          <p className="text-[18px] font-black text-slate-900">
+                            {m.tuitionFee
+                              ? `${fmtVal(m.tuitionFee)}/yr`
+                              : "TBD"}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {activeTab === "facts" && (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="rounded-2xl border border-slate-100 p-3">
+                        <div className="flex items-center gap-1.5 text-slate-400 text-[11px] font-bold uppercase">
+                          <Building2 className="w-3.5 h-3.5" /> Type
+                        </div>
+                        <p className="text-[15px] font-extrabold text-slate-900 mt-2">
+                          {m.type || "Public"}
+                        </p>
+                      </div>
+                      <div className="rounded-2xl border border-slate-100 p-3">
+                        <div className="flex items-center gap-1.5 text-slate-400 text-[11px] font-bold uppercase">
+                          <Award className="w-3.5 h-3.5" /> Established
+                        </div>
+                        <p className="text-[15px] font-extrabold text-slate-900 mt-2">
+                          {m.founded || "N/A"}
+                        </p>
+                      </div>
+                      <div className="rounded-2xl border border-slate-100 p-3">
+                        <div className="flex items-center gap-1.5 text-slate-400 text-[11px] font-bold uppercase">
+                          <MapPin className="w-3.5 h-3.5" /> Campus
+                        </div>
+                        <p className="text-[15px] font-extrabold text-slate-900 mt-2 line-clamp-1">
+                          {m.location || "N/A"}
+                        </p>
+                      </div>
+                      <div className="rounded-2xl border border-slate-100 p-3">
+                        <div className="flex items-center gap-1.5 text-slate-400 text-[11px] font-bold uppercase">
+                          <Users className="w-3.5 h-3.5" /> Students
+                        </div>
+                        <p className="text-[15px] font-extrabold text-slate-900 mt-2">
+                          {m.studentPopulation
+                            ? `${m.studentPopulation.toLocaleString()}+`
+                            : "N/A"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-slate-100 p-4">
+                      <div className="space-y-2 text-[13px] text-slate-600">
+                        <p>
+                          <span className="font-semibold text-slate-800">
+                            English Requirement:
+                          </span>{" "}
+                          IELTS {m.englishReq || "6.5"}
+                        </p>
+                        <p>
+                          <span className="font-semibold text-slate-800">
+                            Minimum GPA:
+                          </span>{" "}
+                          {m.gpaRequirement || "3.0"}/4.0
+                        </p>
+                        <p>
+                          <span className="font-semibold text-slate-800">
+                            International Students:
+                          </span>{" "}
+                          {m.internationalPercentage || "N/A"}%
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="shrink-0 border-t border-slate-100 p-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDetailsOpen(false);
+                    onSelect?.();
+                  }}
+                  className="w-full h-12 rounded-[14px] bg-[#3686FF] text-white font-bold text-[14px] shadow-[0_10px_24px_-10px_rgba(54,134,255,0.8)]"
+                >
+                  Shortlist University
+                </button>
+              </div>
             </div>
           </div>
         </div>
