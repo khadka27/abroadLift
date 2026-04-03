@@ -5,33 +5,25 @@ import { hashOtpCode } from "@/lib/phoneVerification";
 
 export async function POST(req: Request) {
   try {
-    const { identifier, otp } = await req.json();
+    const { phoneE164, otp } = await req.json();
 
-    if (!identifier || !otp) {
+    if (!phoneE164 || !otp) {
       return NextResponse.json(
-        { error: "Identifier and OTP are required." },
+        { error: "Phone number and OTP are required." },
         { status: 400 },
       );
     }
 
-    const normalizedIdentifier = identifier.trim().toLowerCase();
+    const normalizedPhoneE164 = phoneE164.trim();
 
-    // Try email first, then username
-    let user = await prisma.user.findUnique({
-      where: { email: normalizedIdentifier },
+    const user = await prisma.user.findUnique({
+      where: { phoneE164: normalizedPhoneE164 },
       include: { profile: true },
     });
 
     if (!user) {
-      user = await prisma.user.findUnique({
-        where: { username: normalizedIdentifier },
-        include: { profile: true },
-      });
-    }
-
-    if (!user) {
       return NextResponse.json(
-        { error: "No account found with that email or username." },
+        { error: "No account found with that phone number." },
         { status: 401 },
       );
     }

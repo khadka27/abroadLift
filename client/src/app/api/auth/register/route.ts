@@ -10,12 +10,35 @@ import {
   trySendOtp,
 } from "@/lib/phoneVerification";
 
+async function generateUniqueUsername(name: string, phoneNumber: string) {
+  const baseUsername =
+    name
+      .toLowerCase()
+      .replaceAll(/[^a-z0-9]+/g, "")
+      .slice(0, 16) || "student";
+  const suffix = phoneNumber.slice(-4) || "0000";
+
+  for (let attempt = 0; attempt < 10; attempt += 1) {
+    const candidate =
+      attempt === 0
+        ? `${baseUsername}${suffix}`
+        : `${baseUsername}${suffix}${attempt}`;
+    const existing = await prisma.user.findUnique({
+      where: { username: candidate },
+    });
+    if (!existing) {
+      return candidate;
+    }
+  }
+
+  return `${baseUsername}${suffix}${Date.now().toString().slice(-4)}`;
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const {
       name,
-      username,
       email,
       countryDialCode,
       phoneNumber,
@@ -27,7 +50,6 @@ export async function POST(req: Request) {
     } = body;
 
     const normalizedName = (name || "").trim();
-    const normalizedUsername = (username || "").toLowerCase().trim();
     const normalizedEmail = (email || "").toLowerCase().trim();
     const normalizedDialCode = normalizeDialCode(countryDialCode || "");
     const normalizedPhoneNumber = normalizePhoneNumber(phoneNumber || "");
@@ -36,9 +58,9 @@ export async function POST(req: Request) {
       typeof prefersWhatsApp === "boolean" ? prefersWhatsApp : true;
 
     // Validate required fields
-    if (!normalizedName || !normalizedUsername || !normalizedEmail) {
+    if (!normalizedName || !normalizedEmail) {
       return NextResponse.json(
-        { error: "Name, username and email are required." },
+        { error: "Full name and email are required." },
         { status: 400 },
       );
     }
@@ -68,17 +90,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Check existing username
-    const existingUsername = await prisma.user.findUnique({
-      where: { username: normalizedUsername },
-    });
-    if (existingUsername) {
-      return NextResponse.json(
-        { error: "This username is already taken." },
-        { status: 409 },
-      );
-    }
-
     // Check existing phone
     const existingPhone = await prisma.user.findUnique({
       where: { phoneE164 },
@@ -93,11 +104,15 @@ export async function POST(req: Request) {
     const otpCode = generateOtpCode();
     const otpHash = hashOtpCode(otpCode);
     const otpExpiresAt = getOtpExpiry();
+    const username = await generateUniqueUsername(
+      normalizedName,
+      normalizedPhoneNumber,
+    );
 
     const user = await prisma.user.create({
       data: {
         name: normalizedName,
-        username: normalizedUsername,
+        username,
         email: normalizedEmail,
         countryDialCode: normalizedDialCode,
         phoneNumber: normalizedPhoneNumber,
@@ -157,6 +172,7 @@ export async function POST(req: Request) {
         otp: {
           sent: true,
           channel: otpSendResult.channel,
+          phoneE164,
         },
       },
       { status: 201 },

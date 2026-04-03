@@ -14,29 +14,22 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        identifier: { label: "Email or Username", type: "text" },
+        phone: { label: "Phone Number", type: "text" },
         otp: { label: "OTP", type: "text" },
       },
       async authorize(credentials) {
-        if (!credentials?.identifier || !credentials?.otp) {
-          throw new Error("Please enter your email/username and OTP.");
+        if (!credentials?.phone || !credentials?.otp) {
+          throw new Error("Please enter your phone number and OTP.");
         }
 
-        const identifier = credentials.identifier.trim().toLowerCase();
+        const phoneE164 = credentials.phone.trim();
 
-        // Try email first, then username
-        let user = await prisma.user.findUnique({
-          where: { email: identifier },
+        const user = await prisma.user.findUnique({
+          where: { phoneE164 },
         });
 
         if (!user) {
-          user = await prisma.user.findUnique({
-            where: { username: identifier },
-          });
-        }
-
-        if (!user) {
-          throw new Error("No account found with that email or username.");
+          throw new Error("No account found with that phone number.");
         }
 
         const inputHash = hashOtpCode(credentials.otp);

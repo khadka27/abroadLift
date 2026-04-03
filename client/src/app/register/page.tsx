@@ -80,7 +80,7 @@ function RegisterForm() {
   );
 
   const [form, setForm] = useState({
-    username: "",
+    fullName: "",
     email: "",
     countryDialCode: "+1",
     phone: "",
@@ -147,7 +147,7 @@ function RegisterForm() {
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!form.username.trim()) e.username = "Username required.";
+    if (!form.fullName.trim()) e.fullName = "Full name required.";
     if (!form.email.trim()) e.email = "Email required.";
     if (!form.countryDialCode.trim())
       e.countryDialCode = "Country code required.";
@@ -174,8 +174,7 @@ function RegisterForm() {
         body: JSON.stringify({
           ...form,
           phoneNumber: form.phone,
-          name: form.username,
-          username: form.username.toLowerCase(),
+          name: form.fullName,
           email: form.email.toLowerCase(),
           nationality: "",
           currentCountry: "",
@@ -199,16 +198,21 @@ function RegisterForm() {
       }
 
       const data = await res.json();
-      const otpChannel = data?.otp?.channel;
-      const channelParam = otpChannel
-        ? `&otpChannel=${otpChannel.toLowerCase()}`
-        : "";
+      const phoneE164 = data?.user?.phoneE164 || data?.otp?.phoneE164;
+
+      if (!phoneE164) {
+        setServerError(
+          "Signup succeeded, but we could not start OTP verification.",
+        );
+        return;
+      }
 
       const callbackParam = callbackUrl
         ? `&callbackUrl=${encodeURIComponent(callbackUrl)}`
         : "";
-
-      router.push(`/login?registered=1&otp=1${channelParam}${callbackParam}`);
+      router.push(
+        `/verify-otp?phoneE164=${encodeURIComponent(phoneE164)}${callbackParam}`,
+      );
     } catch {
       setServerError("Something went wrong.");
     } finally {
@@ -264,13 +268,13 @@ function RegisterForm() {
 
             <form onSubmit={handleSubmit} className="w-full space-y-4">
               <InputField
-                placeholder="Username"
-                value={form.username}
-                error={errors.username}
-                onChange={(v) => handleChange("username", v)}
+                placeholder="Full name"
+                value={form.fullName}
+                error={errors.fullName}
+                onChange={(v) => handleChange("fullName", v)}
               />
               <InputField
-                placeholder="example@gmail.com"
+                placeholder="Email"
                 type="email"
                 value={form.email}
                 error={errors.email}

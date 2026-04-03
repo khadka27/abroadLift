@@ -1,18 +1,15 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import {
-  generateOtpCode,
-  getOtpExpiry,
   hashOtpCode,
   normalizeDialCode,
   normalizePhoneNumber,
   toE164,
-  trySendOtp,
 } from "@/lib/phoneVerification";
 
 export async function POST(req: Request) {
   try {
-    const { phoneE164, countryDialCode, phoneNumber } = await req.json();
+    const { phoneE164, countryDialCode, phoneNumber, otp } = await req.json();
 
     const normalizedPhoneE164 =
       (phoneE164 || "").trim() ||
@@ -21,9 +18,9 @@ export async function POST(req: Request) {
         normalizePhoneNumber(phoneNumber || ""),
       );
 
-    if (!normalizedPhoneE164) {
+    if (!normalizedPhoneE164 || !otp) {
       return NextResponse.json(
-        { error: "Phone number is required." },
+        { error: "Phone number and OTP are required." },
         { status: 400 },
       );
     }
@@ -32,47 +29,39 @@ export async function POST(req: Request) {
       where: { phoneE164: normalizedPhoneE164 },
     });
 
-    if (!user?.phoneE164) {
+    if (!user) {
       return NextResponse.json(
-        {
-          error: "No account found for this phone number.",
-        },
+        { error: "No account found for this phone number." },
         { status: 404 },
       );
     }
 
-    const otpCode = generateOtpCode();
-    const otpHash = hashOtpCode(otpCode);
-    const otpExpiresAt = getOtpExpiry();
+    const inputHash = hashOtpCode(otp);
+    const isOtpValid =
+      user.otpCodeHash &&
+      user.otpExpiresAt &&
+      inputHash === user.otpCodeHash &&
+      user.otpExpiresAt.getTime() > Date.now();
 
-    const sendResult = await trySendOtp({
-      phoneE164: normalizedPhoneE164,
-      otpCode,
-      prefersWhatsApp: user.prefersWhatsApp,
-    });
-
-    if (!sendResult.sent) {
+    if (!isOtpValid) {
       return NextResponse.json(
-        { error: "Unable to send OTP right now. Please try again." },
-        { status: 503 },
+        { error: "Invalid or expired OTP." },
+        { status: 401 },
       );
     }
 
     await prisma.user.update({
       where: { id: user.id },
       data: {
-        otpCodeHash: otpHash,
-        otpExpiresAt,
-        otpLastChannel: sendResult.channel,
+        phoneVerified: true,
+        otpCodeHash: null,
+        otpExpiresAt: null,
       },
     });
 
-    return NextResponse.json({
-      sent: true,
-      channel: sendResult.channel,
-    });
+    return NextResponse.json({ verified: true });
   } catch (error) {
-    console.error("[REQUEST_OTP_ERROR]", error);
+    console.error("[VERIFY_SIGNUP_OTP_ERROR]", error);
     return NextResponse.json(
       { error: "Something went wrong. Please try again." },
       { status: 500 },
