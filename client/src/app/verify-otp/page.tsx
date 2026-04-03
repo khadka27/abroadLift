@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState, type FormEvent } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { AlertCircle, CheckCircle2, ShieldCheck } from "lucide-react";
@@ -34,7 +34,7 @@ function VerifyOtpForm() {
     }
   }, [phoneE164, router]);
 
-  const handleVerify = async (e: FormEvent<HTMLFormElement>) => {
+  const handleVerify = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     if (!phoneE164 || !otp) {
       setError("Enter the OTP sent to your phone.");
