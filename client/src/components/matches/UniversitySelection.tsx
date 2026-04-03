@@ -82,9 +82,12 @@ export function UniversitySelection({
         >
           Try again
         </button>
-      <div
-        className={`bg-white border text-left rounded-[28px] md:rounded-[36px] overflow-hidden transition-all duration-500 relative group flex flex-col h-full ${selected ? "border-blue-500 ring-1 ring-blue-500/20 shadow-2xl translate-y-[-6px]" : "border-slate-100 hover:shadow-2xl hover:border-blue-200 hover:translate-y-[-4px]"}`}
-      >
+      </div>
+    );
+  }
+
+  if (!matches.length) {
+    return (
       <div className="text-center py-20 md:py-32 animate-in fade-in zoom-in-95 duration-700 max-w-2xl mx-auto px-6">
         <div className="relative w-28 h-28 mx-auto mb-8">
           <div className="absolute inset-0 bg-blue-500/10 rounded-full blur-2xl animate-pulse" />
@@ -350,16 +353,15 @@ function UniversityDetailsModal({
   ] as const;
 
   return (
-    <div className="fixed inset-0 z-[120] bg-slate-900/55 backdrop-blur-md p-3 md:p-6 flex items-center justify-center">
+    <div className="fixed inset-0 z-[120] bg-slate-900/55 backdrop-blur-lg p-3 md:p-8 flex items-center justify-center">
       <button
         type="button"
         aria-label="Close details"
         className="absolute inset-0"
         onClick={onClose}
       />
-      <div className="relative w-full max-w-[430px] h-[86vh] rounded-[34px] bg-gradient-to-b from-[#f8faff] to-white p-2 shadow-[0_30px_80px_-25px_rgba(15,23,42,0.6)]">
-        <div className="h-full w-full rounded-[28px] bg-white border border-blue-100/70 overflow-hidden flex flex-col">
-          <div className="relative h-24 md:h-36 shrink-0">
+      <div className="relative w-full max-w-[1040px] max-h-[92vh] rounded-[28px] bg-white border border-slate-200 shadow-[0_30px_80px_-25px_rgba(15,23,42,0.6)] overflow-hidden flex flex-col">
+        <div className="relative h-32 md:h-52 shrink-0">
             <Image
               src={m.banner || "/uni-default.webp"}
               alt={m.name}
@@ -367,32 +369,32 @@ function UniversityDetailsModal({
               className="object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-            <div className="absolute left-4 bottom-3 text-white">
-              <h3 className="text-[20px] md:text-[24px] font-black leading-none">
+            <div className="absolute left-4 md:left-7 bottom-3 md:bottom-5 text-white">
+              <h3 className="text-[20px] md:text-[34px] font-black leading-none">
                 {m.name}
               </h3>
-              <p className="text-[11px] md:text-[12px] opacity-90 mt-1 flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5" />
+              <p className="text-[11px] md:text-[14px] opacity-90 mt-1.5 flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 md:w-4 md:h-4" />
                 {m.location || "Unknown location"}
               </p>
             </div>
             <button
               onClick={onClose}
-              className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/95 text-slate-700 flex items-center justify-center shadow-md"
+              className="absolute top-3 right-3 md:top-5 md:right-5 w-9 h-9 md:w-11 md:h-11 rounded-full bg-white/95 text-slate-700 flex items-center justify-center shadow-md"
               aria-label="Close details"
             >
-              <X className="w-4 h-4" />
+              <X className="w-4 h-4 md:w-5 md:h-5" />
             </button>
           </div>
 
-          <div className="shrink-0 border-b border-slate-100 px-2 md:px-4 overflow-x-auto bg-white">
+          <div className="shrink-0 border-b border-slate-100 px-2 md:px-6 overflow-x-auto bg-white">
             <div className="flex min-w-max">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
-                  className={`px-4 md:px-5 h-11 text-[12px] font-bold border-b-2 transition-colors ${
+                  className={`px-4 md:px-6 h-11 md:h-14 text-[12px] md:text-[14px] font-bold border-b-2 transition-colors ${
                     activeTab === tab.id
                       ? "text-blue-600 border-blue-600"
                       : "text-slate-400 border-transparent"
@@ -404,7 +406,7 @@ function UniversityDetailsModal({
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 md:p-6">
+          <div className="flex-1 overflow-y-auto p-4 md:p-7 bg-slate-50/40">
             {activeTab === "estimates" && (
               <div className="space-y-4">
                 <div className="rounded-2xl border border-slate-100 p-4">
