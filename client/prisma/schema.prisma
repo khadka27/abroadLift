@@ -98,7 +98,7 @@ model StudentProfile {
     visaSuccessProb     Float?
     estimatedAnnualCost Float?
 
-    updatedAt DateTime @updatedAt
+    updatedAt DateTime @default(now()) @updatedAt
 }
 
 model University {
