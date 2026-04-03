@@ -82,12 +82,9 @@ export function UniversitySelection({
         >
           Try again
         </button>
-      </div>
-    );
-  }
-
-  if (matches.length === 0) {
-    return (
+      <div
+        className={`bg-white border text-left rounded-[28px] md:rounded-[36px] overflow-hidden transition-all duration-500 relative group flex flex-col h-full ${selected ? "border-blue-500 ring-1 ring-blue-500/20 shadow-2xl translate-y-[-6px]" : "border-slate-100 hover:shadow-2xl hover:border-blue-200 hover:translate-y-[-4px]"}`}
+      >
       <div className="text-center py-20 md:py-32 animate-in fade-in zoom-in-95 duration-700 max-w-2xl mx-auto px-6">
         <div className="relative w-28 h-28 mx-auto mb-8">
           <div className="absolute inset-0 bg-blue-500/10 rounded-full blur-2xl animate-pulse" />
