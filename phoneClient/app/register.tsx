@@ -37,7 +37,7 @@ export default function RegisterScreen() {
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState("+977 ");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -56,7 +56,7 @@ export default function RegisterScreen() {
     try {
       // Basic splitting of phone number for the API
       // In a real app, use a dedicated phone input component
-      let dialCode = "+44"; // Default
+      let dialCode = "+977"; // Default
       let number = phone;
       
       if (phone.startsWith("+")) {
@@ -169,7 +169,7 @@ export default function RegisterScreen() {
                 <View style={styles.inputWrapper}>
                   <Feather name="phone" size={20} color={COLORS.primaryBlue} style={styles.inputIcon} />
                   <TextInput
-                    placeholder="+44 1234 567890"
+                    placeholder="+977 98XXXXXXXX"
                     placeholderTextColor="rgba(15, 23, 42, 0.3)"
                     style={styles.input}
                     keyboardType="phone-pad"

@@ -14,12 +14,12 @@ type CountryCodeOption = {
 };
 
 const FALLBACK_COUNTRY_CODES: CountryCodeOption[] = [
+  { code: "NP", label: "Nepal", dialCode: "+977" },
   { code: "US", label: "United States", dialCode: "+1" },
   { code: "GB", label: "United Kingdom", dialCode: "+44" },
   { code: "CA", label: "Canada", dialCode: "+1" },
   { code: "IN", label: "India", dialCode: "+91" },
   { code: "AU", label: "Australia", dialCode: "+61" },
-  { code: "NP", label: "Nepal", dialCode: "+977" },
   { code: "BD", label: "Bangladesh", dialCode: "+880" },
   { code: "PK", label: "Pakistan", dialCode: "+92" },
   { code: "NG", label: "Nigeria", dialCode: "+234" },
@@ -82,7 +82,7 @@ function RegisterForm() {
   const [form, setForm] = useState({
     fullName: "",
     email: "",
-    countryDialCode: "+1",
+    countryDialCode: "+977",
     phone: "",
     prefersWhatsApp: true,
   });

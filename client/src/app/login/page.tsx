@@ -11,7 +11,7 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session, status } = useSession();
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState("+977");
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [sendingOtp, setSendingOtp] = useState(false);
@@ -180,7 +180,7 @@ function LoginForm() {
 
             <form onSubmit={handleSubmit} className="w-full space-y-4">
               <InputField
-                placeholder="+12025550123"
+                placeholder="+9779812345678"
                 value={phone}
                 onChange={(v) => setPhone(v)}
               />
