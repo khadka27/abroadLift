@@ -344,17 +344,10 @@ function RegisterForm() {
                   </span>
                 </label>
               </div>
-              <InputField
-                placeholder="You will verify with OTP after signup"
-                value=""
-                onChange={() => {}}
-                type="text"
-                suffix={
-                  <span className="text-[11px] font-bold text-[#3381FF] pr-2">
-                    OTP
-                  </span>
-                }
-              />
+              <div className="w-full rounded-[20px] border border-blue-100 bg-blue-50 px-5 py-4 text-[12px] font-semibold text-blue-700">
+                Password is removed. After signup, we will send an OTP to verify
+                and login.
+              </div>
 
               {/* Terms & Conditions */}
               <div className="pt-2">

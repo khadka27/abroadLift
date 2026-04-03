@@ -1,7 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
-import bcrypt from "bcrypt";
 
 const connectionString = `${process.env.DATABASE_URL}`;
 const pool = new Pool({ connectionString });
@@ -21,14 +20,12 @@ async function main() {
 
   console.log("Seeding database with test user...");
 
-  const hashedPassword = await bcrypt.hash("test@123", 12);
-
   const testUser = await prisma.user.create({
     data: {
       username: "test123",
       email: "test@gmail.com",
       name: "Test User",
-      password: hashedPassword,
+      password: "",
       countryDialCode: "+91",
       phoneNumber: "9876543220",
       phoneE164: "+919876543220",
@@ -44,13 +41,16 @@ async function main() {
     },
   });
 
-  const adminHashedPassword = await bcrypt.hash("admin@123", 12);
   const adminUser = await prisma.user.create({
     data: {
       username: "admin",
       email: "admin@abroadlift.com",
       name: "System Administrator",
-      password: adminHashedPassword,
+      password: "",
+      countryDialCode: "+1",
+      phoneNumber: "2025550123",
+      phoneE164: "+12025550123",
+      prefersWhatsApp: false,
       role: "ADMIN",
       phoneVerified: true,
       profile: {
@@ -62,7 +62,9 @@ async function main() {
     },
   });
 
-  console.log(`✅ Admin user created: ${adminUser.username} (${adminUser.email})`);
+  console.log(
+    `✅ Admin user created: ${adminUser.username} (${adminUser.email})`,
+  );
   console.log(`✅ Test user created: ${testUser.username} (${testUser.email})`);
 
   console.log("Seeding universities...");
@@ -314,7 +316,7 @@ async function main() {
       degreeLevel: "Undergraduate, Postgraduate",
       fieldCategory: "Engineering & Multidisciplinary",
       website: "https://www.manchester.ac.uk",
-    }
+    },
   ];
 
   for (const uniData of universities) {
@@ -332,30 +334,34 @@ async function main() {
       name: "Global Excellence Scholarship",
       country: "Global",
       coverageAmount: 10000,
-      eligibilityCriteria: "Excellent academic record (GPA 3.8+). Open to all international students.",
+      eligibilityCriteria:
+        "Excellent academic record (GPA 3.8+). Open to all international students.",
       deadline: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
     },
     {
       name: "Women in STEM Support Grant",
       country: "USA",
       coverageAmount: 15000,
-      eligibilityCriteria: "Female identifying students pursuing STEM fields in the USA.",
+      eligibilityCriteria:
+        "Female identifying students pursuing STEM fields in the USA.",
       deadline: new Date(new Date().setMonth(new Date().getMonth() + 3)),
     },
     {
       name: "Chevening Scholarships",
       country: "UK",
       coverageAmount: 35000,
-      eligibilityCriteria: "Future leaders from eligible countries with required work experience.",
+      eligibilityCriteria:
+        "Future leaders from eligible countries with required work experience.",
       deadline: new Date(new Date().setMonth(new Date().getMonth() + 5)),
     },
     {
       name: "Canada Graduate Scholarships",
       country: "Canada",
       coverageAmount: 17500,
-      eligibilityCriteria: "High academic standing, researching at Canadian Institutions.",
+      eligibilityCriteria:
+        "High academic standing, researching at Canadian Institutions.",
       deadline: new Date(new Date().setMonth(new Date().getMonth() + 2)),
-    }
+    },
   ];
 
   for (const schData of scholarships) {
