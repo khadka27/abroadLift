@@ -1,15 +1,15 @@
 import { NextResponse } from "next/server";
-import bcrypt from "bcrypt";
 import { encode } from "next-auth/jwt";
 import prisma from "@/lib/db";
+import { hashOtpCode } from "@/lib/phoneVerification";
 
 export async function POST(req: Request) {
   try {
-    const { identifier, password } = await req.json();
+    const { identifier, otp } = await req.json();
 
-    if (!identifier || !password) {
+    if (!identifier || !otp) {
       return NextResponse.json(
-        { error: "Identifier and password are required." },
+        { error: "Identifier and OTP are required." },
         { status: 400 },
       );
     }
@@ -29,21 +29,35 @@ export async function POST(req: Request) {
       });
     }
 
-    if (!user?.password) {
+    if (!user) {
       return NextResponse.json(
         { error: "No account found with that email or username." },
         { status: 401 },
       );
     }
 
-    const isCorrectPassword = await bcrypt.compare(password, user.password);
+    const inputHash = hashOtpCode(otp);
+    const isOtpValid =
+      user.otpCodeHash &&
+      user.otpExpiresAt &&
+      inputHash === user.otpCodeHash &&
+      user.otpExpiresAt.getTime() > Date.now();
 
-    if (!isCorrectPassword) {
+    if (!isOtpValid) {
       return NextResponse.json(
-        { error: "Incorrect password. Please try again." },
+        { error: "Invalid or expired OTP." },
         { status: 401 },
       );
     }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        phoneVerified: true,
+        otpCodeHash: null,
+        otpExpiresAt: null,
+      },
+    });
 
     const secret = process.env.NEXTAUTH_SECRET;
     if (!secret) {
