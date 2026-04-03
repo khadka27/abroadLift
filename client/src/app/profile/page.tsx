@@ -78,6 +78,12 @@ export default function ProfilePage() {
   const { status } = useSession();
   const router = useRouter();
 
+  const handleLogout = async () => {
+    await signOut({ redirect: false });
+    router.replace("/");
+    router.refresh();
+  };
+
   const [activeTab, setActiveTab] = useState<SidebarTab>("overview");
   const [settingsTab, setSettingsTab] = useState<SettingsTab>("general");
 
@@ -289,7 +295,7 @@ export default function ProfilePage() {
           <div className="mt-8 border-t border-slate-100 pt-5">
             <button
               type="button"
-              onClick={() => signOut({ callbackUrl: "/" })}
+              onClick={handleLogout}
               className="flex items-center gap-2 text-sm font-semibold text-red-500 hover:text-red-600"
             >
               <LogOut className="h-4 w-4" />
