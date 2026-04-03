@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -10,6 +10,7 @@ import { AlertCircle, CheckCircle2, Eye, EyeOff, Facebook } from "lucide-react";
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { data: session, status } = useSession();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [otp, setOtp] = useState("123456"); // Pre-filled with static code for testing
@@ -21,6 +22,25 @@ function LoginForm() {
   const [otpChannel, setOtpChannel] = useState("");
 
   useEffect(() => {
+    if (status !== "authenticated") {
+      return;
+    }
+
+    const callbackUrl = searchParams.get("callbackUrl");
+    if (callbackUrl) {
+      router.replace(callbackUrl);
+      return;
+    }
+
+    if (session?.user?.role === "ADMIN") {
+      router.replace("/admin/dashboard");
+      return;
+    }
+
+    router.replace("/dashboard");
+  }, [status, session, searchParams, router]);
+
+  useEffect(() => {
     if (searchParams.get("registered") === "1") {
       setJustRegistered(true);
     }
@@ -30,6 +50,10 @@ function LoginForm() {
       setOtpChannel(searchParams.get("otpChannel") || "");
     }
   }, [searchParams]);
+
+  if (status === "loading" || status === "authenticated") {
+    return null;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,7 +78,7 @@ function LoginForm() {
         // Fetch the updated session to determine the user's role
         const sessionRes = await fetch("/api/auth/session");
         const session = await sessionRes.json();
-        
+
         const callbackUrl = searchParams.get("callbackUrl");
         if (callbackUrl) {
           router.push(callbackUrl);
@@ -166,7 +190,9 @@ function LoginForm() {
               {otpSent && (
                 <div className="space-y-2 fade-in">
                   <div className="flex flex-col items-center">
-                    <p className="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-3">Verify OTP Code</p>
+                    <p className="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-3">
+                      Verify OTP Code
+                    </p>
                     <InputField
                       placeholder="6 digit code"
                       value={otp}

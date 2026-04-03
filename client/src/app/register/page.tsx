@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
+import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -68,6 +69,7 @@ function buildCountryCodeOptions(data: unknown): CountryCodeOption[] {
 function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { data: session, status } = useSession();
   const callbackUrl = searchParams.get("callbackUrl");
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -87,6 +89,24 @@ function RegisterForm() {
     password: "",
     confirmPassword: "",
   });
+
+  useEffect(() => {
+    if (status !== "authenticated") {
+      return;
+    }
+
+    if (callbackUrl) {
+      router.replace(callbackUrl);
+      return;
+    }
+
+    if (session?.user?.role === "ADMIN") {
+      router.replace("/admin/dashboard");
+      return;
+    }
+
+    router.replace("/dashboard");
+  }, [status, session, callbackUrl, router]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -117,6 +137,10 @@ function RegisterForm() {
 
     return () => controller.abort();
   }, []);
+
+  if (status === "loading" || status === "authenticated") {
+    return null;
+  }
 
   const handleChange = (k: string, v: string) => {
     setForm((p) => ({ ...p, [k]: v }));
@@ -184,9 +208,11 @@ function RegisterForm() {
       const channelParam = otpChannel
         ? `&otpChannel=${otpChannel.toLowerCase()}`
         : "";
-      
-      const callbackParam = callbackUrl ? `&callbackUrl=${encodeURIComponent(callbackUrl)}` : "";
-      
+
+      const callbackParam = callbackUrl
+        ? `&callbackUrl=${encodeURIComponent(callbackUrl)}`
+        : "";
+
       router.push(`/login?registered=1&otp=1${channelParam}${callbackParam}`);
     } catch {
       setServerError("Something went wrong.");
@@ -448,7 +474,6 @@ export default function RegisterPage() {
     </Suspense>
   );
 }
-
 
 function InputField({
   placeholder,
