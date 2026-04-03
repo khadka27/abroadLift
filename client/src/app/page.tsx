@@ -25,18 +25,57 @@ import {
   Handshake,
   Plus,
   Minus,
-  Facebook,
-  Twitter,
-  Instagram,
-  Linkedin,
 } from "lucide-react";
 
 export default function HomePage() {
   const [activeCountry, setActiveCountry] = useState("Canada");
+
+  const pathCards = [
+    {
+      title: "Student",
+      badge: "Most Popular",
+      desc: "Compare programs, check eligibility, and apply with one guided workflow.",
+      link: "/register",
+      cta: "Sign Up For Free",
+      bullets: [
+        "Live university comparison",
+        "AI match + admit insights",
+        "Scholarship and visa guidance",
+      ],
+      img: "https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&q=80&w=800",
+    },
+    {
+      title: "Recruitment Partner",
+      badge: "For Agents",
+      desc: "Scale admissions with automation, lead tracking, and institution-ready submissions.",
+      link: "/register?partner=1",
+      cta: "Become a Recruitment Partner",
+      bullets: [
+        "Access to global institutions",
+        "Advanced management tools",
+        "Commission tracking system",
+      ],
+      img: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=800",
+    },
+    {
+      title: "Partner Institution",
+      badge: "For Schools",
+      desc: "Connect with qualified students and streamline global enrollment operations.",
+      link: "/register?institution=1",
+      cta: "Become a Partner Institution",
+      bullets: [
+        "1,500+ verified partners",
+        "Qualified student applications",
+        "Dedicated support team",
+      ],
+      img: "https://images.unsplash.com/photo-1491333078588-55b6733c7de6?auto=format&fit=crop&q=80&w=800",
+    },
+  ];
+
   return (
-    <div className="w-full bg-white text-[#0f172a] font-sans selection:bg-[#3366FF]/20 selection:text-[#3366FF] overflow-hidden">
+    <div className="w-full bg-[#F7F9FF] text-[#0f172a] font-sans selection:bg-[#3366FF]/20 selection:text-[#3366FF] overflow-hidden">
       {/* ── HERO SECTION ── */}
-      <section className="relative pt-[120px] pb-[80px] px-6 lg:px-12 overflow-hidden">
+      <section className="relative px-6 pt-[120px] pb-[92px] lg:px-12 overflow-hidden">
         {/* Background Decorations */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="absolute top-[10%] left-[-5%] w-[400px] h-[400px] bg-blue-50/50 rounded-full blur-3xl opacity-60" />
@@ -169,7 +208,7 @@ export default function HomePage() {
       </section>
 
       {/* ── TRUST BAR ── */}
-      <section className="py-12 bg-white border-t border-gray-50 drop-shadow-sm">
+      <section className="py-12 bg-white/90 backdrop-blur border-y border-[#E8EEFF]">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-12 flex flex-wrap justify-center lg:justify-between items-center gap-8">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center">
@@ -274,7 +313,7 @@ export default function HomePage() {
       </section>
 
       {/* ── SOLUTIONS GRID SECTION ── */}
-      <section className="py-24 px-6 lg:px-12 bg-[#F4F7FF] relative overflow-hidden">
+      <section className="py-24 px-6 lg:px-12 bg-gradient-to-b from-[#EEF4FF] to-[#F8FAFF] relative overflow-hidden">
         <div
           className="absolute top-0 left-0 w-full h-[500px] bg-white pointer-events-none"
           style={{ clipPath: "ellipse(80% 50% at 50% 0%)" }}
@@ -565,6 +604,16 @@ export default function HomePage() {
                 </div>
               ))}
           </div>
+
+          <div className="text-center">
+            <Link
+              href="/search"
+              className="inline-flex items-center gap-3 rounded-2xl bg-[#3366FF] px-8 py-4 text-[15px] font-bold text-white shadow-lg shadow-blue-500/25 transition-all hover:translate-y-[-1px] hover:bg-[#2952cc]"
+            >
+              Explore More {activeCountry} Institutions
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -758,29 +807,7 @@ export default function HomePage() {
             </h2>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {[
-              {
-                title: "Student",
-                badge: "Most Popular",
-                desc: "Are you ready to pursue your dreams?",
-                link: "/register",
-                img: "https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&q=80&w=800",
-              },
-              {
-                title: "Partner",
-                badge: "For Agents",
-                desc: "Expand your reach today.",
-                link: "/register?partner=1",
-                img: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=800",
-              },
-              {
-                title: "Institution",
-                badge: "For Schools",
-                desc: "Grow your international enrollment.",
-                link: "/register?institution=1",
-                img: "https://images.unsplash.com/photo-1491333078588-55b6733c7de6?auto=format&fit=crop&q=80&w=800",
-              },
-            ].map((p, i) => (
+            {pathCards.map((p, i) => (
               <div
                 key={i}
                 className="bg-white rounded-[40px] overflow-hidden border border-gray-100 shadow-xl hover:-translate-y-2 transition-all flex flex-col h-full"
@@ -800,14 +827,25 @@ export default function HomePage() {
                   <h3 className="text-[28px] font-black text-gray-900 mb-4">
                     {p.title}
                   </h3>
-                  <p className="text-gray-500 font-medium mb-8 flex-1">
-                    {p.desc}
-                  </p>
+                  <p className="text-gray-500 font-medium mb-6">{p.desc}</p>
+
+                  <ul className="mb-8 space-y-3">
+                    {p.bullets.map((item) => (
+                      <li
+                        key={item}
+                        className="flex items-center gap-2 text-sm font-medium text-gray-600"
+                      >
+                        <span className="inline-block h-2 w-2 rounded-full bg-[#3366FF]" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+
                   <Link
                     href={p.link}
                     className="w-full h-[60px] bg-[#3366FF] text-white font-bold rounded-2xl flex items-center justify-center gap-2 hover:bg-[#2952cc] transition-all"
                   >
-                    Sign Up Now
+                    {p.cta}
                     <ArrowRight className="w-5 h-5" />
                   </Link>
                 </div>
@@ -818,7 +856,7 @@ export default function HomePage() {
       </section>
 
       {/* ── CTA ── */}
-      <section className="py-24 px-6 lg:px-12 shadow-2xl">
+      <section className="py-24 px-6 lg:px-12 shadow-2xl bg-white">
         <div className="max-w-[1200px] mx-auto bg-[#3366FF] rounded-[48px] p-12 lg:p-24 text-center text-white relative overflow-hidden">
           <h2 className="text-[40px] lg:text-[56px] font-extrabold mb-6 leading-none">
             Find your dream university today.
@@ -840,6 +878,53 @@ export default function HomePage() {
           </Link>
         </div>
       </section>
+
+      <style jsx global>{`
+        .animate-float {
+          animation: float 6s ease-in-out infinite;
+        }
+
+        .animate-float-slow {
+          animation: float 8s ease-in-out infinite;
+        }
+
+        .fade-up {
+          animation: fadeUp 0.8s ease forwards;
+        }
+
+        .delay-100 {
+          animation-delay: 0.1s;
+        }
+
+        .delay-200 {
+          animation-delay: 0.2s;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+
+        @keyframes float {
+          0%,
+          100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-8px);
+          }
+        }
+
+        @keyframes fadeUp {
+          from {
+            opacity: 0;
+            transform: translateY(16px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </div>
   );
 }
@@ -1002,6 +1087,14 @@ function FAQAccordion() {
     {
       q: "Which countries can I study in?",
       a: "We have partners in over 160 countries.",
+    },
+    {
+      q: "Can I apply to multiple universities at once?",
+      a: "Yes. You can shortlist multiple institutions, compare fit, and submit applications through one dashboard.",
+    },
+    {
+      q: "Do you also support scholarships and visa readiness?",
+      a: "Yes. We provide scholarship discovery, profile scoring, and visa-readiness guidance based on your selected destination.",
     },
   ];
   return (
