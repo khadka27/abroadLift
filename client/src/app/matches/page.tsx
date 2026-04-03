@@ -1641,7 +1641,7 @@ export default function AbroadLiftMatchesPage() {
   const MATCH_PENDING_KEY = "abroadlift_match_pending";
   const RETURN_STEP_KEY = "returnToStep7";
   const [step, setStep] = useState(1);
-  const [costPeriod, setCostPeriod] = useState<string>("First year");
+  const [costPeriod, setCostPeriod] = useState<string>("First Year");
   const [form, setForm] = useState<Form>(DEF);
   const [matches, setMatches] = useState<Match[]>([]);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
@@ -2833,16 +2833,16 @@ export default function AbroadLiftMatchesPage() {
       );
 
       const displayAmountNpr =
-        costPeriod === "Month on month"
+        costPeriod === "Month on Month"
           ? monthlyTotalNpr
-          : costPeriod === "Year on year"
+          : costPeriod === "Year on Year"
             ? totalDegreeCostNpr
             : totalYear1Npr;
 
       const displayLabel =
-        costPeriod === "Month on month"
+        costPeriod === "Month on Month"
           ? "Average Monthly Cost"
-          : costPeriod === "Year on year"
+          : costPeriod === "Year on Year"
             ? `Total ${graduationDuration}-Year Estimate`
             : "First Year Total Investment";
 
@@ -2883,7 +2883,7 @@ export default function AbroadLiftMatchesPage() {
                   {displayLabel}
                 </p>
                 <h2 className="text-2xl font-black text-slate-900 leading-tight">
-                  {costPeriod === "Month on month"
+                  {costPeriod === "Month on Month"
                     ? fmtNpr(displayAmountNpr)
                     : fmtLakhs(displayAmountNpr)}
                 </h2>
@@ -2939,7 +2939,7 @@ export default function AbroadLiftMatchesPage() {
 
           {/* Toggle (Matches Image Tightly) */}
           <div className="flex bg-white p-1 rounded-full border border-slate-100 shadow-sm overflow-hidden h-12">
-            {["First year", "Year on year", "Month on month"].map((v) => (
+            {["First Year", "Year on Year", "Month on Month"].map((v) => (
               <button
                 key={v}
                 onClick={() => setCostPeriod(v)}
@@ -2963,9 +2963,9 @@ export default function AbroadLiftMatchesPage() {
                     />
                   </div>
                   <span className="font-bold text-slate-800">
-                    {costPeriod === "Month on month"
+                    {costPeriod === "Month on Month"
                       ? "Monthly Breakdown"
-                      : costPeriod === "Year on year"
+                      : costPeriod === "Year on Year"
                         ? "Multi-Year Projection"
                         : "Year 1 Breakdown"}
                   </span>
@@ -2973,7 +2973,7 @@ export default function AbroadLiftMatchesPage() {
                 <ChevronDown className="w-5 h-5 text-slate-300" />
               </div>
               <div className="divide-y divide-slate-50">
-                {costPeriod === "Month on month"
+                {costPeriod === "Month on Month"
                   ? Object.entries(itemizedMonthly).map(([l, v], i) => (
                       <div
                         key={i}
@@ -2987,7 +2987,7 @@ export default function AbroadLiftMatchesPage() {
                         </span>
                       </div>
                     ))
-                  : costPeriod === "Year on year"
+                  : costPeriod === "Year on Year"
                     ? Array.from({ length: graduationDuration }).map((_, i) => {
                         const amount =
                           i === 0
@@ -3031,9 +3031,9 @@ export default function AbroadLiftMatchesPage() {
                       ))}
               </div>
               <div className="p-4 bg-slate-50/50 text-center text-[12px] font-bold text-slate-500 border-t border-slate-50">
-                {costPeriod === "Year on year"
+                {costPeriod === "Year on Year"
                   ? `Projected over ${graduationDuration} years`
-                  : costPeriod === "Month on month"
+                  : costPeriod === "Month on Month"
                     ? "Average monthly allocation"
                     : "One-time setup costs included in Year 1"}
               </div>
