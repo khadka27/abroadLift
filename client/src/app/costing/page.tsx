@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Calculator,
   MapPin,
@@ -28,6 +28,16 @@ interface StudyCostResponse {
   education_npr: number;
   total_npr: number;
   monthly_npr: number;
+}
+
+interface UniversityRecommendation {
+  id: string | number;
+  name: string;
+  location: string;
+  tuition: string | number;
+  acceptanceRate: number;
+  website: string;
+  country: string;
 }
 import Link from "next/link";
 
@@ -78,8 +88,12 @@ export default function CostingPage() {
   const [data, setData] = useState<StudyCostResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [period, setPeriod] = useState("First Year");
+  const [recommendations, setRecommendations] = useState<
+    UniversityRecommendation[]
+  >([]);
+  const [recommendationLoading, setRecommendationLoading] = useState(false);
 
-  const fetchEstimate = async () => {
+  const fetchEstimate = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch(
@@ -92,12 +106,30 @@ export default function CostingPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [city, country.code, tuition]);
+
+  const fetchRecommendations = useCallback(async () => {
+    setRecommendationLoading(true);
+    try {
+      const res = await fetch(
+        `/api/universities/search?countries=${encodeURIComponent(country.name)}`,
+      );
+      const json = await res.json();
+      setRecommendations(
+        Array.isArray(json?.results) ? json.results.slice(0, 4) : [],
+      );
+    } catch (e) {
+      console.error(e);
+      setRecommendations([]);
+    } finally {
+      setRecommendationLoading(false);
+    }
+  }, [country.name]);
 
   useEffect(() => {
     fetchEstimate();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    fetchRecommendations();
+  }, [fetchEstimate, fetchRecommendations]);
 
   const formatNPR = (val: number) => {
     return new Intl.NumberFormat("en-NP", {
@@ -111,6 +143,14 @@ export default function CostingPage() {
     const lakhs = val / 100000;
 
     return `${lakhs.toFixed(lakhs >= 10 ? 0 : 1)} Lakhs`;
+  };
+
+  const formatUSD = (val: number) => {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 0,
+    }).format(val);
   };
 
   const breakdown = data
@@ -154,26 +194,36 @@ export default function CostingPage() {
     ? Math.round((data.living_npr / totalPercent) * 100)
     : 0;
   const otherPct = data ? Math.max(100 - yearlyPct - livingPct, 8) : 0;
-  const getDesktopValue = (value: number) =>
+  const totalEstimate = data?.total_npr ?? 0;
+  const monthlyEstimate = data?.monthly_npr ?? 0;
+  const tuitionEstimate = data?.tuition_npr ?? 0;
+  const livingEstimate = data?.living_npr ?? 0;
+  const costBand = !data
+    ? "Loading live estimate"
+    : totalEstimate < 3_000_000
+      ? "Budget Friendly"
+      : totalEstimate < 6_000_000
+        ? "Balanced"
+        : "Premium";
+  const recommendationCount = recommendations.length;
+  const recommendationSummary = recommendationLoading
+    ? "Loading live universities"
+    : recommendationCount > 0
+      ? `${recommendationCount} live options in ${country.name}`
+      : `No live results yet for ${country.name}`;
+  const topRecommendation = recommendations[0];
+  const annualTuitionUsd = Number(tuition) || 0;
+  const currentExchangeRate = data?.exchange_rate || 133.5;
+  const currentTuitionBudgetNpr = annualTuitionUsd * currentExchangeRate;
+  const costTabs = ["First Year", "Year on Year", "Month on Month"];
+  const periodValue = (value: number) =>
     period === "Month on Month" ? formatNPR(value / 12) : formatLakhs(value);
-
-  const getDesktopHeading = () => {
-    if (period === "Month on Month") {
-      return "Monthly view";
-    }
-
-    return "Annual view";
-  };
-  const getDesktopValue = (value: number) =>
-    period === "Month on Month" ? formatNPR(value / 12) : formatLakhs(value);
-
-  const getDesktopHeading = () => {
-    if (period === "Month on Month") {
-      return "Monthly view";
-    }
-
-    return "Annual view";
-  };
+  const periodHeading =
+    period === "Month on Month"
+      ? "Monthly view"
+      : period === "Year on Year"
+        ? "Multi-year view"
+        : "First-year view";
 
   return (
     <div
