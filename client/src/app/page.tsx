@@ -143,7 +143,7 @@ export default function HomePage() {
             </span>
 
             <h1 className="mt-6 text-[38px] font-black leading-[1.05] tracking-tight sm:text-[52px] lg:text-[68px]">
-              Shape Your Global
+              <span className="block">Shape Your Global</span>
               <span className="block bg-gradient-to-r from-[#2563eb] via-[#1d4ed8] to-[#14b8a6] bg-clip-text text-transparent">
                 Study Trajectory
               </span>
@@ -358,13 +358,13 @@ export default function HomePage() {
           </div>
 
           <div className="mb-6 flex flex-wrap gap-2.5">
-            {Object.keys(DESTINATIONS).map((country) => (
+            {(
+              Object.keys(DESTINATIONS) as Array<keyof typeof DESTINATIONS>
+            ).map((country) => (
               <button
                 key={country}
                 type="button"
-                onClick={() =>
-                  setActiveCountry(country as keyof typeof DESTINATIONS)
-                }
+                onClick={() => setActiveCountry(country)}
                 className={`rounded-xl px-4 py-2 text-sm font-bold transition-all ${
                   activeCountry === country
                     ? "bg-[#2563eb] text-white shadow-lg shadow-blue-600/25"
