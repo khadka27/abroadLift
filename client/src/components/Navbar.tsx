@@ -88,11 +88,23 @@ const MOBILE_TABS = [
 ];
 
 export default function Navbar() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const isAuthenticated = status === "authenticated";
   const isAdmin = session?.user?.role === "ADMIN";
+  const mobileTabs = isAuthenticated
+    ? MOBILE_TABS
+    : MOBILE_TABS.map((tab) =>
+        tab.href === "/profile"
+          ? { ...tab, href: "/login", label: "Login" }
+          : tab,
+      );
+  const activeMobileTabIndex = Math.max(
+    mobileTabs.findIndex((tab) => tab.href === pathname),
+    0,
+  );
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -186,24 +198,35 @@ export default function Navbar() {
 
           {/* Right actions (Desktop Only) */}
           <div className="hidden lg:flex items-center gap-4 sm:gap-6">
-            <Link
-              href="/profile"
-              className={`p-2 rounded-xl transition-all ${
-                scrolled
-                  ? "text-blue-600! hover:bg-slate-50 hover:text-blue-700!"
-                  : "text-blue-700! hover:bg-slate-50 hover:text-blue-600!"
-              }`}
-            >
-              <User className="w-6 h-6 outline-none" strokeWidth={1.5} />
-            </Link>
+            {isAuthenticated ? (
+              <>
+                <Link
+                  href="/profile"
+                  className={`p-2 rounded-xl transition-all ${
+                    scrolled
+                      ? "text-blue-600! hover:bg-slate-50 hover:text-blue-700!"
+                      : "text-blue-700! hover:bg-slate-50 hover:text-blue-600!"
+                  }`}
+                >
+                  <User className="w-6 h-6 outline-none" strokeWidth={1.5} />
+                </Link>
 
-            <Link
-              href="/register"
-              className="flex items-center gap-2 bg-[#3366FF] text-white font-bold px-7 py-3 rounded-2xl text-[15px] shadow-xl shadow-blue-500/25 hover:bg-[#2952CC] hover:-translate-y-0.5 transition-all duration-300 active:scale-95"
-            >
-              Get Started
-              <ArrowRight className="w-4 h-4" />
-            </Link>
+                <Link
+                  href="/matches"
+                  className="flex items-center gap-2 bg-[#3366FF] text-white font-bold px-7 py-3 rounded-2xl text-[15px] shadow-xl shadow-blue-500/25 hover:bg-[#2952CC] hover:-translate-y-0.5 transition-all duration-300 active:scale-95"
+                >
+                  Get Started
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </>
+            ) : (
+              <Link
+                href="/login"
+                className="flex items-center gap-2 bg-[#3366FF] text-white font-bold px-7 py-3 rounded-2xl text-[15px] shadow-xl shadow-blue-500/25 hover:bg-[#2952CC] hover:-translate-y-0.5 transition-all duration-300 active:scale-95"
+              >
+                Login
+              </Link>
+            )}
           </div>
 
           {/* Mobileburger (Hidden by default, used for secondary menu if needed, but we'll focus on the bottom nav) */}
@@ -211,7 +234,11 @@ export default function Navbar() {
             className={`lg:hidden w-11 h-11 flex justify-center items-center rounded-2xl border transition-all shadow-sm bg-white border-gray-100 text-gray-900`}
             onClick={() => setMobileOpen(!mobileOpen)}
           >
-            {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {mobileOpen ? (
+              <X className="w-6 h-6" />
+            ) : (
+              <Menu className="w-6 h-6" />
+            )}
           </button>
         </div>
 
@@ -244,41 +271,54 @@ export default function Navbar() {
               </div>
             ))}
             <div className="h-px bg-gray-100 my-2" />
-            <Link
-              href="/register"
-              onClick={() => setMobileOpen(false)}
-              className="flex items-center justify-center gap-2 bg-[#3366FF] text-white font-bold px-6 py-4 rounded-2xl shadow-lg shadow-blue-500/20"
-            >
-              Get Started <ArrowRight className="w-4 h-4" />
-            </Link>
+            {isAuthenticated ? (
+              <Link
+                href="/matches"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center justify-center gap-2 bg-[#3366FF] text-white font-bold px-6 py-4 rounded-2xl shadow-lg shadow-blue-500/20"
+              >
+                Get Started <ArrowRight className="w-4 h-4" />
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center justify-center gap-2 bg-[#3366FF] text-white font-bold px-6 py-4 rounded-2xl shadow-lg shadow-blue-500/20"
+              >
+                Login
+              </Link>
+            )}
           </div>
         )}
       </nav>
       {/* Mobile Floating Bottom Nav */}
       <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[95%] max-w-[440px] z-50 h-20 bg-white rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-gray-100 flex items-center justify-around px-2">
         {/* Animated Notch/Cutout (SVG for the smooth curve) */}
-        <div 
+        <div
           className="absolute top-0 h-full transition-all duration-500 ease-out pointer-events-none"
-          style={{ 
-            left: `${(MOBILE_TABS.findIndex(t => t.href === pathname) * 20) + 10}%`,
-            width: '20%',
-            transform: 'translateX(-50%)'
+          style={{
+            left: `${activeMobileTabIndex * 20 + 10}%`,
+            width: "20%",
+            transform: "translateX(-50%)",
           }}
         >
           {/* The Notch SVG */}
           <div className="absolute -top-[18px] left-1/2 -translate-x-1/2 w-[70px] h-[30px]">
-             <svg viewBox="0 0 70 30" className="w-full h-full fill-white drop-shadow-[0_-5px_5px_rgba(0,0,0,0.02)]">
-                <path d="M0 30 C15 30 15 0 35 0 C55 0 55 30 70 30 L0 30 Z" />
-             </svg>
-             {/* The Indicator Dot */}
-             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-blue-600 rounded-full shadow-[0_0_10px_rgba(51,102,255,0.8)]" />
+            <svg
+              viewBox="0 0 70 30"
+              className="w-full h-full fill-white drop-shadow-[0_-5px_5px_rgba(0,0,0,0.02)]"
+            >
+              <path d="M0 30 C15 30 15 0 35 0 C55 0 55 30 70 30 L0 30 Z" />
+            </svg>
+            {/* The Indicator Dot */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-blue-600 rounded-full shadow-[0_0_10px_rgba(51,102,255,0.8)]" />
           </div>
         </div>
 
-        {MOBILE_TABS.map((tab) => {
+        {mobileTabs.map((tab) => {
           const isActive = pathname === tab.href;
           const Icon = tab.icon;
-          
+
           return (
             <Link
               key={tab.label}
