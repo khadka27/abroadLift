@@ -1,7 +1,5 @@
 "use client";
 
-/* eslint-disable complexity */
-
 import { useState, useEffect, useCallback } from "react";
 import {
   Calculator,
@@ -199,33 +197,46 @@ export default function CostingPage() {
   const totalEstimate = data?.total_npr ?? 0;
   const monthlyEstimate = data?.monthly_npr ?? 0;
   const tuitionEstimate = data?.tuition_npr ?? 0;
-  const livingEstimate = data?.living_npr ?? 0;
-  const costBand = !data
-    ? "Loading live estimate"
-    : totalEstimate < 3_000_000
-      ? "Budget Friendly"
-      : totalEstimate < 6_000_000
-        ? "Balanced"
-        : "Premium";
+  let costBand = "Loading live estimate";
+  if (data) {
+    if (totalEstimate < 3_000_000) {
+      costBand = "Budget Friendly";
+    } else if (totalEstimate < 6_000_000) {
+      costBand = "Balanced";
+    } else {
+      costBand = "Premium";
+    }
+  }
   const recommendationCount = recommendations.length;
-  const recommendationSummary = recommendationLoading
-    ? "Loading live universities"
-    : recommendationCount > 0
-      ? `${recommendationCount} live options in ${country.name}`
-      : `No live results yet for ${country.name}`;
+  let recommendationSummary = `No live results yet for ${country.name}`;
+  if (recommendationLoading) {
+    recommendationSummary = "Loading live universities";
+  } else if (recommendationCount > 0) {
+    recommendationSummary = `${recommendationCount} live options in ${country.name}`;
+  }
   const topRecommendation = recommendations[0];
   const annualTuitionUsd = Number(tuition) || 0;
   const currentExchangeRate = data?.exchange_rate || 133.5;
   const currentTuitionBudgetNpr = annualTuitionUsd * currentExchangeRate;
   const costTabs = ["First Year", "Year on Year", "Month on Month"];
-  const periodValue = (value: number) =>
-    period === "Month on Month" ? formatNPR(value / 12) : formatLakhs(value);
-  const periodHeading =
-    period === "Month on Month"
-      ? "Monthly view"
-      : period === "Year on Year"
-        ? "Multi-year view"
-        : "First-year view";
+  const periodValue = (value: number) => {
+    if (period === "Month on Month") {
+      return formatNPR(value / 12);
+    }
+
+    return formatLakhs(value);
+  };
+  const periodHeading = () => {
+    if (period === "Month on Month") {
+      return "Monthly view";
+    }
+
+    if (period === "Year on Year") {
+      return "Multi-year view";
+    }
+
+    return "First-year view";
+  };
 
   return (
     <div
@@ -277,10 +288,14 @@ export default function CostingPage() {
               {/* City & Tuition */}
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-slate-400">
+                  <label
+                    htmlFor="preferred-city"
+                    className="text-xs font-black uppercase tracking-widest text-slate-400"
+                  >
                     Preferred City
                   </label>
                   <select
+                    id="preferred-city"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                     className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-4 text-slate-900 font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/20 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M5%207L10%2012L15%207%22%20stroke%3D%22%2364748B%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E')] bg-size-[20px_20px] bg-position-[right_16px_center] bg-no-repeat"
@@ -293,12 +308,16 @@ export default function CostingPage() {
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-slate-400">
+                  <label
+                    htmlFor="annual-tuition"
+                    className="text-xs font-black uppercase tracking-widest text-slate-400"
+                  >
                     Annual Tuition (USD)
                   </label>
                   <div className="relative">
                     <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <input
+                      id="annual-tuition"
                       type="number"
                       value={tuition}
                       onChange={(e) => setTuition(e.target.value)}
@@ -342,20 +361,7 @@ export default function CostingPage() {
               </div>
             )}
 
-            {!data ? (
-              <div className="aspect-square bg-white rounded-[40px] border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 text-center p-12">
-                <div className="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center mb-6">
-                  <TrendingUp className="w-10 h-10 opacity-20" />
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-2">
-                  Ready to crunch the numbers?
-                </h3>
-                <p className="max-w-[280px]">
-                  Select your dream city and tuition fee to see a detailed
-                  financial breakdown.
-                </p>
-              </div>
-            ) : (
+            {data ? (
               <div className="bg-white rounded-[40px] shadow-[0_40px_100px_rgba(0,0,0,0.08)] border border-slate-100 overflow-hidden animate-in fade-in slide-in-from-right-4 duration-500">
                 {/* Result Header */}
                 <div className="bg-linear-to-br from-slate-900 to-slate-800 p-8 text-white relative">
@@ -462,6 +468,19 @@ export default function CostingPage() {
                   </div>
                 </div>
               </div>
+            ) : (
+              <div className="aspect-square bg-white rounded-[40px] border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 text-center p-12">
+                <div className="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center mb-6">
+                  <TrendingUp className="w-10 h-10 opacity-20" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 mb-2">
+                  Ready to crunch the numbers?
+                </h3>
+                <p className="max-w-70">
+                  Select your dream city and tuition fee to see a detailed
+                  financial breakdown.
+                </p>
+              </div>
             )}
           </div>
         </div>
@@ -476,7 +495,7 @@ export default function CostingPage() {
             <span className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center bg-white shadow-sm">
               ←
             </span>
-            Back to Dashboard
+            <span>Back to Dashboard</span>
           </Link>
           <div className="w-14 h-14 rounded-full bg-[#FFF7E8] border border-[#F7E8C6] flex items-center justify-center text-[#F6C56E] shadow-sm">
             <DollarSign className="w-7 h-7" />
@@ -538,7 +557,7 @@ export default function CostingPage() {
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-[24px] border border-slate-100 bg-white p-5 shadow-[0_14px_30px_rgba(15,23,42,0.05)]">
+            <div className="rounded-3xl border border-slate-100 bg-white p-5 shadow-[0_14px_30px_rgba(15,23,42,0.05)]">
               <p className="text-[11px] font-black tracking-[0.18em] text-slate-400 uppercase">
                 Estimated Cost
               </p>
@@ -550,12 +569,12 @@ export default function CostingPage() {
               </p>
               <div className="mt-4 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-2 flex items-center justify-between gap-2 text-[12px] font-semibold text-emerald-700">
                 <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                <span>{periodHeading}</span>
+                <span>{periodHeading()}</span>
                 <span>{data ? formatNPR(monthlyEstimate) : "--"} / month</span>
               </div>
             </div>
 
-            <div className="rounded-[24px] border border-slate-100 bg-white p-5 shadow-[0_14px_30px_rgba(15,23,42,0.05)]">
+            <div className="rounded-3xl border border-slate-100 bg-white p-5 shadow-[0_14px_30px_rgba(15,23,42,0.05)]">
               <p className="text-[11px] font-black tracking-[0.18em] text-slate-400 uppercase">
                 Cost Mix
               </p>
@@ -585,7 +604,7 @@ export default function CostingPage() {
               </div>
             </div>
 
-            <div className="rounded-[24px] border border-slate-100 bg-white p-5 shadow-[0_14px_30px_rgba(15,23,42,0.05)]">
+            <div className="rounded-3xl border border-slate-100 bg-white p-5 shadow-[0_14px_30px_rgba(15,23,42,0.05)]">
               <p className="text-[11px] font-black tracking-[0.18em] text-slate-400 uppercase">
                 Live Exchange
               </p>
@@ -679,7 +698,7 @@ export default function CostingPage() {
             </div>
 
             <div className="space-y-5">
-              <div className="rounded-[30px] border border-[#e8dcc4] bg-gradient-to-br from-[#fdfbf6] to-[#f4ead9] shadow-[0_18px_45px_rgba(15,23,42,0.06)] p-6 overflow-hidden">
+              <div className="rounded-[30px] border border-[#e8dcc4] bg-linear-to-br from-[#fdfbf6] to-[#f4ead9] shadow-[0_18px_45px_rgba(15,23,42,0.06)] p-6 overflow-hidden">
                 <div className="flex items-start justify-between gap-4">
                   <div className="max-w-sm">
                     <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
@@ -739,12 +758,14 @@ export default function CostingPage() {
 
                 {recommendationLoading && recommendations.length === 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {Array.from({ length: 4 }).map((_, index) => (
-                      <div
-                        key={index}
-                        className="h-[320px] rounded-[24px] border border-slate-200 bg-white animate-pulse"
-                      />
-                    ))}
+                    {["loading-1", "loading-2", "loading-3", "loading-4"].map(
+                      (item) => (
+                        <div
+                          key={item}
+                          className="h-80 rounded-3xl border border-slate-200 bg-white animate-pulse"
+                        />
+                      ),
+                    )}
                   </div>
                 ) : recommendationCount > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
@@ -758,11 +779,12 @@ export default function CostingPage() {
                       const tuitionNpr = tuitionKnown
                         ? tuitionUsd * currentExchangeRate
                         : 0;
-                      const fitLabel = tuitionKnown
-                        ? tuitionUsd <= annualTuitionUsd
-                          ? "Within budget"
-                          : "Stretch"
-                        : "Fee on request";
+                      let fitLabel = "Fee on request";
+                      if (tuitionKnown && tuitionUsd <= annualTuitionUsd) {
+                        fitLabel = "Within budget";
+                      } else if (tuitionKnown) {
+                        fitLabel = "Stretch";
+                      }
                       const fitScore = tuitionKnown
                         ? Math.max(
                             58,
@@ -785,9 +807,9 @@ export default function CostingPage() {
                       return (
                         <div
                           key={uni.id}
-                          className="bg-white border border-slate-200 rounded-[24px] overflow-hidden shadow-sm flex flex-col"
+                          className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm flex flex-col"
                         >
-                          <div className="h-32 relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700">
+                          <div className="h-32 relative bg-linear-to-br from-slate-900 via-slate-800 to-slate-700">
                             <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.45),transparent_45%)]" />
                             <div className="absolute top-3 right-3 bg-emerald-100/90 backdrop-blur-sm text-emerald-800 text-[10px] font-black px-2 py-1 rounded-full shadow-sm border border-emerald-200">
                               {fitScore}% Fit
@@ -863,7 +885,7 @@ export default function CostingPage() {
                     })}
                   </div>
                 ) : (
-                  <div className="rounded-[24px] border border-dashed border-slate-200 bg-white p-8 text-center text-slate-500">
+                  <div className="rounded-3xl border border-dashed border-slate-200 bg-white p-8 text-center text-slate-500">
                     Live university recommendations will appear here once the
                     API returns results for {country.name}.
                   </div>
@@ -872,7 +894,7 @@ export default function CostingPage() {
             </div>
           </div>
 
-          <button className="w-full rounded-[16px] border border-slate-200 bg-white shadow-[0_14px_30px_rgba(15,23,42,0.06)] py-4 text-[15px] font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
+          <button className="w-full rounded-2xl border border-slate-200 bg-white shadow-[0_14px_30px_rgba(15,23,42,0.06)] py-4 text-[15px] font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
             Download Report
           </button>
         </div>
