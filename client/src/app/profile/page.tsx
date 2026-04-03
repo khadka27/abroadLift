@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import {
   GraduationCap,
   User,
@@ -54,7 +55,7 @@ function GlassInput({ label, type = "text", placeholder, value, onChange }: {
         placeholder={placeholder}
         value={value || ""}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-indigo-500/50 focus:bg-white/8 transition-all"
+        className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-900 shadow-sm placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all"
       />
     </div>
   );
@@ -62,14 +63,14 @@ function GlassInput({ label, type = "text", placeholder, value, onChange }: {
 
 function GlassToggle({ label, value, onChange }: { label: string; value: boolean; onChange: (v: boolean) => void }) {
   return (
-    <div className="flex items-center justify-between p-3 bg-white/3 border border-white/8 rounded-xl">
-      <span className="text-xs font-bold text-slate-300">{label}</span>
+    <div className="flex items-center justify-between p-3 bg-white border border-slate-200 shadow-sm rounded-xl">
+      <span className="text-xs font-bold text-slate-700">{label}</span>
       <button
         type="button"
         onClick={() => onChange(!value)}
-        className={`w-10 h-5 rounded-full transition-all relative ${value ? "bg-indigo-600" : "bg-slate-800"}`}
+        className={`w-10 h-5 rounded-full transition-all relative ${value ? "bg-blue-600" : "bg-slate-300"}`}
       >
-        <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${value ? "right-1" : "left-1"}`} />
+        <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all shadow-sm ${value ? "right-1" : "left-1"}`} />
       </button>
     </div>
   );
@@ -89,17 +90,17 @@ function GlassSelect({ label, placeholder, options, value, onChange }: {
         <select
           value={value || ""}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500/50 focus:bg-white/8 transition-all appearance-none cursor-pointer"
+          className="w-full bg-white border border-slate-200 shadow-sm rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all appearance-none cursor-pointer"
         >
-          <option value="" disabled className="bg-[#0f0f1a]">{placeholder}</option>
+          <option value="" disabled className="text-slate-400">{placeholder}</option>
           {options.map((o) => (
-            <option key={o} value={o} className="bg-[#0f0f1a] text-white">
+            <option key={o} value={o} className="text-slate-900">
               {o}
             </option>
           ))}
         </select>
-        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
-          <ChevronRight className="w-3.5 h-3.5 rotate-90" />
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+          <ChevronRight className="w-4 h-4 rotate-90" />
         </div>
       </div>
     </div>
@@ -239,10 +240,10 @@ export default function ProfilePage() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen bg-[#07070f] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" />
-          <p className="text-slate-500 text-sm">Loading profile...</p>
+          <div className="w-10 h-10 border-2 border-blue-500/30 border-t-blue-600 rounded-full animate-spin" />
+          <p className="text-slate-500 font-semibold text-sm">Loading profile...</p>
         </div>
       </div>
     );
@@ -253,24 +254,30 @@ export default function ProfilePage() {
     : "?";
 
   return (
-    <div className="min-h-screen bg-[#07070f] relative overflow-hidden">
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-indigo-700/8 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-violet-700/8 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen bg-slate-50 relative overflow-hidden">
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-indigo-400/10 rounded-full blur-3xl pointer-events-none" />
 
       {/* Top Nav */}
-      <nav className="bg-white/3 border-b border-white/8 px-4 py-4 flex items-center justify-between sticky top-0 z-30 backdrop-blur-md">
+      <nav className="bg-white/80 border-b border-slate-200 px-4 py-4 flex items-center justify-between sticky top-0 z-30 backdrop-blur-md">
         <div className="flex items-center gap-3">
-          <Link href="/matches" className="w-8 h-8 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all">
+          <Link href="/matches" className="w-8 h-8 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-50 shadow-sm transition-all">
             <ArrowLeft className="w-4 h-4" />
           </Link>
-          <div className="flex items-center gap-2">
-            <GraduationCap className="w-5 h-5 text-indigo-400" />
-            <span className="font-black text-white text-sm">AbroadLift</span>
+          <div className="flex items-center group">
+            <Image 
+              src="/logo.png" 
+              alt="AbroadLift Logo" 
+              width={140} 
+              height={40} 
+              className="object-contain group-hover:scale-105 transition-transform cursor-pointer" 
+              priority
+            />
           </div>
         </div>
         <div className="flex items-center gap-2">
           {saved && (
-            <div className="flex items-center gap-1.5 bg-emerald-500/15 border border-emerald-500/25 rounded-full px-3 py-1.5 text-xs font-bold text-emerald-300">
+            <div className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 rounded-full px-3 py-1.5 text-xs font-bold text-emerald-600">
               <CheckCircle2 className="w-3.5 h-3.5" />
               Saved!
             </div>
@@ -278,7 +285,7 @@ export default function ProfilePage() {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="h-9 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 transition-all disabled:opacity-50 shadow-md shadow-indigo-500/20"
+            className="h-9 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center gap-1.5 transition-all disabled:opacity-50 shadow-md shadow-blue-500/20"
           >
             {saving ? (
               <div className="w-3.5 h-3.5 border border-white/30 border-t-white rounded-full animate-spin" />
@@ -290,22 +297,22 @@ export default function ProfilePage() {
         </div>
       </nav>
 
-      <div className="max-w-3xl mx-auto px-4 py-8">
+      <div className="max-w-3xl mx-auto px-4 py-8 relative z-10">
         {/* User card */}
-        <div className="bg-white/3 border border-white/10 rounded-3xl p-6 mb-6 flex items-center justify-between">
+        <div className="bg-white border border-slate-200 shadow-sm rounded-3xl p-6 mb-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-indigo-600/20 border border-indigo-500/30 rounded-2xl flex items-center justify-center text-xl font-black text-indigo-300">
+            <div className="w-14 h-14 bg-blue-50 border border-blue-100 rounded-2xl flex items-center justify-center text-xl font-black text-blue-600">
               {initials}
             </div>
             <div>
-              <h2 className="text-lg font-black text-white">{profile.name || "Your Name"}</h2>
-              <p className="text-sm text-slate-400">@{profile.username || "username"}</p>
-              <p className="text-xs text-slate-600">{profile.email}</p>
+              <h2 className="text-lg font-black text-slate-900">{profile.name || "Your Name"}</h2>
+              <p className="text-sm font-semibold text-slate-500">@{profile.username || "username"}</p>
+              <p className="text-xs text-slate-400">{profile.email}</p>
             </div>
           </div>
           <button
             onClick={() => signOut({ callbackUrl: "/" })}
-            className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-red-400 font-semibold transition-colors"
+            className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-red-500 font-semibold transition-colors"
           >
             <LogOut className="w-3.5 h-3.5" />
             Log out
@@ -314,9 +321,9 @@ export default function ProfilePage() {
 
         {/* Error */}
         {error && (
-          <div className="mb-5 bg-red-500/10 border border-red-500/30 rounded-2xl p-4 flex items-center gap-3">
-            <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
-            <p className="text-sm text-red-300">{error}</p>
+          <div className="mb-5 bg-red-50 border border-red-200 rounded-2xl p-4 flex items-center gap-3">
+            <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
+            <p className="text-sm font-semibold text-red-600">{error}</p>
           </div>
         )}
 
@@ -328,10 +335,10 @@ export default function ProfilePage() {
               <button
                 key={s.id}
                 onClick={() => setActiveSection(s.id)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-bold whitespace-nowrap transition-all ${
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-bold whitespace-nowrap transition-all shadow-sm ${
                   activeSection === s.id
-                    ? "border-indigo-500 bg-indigo-500/15 text-indigo-300"
-                    : "border-white/10 bg-white/5 text-slate-400 hover:text-white hover:border-white/20"
+                    ? "border-blue-500 bg-blue-50 text-blue-600 shadow-blue-500/10"
+                    : "border-slate-200 bg-white text-slate-500 hover:text-slate-900 hover:border-slate-300"
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
@@ -342,10 +349,10 @@ export default function ProfilePage() {
         </div>
 
         {/* Section content */}
-        <div className="bg-white/3 border border-white/10 rounded-3xl p-6">
+        <div className="bg-white border border-slate-200 shadow-sm rounded-3xl p-6">
           {activeSection === "personal" && (
             <div className="space-y-4">
-              <h3 className="text-sm font-black text-white mb-5">Personal Information</h3>
+              <h3 className="text-sm font-black text-slate-800 mb-5">Personal Information</h3>
               <GlassInput label="Full Name" placeholder="Jane Doe" value={profile.name} onChange={(v) => set("name", v)} />
               <GlassInput label="Username" placeholder="janedoe123" value={profile.username} onChange={(v) => set("username", v)} />
               <GlassInput label="Email Address" type="email" placeholder="jane@example.com" value={profile.email} onChange={(v) => set("email", v)} />
@@ -354,7 +361,7 @@ export default function ProfilePage() {
 
           {activeSection === "background" && (
             <div className="space-y-4">
-              <h3 className="text-sm font-black text-white mb-5">Your Background</h3>
+              <h3 className="text-sm font-black text-slate-800 mb-5">Your Background</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <GlassSelect
                   label="Nationality"
@@ -390,7 +397,7 @@ export default function ProfilePage() {
 
           {activeSection === "academics" && (
             <div className="space-y-4">
-              <h3 className="text-sm font-black text-white mb-5">Academic Performance</h3>
+              <h3 className="text-sm font-black text-slate-800 mb-5">Academic Performance</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <GlassInput label="GPA / Percentage" type="number" placeholder="e.g. 3.7" value={profile.gpa} onChange={(v) => set("gpa", v)} />
                 <GlassInput label="Backlogs" type="number" placeholder="0" value={profile.backlogs} onChange={(v) => set("backlogs", v)} />
@@ -409,7 +416,7 @@ export default function ProfilePage() {
                 <GlassInput label="Test Score" type="number" placeholder="e.g. 7.5" value={profile.englishScore} onChange={(v) => set("englishScore", v)} />
               )}
               
-              <div className="pt-4 border-t border-white/5">
+              <div className="pt-4 border-t border-slate-200">
                 <h4 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-4">Aptitude Tests</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                    <GlassSelect
@@ -435,7 +442,7 @@ export default function ProfilePage() {
 
           {activeSection === "financials" && (
             <div className="space-y-4">
-              <h3 className="text-sm font-black text-white mb-5">Financial Capability</h3>
+              <h3 className="text-sm font-black text-slate-800 mb-5">Financial Capability</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <GlassInput label="Bank Balance (Home Currency)" type="number" placeholder="e.g. 5000000" value={profile.bankBalance} onChange={(v) => set("bankBalance", v)} />
                 <GlassSelect
@@ -451,7 +458,7 @@ export default function ProfilePage() {
                 <GlassInput label="Yearly Budget (USD)" type="number" placeholder="e.g. 25000" value={profile.yearlyBudget} onChange={(v) => set("yearlyBudget", v)} />
               </div>
               
-              <div className="pt-4 border-t border-white/5 grid grid-cols-2 gap-4">
+              <div className="pt-4 border-t border-slate-200 grid grid-cols-2 gap-4">
                 <GlassToggle label="Passport Ready" value={profile.passportReady} onChange={(v) => set("passportReady", v)} />
                 <GlassToggle label="Documents Prepared" value={profile.docsReady} onChange={(v) => set("docsReady", v)} />
               </div>
@@ -460,12 +467,12 @@ export default function ProfilePage() {
 
           {activeSection === "history" && (
             <div className="space-y-6">
-              <h3 className="text-sm font-black mb-5 text-indigo-400">Your Recent Activity</h3>
+              <h3 className="text-sm font-black mb-5 text-blue-600">Your Recent Activity</h3>
               {matchingRecords.length === 0 ? (
-                <div className="text-center py-10 bg-white/3 border border-white/8 rounded-2xl">
-                  <Clock className="w-8 h-8 text-slate-700 mx-auto mb-3" />
-                  <p className="text-slate-500 text-sm italic">You haven&apos;t saved any matching profiles yet.</p>
-                  <Link href="/matches" className="text-indigo-400 text-xs font-bold mt-4 inline-block hover:underline">Start Matching Engine</Link>
+                <div className="text-center py-10 bg-slate-50 border border-slate-200 rounded-2xl">
+                  <Clock className="w-8 h-8 text-slate-400 mx-auto mb-3" />
+                  <p className="text-slate-500 text-sm font-semibold">You haven&apos;t saved any matching profiles yet.</p>
+                  <Link href="/matches" className="text-blue-600 text-xs font-bold mt-4 inline-block hover:underline">Start Matching Engine</Link>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 gap-4">
@@ -478,46 +485,46 @@ export default function ProfilePage() {
                     });
                     
                     return (
-                      <div key={record.id} className="group bg-white/5 border border-white/10 rounded-2xl p-5 hover:border-indigo-500/50 hover:bg-white/10 transition-all shadow-xl">
+                      <div key={record.id} className="group bg-white border border-slate-200 rounded-2xl p-5 hover:border-blue-500/50 hover:bg-slate-50 transition-all shadow-sm">
                         <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-indigo-600/20 rounded-xl flex items-center justify-center font-black text-indigo-400 border border-indigo-500/10">
+                            <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center font-black text-blue-600 border border-blue-100">
                               {match.name?.[0] || 'U'}
                             </div>
                             <div>
-                               <h4 className="text-white font-black text-[14px] leading-tight truncate max-w-[200px]">{match.name}</h4>
-                               <p className="text-xs text-slate-500 flex items-center gap-1">
+                               <h4 className="text-slate-900 font-black text-[14px] leading-tight truncate max-w-[200px]">{match.name}</h4>
+                               <p className="text-xs text-slate-500 font-semibold flex items-center gap-1">
                                  <MapPin className="w-3 h-3" /> {match.location || 'Global destination'}
                                </p>
                             </div>
                           </div>
                           <div className="text-right">
-                            <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">{date}</span>
+                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{date}</span>
                           </div>
                         </div>
                         
-                        <div className="grid grid-cols-3 gap-3 pt-4 border-t border-white/5">
-                           <div className="bg-white/3 p-3 rounded-xl border border-white/5 text-center">
+                        <div className="grid grid-cols-3 gap-3 pt-4 border-t border-slate-200">
+                           <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-center">
                               <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">Tuition</p>
-                              <p className="text-[11px] font-black text-white shrink-0 truncate">${match.tuitionFee?.toLocaleString()}</p>
+                              <p className="text-[11px] font-black text-slate-900 shrink-0 truncate">${match.tuitionFee?.toLocaleString()}</p>
                            </div>
-                           <div className="bg-white/3 p-3 rounded-xl border border-white/5 text-center">
+                           <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-center">
                               <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">Success</p>
-                              <p className="text-[11px] font-black text-emerald-400">{match.admissionRate || 75}%</p>
+                              <p className="text-[11px] font-black text-emerald-600">{match.admissionRate || 75}%</p>
                            </div>
-                           <div className="bg-white/3 p-3 rounded-xl border border-white/5 text-center">
+                           <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-center">
                               <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">Ranking</p>
-                              <p className="text-[11px] font-black text-amber-400">#{match.rankingWorld || 'N/A'}</p>
+                              <p className="text-[11px] font-black text-amber-600">#{match.rankingWorld || 'N/A'}</p>
                            </div>
                         </div>
                         
                         <div className="mt-4 flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                               <div className="px-2 py-1 bg-white/5 rounded-md text-[9px] font-black text-slate-400 border border-white/5">
+                               <div className="px-2 py-1 bg-slate-100 rounded-md text-[9px] font-black text-slate-500 border border-slate-200">
                                   {record.formData?.degree || 'N/A'}
                                </div>
                             </div>
-                            <Link href="/matches" className="text-indigo-400 text-[10px] font-black flex items-center gap-1 group-hover:gap-2 transition-all">
+                            <Link href="/matches" className="text-blue-600 text-[10px] font-black flex items-center gap-1 group-hover:gap-2 transition-all">
                                 VIEW AGAIN <ArrowRight className="w-3 h-3" />
                             </Link>
                         </div>
@@ -530,14 +537,14 @@ export default function ProfilePage() {
           )}
 
           {/* Bottom actions */}
-          <div className="mt-8 pt-6 border-t border-white/8 flex items-center justify-between">
-            <Link href="/matches" className="text-xs font-bold text-slate-500 hover:text-white transition-colors flex items-center gap-2">
+          <div className="mt-8 pt-6 border-t border-slate-200 flex items-center justify-between">
+            <Link href="/matches" className="text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors flex items-center gap-2">
                <ArrowLeft className="w-3 h-3" />
                Return to Explorer
             </Link>
             <div className="flex gap-3">
               {saved && (
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-black text-emerald-400 uppercase tracking-widest animate-in fade-in zoom-in duration-300">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-[10px] font-black text-emerald-600 uppercase tracking-widest animate-in fade-in zoom-in duration-300">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   Successfully Saved
                 </div>
@@ -545,7 +552,7 @@ export default function ProfilePage() {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="h-10 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-black uppercase tracking-widest transition-all disabled:opacity-50 shadow-lg shadow-indigo-500/20 active:scale-95"
+                className="h-10 px-6 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-black uppercase tracking-widest transition-all disabled:opacity-50 shadow-lg shadow-blue-500/20 active:scale-95"
               >
                 {saving ? "Processing..." : "Update Profile"}
               </button>

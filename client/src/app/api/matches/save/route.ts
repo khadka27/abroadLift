@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import { getUserIdFromRequest } from "@/lib/api-auth";
 import prisma from "@/lib/db";

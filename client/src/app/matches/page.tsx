@@ -3,6 +3,7 @@
 
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
   GraduationCap,
@@ -74,6 +75,7 @@ import { UniversitySelection } from "@/components/matches/UniversitySelection";
 import { FinancialDashboard } from "@/components/matches/FinancialDashboard";
 import { AdmissionDetails } from "@/components/matches/AdmissionDetails";
 import { VisaEligibility } from "@/components/matches/VisaEligibility";
+import { StudyOverviewDashboard } from "@/components/matches/StudyOverviewDashboard";
 
 /* ─────────────── Static data ─────────────── */
 const COUNTRIES = [
@@ -557,43 +559,50 @@ function SearchSelect({
           setOpen(!open);
           setQuery("");
         }}
-        className={`w-full relative flex items-center pl-10 pr-4 h-[60px] bg-[#f8fafc] border rounded-[22px] text-left transition-all ${open
+        className={`w-full relative flex items-center pl-10 pr-4 h-[50px] md:h-[60px] bg-[#f8fafc] border rounded-[18px] md:rounded-[22px] text-left transition-all ${
+          open
             ? "border-blue-500 ring-4 ring-blue-500/5 bg-white shadow-lg"
             : "border-slate-200 hover:border-blue-200 shadow-sm"
-          }`}
+        }`}
       >
         <Search
-          className={`w-[20px] h-[20px] absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${open ? "text-blue-500" : "text-slate-400"
-            }`}
+          className={`w-[20px] h-[20px] absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${
+            open ? "text-blue-500" : "text-slate-400"
+          }`}
           strokeWidth={2}
         />
         <span
-          className={`text-[15px] font-semibold truncate ${value ? "text-slate-900" : "text-slate-400"
-            }`}
+          className={`text-[15px] font-semibold truncate ${
+            value ? "text-slate-900" : "text-slate-400"
+          }`}
         >
           {value || placeholder}
         </span>
         <ChevronDown
-          className={`ml-auto w-5 h-5 text-slate-400 transition-transform ${open ? "rotate-180 text-blue-500" : ""
-            }`}
+          className={`ml-auto w-5 h-5 text-slate-400 transition-transform ${
+            open ? "rotate-180 text-blue-500" : ""
+          }`}
         />
       </button>
 
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute top-[calc(100%+12px)] left-0 w-full bg-white border border-slate-100 shadow-[0_20px_50px_rgba(0,0,0,0.1)] rounded-[28px] z-50 overflow-hidden flex flex-col max-h-[300px] animate-in fade-in slide-in-from-top-4 duration-300">
-            <div className="p-4 border-b border-slate-50 flex items-center gap-3 bg-slate-50/30">
-              <Search className="w-4 h-4 text-blue-500" strokeWidth={2.5} />
+          <div className="absolute top-[calc(100%+10px)] left-0 w-full bg-white border border-slate-100 shadow-xl rounded-[24px] z-50 overflow-hidden flex flex-col max-h-[220px] animate-in fade-in zoom-in-95 duration-200">
+            <div className="p-3 border-b border-slate-50 flex items-center gap-3 bg-slate-50/50">
+              <Search
+                className="w-5 h-5 text-blue-500 ml-2"
+                strokeWidth={2.5}
+              />
               <input
                 autoFocus
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Type to search..."
-                className="w-full bg-transparent p-1 text-[15px] font-semibold text-slate-900 outline-none placeholder:text-slate-400 placeholder:italic"
+                className="w-full bg-transparent p-2 text-[15px] font-semibold text-slate-900 outline-none placeholder:text-slate-400 placeholder:italic"
               />
             </div>
-            <div className="overflow-y-auto flex-1 p-2 space-y-1 override-scroll">
+            <div className="overflow-y-auto overscroll-contain flex-1 p-2 space-y-1">
               {filtered.map((opt) => (
                 <button
                   key={opt}
@@ -601,17 +610,20 @@ function SearchSelect({
                     onChange(opt);
                     setOpen(false);
                   }}
-                  className={`w-full text-left px-5 min-h-[50px] flex items-center rounded-[18px] text-[14px] font-semibold transition-all ${value === opt
+                  className={`w-full text-left px-5 min-h-[50px] flex items-center rounded-[16px] text-[15px] font-semibold transition-all ${
+                    value === opt
                       ? "bg-blue-600 text-white shadow-md"
                       : "text-slate-600 hover:bg-slate-50 hover:text-blue-600"
-                    }`}
+                  }`}
                 >
                   {opt}
                 </button>
               ))}
               {filtered.length === 0 && (
                 <div className="p-8 text-center">
-                  <p className="text-slate-400 text-sm font-medium italic">No results found</p>
+                  <p className="text-slate-400 text-sm font-medium italic">
+                    No results found
+                  </p>
                 </div>
               )}
             </div>
@@ -684,10 +696,11 @@ function TagSelect({
                   className="w-full flex items-center gap-3 p-2 rounded-xl hover:bg-blue-50/50 transition-all text-left"
                 >
                   <div
-                    className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all ${isSel
-                      ? "bg-blue-600 border-blue-600 shadow-md shadow-blue-500/20"
-                      : "border-slate-100"
-                      }`}
+                    className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all ${
+                      isSel
+                        ? "bg-blue-600 border-blue-600 shadow-md shadow-blue-500/20"
+                        : "border-slate-100"
+                    }`}
                   >
                     {isSel && (
                       <CheckCircle2 className="w-3.5 h-3.5 text-white" />
@@ -729,10 +742,11 @@ function MatchCard({
 
   return (
     <div
-      className={`bg-white border text-left rounded-[36px] overflow-hidden transition-all duration-500 cursor-pointer relative group flex flex-col h-full ${selected
-        ? "border-blue-500 ring-1 ring-blue-500/20 shadow-2xl translate-y-[-6px]"
-        : "border-slate-100 hover:shadow-2xl hover:border-blue-200 hover:translate-y-[-4px]"
-        }`}
+      className={`bg-white border text-left rounded-[36px] overflow-hidden transition-all duration-500 cursor-pointer relative group flex flex-col h-full ${
+        selected
+          ? "border-blue-500 ring-1 ring-blue-500/20 shadow-2xl translate-y-[-6px]"
+          : "border-slate-100 hover:shadow-2xl hover:border-blue-200 hover:translate-y-[-4px]"
+      }`}
       onClick={onSelect}
     >
       {/* Banner Image */}
@@ -770,13 +784,22 @@ function MatchCard({
         <div className="flex items-center gap-5 mb-8">
           <div className="w-16 h-16 rounded-full bg-white border border-slate-100 flex items-center justify-center overflow-hidden shrink-0 shadow-sm relative p-3">
             {m.logo ? (
-              <Image src={m.logo} alt={m.name} fill className="object-contain p-2" />
+              <Image
+                src={m.logo}
+                alt={m.name}
+                fill
+                className="object-contain p-2"
+              />
             ) : (
-              <span className="text-blue-600 font-semibold text-[22px]">{m.name.charAt(0)}</span>
+              <span className="text-blue-600 font-semibold text-[22px]">
+                {m.name.charAt(0)}
+              </span>
             )}
           </div>
           <div className="min-w-0">
-            <h3 className="text-[22px] font-bold text-[#111827] leading-tight mb-1">{m.name}</h3>
+            <h3 className="text-[22px] font-bold text-[#111827] leading-tight mb-1">
+              {m.name}
+            </h3>
             <p className="text-[#4F46E5] font-semibold text-[16px] tracking-tight">
               {m.popularPrograms?.[0] || "MSc Computer Science"}
             </p>
@@ -788,24 +811,36 @@ function MatchCard({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 text-slate-500">
               <Calendar className="w-5 h-5" />
-              <span className="text-[13px] font-semibold text-black">Duration</span>
+              <span className="text-[13px] font-semibold text-black">
+                Duration
+              </span>
             </div>
-            <span className="text-[13px] font-semibold text-[#111827] ">1 Year</span>
+            <span className="text-[13px] font-semibold text-[#111827] ">
+              1 Year
+            </span>
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 text-slate-500">
               <Wallet className="w-5 h-5" />
-              <span className="text-[13px] font-semibold text-black">Tuition</span>
+              <span className="text-[13px] font-semibold text-black">
+                Tuition
+              </span>
             </div>
-            <span className="text-[13px] font-semibold text-[#111827]">{m.tuitionFee ? `${fmt(m.tuitionFee)} / yr` : "TBD"}</span>
+            <span className="text-[13px] font-semibold text-[#111827]">
+              {m.tuitionFee ? `${fmt(m.tuitionFee)} / yr` : "TBD"}
+            </span>
           </div>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3 text-slate-500">
                 <CheckCircle2 className="w-5 h-5 text-[#10b981]" />
-                <span className="text-[13px] font-semibold text-black ">Acceptance Rate</span>
+                <span className="text-[13px] font-semibold text-black ">
+                  Acceptance Rate
+                </span>
               </div>
-              <span className="text-[14px] font-extrabold text-[#10b981] uppercase">{m.admissionRate || 78}%</span>
+              <span className="text-[14px] font-extrabold text-[#10b981] uppercase">
+                {m.admissionRate || 78}%
+              </span>
             </div>
             <div className="h-2 w-full bg-slate-50 rounded-full overflow-hidden border border-slate-100">
               <div
@@ -819,14 +854,20 @@ function MatchCard({
         {/* Row 4: Actions Buttons */}
         <div className="mt-auto space-y-4">
           <button
-            onClick={(e) => { e.stopPropagation(); onSelect?.(); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelect?.();
+            }}
             className="w-full h-16 rounded-[30px] bg-[#3686FF] text-white font-bold text-[16px] shadow-[0_8px_25px_-5px_rgba(37,99,235,0.4)] flex items-center justify-center gap-2 group"
           >
             Select University
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
           </button>
           <button
-            onClick={(e) => { e.stopPropagation(); setShowDetails(!showDetails); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowDetails(!showDetails);
+            }}
             className="w-full py-2 text-slate-400 font-bold text-[14px] hover:text-slate-600 transition-colors text-center"
           >
             {showDetails ? "Hide Details" : "View Details"}
@@ -839,28 +880,36 @@ function MatchCard({
         <div className="px-6 pb-6 animate-in slide-in-from-top-4 duration-500">
           <div className="border-t border-slate-50 pt-5 space-y-6">
             <p className="text-[13px] font-medium text-slate-600 leading-relaxed italic">
-              {m.description || "World-class research facilities and a diverse student community focused on academic excellence."}
+              {m.description ||
+                "World-class research facilities and a diverse student community focused on academic excellence."}
             </p>
-            
+
             <div className="grid grid-cols-2 gap-x-4 gap-y-5">
               {/* Ranking & Type */}
               <div className="space-y-1.5">
                 <div className="flex items-center gap-1.5 text-slate-400">
                   <Award className="w-3.5 h-3.5" />
-                  <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">National Rank</span>
+                  <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                    National Rank
+                  </span>
                 </div>
                 <p className="text-[14px] font-bold text-slate-900">
                   {m.rankingNational ? `#${m.rankingNational}` : "N/A"}
                 </p>
               </div>
-              
+
               <div className="space-y-1.5">
                 <div className="flex items-center gap-1.5 text-slate-400">
                   <Building2 className="w-3.5 h-3.5" />
-                  <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Type & Founded</span>
+                  <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                    Type & Founded
+                  </span>
                 </div>
                 <p className="text-[14px] font-bold text-slate-900 capitalize">
-                  {m.type || "Public"} <span className="text-slate-500 font-medium">{m.founded ? `(${m.founded})` : ""}</span>
+                  {m.type || "Public"}{" "}
+                  <span className="text-slate-500 font-medium">
+                    {m.founded ? `(${m.founded})` : ""}
+                  </span>
                 </p>
               </div>
 
@@ -868,17 +917,24 @@ function MatchCard({
               <div className="space-y-1.5">
                 <div className="flex items-center gap-1.5 text-slate-400">
                   <FileCheck className="w-3.5 h-3.5" />
-                  <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Min. GPA</span>
+                  <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                    Min. GPA
+                  </span>
                 </div>
                 <p className="text-[14px] font-bold text-slate-900">
-                  {m.gpaRequirement || "3.0"}<span className="text-slate-400 text-[11px] font-bold">/4.0</span>
+                  {m.gpaRequirement || "3.0"}
+                  <span className="text-slate-400 text-[11px] font-bold">
+                    /4.0
+                  </span>
                 </p>
               </div>
 
               <div className="space-y-1.5">
                 <div className="flex items-center gap-1.5 text-slate-400">
                   <Globe className="w-3.5 h-3.5" />
-                  <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">English Req.</span>
+                  <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                    English Req.
+                  </span>
                 </div>
                 <p className="text-[14px] font-bold text-slate-900">
                   IELTS {m.englishReq || "6.5"}
@@ -889,7 +945,9 @@ function MatchCard({
               <div className="space-y-1.5">
                 <div className="flex items-center gap-1.5 text-slate-400">
                   <GraduationCap className="w-3.5 h-3.5" />
-                  <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Intl. Students</span>
+                  <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                    Intl. Students
+                  </span>
                 </div>
                 <p className="text-[14px] font-bold text-slate-900">
                   {m.internationalPercentage || "15"}%
@@ -899,7 +957,9 @@ function MatchCard({
               <div className="space-y-1.5">
                 <div className="flex items-center gap-1.5 text-slate-400">
                   <Briefcase className="w-3.5 h-3.5" />
-                  <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Grad Salary</span>
+                  <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                    Grad Salary
+                  </span>
                 </div>
                 <p className="text-[14px] font-bold text-emerald-600">
                   {m.salaryMedian ? fmt(m.salaryMedian) : "N/A"}
@@ -908,20 +968,28 @@ function MatchCard({
             </div>
 
             <div className="flex items-center justify-between pt-3 border-t border-slate-50">
-               <div className="flex flex-col gap-1">
-                 <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Deadline</span>
-                 <span className="text-[13px] font-bold text-rose-500 flex items-center gap-1.5">
-                   <Clock className="w-3.5 h-3.5" />
-                   {m.applicationDeadline || "Rolling Admission"}
-                 </span>
-               </div>
-               
-               {m.website && (
-                  <a href={m.website} onClick={(e) => e.stopPropagation()} target="_blank" rel="noreferrer" className="flex items-center gap-2 group/link px-5 py-2.5 bg-[#f8fafc] hover:bg-blue-50 transition-all rounded-[14px] text-blue-600 text-[12px] font-bold shadow-sm ring-1 ring-slate-100 hover:ring-blue-100">
-                    Website 
-                    <ExternalLink className="w-3.5 h-3.5 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
-                  </a>
-               )}
+              <div className="flex flex-col gap-1">
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                  Deadline
+                </span>
+                <span className="text-[13px] font-bold text-rose-500 flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5" />
+                  {m.applicationDeadline || "Rolling Admission"}
+                </span>
+              </div>
+
+              {m.website && (
+                <a
+                  href={m.website}
+                  onClick={(e) => e.stopPropagation()}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-2 group/link px-5 py-2.5 bg-[#f8fafc] hover:bg-blue-50 transition-all rounded-[14px] text-blue-600 text-[12px] font-bold shadow-sm ring-1 ring-slate-100 hover:ring-blue-100"
+                >
+                  Website
+                  <ExternalLink className="w-3.5 h-3.5 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
+                </a>
+              )}
             </div>
           </div>
         </div>
@@ -1164,7 +1232,11 @@ function MatchCostEstimator({ match: m }: { match: Match }) {
 interface EngineConfig {
   title: string;
   titles: string[];
-  checklist: { id: number; text: string; status: "complete" | "loading" | "pending" }[];
+  checklist: {
+    id: number;
+    text: string;
+    status: "complete" | "loading" | "pending";
+  }[];
   indicators: { text: string; count: number; active: boolean }[];
   icon: any;
   gradient: string;
@@ -1173,7 +1245,13 @@ interface EngineConfig {
   statusText: string;
 }
 
-function GenericEngineScreen({ config, onFinish }: { config: EngineConfig; onFinish?: () => void }) {
+function GenericEngineScreen({
+  config,
+  onFinish,
+}: {
+  config: EngineConfig;
+  onFinish?: () => void;
+}) {
   const [progress, setProgress] = useState(0);
   const [titleIndex, setTitleIndex] = useState(0);
   const [showCursor, setShowCursor] = useState(true);
@@ -1196,8 +1274,8 @@ function GenericEngineScreen({ config, onFinish }: { config: EngineConfig; onFin
         setChecklist((prev) => {
           const next = [...prev];
           if (next[0].status === "loading") {
-             next[0] = { ...next[0], status: "complete" };
-             if (next[1]) next[1] = { ...next[1], status: "loading" };
+            next[0] = { ...next[0], status: "complete" };
+            if (next[1]) next[1] = { ...next[1], status: "loading" };
           }
           return next;
         });
@@ -1206,8 +1284,8 @@ function GenericEngineScreen({ config, onFinish }: { config: EngineConfig; onFin
         setChecklist((prev) => {
           const next = [...prev];
           if (next[1] && next[1].status === "loading") {
-             next[1] = { ...next[1], status: "complete" };
-             if (next[2]) next[2] = { ...next[2], status: "loading" };
+            next[1] = { ...next[1], status: "complete" };
+            if (next[2]) next[2] = { ...next[2], status: "loading" };
           }
           return next;
         });
@@ -1216,7 +1294,10 @@ function GenericEngineScreen({ config, onFinish }: { config: EngineConfig; onFin
         setChecklist((prev) => {
           const next = [...prev];
           if (next[next.length - 1].status === "loading") {
-             next[next.length - 1] = { ...next[next.length - 1], status: "complete" };
+            next[next.length - 1] = {
+              ...next[next.length - 1],
+              status: "complete",
+            };
           }
           return next;
         });
@@ -1248,7 +1329,9 @@ function GenericEngineScreen({ config, onFinish }: { config: EngineConfig; onFin
       setDataIndicators((prev) =>
         prev.map((indicator) => ({
           ...indicator,
-          count: indicator.active ? Math.floor(Math.random() * 5000) + 8000 : indicator.count,
+          count: indicator.active
+            ? Math.floor(Math.random() * 5000) + 8000
+            : indicator.count,
         })),
       );
     }, 1000);
@@ -1257,82 +1340,183 @@ function GenericEngineScreen({ config, onFinish }: { config: EngineConfig; onFin
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "complete": return <Check className="w-5 h-5 text-emerald-400" />;
-      case "loading": return <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}><Loader2 className={`w-5 h-5 ${config.accent}`} /></motion.div>;
-      case "pending": return <Square className="w-5 h-5 text-gray-800" />;
-      default: return null;
+      case "complete":
+        return <Check className="w-5 h-5 text-emerald-400" />;
+      case "loading":
+        return (
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          >
+            <Loader2 className={`w-5 h-5 ${config.accent}`} />
+          </motion.div>
+        );
+      case "pending":
+        return <Square className="w-5 h-5 text-gray-800" />;
+      default:
+        return null;
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-50 overflow-hidden">
-      <div className="absolute inset-0 overflow-hidden opacity-30">
-        <motion.div 
-          className={`absolute top-1/4 left-1/4 w-[600px] h-[600px] ${config.glow} rounded-full blur-[120px]`} 
-          animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }} 
-          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }} 
-        />
-      </div>
+  const activeTask =
+    checklist.find((c) => c.status === "loading") ||
+    checklist[checklist.length - 1];
+  const radius = 70;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (progress / 100) * circumference;
 
-      <div className="relative z-10 w-full max-w-2xl px-12">
-        <div className="text-center mb-16">
-            <div className={`w-24 h-24 mx-auto mb-10 rounded-[38px] ${config.accent.replace('text', 'bg').replace('500', '500/10').replace('400', '400/10')} border ${config.accent.replace('text', 'border').replace('500', '500/20')} flex items-center justify-center shadow-[0_20px_50px_-20px_rgba(0,0,0,0.1)]`}>
-                <config.icon className={`w-12 h-12 ${config.accent}`} />
-            </div>
+  return (
+    <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-[#fdfdfd] overflow-hidden">
+      {/* Abstract Animated Mesh Background Pattern */}
+      <div
+        className="absolute inset-0 opacity-[0.02] pointer-events-none"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle at 2px 2px, black 1px, transparent 0)",
+          backgroundSize: "24px 24px",
+        }}
+      />
+
+      <div className="relative z-10 w-full max-w-sm px-8 flex flex-col items-center">
+        {/* Unique Circular Progress & Icon Container */}
+        <div className="relative w-48 h-48 flex items-center justify-center mb-10">
+          {/* Breathing Radial Glow */}
+          <motion.div
+            className={`absolute inset-0 rounded-full blur-[40px] opacity-20 ${config.glow}`}
+            animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.4, 0.2] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+          />
+
+          {/* SVG Progress Ring */}
+          <svg className="absolute inset-0 w-full h-full -rotate-90">
+            {/* Background Track */}
+            <circle
+              cx="96"
+              cy="96"
+              r={radius}
+              strokeWidth="1"
+              stroke="currentColor"
+              fill="transparent"
+              className="text-slate-200"
+            />
+            {/* Animated Progress */}
+            <motion.circle
+              cx="96"
+              cy="96"
+              r={radius}
+              strokeWidth="2.5"
+              stroke="currentColor"
+              fill="transparent"
+              strokeLinecap="round"
+              className={config.accent}
+              initial={{ strokeDashoffset: circumference }}
+              animate={{ strokeDashoffset }}
+              transition={{ ease: "linear", duration: 0.1 }}
+              style={{ strokeDasharray: circumference }}
+            />
+          </svg>
+
+          {/* Central Animated Content */}
+          <div className="relative flex flex-col items-center justify-center gap-1 mt-1">
+            <config.icon
+              className={`w-10 h-10 ${config.accent} opacity-90`}
+              strokeWidth={2}
+            />
+            <span
+              className={`text-[20px] font-black ${config.accent} tabular-nums tracking-tighter`}
+            >
+              {Math.round(progress)}%
+            </span>
+          </div>
+
+          {/* Orbiting Satellite Dot */}
+          <motion.div
+            className={`absolute w-2 h-2 rounded-full ${config.accent.replace("text", "bg")} shadow-sm`}
+            style={{
+              top: "50%",
+              left: "50%",
+              marginTop: "-4px",
+              marginLeft: "-4px",
+            }}
+            animate={{ rotate: 360 }}
+            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+          >
+            <div className="w-full h-full translate-x-[70px]" />
+          </motion.div>
+        </div>
+
+        {/* Typographical Title Header */}
+        <div className="h-8 mb-12 flex items-center justify-center">
           <AnimatePresence mode="wait">
-            <motion.h1 
-              key={titleIndex} 
-              initial={{ opacity: 0, y: 15 }} 
-              animate={{ opacity: 1, y: 0 }} 
-              exit={{ opacity: 0, y: -15 }} 
-              transition={{ duration: 0.6 }} 
-              className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter italic uppercase"
+            <motion.h1
+              key={titleIndex}
+              initial={{ opacity: 0, scale: 0.98, y: 5 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 1.02, y: -5 }}
+              transition={{ duration: 0.5 }}
+              className="text-[18px] md:text-[22px] font-[900] text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 tracking-[0.2em] uppercase italic drop-shadow-sm"
             >
               {config.titles[titleIndex]}
-              <motion.span animate={{ opacity: showCursor ? 1 : 0 }} className={`inline-block w-1.5 h-10 ${config.accent.replace('text', 'bg')} ml-3 align-middle`} />
             </motion.h1>
           </AnimatePresence>
         </div>
 
-        <div className="mb-16">
-          <div className="relative h-4 bg-slate-200/50 rounded-full overflow-hidden backdrop-blur-sm border border-slate-100">
-            <motion.div className={`absolute inset-y-0 left-0 rounded-full ${config.gradient}`} style={{ width: `${progress}%` }} initial={{ width: 0 }} />
+        {/* Naked Architecture Dashboard */}
+        <div className="w-full max-w-[400px] flex justify-between items-end gap-6 border-t border-slate-200/40 pt-7">
+          {/* Active Logs (Left) */}
+          <div className="space-y-4 flex-1">
+            {checklist.map((item) => (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: item.status === "pending" ? 0.4 : 1, x: 0 }}
+                transition={{ duration: 0.4 }}
+                className="flex items-center gap-3.5"
+              >
+                {item.status === "complete" ? (
+                  <Check
+                    className="w-[16px] h-[16px] text-emerald-500"
+                    strokeWidth={3}
+                  />
+                ) : item.status === "loading" ? (
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{
+                      duration: 1,
+                      repeat: Infinity,
+                      ease: "linear",
+                    }}
+                  >
+                    <Loader2 className={`w-[16px] h-[16px] ${config.accent}`} />
+                  </motion.div>
+                ) : (
+                  <div className="w-[16px] h-[16px] rounded border-2 border-slate-200" />
+                )}
+                <span
+                  className={`text-[11px] md:text-[12px] font-[800] tracking-[0.15em] uppercase ${item.status === "complete" ? "text-slate-400 line-through" : "text-slate-800"}`}
+                >
+                  {item.text}
+                </span>
+              </motion.div>
+            ))}
           </div>
-          <div className="flex justify-between mt-4">
-            <span className="text-[11px] text-slate-400 font-bold uppercase tracking-[0.2em]">{config.title} Status</span>
-            <span className={`text-lg ${config.accent} font-black tabular-nums tracking-tighter`}>{Math.round(progress)}%</span>
+
+          {/* Rapid Data Counters (Right) */}
+          <div className="flex flex-col items-end text-right gap-6">
+            {dataIndicators.map((ind, idx) => (
+              <div key={idx} className="flex flex-col items-end">
+                <span className="text-[10px] text-slate-400 font-[800] uppercase tracking-[0.2em] leading-none mb-1.5 opacity-80">
+                  {ind.text}
+                </span>
+                <span
+                  className={`text-[24px] md:text-[28px] font-black tabular-nums tracking-tighter leading-none ${ind.active ? config.accent : "text-slate-300 drop-shadow-sm"}`}
+                >
+                  {ind.active ? ind.count.toLocaleString() : "---"}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-             <div className="bg-white/80 backdrop-blur-md border border-slate-200/50 rounded-[40px] p-10 space-y-7 shadow-[0_15px_45px_-12px_rgba(0,0,0,0.03)]">
-              {checklist.map((item, idx) => (
-                <motion.div key={item.id} initial={{ opacity: 0, x: -15 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.1 }} className="flex items-center gap-5">
-                  <div className="flex-shrink-0">{getStatusIcon(item.status)}</div>
-                  <span className={`text-sm font-bold tracking-tight transition-colors uppercase italic ${item.status === "complete" ? "text-slate-300 line-through" : item.status === "loading" ? "text-slate-800" : "text-slate-400"}`}>
-                    {item.text}
-                  </span>
-                </motion.div>
-              ))}
-            </div>
-            <div className="bg-slate-100/50 border border-slate-200/20 rounded-[40px] p-10 space-y-8">
-                {dataIndicators.map((indicator, idx) => (
-                    <div key={idx} className="flex flex-col gap-2">
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">{indicator.text}</span>
-                        <div className="flex items-center justify-between">
-                            <span className={`text-xl font-black tabular-nums tracking-tighter ${indicator.active ? "text-slate-900" : "text-slate-300"}`}>
-                                {indicator.active ? indicator.count.toLocaleString() : "---"}
-                            </span>
-                            {indicator.active && <div className={`w-2 h-2 rounded-full ${config.accent.replace('text', 'bg')} animate-pulse`} />}
-                        </div>
-                    </div>
-                ))}
-            </div>
-        </div>
-
-        <motion.div className="mt-16 text-center" animate={{ opacity: [0.4, 0.8, 0.4] }} transition={{ duration: 2.5, repeat: Infinity }}>
-          <p className="text-slate-300 text-[11px] font-black uppercase tracking-[0.5em] italic">{config.statusText}</p>
-        </motion.div>
       </div>
     </div>
   );
@@ -1343,7 +1527,11 @@ function GenericEngineScreen({ config, onFinish }: { config: EngineConfig; onFin
 function MatchingEngineScreen({ onFinish }: { onFinish?: () => void }) {
   const config: EngineConfig = {
     title: "Global Matchmaker",
-    titles: ["Scoping Universities...", "Mapping Eligibility...", "Optimizing Success..."],
+    titles: [
+      "Scoping Universities...",
+      "Mapping Eligibility...",
+      "Optimizing Success...",
+    ],
     checklist: [
       { id: 1, text: "Course Req Mapped", status: "loading" },
       { id: 2, text: "Budget Alignment Check", status: "pending" },
@@ -1357,7 +1545,7 @@ function MatchingEngineScreen({ onFinish }: { onFinish?: () => void }) {
     gradient: "bg-gradient-to-r from-blue-600 to-indigo-500",
     glow: "bg-blue-500/20",
     accent: "text-blue-500",
-    statusText: "AbroadLift Neural Core Online"
+    statusText: "AbroadLift Neural Core Online",
   };
   return <GenericEngineScreen config={config} onFinish={onFinish} />;
 }
@@ -1365,7 +1553,11 @@ function MatchingEngineScreen({ onFinish }: { onFinish?: () => void }) {
 function FinancialEngineScreen({ onFinish }: { onFinish?: () => void }) {
   const config: EngineConfig = {
     title: "Fiscal Projection Oracle",
-    titles: ["Fetching Live FX...", "Modeling Inflation...", "Scaling Living Costs..."],
+    titles: [
+      "Fetching Live FX...",
+      "Modeling Inflation...",
+      "Scaling Living Costs...",
+    ],
     checklist: [
       { id: 1, text: "Live NPR conversion", status: "loading" },
       { id: 2, text: "3-Year tuition matrix", status: "pending" },
@@ -1379,80 +1571,192 @@ function FinancialEngineScreen({ onFinish }: { onFinish?: () => void }) {
     gradient: "bg-gradient-to-r from-emerald-500 to-teal-400",
     glow: "bg-emerald-500/20",
     accent: "text-emerald-400",
-    statusText: "Geo-Financial Engine Processing"
+    statusText: "Geo-Financial Engine Processing",
   };
   return <GenericEngineScreen config={config} onFinish={onFinish} />;
 }
 
 function AdmissionEngineScreen({ onFinish }: { onFinish?: () => void }) {
   const config: EngineConfig = {
-      title: "Admission Probability engine",
-      titles: ["Analyzing GPA Signals...", " intake Trending...", "Scoring profile..."],
-      checklist: [
-        { id: 1, text: "CGPA verification", status: "loading" },
-        { id: 2, text: "History Benchmark", status: "pending" },
-        { id: 3, text: "Risk Assessment", status: "pending" },
-      ],
-      indicators: [
-        { text: "Profiles Scanned", count: 85200, active: true },
-        { text: "Signals Weighing", count: 140, active: false },
-      ],
-      icon: Target,
-      gradient: "bg-gradient-to-r from-indigo-500 to-purple-600",
-      glow: "bg-indigo-500/20",
-      accent: "text-indigo-400",
-      statusText: "Eligibility Neural Matrix Active"
-    };
-    return <GenericEngineScreen config={config} onFinish={onFinish} />;
+    title: "Admission Probability engine",
+    titles: [
+      "Analyzing GPA Signals...",
+      " intake Trending...",
+      "Scoring profile...",
+    ],
+    checklist: [
+      { id: 1, text: "CGPA verification", status: "loading" },
+      { id: 2, text: "History Benchmark", status: "pending" },
+      { id: 3, text: "Risk Assessment", status: "pending" },
+    ],
+    indicators: [
+      { text: "Profiles Scanned", count: 85200, active: true },
+      { text: "Signals Weighing", count: 140, active: false },
+    ],
+    icon: Target,
+    gradient: "bg-gradient-to-r from-indigo-500 to-purple-600",
+    glow: "bg-indigo-500/20",
+    accent: "text-indigo-400",
+    statusText: "Eligibility Neural Matrix Active",
+  };
+  return <GenericEngineScreen config={config} onFinish={onFinish} />;
 }
 
 function VisaEngineScreen({ onFinish }: { onFinish?: () => void }) {
   const config: EngineConfig = {
-      title: "Visa Oracle engine",
-      titles: ["Scanning GTE Rules...", "Evaluating Solvency...", "Interview Simulator..."],
-      checklist: [
-        { id: 1, text: "Embassy Trends Scanned", status: "loading" },
-        { id: 2, text: "Proof of Funds Scale", status: "pending" },
-        { id: 3, text: "Success Probability", status: "pending" },
-      ],
-      indicators: [
-        { text: "Approvals Scanned", count: 3200, active: true },
-        { text: "Policies Indexed", count: 18, active: false },
-      ],
-      icon: Shield,
-      gradient: "bg-gradient-to-r from-amber-500 to-rose-600",
-      glow: "bg-amber-500/20",
-      accent: "text-amber-400",
-      statusText: "Global Visa Success Modeling"
-    };
-    return <GenericEngineScreen config={config} onFinish={onFinish} />;
+    title: "Visa Oracle engine",
+    titles: [
+      "Scanning GTE Rules...",
+      "Evaluating Solvency...",
+      "Interview Simulator...",
+    ],
+    checklist: [
+      { id: 1, text: "Embassy Trends Scanned", status: "loading" },
+      { id: 2, text: "Proof of Funds Scale", status: "pending" },
+      { id: 3, text: "Success Probability", status: "pending" },
+    ],
+    indicators: [
+      { text: "Approvals Scanned", count: 3200, active: true },
+      { text: "Policies Indexed", count: 18, active: false },
+    ],
+    icon: Shield,
+    gradient: "bg-gradient-to-r from-amber-500 to-rose-600",
+    glow: "bg-amber-500/20",
+    accent: "text-amber-400",
+    statusText: "Global Visa Success Modeling",
+  };
+  return <GenericEngineScreen config={config} onFinish={onFinish} />;
 }
 
-
 function AnalyzingScreen({ onFinish }: { onFinish?: () => void }) {
-   return <MatchingEngineScreen onFinish={onFinish} />;
+  return <MatchingEngineScreen onFinish={onFinish} />;
 }
 
 /* ─────────────── Main Component ─────────────── */
 export default function AbroadLiftMatchesPage() {
   const { data: session, status } = useSession();
+  const router = useRouter();
   const USD_TO_NPR = 138;
+  const MATCH_STORAGE_KEY = "abroadlift_match_data";
+  const MATCH_PENDING_KEY = "abroadlift_match_pending";
+  const RETURN_STEP_KEY = "returnToStep7";
   const [step, setStep] = useState(1);
   const [costPeriod, setCostPeriod] = useState<string>("First year");
-  const [costBreakdownTab, setCostBreakdownTab] = useState<
-    "year1" | "perMonth" | "yearByYear"
-  >("year1");
-  const [costDisplayCurrency, setCostDisplayCurrency] = useState<"USD" | "NPR">(
-    "USD",
-  );
   const [form, setForm] = useState<Form>(DEF);
   const [matches, setMatches] = useState<Match[]>([]);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
-  const [admissionTab, setAdmissionTab] = useState<string>("Safe");
   const [loading, setLoading] = useState(false);
-  const [transitionType, setTransitionType] = useState<"matching" | "finance" | "admission" | "visa" | "roadmap" | "summary" | null>(null);
+  const [transitionType, setTransitionType] = useState<
+    "matching" | "finance" | "admission" | "visa" | "roadmap" | "summary" | null
+  >(null);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(""); // For Step 3 (Field of Study)
+  const [dynamicLivingCost, setDynamicLivingCost] = useState<any>(null);
+  const [relocationStats, setRelocationStats] = useState<any>(null);
+  const [apiCostEstimate, setApiCostEstimate] = useState<any>(null);
+
+  const saveStep7State = (match?: Match | null) => {
+    const nextMatch = match ?? selectedMatch;
+    localStorage.setItem(
+      MATCH_STORAGE_KEY,
+      JSON.stringify({ form, step: 7, selectedMatch: nextMatch }),
+    );
+    localStorage.setItem(RETURN_STEP_KEY, "true");
+    if (nextMatch) {
+      localStorage.setItem(MATCH_PENDING_KEY, JSON.stringify(nextMatch));
+    }
+  };
+
+  const redirectToLoginForMatches = (match?: Match | null) => {
+    saveStep7State(match);
+    router.replace(`/login?callbackUrl=${encodeURIComponent("/matches")}`);
+  };
+
+  /* ─────────────── Shared State / Calc ─────────────── */
+  const financialMetrics = useMemo(() => {
+    if (!selectedMatch) return null;
+
+    const usdToNpr = USD_TO_NPR;
+    const tuitionUsd = Math.round(
+      selectedMatch.currency === "NPR"
+        ? (selectedMatch.tuitionFee || 22000) / usdToNpr
+        : selectedMatch.tuitionFee || 22000,
+    );
+    const livingBreakdownUsd = dynamicLivingCost || {
+      rent: 3800,
+      food: 1300,
+      transport: 500,
+      insurance: 320,
+      other: 700,
+    };
+
+    const yearlyLivingUsd = Object.values(
+      livingBreakdownUsd as Record<string, number>,
+    ).reduce((s, v) => s + v, 0);
+    const setupCostsUsd = 1500;
+    const graduationDuration =
+      parseInt(form.duration) || (form.degree === "Postgraduate" ? 2 : 4);
+
+    const totalYear1Usd = tuitionUsd + yearlyLivingUsd + setupCostsUsd;
+    const totalYear1Npr =
+      apiCostEstimate?.total_npr || Math.round(totalYear1Usd * usdToNpr);
+
+    const totalTuitionNpr = tuitionUsd * usdToNpr * graduationDuration;
+    const totalLivingNpr = yearlyLivingUsd * usdToNpr * graduationDuration;
+    const totalDegreeCostNpr =
+      totalYear1Npr +
+      (tuitionUsd + yearlyLivingUsd) * usdToNpr * (graduationDuration - 1);
+
+    const itemizedMonthly = apiCostEstimate
+      ? {
+          Education: Math.round(apiCostEstimate.education_npr),
+          Rent: Math.round(apiCostEstimate.housing_npr / 12),
+          Food: Math.round(apiCostEstimate.food_npr / 12),
+          Transport: Math.round(apiCostEstimate.transport_npr / 12),
+          Healthcare: Math.round(apiCostEstimate.healthcare_npr / 12),
+        }
+      : {
+          Education: Math.round(tuitionUsd * usdToNpr),
+          Rent: Math.round(((livingBreakdownUsd as any).rent * usdToNpr) / 12),
+          Food: Math.round(((livingBreakdownUsd as any).food * usdToNpr) / 12),
+          Transport: Math.round(
+            ((livingBreakdownUsd as any).transport * usdToNpr) / 12,
+          ),
+          Other: Math.round(
+            ((livingBreakdownUsd as any).other * usdToNpr) / 12,
+          ),
+        };
+
+    const fmtNpr = (v: number) =>
+      new Intl.NumberFormat("en-NP", {
+        style: "currency",
+        currency: "NPR",
+        maximumFractionDigits: 0,
+      }).format(v);
+    const fmtLakhs = (v: number) => `NPR ${(v / 100000).toFixed(1)} Lakhs`;
+
+    return {
+      tuitionUsd,
+      yearlyLivingUsd,
+      setupCostsUsd,
+      graduationDuration,
+      totalYear1Npr,
+      totalDegreeCostNpr,
+      totalTuitionNpr,
+      totalLivingNpr,
+      itemizedMonthly,
+      fmtNpr,
+      fmtLakhs,
+      usdToNpr,
+    };
+  }, [
+    selectedMatch,
+    form.duration,
+    form.degree,
+    dynamicLivingCost,
+    apiCostEstimate,
+  ]);
 
   const handleSavePlan = async () => {
     if (!selectedMatch) return;
@@ -1477,13 +1781,9 @@ export default function AbroadLiftMatchesPage() {
     }
   };
 
-  const [searchQuery, setSearchQuery] = useState(""); // For Step 3 (Field of Study)
-  const [dynamicLivingCost, setDynamicLivingCost] = useState<any>(null);
-  const [relocationStats, setRelocationStats] = useState<any>(null);
-
   // Persistence logic
   useEffect(() => {
-    const saved = localStorage.getItem("abroadlift_match_data");
+    const saved = localStorage.getItem(MATCH_STORAGE_KEY);
     if (saved) {
       try {
         const data = JSON.parse(saved);
@@ -1496,9 +1796,20 @@ export default function AbroadLiftMatchesPage() {
     }
   }, []);
 
+  // Jump to step 7 after login if flag is set
+  useEffect(() => {
+    if (
+      status === "authenticated" &&
+      localStorage.getItem(RETURN_STEP_KEY) === "true"
+    ) {
+      localStorage.removeItem(RETURN_STEP_KEY);
+      setStep(7);
+    }
+  }, [status]);
+
   useEffect(() => {
     const data = { form, step, selectedMatch };
-    localStorage.setItem("abroadlift_match_data", JSON.stringify(data));
+    localStorage.setItem(MATCH_STORAGE_KEY, JSON.stringify(data));
   }, [form, step, selectedMatch]);
 
   useEffect(() => {
@@ -1512,29 +1823,42 @@ export default function AbroadLiftMatchesPage() {
       setDynamicLivingCost(null);
       setRelocationStats(null);
       const code = selectedMatch.countryCode || form.countries[0] || "AU";
-      
+
       // Cost of Living
       fetch(`/api/cost-of-living?countryCode=${code}`)
         .then((res) => res.json())
         .then((data) => {
-           if (data && data.breakdown) {
-             setDynamicLivingCost(data.breakdown);
-           }
+          if (data && data.breakdown) {
+            setDynamicLivingCost(data.breakdown);
+          }
         })
         .catch(console.error);
 
-       // Relocation Index
-       fetch(`/api/relocation-index?countryCode=${code}`)
+      // Relocation Index
+      fetch(`/api/relocation-index?countryCode=${code}`)
         .then((res) => res.json())
         .then((data) => {
-           if (data && !data.error) {
-             setRelocationStats(data);
-           }
+          if (data && !data.error) {
+            setRelocationStats(data);
+          }
+        })
+        .catch(console.error);
+
+      // Full Cost Estimate API call
+      const tuitionUsdRaw =
+        selectedMatch.currency === "NPR"
+          ? (selectedMatch.tuitionFee || 22000) / USD_TO_NPR
+          : selectedMatch.tuitionFee || 22000;
+      fetch(
+        `/api/cost-estimate?country=${code}&city=${encodeURIComponent(selectedMatch.location?.split(",")[0] || "New York")}&tuition_usd=${Math.round(tuitionUsdRaw)}`,
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          if (!data.error) setApiCostEstimate(data);
         })
         .catch(console.error);
     }
   }, [step, selectedMatch, form.countries]);
-
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -1572,10 +1896,11 @@ export default function AbroadLiftMatchesPage() {
               sponsorIncome: p.sponsorIncome?.toString() || prev.sponsorIncome,
               duration: p.duration?.toString() || prev.duration,
               scholarship: !!p.scholarshipNeeded,
-              passportReady: !!p.passportReady,
               testDone: !!p.testDone,
               docsReady: !!p.docsReady,
-              countries: p.preferredCountry ? [p.preferredCountry] : prev.countries,
+              countries: p.preferredCountry
+                ? [p.preferredCountry]
+                : prev.countries,
             }));
           }
         } catch (e) {
@@ -1592,27 +1917,52 @@ export default function AbroadLiftMatchesPage() {
   const toggleCountry = (code: string) => {
     setForm((prev) => ({
       ...prev,
-      countries: prev.countries.includes(code)
-        ? []
-        : [code],
+      countries: prev.countries.includes(code) ? [] : [code],
     }));
   };
 
-  // const currentStepData = STEPS[step];
   const canContinue = () => {
     if (step === 0) return form.name.trim().length > 0;
     if (step === 1) return form.countries.length > 0;
     if (step === 2) return !!form.degree;
     if (step === 3) return !!form.field && !!form.program;
-    if (step === 4) return !!form.highestEducation && !!form.gpa && !!form.passingYear;
+    if (step === 4) {
+      if (!form.highestEducation || !form.gpa || !form.passingYear)
+        return false;
+      const gpa = parseFloat(form.gpa);
+      return !isNaN(gpa) && gpa >= 0 && gpa <= 4.0;
+    }
     if (step === 5) {
       if (form.hasEnglishTest === false) return true;
-      if (form.hasEnglishTest === true) return !!form.testType && !!form.testScore && form.testType !== "NONE";
+      if (form.hasEnglishTest === true) {
+        if (!form.testType || !form.testScore || form.testType === "NONE")
+          return false;
+        const score = parseFloat(form.testScore);
+        if (isNaN(score)) return false;
+        switch (form.testType) {
+          case "IELTS":
+            return score >= 0 && score <= 9;
+          case "SAT":
+            return score >= 400 && score <= 1600;
+          case "GRE":
+            return score >= 260 && score <= 340;
+          case "Duolingo":
+            return score >= 10 && score <= 160;
+          case "PTE Academic":
+            return score >= 10 && score <= 90;
+          case "TOEFL":
+            return score >= 0 && score <= 120;
+          case "GMAT":
+            return score >= 200 && score <= 800;
+          default:
+            return true;
+        }
+      }
       return false;
     }
     if (step === 6) return !!form.intake;
-    if (step === 7) return !!selectedMatch; // Matches step
-    if (step === 8) return true; // Preview/Result steps
+    if (step === 7) return !!selectedMatch;
+    if (step === 8) return true;
     if (step === 9) return true;
     if (step === 10) return true;
     if (step === 11) return true;
@@ -1623,26 +1973,24 @@ export default function AbroadLiftMatchesPage() {
 
   const handleNext = () => {
     if (step === 8) {
-       setStep(9);
-       return;
+      setStep(9);
+      return;
     }
     if (step === 9) {
-       setTransitionType("admission");
-       setStep(10);
-       return;
+      setTransitionType("admission");
+      setStep(10);
+      return;
     }
     if (step === 10) {
-       setTransitionType("visa");
-       setStep(11);
-       return;
+      setTransitionType("visa");
+      setStep(11);
+      return;
     }
     if (step === 6) {
-      // Step 6 is the last input step
       setTransitionType("matching");
       setStep(7);
       runMatch();
-      
-      // Auto-save profile progress if authenticated
+
       if (status === "authenticated") {
         fetch("/api/profile", {
           method: "PUT",
@@ -1650,6 +1998,12 @@ export default function AbroadLiftMatchesPage() {
           body: JSON.stringify(form),
         }).catch(console.error);
       }
+    } else if (step === 7) {
+      if (!session) {
+        redirectToLoginForMatches(selectedMatch);
+        return;
+      }
+      setStep(8);
     } else if (step < STEPS.length - 1) {
       setStep(step + 1);
     }
@@ -1676,9 +2030,6 @@ export default function AbroadLiftMatchesPage() {
     } catch (err: any) {
       setError(err.message || "Something went wrong fetching matches.");
     } finally {
-      // Keep loading true until AnalyzingScreen finishes if we want, 
-      // but here we just let the API finish.
-      // We will handle the visual finish in the UI.
       setLoading(false);
     }
   };
@@ -1686,7 +2037,6 @@ export default function AbroadLiftMatchesPage() {
   const getEligibilityScore = (f: Form) => {
     let score = 0;
 
-    // 1. English (30%)
     const eng = parseFloat(f.testScore) || 0;
     if (f.testType === "IELTS") {
       if (eng >= 7.5) score += 30;
@@ -1700,13 +2050,11 @@ export default function AbroadLiftMatchesPage() {
       else if (eng >= 80) score += 20;
       else score += 10;
     } else {
-      if (eng >= 70)
-        score += 30; // PTE/Duo general
+      if (eng >= 70) score += 30;
       else if (eng >= 60) score += 20;
       else score += 10;
     }
 
-    // 2. Aptitude (25%)
     if (f.aptitudeTest === "GRE") {
       const total =
         (parseInt(f.greVerbal) || 130) + (parseInt(f.greQuant) || 130);
@@ -1721,10 +2069,9 @@ export default function AbroadLiftMatchesPage() {
       else if (total >= 600) score += 15;
       else score += 5;
     } else {
-      score += 15; // Baseline for no-aptitude programs
+      score += 15;
     }
 
-    // 3. Academics (25%)
     let acad = 0;
     const gpa = parseFloat(f.gpa) || 3.0;
     if (gpa >= 3.8) acad = 25;
@@ -1736,7 +2083,6 @@ export default function AbroadLiftMatchesPage() {
     if (bk > 0) acad = Math.max(0, acad - bk * 2);
     score += acad;
 
-    // 4. Finance (20%)
     const bal = parseInt(f.bankBalance) || 0;
     if (bal >= 6000000) score += 20;
     else if (bal >= 4000000) score += 15;
@@ -1818,72 +2164,72 @@ export default function AbroadLiftMatchesPage() {
   };
 
   const renderStep = () => {
-    // 1: Destination Countries
     if (step === 1) {
       return (
         <div className="flex flex-col items-center animate-in fade-in zoom-in-95 duration-700 w-full max-w-2xl mx-auto pb-4">
-          <div className="mb-6 text-center px-4">
-            <h2 className="text-[22px] font-bold text-[#111827] mb-2 tracking-tight">
+          <div className="mb-4 text-center px-4">
+            <h2 className="text-[20px] font-bold text-[#111827] mb-1.5 tracking-tight">
               Where do you want to study?
             </h2>
-            <p className="text-[#64748b] text-[14px] leading-snug font-medium max-w-sm mx-auto">
-              We&apos;ll match universities and estimate your cost & visa chances
+            <p className="text-[#64748b] text-[13px] leading-snug font-medium max-w-sm mx-auto">
+              We&apos;ll match universities and estimate your cost &amp; visa
+              chances
             </p>
           </div>
 
-          <div className="w-full mb-8 overflow-hidden rounded-[24px] shadow-sm border border-slate-50 lg:hidden">
+          {/* Hero image — small on mobile, taller on desktop */}
+          <div className="w-full mb-4 overflow-hidden rounded-[20px] shadow-sm border border-slate-50 lg:hidden">
             <Image
               src="/country.png"
               alt="Destinations"
               width={800}
               height={400}
-              className="w-full h-[150px] md:h-[220px] object-cover"
+              className="w-full h-[85px] md:h-[160px] lg:h-[200px] object-cover"
               priority
             />
           </div>
 
           <div className="w-full px-4 overflow-visible">
-            <div className="grid grid-cols-4 gap-y-8 gap-x-1 sm:gap-x-4 w-full">
-                {COUNTRIES.map((c: any) => {
-                  const isSel = form.countries.includes(c.code);
-                  return (
-                    <button
-                      key={c.code}
-                      onClick={() => toggleCountry(c.code)}
-                      className="group flex flex-col items-center gap-2.5 transition-all active:scale-95 w-full"
+            <div className="grid grid-cols-4 gap-y-3 gap-x-1 sm:gap-x-4 w-full">
+              {COUNTRIES.map((c: any) => {
+                const isSel = form.countries.includes(c.code);
+                return (
+                  <button
+                    key={c.code}
+                    onClick={() => toggleCountry(c.code)}
+                    className="group flex flex-col items-center gap-1 transition-all active:scale-95 w-full"
+                  >
+                    <div
+                      className={`relative w-[58px] h-[42px] sm:w-[80px] sm:h-[58px] rounded-[14px] sm:rounded-[20px] overflow-hidden bg-white flex items-center justify-center p-[2px] transition-all ${
+                        isSel
+                          ? "ring-[2.5px] ring-blue-500 shadow-lg transform scale-[1.05]"
+                          : "shadow-[0_4px_12px_-4px_rgba(0,0,0,0.08)] border border-slate-50 hover:border-blue-200"
+                      }`}
                     >
-                      <div
-                        className={`relative w-[72px] h-[52px] sm:w-[88px] sm:h-[62px] rounded-[18px] sm:rounded-[22px] overflow-hidden bg-white flex items-center justify-center p-[2.5px] sm:p-[3px] transition-all ${isSel
-                            ? "ring-[2.5px] ring-blue-500 shadow-lg transform scale-[1.05]"
-                            : "shadow-[0_4px_12px_-4px_rgba(0,0,0,0.08)] border border-slate-50 hover:border-blue-200"
-                          }`}
-                      >
-                        <div className="w-full h-full rounded-[14px] sm:rounded-[18px] overflow-hidden">
-                          <FlagIcon
-                            countryCode={c.code}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
+                      <div className="w-full h-full rounded-[12px] sm:rounded-[18px] overflow-hidden">
+                        <FlagIcon
+                          countryCode={c.code}
+                          className="w-full h-full object-cover"
+                        />
                       </div>
-                      <span
-                        className={`text-[13px] sm:text-[15px] font-[600] text-center tracking-tight transition-colors ${isSel ? "text-blue-600" : "text-[#475569]"
-                          }`}
-                      >
-                        {c.name}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
+                    </div>
+                    <span
+                      className={`text-[11px] sm:text-[13px] font-[600] text-center tracking-tight transition-colors ${
+                        isSel ? "text-blue-600" : "text-[#475569]"
+                      }`}
+                    >
+                      {c.name}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
-
+        </div>
       );
     }
 
-    // 2: Study Level
     if (step === 2) {
-      // Simplified list based on the user's screenshot
       const DISPLAY_DEGREES = [
         { v: "bachelor-4", l: "Bachelor's Degree", icon: GraduationCap },
         { v: "masters", l: "Master's Degree", icon: BookOpen },
@@ -1893,24 +2239,24 @@ export default function AbroadLiftMatchesPage() {
 
       return (
         <div className="animate-in fade-in zoom-in-95 duration-700 w-full max-w-5xl mx-auto pb-2 px-4">
-          <div className="mb-6 text-center">
-            <h2 className="text-[20px] lg:text-[24px] font-bold text-[#111827] tracking-tight">
+          <div className="mb-3 md:mb-6 text-center">
+            <h2 className="text-[18px] md:text-[20px] lg:text-[24px] font-bold text-[#111827] tracking-tight">
               What level of study are you planning?
             </h2>
           </div>
 
-          <div className="w-full mb-8 overflow-hidden rounded-[24px] shadow-sm border border-slate-50 lg:hidden">
+          <div className="w-full mb-4 md:mb-8 overflow-hidden rounded-[24px] shadow-sm border border-slate-50 lg:hidden">
             <Image
               src="/abrd.png"
               alt="Study Level"
               width={800}
               height={400}
-              className="w-full h-[180px] object-cover"
+              className="w-full h-[85px] md:h-[180px] object-cover"
               priority
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-5 w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 md:gap-4 lg:gap-5 w-full">
             {DISPLAY_DEGREES.map((d) => {
               const isSel = form.degree === d.v;
               const Icon = d.icon;
@@ -1918,28 +2264,31 @@ export default function AbroadLiftMatchesPage() {
                 <button
                   key={d.v}
                   onClick={() => updateForm("degree", d.v)}
-                  className={`group relative flex items-center gap-6 px-8 py-5 rounded-[22px] border transition-all duration-300 ${isSel
+                  className={`group relative flex items-center gap-4 md:gap-6 px-5 md:px-8 py-3.5 md:py-5 rounded-[18px] md:rounded-[22px] border transition-all duration-300 ${
+                    isSel
                       ? "border-blue-500 bg-white shadow-lg shadow-blue-500/5 -translate-y-0.5"
                       : "border-slate-100 bg-white shadow-sm hover:border-blue-200"
-                    }`}
+                  }`}
                 >
                   <div
-                    className={`shrink-0 w-[52px] h-[52px] rounded-xl flex items-center justify-center transition-all border ${isSel
+                    className={`shrink-0 w-[40px] h-[40px] md:w-[52px] md:h-[52px] rounded-xl flex items-center justify-center transition-all border ${
+                      isSel
                         ? "bg-white text-slate-900 border-blue-500 shadow-sm"
                         : "bg-slate-50 text-slate-400 border-slate-100"
-                      }`}
+                    }`}
                   >
-                    <Icon className="w-6 h-6" strokeWidth={1.5} />
+                    <Icon className="w-5 h-5 md:w-6 md:h-6" strokeWidth={1.5} />
                   </div>
                   <span
-                    className={`text-[17px] font-semibold ${isSel ? "text-slate-900" : "text-slate-700"
-                      }`}
+                    className={`text-[15px] md:text-[17px] font-semibold ${
+                      isSel ? "text-slate-900" : "text-slate-700"
+                    }`}
                   >
                     {d.l}
                   </span>
                   {isSel && (
-                    <div className="ml-auto w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center shadow-sm">
-                      <CheckCircle2 className="w-4 h-4 text-white" />
+                    <div className="ml-auto w-5 h-5 md:w-6 md:h-6 bg-blue-500 rounded-full flex items-center justify-center shadow-sm">
+                      <CheckCircle2 className="w-3.5 h-3.5 md:w-4 md:h-4 text-white" />
                     </div>
                   )}
                 </button>
@@ -1950,77 +2299,86 @@ export default function AbroadLiftMatchesPage() {
       );
     }
 
-    // 3: Field Of Study
     if (step === 3) {
       const allFields = FIELDS.map((f) => f.v);
 
-      const filteredFields = allFields.filter(f =>
-        f.toLowerCase().includes(searchQuery.toLowerCase())
+      const filteredFields = allFields.filter((f) =>
+        f.toLowerCase().includes(searchQuery.toLowerCase()),
       );
 
       return (
         <div className="flex flex-col animate-in fade-in zoom-in-95 duration-700 w-full max-w-5xl mx-auto pb-2 px-4">
-          <div className="mb-6 text-center">
-            <h2 className="text-[20px] lg:text-[24px] font-bold text-[#111827] tracking-tight">
+          <div className="mb-3 md:mb-6 text-center">
+            <h2 className="text-[18px] md:text-[20px] lg:text-[24px] font-bold text-[#111827] tracking-tight">
               What do you want to study?
             </h2>
           </div>
 
-          <div className="w-full mb-8 overflow-hidden rounded-[24px] shadow-sm border border-slate-50 lg:hidden">
+          <div className="w-full mb-4 md:mb-8 overflow-hidden rounded-[24px] shadow-sm border border-slate-50 lg:hidden">
             <Image
               src="/studies.png"
               alt="Field of Study"
               width={800}
               height={400}
-              className="w-full h-[180px] object-cover"
+              className="w-full h-[85px] md:h-[180px] object-cover"
               priority
             />
           </div>
 
-          <div className="relative mb-8 max-w-2xl mx-auto w-full">
-            <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400">
-              <Search className="w-5 h-5" />
+          <div className="sticky top-[60px] md:top-[70px] z-20 bg-white/95 backdrop-blur-sm pb-3 md:pb-0 md:relative md:top-auto md:z-auto md:bg-transparent md:backdrop-blur-none mb-3 md:mb-8 max-w-2xl mx-auto w-full">
+            <div className="relative">
+              <div className="absolute left-4 md:left-5 top-1/2 -translate-y-1/2 text-slate-400">
+                <Search className="w-4 h-4 md:w-5 md:h-5" />
+              </div>
+              <input
+                type="text"
+                placeholder={"\u201CSearch study courses\u201D"}
+                className="w-full h-[48px] md:h-[60px] pl-11 md:pl-14 pr-4 bg-[#f8fafc] border border-slate-200 rounded-[16px] md:rounded-[20px] text-[14px] md:text-[16px] font-medium text-slate-900 placeholder:text-slate-400 placeholder:italic focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all shadow-sm"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
-            <input
-              type="text"
-              placeholder='“Search study courses”'
-              className="w-full h-[60px] pl-14 pr-4 bg-[#f8fafc] border border-slate-200 rounded-[20px] text-[16px] font-medium text-slate-900 placeholder:text-slate-400 placeholder:italic focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all shadow-sm"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 md:gap-4 w-full">
             {filteredFields.map((f) => {
               const isSel = form.field === f;
               return (
-                <div key={f} className={`transition-all duration-500 ${isSel ? "md:col-span-2" : ""}`}>
+                <div
+                  key={f}
+                  className={`transition-all duration-500 ${isSel ? "md:col-span-2" : ""}`}
+                >
                   <button
                     onClick={() => {
                       updateForm("field", isSel ? "" : f);
                       updateForm("program", "");
                     }}
-                    className={`w-full h-[64px] px-8 flex items-center justify-between rounded-[22px] border transition-all duration-300 ${isSel
+                    className={`w-full h-[50px] md:h-[64px] px-5 md:px-8 flex items-center justify-between rounded-[16px] md:rounded-[22px] border transition-all duration-300 ${
+                      isSel
                         ? "border-blue-500 bg-white shadow-lg shadow-blue-500/5 -translate-y-0.5"
                         : "border-slate-100 bg-white shadow-sm hover:border-blue-200"
-                      }`}
+                    }`}
                   >
-                    <span className={`text-[16px] font-semibold ${isSel ? "text-slate-900" : "text-slate-700"}`}>
+                    <span
+                      className={`text-[14px] md:text-[16px] font-semibold ${isSel ? "text-slate-900" : "text-slate-700"}`}
+                    >
                       {f}
                     </span>
-                    <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform duration-300 ${isSel ? "rotate-180 text-blue-500" : ""}`} />
+                    <ChevronDown
+                      className={`w-4 h-4 md:w-5 md:h-5 text-slate-400 transition-transform duration-300 ${isSel ? "rotate-180 text-blue-500" : ""}`}
+                    />
                   </button>
 
                   {isSel && (
-                    <div className="mt-3 p-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 animate-in fade-in slide-in-from-top-2 duration-300 bg-slate-50/50 rounded-[24px] border border-slate-100">
+                    <div className="mt-2 md:mt-3 p-2 md:p-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1.5 md:gap-2 animate-in fade-in slide-in-from-top-2 duration-300 bg-slate-50/50 rounded-[18px] md:rounded-[24px] border border-slate-100">
                       {(PROGRAMS[f] || []).map((p) => (
                         <button
                           key={p}
                           onClick={() => updateForm("program", p)}
-                          className={`w-full text-left px-5 py-3.5 rounded-[16px] text-[14px] font-semibold transition-all ${form.program === p
+                          className={`w-full text-left px-4 md:px-5 py-2.5 md:py-3.5 rounded-[12px] md:rounded-[16px] text-[13px] md:text-[14px] font-semibold transition-all ${
+                            form.program === p
                               ? "bg-blue-600 text-white shadow-md"
                               : "text-slate-600 hover:bg-white hover:shadow-sm"
-                            }`}
+                          }`}
                         >
                           {p}
                         </button>
@@ -2034,7 +2392,6 @@ export default function AbroadLiftMatchesPage() {
         </div>
       );
     }
-    // 4: Academics
     if (step === 4) {
       const EDUCATION_LEVELS = [
         "10th Grade / SLC",
@@ -2042,26 +2399,26 @@ export default function AbroadLiftMatchesPage() {
         "3-Year Diploma",
         "Bachelor's Degree",
         "Master's Degree",
-        "Integrated Master's"
+        "Integrated Master's",
       ];
 
       const YEARS = Array.from({ length: 15 }, (_, i) => (2026 - i).toString());
 
       return (
         <div className="flex flex-col animate-in fade-in zoom-in-95 duration-700 w-full max-w-5xl mx-auto pb-2 px-4 mt-1">
-          <div className="mb-6 text-center">
-            <h2 className="text-[20px] lg:text-[24px] font-bold text-[#111827] tracking-tight">
+          <div className="mb-3 md:mb-6 text-center">
+            <h2 className="text-[18px] md:text-[20px] lg:text-[24px] font-bold text-[#111827] tracking-tight">
               Tell us about your background
             </h2>
           </div>
 
-          <div className="w-full mb-8 overflow-hidden rounded-[24px] shadow-sm border border-slate-50 lg:hidden">
+          <div className="w-full mb-4 md:mb-8 overflow-hidden rounded-[24px] shadow-sm border border-slate-50 lg:hidden">
             <Image
               src="/graduation.png"
               alt="Academics"
               width={800}
               height={400}
-              className="w-full h-[180px] object-cover"
+              className="w-full h-[85px] md:h-[180px] object-cover"
               priority
             />
           </div>
@@ -2085,13 +2442,22 @@ export default function AbroadLiftMatchesPage() {
               </label>
               <div className="relative">
                 <input
-                  type="text"
-                  placeholder="Academics Score (eg: 3.8/4.0)"
-                  className="w-full h-[60px] px-6 bg-[#f8fafc] border border-slate-200 rounded-[22px] text-[16px] font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all shadow-sm"
+                  type="number"
+                  min="0"
+                  max="4.0"
+                  step="0.01"
+                  placeholder="Academics Score (eg: 3.8)"
+                  className={`w-full h-[50px] md:h-[60px] px-6 bg-[#f8fafc] border rounded-[22px] text-[16px] font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all shadow-sm ${form.gpa && (parseFloat(form.gpa) < 0 || parseFloat(form.gpa) > 4.0) ? "border-red-400 ring-2 ring-red-500/20" : "border-slate-200"}`}
                   value={form.gpa}
                   onChange={(e) => updateForm("gpa", e.target.value)}
                 />
               </div>
+              {form.gpa &&
+                (parseFloat(form.gpa) < 0 || parseFloat(form.gpa) > 4.0) && (
+                  <p className="text-red-500 text-[11px] font-bold ml-2">
+                    Score must be between 0.0 and 4.0
+                  </p>
+                )}
             </div>
 
             <div className="space-y-3">
@@ -2107,23 +2473,29 @@ export default function AbroadLiftMatchesPage() {
             </div>
           </div>
 
-          {/* Extra spacing to prevent overlap with the fixed-ish footer on mobile */}
           <div className="h-32 md:hidden" />
         </div>
       );
     }
 
-    // 5: English
     if (step === 5) {
-      const TESTS = ["IELTS", "TOEFL", "PTE", "Duolingo", "GRE", "GMAT"];
+      const TESTS = [
+        "IELTS",
+        "TOEFL",
+        "PTE Academic",
+        "Duolingo",
+        "SAT",
+        "GRE",
+        "GMAT",
+      ];
 
       return (
         <div className="flex flex-col animate-in fade-in zoom-in-95 duration-700 w-full max-w-5xl mx-auto pb-2 px-4">
-          <div className="mb-2 text-center">
-            <h2 className="text-[20px] lg:text-[24px] font-bold text-[#111827] tracking-tight">
+          <div className="mb-1.5 md:mb-2 text-center">
+            <h2 className="text-[18px] md:text-[20px] lg:text-[24px] font-bold text-[#111827] tracking-tight">
               Do you have an English test score?
             </h2>
-            <p className="text-[14px] text-slate-500 font-medium mt-1">
+            <p className="text-[13px] md:text-[14px] text-slate-500 font-medium mt-1">
               This helps us estimate your admission chances
             </p>
           </div>
@@ -2134,19 +2506,20 @@ export default function AbroadLiftMatchesPage() {
               alt="English Test"
               width={800}
               height={400}
-              className="w-full h-[180px] object-cover"
+              className="w-full h-[85px] md:h-[160px] lg:h-[200px] object-cover"
               priority
             />
           </div>
 
           <div className="flex flex-col items-center w-full max-w-2xl mx-auto">
-            <div className="grid grid-cols-2 gap-4 w-full mb-10">
+            <div className="grid grid-cols-2 gap-3 w-full mb-5">
               <button
                 onClick={() => updateForm("hasEnglishTest", true)}
-                className={`h-[64px] flex items-center justify-center rounded-[22px] font-bold text-[15px] transition-all border ${form.hasEnglishTest === true
-                    ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/20 shadow-lg"
+                className={`h-[48px] md:h-[54px] flex items-center justify-center rounded-[22px] font-bold text-[15px] transition-all border ${
+                  form.hasEnglishTest === true
+                    ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/20"
                     : "bg-white text-slate-600 border-slate-100 shadow-sm hover:border-blue-200"
-                  }`}
+                }`}
               >
                 Yes, I have
               </button>
@@ -2156,19 +2529,22 @@ export default function AbroadLiftMatchesPage() {
                   updateForm("testType", "NONE");
                   updateForm("testScore", "0");
                 }}
-                className={`h-[64px] flex items-center justify-center rounded-[22px] font-bold text-[15px] transition-all border ${form.hasEnglishTest === false
-                    ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/20 shadow-lg"
+                className={`h-[48px] md:h-[54px] flex items-center justify-center rounded-[22px] font-bold text-[15px] transition-all border ${
+                  form.hasEnglishTest === false
+                    ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/20"
                     : "bg-white text-slate-600 border-slate-100 shadow-sm hover:border-blue-200"
-                  }`}
+                }`}
               >
                 No, I haven&apos;t
               </button>
             </div>
 
             {form.hasEnglishTest === true && (
-              <div className="w-full space-y-8 animate-in fade-in slide-in-from-top-4 duration-500">
+              <div className="w-full space-y-4 md:space-y-8 animate-in fade-in slide-in-from-top-4 duration-500">
                 <div className="text-center">
-                  <p className="text-[16px] font-bold text-slate-800">Describe your English level?</p>
+                  <p className="text-[16px] font-bold text-slate-800">
+                    Describe your English level?
+                  </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
@@ -2189,78 +2565,122 @@ export default function AbroadLiftMatchesPage() {
                       Your Score
                     </label>
                     <input
-                      type="text"
+                      type="number"
+                      step={form.testType === "IELTS" ? "0.5" : "1"}
                       placeholder="Enter your score"
-                      className="w-full h-[60px] px-6 bg-[#f8fafc] border border-slate-200 rounded-[22px] text-[16px] font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all shadow-sm"
+                      className="w-full h-[50px] md:h-[60px] px-6 bg-[#f8fafc] border border-slate-200 rounded-[22px] text-[16px] font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all shadow-sm"
                       value={form.testScore === "0" ? "" : form.testScore}
                       onChange={(e) => updateForm("testScore", e.target.value)}
                     />
+                    {(() => {
+                      const score = parseFloat(form.testScore);
+                      if (!form.testScore || isNaN(score)) return null;
+                      let err = "";
+                      if (form.testType === "IELTS" && (score < 0 || score > 9))
+                        err = "IELTS must be between 0 and 9";
+                      if (
+                        form.testType === "SAT" &&
+                        (score < 400 || score > 1600)
+                      )
+                        err = "SAT must be between 400 and 1600";
+                      if (
+                        form.testType === "GRE" &&
+                        (score < 260 || score > 340)
+                      )
+                        err = "GRE must be between 260 and 340";
+                      if (
+                        form.testType === "Duolingo" &&
+                        (score < 10 || score > 160)
+                      )
+                        err = "Duolingo must be between 10 and 160";
+                      if (
+                        form.testType === "PTE Academic" &&
+                        (score < 10 || score > 90)
+                      )
+                        err = "PTE must be between 10 and 90";
+                      return err ? (
+                        <p className="text-red-500 text-[11px] font-bold ml-2">
+                          {err}
+                        </p>
+                      ) : null;
+                    })()}
                   </div>
                 </div>
               </div>
             )}
 
             {form.hasEnglishTest === false && (
-              <div className="text-center p-8 bg-blue-50/30 rounded-[32px] border border-blue-100/50 w-full animate-in zoom-in-95 duration-500">
-                <p className="text-blue-800 font-semibold mb-1 text-[16px]">No problem!</p>
-                <p className="text-blue-600/80 text-[14px]">You can continue with your matches, but we recommend taking a test later.</p>
+              <div className="text-center p-5 bg-blue-50/30 rounded-[24px] border border-blue-100/50 w-full animate-in zoom-in-95 duration-500">
+                <p className="text-blue-800 font-semibold mb-1 text-[15px]">
+                  No problem!
+                </p>
+                <p className="text-blue-600/80 text-[13px]">
+                  You can continue with your matches, but we recommend taking a
+                  test later.
+                </p>
               </div>
             )}
           </div>
 
-          <div className="h-20 md:hidden" />
+          <div className="h-4 md:hidden" />
         </div>
       );
     }
 
-    // 6: Target Intake
     if (step === 6) {
       const INTAKE_OPTIONS = [
         { main: "Spring 2026", sub: "September Intake" },
         { main: "Summer 2026", sub: "September Intake" },
         { main: "Fall 2025", sub: "September Intake" },
-        { main: "Not Sure", sub: "We'll suggest" }
+        { main: "Not Sure", sub: "We'll suggest" },
       ];
 
       return (
         <div className="flex flex-col animate-in fade-in zoom-in-95 duration-700 w-full max-w-5xl mx-auto pb-4 px-4">
           <div className="mb-2 text-center">
-            <h2 className="text-[20px] lg:text-[24px] font-bold text-[#111827] tracking-tight">
+            <h2 className="text-[18px] md:text-[20px] lg:text-[24px] font-bold text-[#111827] tracking-tight">
               When do you want to start your studies?
             </h2>
-            <p className="text-[14px] text-slate-500 font-medium mt-1">
+            <p className="text-[13px] md:text-[14px] text-slate-500 font-medium mt-1">
               This helps us estimate your admission chances
             </p>
           </div>
 
-          <div className="w-full mb-8 overflow-hidden rounded-[24px] shadow-sm border border-slate-50 lg:hidden">
+          <div className="w-full mb-4 md:mb-8 overflow-hidden rounded-[24px] shadow-sm border border-slate-50 lg:hidden">
             <Image
               src="/intake.png"
               alt="World Map"
               width={800}
               height={400}
-              className="w-full h-[180px] object-cover"
+              className="w-full h-[85px] md:h-[180px] object-cover"
               priority
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4 w-full max-w-2xl mx-auto mb-10">
+          <div className="grid grid-cols-2 gap-3 md:gap-4 w-full max-w-2xl mx-auto mb-10">
             {INTAKE_OPTIONS.map((opt) => {
               const isSel = form.intake === opt.main;
               return (
                 <button
                   key={opt.main}
                   onClick={() => updateForm("intake", opt.main)}
-                  className={`flex flex-col items-start gap-1 p-5 lg:p-6 rounded-[24px] border transition-all text-left group overflow-hidden relative ${isSel
+                  className={`flex flex-col items-start gap-0.5 p-2.5 md:p-5 lg:p-6 rounded-[18px] md:rounded-[20px] border transition-all text-left group overflow-hidden relative ${
+                    isSel
                       ? "border-blue-500 bg-blue-50/20 shadow-lg shadow-blue-500/10"
                       : "border-slate-100 bg-white shadow-sm hover:border-blue-200"
-                    }`}
+                  }`}
                 >
-                  <div className="flex items-center gap-2">
-                    <Calendar className={`w-4 h-4 ${isSel ? "text-blue-500" : "text-red-400"}`} />
-                    <span className="text-[15px] font-bold text-slate-800">{opt.main}</span>
+                  <div className="flex items-center gap-1 md:gap-1.5">
+                    <Calendar
+                      className={`w-3 h-3 md:w-3.5 md:h-3.5 ${isSel ? "text-blue-500" : "text-red-400"}`}
+                    />
+                    <span className="text-[12px] md:text-[13px] font-bold text-slate-800">
+                      {opt.main}
+                    </span>
                   </div>
-                  <span className={`text-[12px] font-medium ml-6 ${isSel ? "text-blue-600" : "text-slate-500"}`}>
+                  <span
+                    className={`text-[10px] md:text-[11px] font-medium ml-4 ${isSel ? "text-blue-600" : "text-slate-500"}`}
+                  >
                     {opt.sub}
                   </span>
                 </button>
@@ -2268,377 +2688,22 @@ export default function AbroadLiftMatchesPage() {
             })}
           </div>
 
-           <div className="h-2 md:hidden" />
+          <div className="h-2 md:hidden" />
 
           <div className="h-20 md:hidden" />
         </div>
       );
     }
-    // 7: Budget
-    if (step === -1) {
-      return (
-        <div className="flex flex-col items-center animate-in fade-in zoom-in-95 duration-700 w-full max-w-2xl mx-auto pb-12 mt-2">
 
-          <div className="space-y-10">
-            {/* 1. Univ & City Type */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm hover:border-blue-500 transition-all">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">
-                  University Category
-                </p>
-                <div className="flex bg-slate-100 p-1 rounded-2xl">
-                  {["Public", "Private"].map((t) => (
-                    <button
-                      key={t}
-                      onClick={() => updateForm("univType", t)}
-                      className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all ${form.univType === t ? "bg-white text-blue-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}
-                    >
-                      {t}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm hover:border-blue-500 transition-all">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">
-                  Location Tiering
-                </p>
-                <div className="flex bg-slate-100 p-1 rounded-2xl">
-                  {[
-                    { v: "Tier 1", l: "Elite (Metropolitan)" },
-                    { v: "Tier 2", l: "Affordable (Regional)" },
-                  ].map((t) => (
-                    <button
-                      key={t.v}
-                      onClick={() => updateForm("cityType", t.v)}
-                      className={`flex-1 py-2.5 rounded-xl text-[10px] font-black transition-all ${form.cityType === t.v ? "bg-white text-blue-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}
-                    >
-                      {t.v}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
+    if (transitionType === "matching")
+      return <MatchingEngineScreen onFinish={() => setTransitionType(null)} />;
+    if (transitionType === "finance")
+      return <FinancialEngineScreen onFinish={() => setTransitionType(null)} />;
+    if (transitionType === "admission")
+      return <AdmissionEngineScreen onFinish={() => setTransitionType(null)} />;
+    if (transitionType === "visa")
+      return <VisaEngineScreen onFinish={() => setTransitionType(null)} />;
 
-            {/* 2. Duration */}
-            <div className="bg-white rounded-[32px] border border-slate-100 p-8 shadow-sm text-center">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">
-                Estimated Course Duration
-              </p>
-              <div className="flex justify-center flex-wrap gap-4">
-                {["1", "2", "3", "4"].map((y) => (
-                  <button
-                    key={y}
-                    onClick={() => updateForm("duration", y)}
-                    className={`w-16 h-16 rounded-2xl border-2 flex flex-col items-center justify-center transition-all ${form.duration === y ? "border-blue-600 bg-blue-50 text-blue-800 shadow-lg shadow-blue-500/10" : "border-slate-50 bg-slate-50 text-slate-400 hover:border-blue-200"}`}
-                  >
-                    <span className="text-xl font-black leading-none">{y}</span>
-                    <span className="text-[8px] font-black uppercase tracking-tighter">
-                      Year{y !== "1" && "s"}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* 3. Annual Budget */}
-            <div className="bg-slate-900 rounded-[40px] p-10 text-white shadow-2xl relative overflow-hidden">
-              <div className="absolute bottom-0 right-0 p-10 opacity-10">
-                <Wallet className="w-40 h-40" />
-              </div>
-              <div className="relative z-10 text-center">
-                <p className="text-[10px] font-black text-blue-400 uppercase tracking-[0.3em] mb-6">
-                  Primary Annual Budget
-                </p>
-                <div className="flex flex-col items-center gap-6">
-                  <div className="flex bg-white/10 p-1 rounded-2xl border border-white/10">
-                    {CURRENCIES.map((c) => (
-                      <button
-                        key={c}
-                        onClick={() => updateForm("currency", c)}
-                        className={`px-4 py-1.5 rounded-xl text-[10px] font-bold transition-all ${form.currency === c ? "bg-white text-blue-600 shadow-sm" : "text-white/40"}`}
-                      >
-                        {c}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="flex items-center justify-center gap-2">
-                    <span className="text-4xl font-black text-white/20 uppercase tracking-tighter">
-                      {form.currency}
-                    </span>
-                    <input
-                      type="number"
-                      value={form.budget}
-                      onChange={(e) => updateForm("budget", e.target.value)}
-                      placeholder="00,000"
-                      className="w-56 text-7xl font-black text-white outline-none bg-transparent placeholder:text-white/5"
-                    />
-                  </div>
-                  <div className="flex flex-wrap justify-center gap-3">
-                    {BUDGET_PRESETS.map((p) => (
-                      <button
-                        key={p.v}
-                        onClick={() => updateForm("budget", p.v)}
-                        className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all ${form.budget === p.v ? "bg-blue-600 border-blue-500 text-white" : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10"}`}
-                      >
-                        {p.l}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    // 7: Enhanced Profile
-    if (step === -1) {
-      return (
-        <div className="flex flex-col items-center animate-in fade-in zoom-in-95 duration-700 w-full max-w-2xl mx-auto pb-12 mt-8">
-          <div className="mb-14 text-center flex flex-col items-center">
-            <h2 className="text-[20px] sm:text-[22px] font-[700] text-[#111827] mb-3 tracking-tight">
-              {STEPS[step]?.question}
-            </h2>
-            <p className="text-[#64748b] font-[400] text-[14px] sm:text-[15px] leading-snug w-full">
-              Your final profile details power our high-accuracy eligibility engine.
-            </p>
-          </div>
-
-          <div className="space-y-12">
-            {/* 1. Academic Record */}
-            <section className="space-y-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600">
-                  <GraduationCap className="w-5 h-5" />
-                </div>
-                <h3 className="text-xl font-black text-slate-900">
-                  Academic History
-                </h3>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm focus-within:border-blue-500 transition-all">
-                  <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">
-                    GPA / Percentage
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={form.gpa}
-                    onChange={(e) => updateForm("gpa", e.target.value)}
-                    placeholder="3.8"
-                    className="w-full text-xl font-black text-slate-900 outline-none bg-transparent"
-                  />
-                </div>
-                <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm focus-within:border-blue-500 transition-all">
-                  <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">
-                    Backlogs
-                  </label>
-                  <input
-                    type="number"
-                    value={form.backlogs}
-                    onChange={(e) => updateForm("backlogs", e.target.value)}
-                    placeholder="0"
-                    className="w-full text-xl font-black text-slate-900 outline-none bg-transparent"
-                  />
-                </div>
-                <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm focus-within:border-blue-500 transition-all">
-                  <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">
-                    Study Gap (Years)
-                  </label>
-                  <input
-                    type="number"
-                    value={form.studyGap}
-                    onChange={(e) => updateForm("studyGap", e.target.value)}
-                    placeholder="0"
-                    className="w-full text-xl font-black text-slate-900 outline-none bg-transparent"
-                  />
-                </div>
-              </div>
-            </section>
-
-            {/* 2. Standardized Tests (Optional) */}
-            <section className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600">
-                    <BookOpen className="w-5 h-5" />
-                  </div>
-                  <h3 className="text-xl font-black text-slate-900">
-                    Standardized Tests{" "}
-                    <span className="text-[10px] text-slate-400 font-bold ml-2 uppercase tracking-widest">
-                      (Optional)
-                    </span>
-                  </h3>
-                </div>
-                <div className="flex bg-slate-100 p-1 rounded-xl">
-                  {["GRE", "GMAT", "NONE"].map((t) => (
-                    <button
-                      key={t}
-                      onClick={() => updateForm("aptitudeTest", t)}
-                      className={`px-4 py-1.5 rounded-lg text-[10px] font-black tracking-widest transition-all ${form.aptitudeTest === t ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"}`}
-                    >
-                      {t}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {form.aptitudeTest === "GRE" && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 animate-in zoom-in-95 duration-300">
-                  <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm focus-within:border-indigo-500 transition-all">
-                    <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">
-                      Verbal (130-170)
-                    </label>
-                    <input
-                      type="number"
-                      value={form.greVerbal}
-                      onChange={(e) => updateForm("greVerbal", e.target.value)}
-                      placeholder="155"
-                      className="w-full text-xl font-black text-slate-900 outline-none bg-transparent"
-                    />
-                  </div>
-                  <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm focus-within:border-indigo-500 transition-all">
-                    <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">
-                      Quant (130-170)
-                    </label>
-                    <input
-                      type="number"
-                      value={form.greQuant}
-                      onChange={(e) => updateForm("greQuant", e.target.value)}
-                      placeholder="165"
-                      className="w-full text-xl font-black text-slate-900 outline-none bg-transparent"
-                    />
-                  </div>
-                  <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm focus-within:border-indigo-500 transition-all">
-                    <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">
-                      AWA (0-6)
-                    </label>
-                    <input
-                      type="number"
-                      step="0.5"
-                      value={form.greAwa}
-                      onChange={(e) => updateForm("greAwa", e.target.value)}
-                      placeholder="4.0"
-                      className="w-full text-xl font-black text-slate-900 outline-none bg-transparent"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {form.aptitudeTest === "GMAT" && (
-                <div className="max-w-xs animate-in zoom-in-95 duration-300">
-                  <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm focus-within:border-indigo-500 transition-all">
-                    <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">
-                      Total GMAT Score (200-800)
-                    </label>
-                    <input
-                      type="number"
-                      value={form.gmatTotal}
-                      onChange={(e) => updateForm("gmatTotal", e.target.value)}
-                      placeholder="700"
-                      className="w-full text-xl font-black text-slate-900 outline-none bg-transparent"
-                    />
-                  </div>
-                </div>
-              )}
-            </section>
-
-            <section className="space-y-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600">
-                  <Wallet className="w-5 h-5" />
-                </div>
-                <h3 className="text-xl font-black text-slate-900">
-                  Financial Capability
-                </h3>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm focus-within:border-emerald-500 transition-all">
-                  <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">
-                    Bank Balance (NPR)
-                  </label>
-                  <input
-                    type="number"
-                    value={form.bankBalance}
-                    onChange={(e) => updateForm("bankBalance", e.target.value)}
-                    placeholder="5,000,000"
-                    className="w-full text-xl font-black text-slate-900 outline-none bg-transparent"
-                  />
-                </div>
-                <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm focus-within:border-emerald-500 transition-all">
-                  <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">
-                    Sponsor Income (Monthly NPR)
-                  </label>
-                  <input
-                    type="number"
-                    value={form.sponsorIncome}
-                    onChange={(e) =>
-                      updateForm("sponsorIncome", e.target.value)
-                    }
-                    placeholder="150,000"
-                    className="w-full text-xl font-black text-slate-900 outline-none bg-transparent"
-                  />
-                </div>
-                <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm focus-within:border-emerald-500 transition-all">
-                  <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">
-                    Primary Sponsor
-                  </label>
-                  <select
-                    value={form.sponsorType}
-                    onChange={(e) => updateForm("sponsorType", e.target.value)}
-                    className="w-full text-sm font-black text-slate-900 outline-none bg-transparent cursor-pointer py-2"
-                  >
-                    <option value="Self">Self / Savings</option>
-                    <option value="Parents">Parents / Relatives</option>
-                    <option value="Bank Loan">Bank Education Loan</option>
-                    <option value="Sponsor">Private Sponsor</option>
-                    <option value="Scholarship">Full Scholarship</option>
-                  </select>
-                </div>
-              </div>
-            </section>
-
-            {/* 4. Student Identity */}
-            <section className="pt-6 border-t border-slate-100 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-slate-50 rounded-2xl p-5 border border-slate-200 focus-within:bg-white focus-within:border-blue-600 transition-all">
-                  <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
-                    Full Identity Name
-                  </label>
-                  <input
-                    type="text"
-                    value={form.name}
-                    onChange={(e) => updateForm("name", e.target.value)}
-                    placeholder="Jane Doe"
-                    className="w-full text-lg font-black text-slate-900 outline-none bg-transparent"
-                  />
-                </div>
-                <div className="bg-slate-50 rounded-2xl p-5 border border-slate-200 focus-within:bg-white focus-within:border-blue-600 transition-all">
-                  <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
-                    Secure Email Communication
-                  </label>
-                  <input
-                    type="email"
-                    value={form.email}
-                    onChange={(e) => updateForm("email", e.target.value)}
-                    placeholder="jane@example.com"
-                    className="w-full text-lg font-black text-slate-900 outline-none bg-transparent"
-                  />
-                </div>
-              </div>
-            </section>
-          </div>
-        </div>
-      );
-    }
-    // Transition Screens Integration
-    if (transitionType === "matching") return <MatchingEngineScreen onFinish={() => setTransitionType(null)} />;
-    if (transitionType === "finance") return <FinancialEngineScreen onFinish={() => setTransitionType(null)} />;
-    if (transitionType === "admission") return <AdmissionEngineScreen onFinish={() => setTransitionType(null)} />;
-    if (transitionType === "visa") return <VisaEngineScreen onFinish={() => setTransitionType(null)} />;
-
-    // 7: Matches Step
     if (step === 7) {
       return (
         <div className="flex flex-col animate-in fade-in zoom-in-95 duration-700 w-full max-w-7xl mx-auto px-4 pb-20">
@@ -2651,339 +2716,522 @@ export default function AbroadLiftMatchesPage() {
             </p>
           </div>
 
-          <UniversitySelection 
-            matches={matches} 
-            loading={loading} 
-            error={error} 
-            selectedMatch={selectedMatch} 
-            form={form} 
+          <UniversitySelection
+            matches={matches}
+            loading={loading}
+            error={error}
+            selectedMatch={selectedMatch}
+            form={form}
             session={session}
             onSelect={(m: Match) => {
               if (!session) {
-                window.location.href = `/register?callbackUrl=${encodeURIComponent('/matches')}`;
+                redirectToLoginForMatches(m);
                 return;
               }
               setSelectedMatch(m);
               setTransitionType("finance");
               setStep(8);
-            }} 
+            }}
             onAdjustPreferences={() => setStep(6)}
-            onClearFilters={() => { setForm({ ...form, budget: "100000", field: "" }); runMatch(); }}
+            onClearFilters={() => {
+              setForm({ ...form, budget: "100000", field: "" });
+              runMatch();
+            }}
             runMatch={runMatch}
           />
         </div>
       );
     }
 
-    // 8: University overview dashboard (The First Page)
     if (step === 8 && selectedMatch) {
       const profileScore = getEligibilityScore(form);
-      const admissionPct = Math.max(35, Math.min(95, Math.round((selectedMatch.admissionRate || 60) * 0.5 + profileScore * 0.5)));
+      const admissionPct = Math.max(
+        35,
+        Math.min(
+          95,
+          Math.round(
+            (selectedMatch.admissionRate || 60) * 0.5 + profileScore * 0.5,
+          ),
+        ),
+      );
       const admissionBand = getRateBand(admissionPct);
       const budgetRaw = Number.parseFloat(form.budget) || 0;
-      const budgetUsd = form.currency === "NPR" ? budgetRaw / USD_TO_NPR : budgetRaw;
-      const tuitionUsd = Math.round(selectedMatch.currency === "NPR" ? (selectedMatch.tuitionFee || 22000) / USD_TO_NPR : selectedMatch.tuitionFee || 22000);
-      const livingBreakdown = dynamicLivingCost || { rent: 3800, food: 1300, transport: 500, insurance: 320, other: 700 };
-      const livingCostUsd = Object.values(livingBreakdown as Record<string, number>).reduce((s: number, v: number) => s + v, 0);
-      const totalYear1Usd = tuitionUsd + 300 + 400 + (form.sponsorType === "Self" ? 450 : 0) + 620 + livingCostUsd;
-      const totalYear1Npr = Math.round(totalYear1Usd * USD_TO_NPR);
-      const costBand = getCostBand(totalYear1Usd, budgetUsd);
-
-      return (
-        <FinancialDashboard 
-          form={form} 
-          selectedMatch={selectedMatch} 
-          dynamicLivingCost={livingBreakdown} 
-          USD_TO_NPR={USD_TO_NPR} 
-          admissionPct={admissionPct} 
-          admissionBand={admissionBand} 
-          costBand={costBand} 
-          totalYear1Npr={totalYear1Npr} 
-          onAdvanceToCost={() => setStep(9)}
-          onAdvanceToAdmission={() => { setTransitionType("admission"); setStep(10); }} 
-          onAdvanceToVisa={() => { setTransitionType("visa"); setStep(11); }} 
-          onGoToMatches={() => setStep(7)}
-        />
-      );
-    }
-
-      // 9: Cost estimate - View breakdown (EXACT MOCKUP MATCH)
-    if (step === 9 && selectedMatch) {
-      const usdToNpr = USD_TO_NPR;
+      const budgetUsd =
+        form.currency === "NPR" ? budgetRaw / USD_TO_NPR : budgetRaw;
       const tuitionUsd = Math.round(
         selectedMatch.currency === "NPR"
-          ? (selectedMatch.tuitionFee || 22000) / usdToNpr
+          ? (selectedMatch.tuitionFee || 22000) / USD_TO_NPR
           : selectedMatch.tuitionFee || 22000,
       );
-      const livingBreakdownUsd = dynamicLivingCost || {
+      const livingBreakdown = dynamicLivingCost || {
         rent: 3800,
         food: 1300,
         transport: 500,
         insurance: 320,
         other: 700,
       };
-      
-      const yearlyLivingUsd = Object.values(livingBreakdownUsd as Record<string, number>).reduce((s, v) => s + v, 0);
-      const setupCostsUsd = 1500;
-      const totalYear1Usd = tuitionUsd + yearlyLivingUsd + setupCostsUsd;
-      const totalYear1Npr = Math.round(totalYear1Usd * usdToNpr);
-      
-      const fmtNpr = (v: number) => new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(v);
-      const fmtLakhs = (v: number) => `NPR ${(v / 100000).toFixed(1)} Lakhs`;
+      const livingCostUsd = Object.values(
+        livingBreakdown as Record<string, number>,
+      ).reduce((s: number, v: number) => s + v, 0);
+      const totalYear1Usd =
+        tuitionUsd +
+        300 +
+        400 +
+        (form.sponsorType === "Self" ? 450 : 0) +
+        620 +
+        livingCostUsd;
+      const totalYear1Npr = Math.round(totalYear1Usd * USD_TO_NPR);
+      const costBand = getCostBand(totalYear1Usd, budgetUsd);
 
-      const monthlyLivingNpr = Math.round((yearlyLivingUsd * usdToNpr) / 12);
-      const itemizedMonthly = {
-        Rent: Math.round(((livingBreakdownUsd as any).rent * usdToNpr) / 12),
-        Food: Math.round(((livingBreakdownUsd as any).food * usdToNpr) / 12),
-        Transport: Math.round(((livingBreakdownUsd as any).transport * usdToNpr) / 12),
-        Other: Math.round(((livingBreakdownUsd as any).other * usdToNpr) / 12),
-      };
+      return (
+        <StudyOverviewDashboard
+          form={form}
+          selectedMatch={selectedMatch}
+          matches={matches}
+          session={session}
+          USD_TO_NPR={USD_TO_NPR}
+          totalYear1Npr={totalYear1Npr}
+          admissionPct={admissionPct}
+          costBand={costBand}
+          admissionBand={admissionBand}
+          onAdvanceToCost={() => setStep(9)}
+          onAdvanceToAdmission={() => {
+            setTransitionType("admission");
+            setStep(10);
+          }}
+          onAdvanceToVisa={() => {
+            setTransitionType("visa");
+            setStep(11);
+          }}
+          onGoToMatches={() => setStep(7)}
+        />
+      );
+    }
 
-      const tuitionPct = Math.round((tuitionUsd / totalYear1Usd) * 100);
+    if (step === 9 && selectedMatch && financialMetrics) {
+      const {
+        tuitionUsd,
+        yearlyLivingUsd,
+        setupCostsUsd,
+        graduationDuration,
+        totalYear1Npr,
+        totalDegreeCostNpr,
+        itemizedMonthly,
+        fmtNpr,
+        fmtLakhs,
+        usdToNpr,
+      } = financialMetrics;
+
+      const tuitionPct = apiCostEstimate
+        ? Math.round((apiCostEstimate.education_npr / totalYear1Npr) * 100)
+        : Math.round(
+            (tuitionUsd / (tuitionUsd + yearlyLivingUsd + setupCostsUsd)) * 100,
+          );
       const livingPct = 100 - tuitionPct;
+      const monthlyTotalNpr = Math.round(
+        ((tuitionUsd + yearlyLivingUsd) * usdToNpr) / 12,
+      );
+
+      const displayAmountNpr =
+        costPeriod === "Month on month"
+          ? monthlyTotalNpr
+          : costPeriod === "Year on year"
+            ? totalDegreeCostNpr
+            : totalYear1Npr;
+
+      const displayLabel =
+        costPeriod === "Month on month"
+          ? "Average Monthly Cost"
+          : costPeriod === "Year on year"
+            ? `Total ${graduationDuration}-Year Estimate`
+            : "First Year Total Investment";
 
       return (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-full px-4 pb-12 space-y-5 bg-white min-h-screen">
           {/* Header */}
           <div className="flex items-center justify-between pt-2 pb-4">
-             <div className="flex items-center gap-4">
-                <button onClick={() => setStep(8)} className="p-1">
-                   <ChevronLeft className="w-6 h-6 text-slate-900" />
-                </button>
-                <h1 className="text-xl font-black text-slate-900">Cost Breakdown</h1>
-             </div>
-             <div className="w-11 h-11 rounded-full bg-slate-200 overflow-hidden border-2 border-white shadow-md">
-                <Image src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100" width={44} height={44} alt="U" />
-             </div>
+            <div className="flex items-center gap-4">
+              <button onClick={() => setStep(8)} className="p-1">
+                <ChevronLeft className="w-6 h-6 text-slate-900" />
+              </button>
+              <h1 className="text-xl font-black text-slate-900">
+                Cost Breakdown
+              </h1>
+            </div>
+            <div className="w-11 h-11 rounded-full bg-slate-200 overflow-hidden border-2 border-white shadow-md">
+              <Image
+                src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100"
+                width={44}
+                height={44}
+                alt="U"
+              />
+            </div>
           </div>
 
           {/* New Summary Card (Matches Image Tightly) */}
-          <Card 
+          <Card
             className="p-8 rounded-[32px] border border-slate-100 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.05)] relative overflow-hidden"
-            style={{ backgroundImage: "url('/background.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}
+            style={{
+              backgroundImage: "url('/background.png')",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
           >
-             <div className="relative z-10 flex items-center justify-between">
-                <div className="space-y-4">
-                   <p className="text-[13px] font-bold text-slate-600 leading-none">Total Estimated Cost</p>
-                   <h2 className="text-2xl font-black text-slate-900 leading-tight">
-                     {fmtLakhs(totalYear1Npr)}
-                   </h2>
-                   <div className="inline-flex px-4 py-2 bg-blue-600 text-white text-[11px] font-black rounded-full uppercase tracking-widest shadow-sm">
-                     ● {selectedMatch.countryCode} Engine
-                   </div>
+            <div className="relative z-10 flex items-center justify-between">
+              <div className="space-y-4">
+                <p className="text-[13px] font-bold text-slate-600 leading-none">
+                  {displayLabel}
+                </p>
+                <h2 className="text-2xl font-black text-slate-900 leading-tight">
+                  {costPeriod === "Month on month"
+                    ? fmtNpr(displayAmountNpr)
+                    : fmtLakhs(displayAmountNpr)}
+                </h2>
+                <div className="inline-flex px-4 py-2 bg-blue-600 text-white text-[11px] font-black rounded-full uppercase tracking-widest shadow-sm">
+                  ● {selectedMatch.countryCode} Engine
                 </div>
-                <div className="relative w-24 h-24 shrink-0">
-                   <svg viewBox="0 0 36 36" className="w-full h-full transform -rotate-90">
-                      <circle cx="18" cy="18" r="16" fill="transparent" stroke="#f8fafc" strokeWidth="5" />
-                      <circle cx="18" cy="18" r="16" fill="transparent" stroke="#FD644F" strokeWidth="5" strokeDasharray={`${livingPct} 100`} strokeLinecap="round" />
-                      <circle cx="18" cy="18" r="16" fill="transparent" stroke="#14B2AD" strokeWidth="5" strokeDasharray={`${tuitionPct} 100`} strokeDashoffset={`-${livingPct}`} strokeLinecap="round" />
-                   </svg>
-                   <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-12 h-12 bg-white rounded-full shadow-inner" />
-                   </div>
+              </div>
+              <div className="relative w-24 h-24 shrink-0">
+                <svg
+                  viewBox="0 0 36 36"
+                  className="w-full h-full transform -rotate-90"
+                >
+                  <circle
+                    cx="18"
+                    cy="18"
+                    r="16"
+                    fill="transparent"
+                    stroke="#f8fafc"
+                    strokeWidth="5"
+                  />
+                  <circle
+                    cx="18"
+                    cy="18"
+                    r="16"
+                    fill="transparent"
+                    stroke="#FD644F"
+                    strokeWidth="5"
+                    strokeDasharray={`${livingPct} 100`}
+                    strokeLinecap="round"
+                  />
+                  <circle
+                    cx="18"
+                    cy="18"
+                    r="16"
+                    fill="transparent"
+                    stroke="#14B2AD"
+                    strokeWidth="5"
+                    strokeDasharray={`${tuitionPct} 100`}
+                    strokeDashoffset={`-${livingPct}`}
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-12 h-12 bg-white rounded-full shadow-inner" />
                 </div>
-             </div>
-             <div className="relative z-10 mt-6 pt-4 border-t border-slate-200/50 flex items-center gap-2 text-[11px] font-bold text-slate-400">
-                <Info className="w-3.5 h-3.5" />
-                Living cost in {selectedMatch.location} is dynamically calculated.
-             </div>
+              </div>
+            </div>
+            <div className="relative z-10 mt-6 pt-4 border-t border-slate-200/50 flex items-center gap-2 text-[11px] font-bold text-slate-400">
+              <Info className="w-3.5 h-3.5" />
+              Living cost in {selectedMatch.location} is dynamically calculated.
+            </div>
           </Card>
 
           {/* Toggle (Matches Image Tightly) */}
           <div className="flex bg-white p-1 rounded-full border border-slate-100 shadow-sm overflow-hidden h-12">
-             {["First year", "Year on year", "Month on month"].map((v) => (
-                <button 
-                  key={v}
-                  onClick={() => setCostPeriod(v)}
-                  className={`flex-1 text-[11px] font-black rounded-full transition-all tracking-tight ${costPeriod === v ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20" : "text-slate-500 hover:bg-slate-50"}`}
-                >
-                  {v}
-                </button>
-             ))}
+            {["First year", "Year on year", "Month on month"].map((v) => (
+              <button
+                key={v}
+                onClick={() => setCostPeriod(v)}
+                className={`flex-1 text-[11px] font-black rounded-full transition-all tracking-tight ${costPeriod === v ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20" : "text-slate-500 hover:bg-slate-50"}`}
+              >
+                {v}
+              </button>
+            ))}
           </div>
 
           <div className="space-y-6 pb-6">
-             {/* 1. Year Breakdown (Dynamic) */}
-             <div className="bg-white rounded-[24px] border border-slate-100 overflow-hidden shadow-sm">
-                <div className="p-5 flex items-center justify-between border-b border-slate-50">
-                   <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-emerald-400/20 flex items-center justify-center text-emerald-600">
-                         <Calculator className="w-5 h-5 text-emerald-500" fill="currentColor" fillOpacity="0.2" />
-                      </div>
-                      <span className="font-bold text-slate-800">Year Breakdown</span>
-                   </div>
-                   <ChevronDown className="w-5 h-5 text-slate-300" />
+            {/* 1. Year Breakdown (Dynamic) */}
+            <div className="bg-white rounded-[24px] border border-slate-100 overflow-hidden shadow-sm">
+              <div className="p-5 flex items-center justify-between border-b border-slate-50">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-emerald-400/20 flex items-center justify-center text-emerald-600">
+                    <Calculator
+                      className="w-5 h-5 text-emerald-500"
+                      fill="currentColor"
+                      fillOpacity="0.2"
+                    />
+                  </div>
+                  <span className="font-bold text-slate-800">
+                    {costPeriod === "Month on month"
+                      ? "Monthly Breakdown"
+                      : costPeriod === "Year on year"
+                        ? "Multi-Year Projection"
+                        : "Year 1 Breakdown"}
+                  </span>
                 </div>
-                <div className="divide-y divide-slate-50">
-                   {[
-                     { l: "Year 1 (Total)", v: fmtLakhs(totalYear1Npr) },
-                     { l: "Year 2 (Tuition+Living)", v: fmtLakhs((tuitionUsd + (Object.values(livingBreakdownUsd as Record<string, number>).reduce((s, v) => s + v, 0) * 12)) * usdToNpr) },
-                     { l: "Year 3 (Tuition+Living)", v: fmtLakhs((tuitionUsd + (Object.values(livingBreakdownUsd as Record<string, number>).reduce((s, v) => s + v, 0) * 12)) * usdToNpr) },
-                   ].map((it, i) => (
-                     <div key={i} className="px-6 py-4 flex items-center justify-between font-black text-slate-900 text-[14px]">
-                        <span className="text-slate-400 font-medium">{it.l}</span>
-                        <span>{it.v}</span>
-                     </div>
-                   ))}
-                </div>
-                <div className="p-4 bg-slate-50/50 text-center text-[12px] font-bold text-slate-500 border-t border-slate-50">
-                   Setup and visa costs occur primarily in Year 1
-                </div>
-             </div>
-
-             <button 
-               onClick={() => { setTransitionType("admission"); setStep(10); }}
-               className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-[20px] font-black text-[15px] shadow-xl shadow-blue-500/20 active:scale-95 transition-all"
-             >
-               Next: Admission Chance
-             </button>
-
-             {/* 2. Monthly Expenses Breakdown (Labeled Year Breakdown per Design) */}
-             <div className="bg-white rounded-[24px] border border-slate-100 overflow-hidden shadow-sm">
-                <div className="p-5 flex items-center justify-between border-b border-slate-50">
-                   <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-blue-400/20 flex items-center justify-center text-blue-600">
-                         <Calculator className="w-5 h-5 text-blue-500" fill="currentColor" fillOpacity="0.2" />
-                      </div>
-                      <span className="font-bold text-slate-800">Monthly Expenses</span>
-                   </div>
-                   <ChevronDown className="w-5 h-5 text-slate-300" />
-                </div>
-                <div className="divide-y divide-slate-50">
-                   {Object.entries(itemizedMonthly).map(([l, v], i) => (
-                     <div key={i} className="px-6 py-4 flex items-center justify-between font-black text-slate-900 text-[14px]">
+                <ChevronDown className="w-5 h-5 text-slate-300" />
+              </div>
+              <div className="divide-y divide-slate-50">
+                {costPeriod === "Month on month"
+                  ? Object.entries(itemizedMonthly).map(([l, v], i) => (
+                      <div
+                        key={i}
+                        className="px-6 py-4 flex items-center justify-between font-black text-slate-900 text-[14px]"
+                      >
                         <span className="text-slate-400 font-medium">{l}</span>
-                        <span>{fmtNpr(v / 12)}</span>
-                     </div>
-                   ))}
-                </div>
-                <div className="p-4 bg-slate-50/50 text-center text-[12px] font-bold text-slate-500 border-t border-slate-50">
-                  Calculated based on {selectedMatch.location}
-                </div>
-             </div>
-
-             {/* 3. Total Monthly Cost Card */}
-             <div className="bg-white rounded-[24px] border border-slate-100 overflow-hidden shadow-sm">
-                <div className="p-5 flex items-center justify-between border-b border-slate-50">
-                   <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-emerald-400/20 flex items-center justify-center text-emerald-600">
-                         <Calculator className="w-5 h-5 text-emerald-500" fill="currentColor" fillOpacity="0.2" />
+                        <span>
+                          {fmtNpr(
+                            v / (l === "Tuition" || l === "Education" ? 12 : 1),
+                          )}
+                        </span>
                       </div>
-                      <span className="font-bold text-slate-800">Total Monthly Expenditure</span>
-                   </div>
-                   <ChevronDown className="w-5 h-5 text-slate-300" />
-                </div>
-                <div className="px-6 py-6 text-center font-black text-slate-800 text-[14px]">
-                  {fmtNpr(monthlyLivingNpr)} / month — {fmtLakhs(monthlyLivingNpr * 12)} / year
-                </div>
-             </div>
-
-             <button 
-               onClick={handleSavePlan}
-               disabled={saving}
-               className={`w-full h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-[20px] font-black text-[15px] shadow-xl shadow-blue-500/20 active:scale-95 transition-all flex items-center justify-center ${saving ? "opacity-70 cursor-not-allowed" : ""}`}
-             >
-               {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : "Save Plan"}
-             </button>
-
-             {/* 4. Pre-application Cost */}
-             <div className="bg-white rounded-[24px] border border-slate-100 overflow-hidden shadow-sm">
-                <div className="p-5 flex items-center justify-between border-b border-slate-50">
-                   <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-emerald-400/20 flex items-center justify-center text-emerald-600">
-                         <Calculator className="w-5 h-5 text-emerald-500" fill="currentColor" fillOpacity="0.2" />
-                      </div>
-                      <span className="font-bold text-slate-800">Pre-application Cost</span>
-                   </div>
-                   <ChevronDown className="w-5 h-5 text-slate-300" />
-                </div>
-                <div className="divide-y divide-slate-50">
-                   {[
-                     { l: "Consultancy Fee", v: "NPR 0 - 25,000" },
-                     { l: "IELTS/PTE Test", v: "NPR 29,500" },
-                     { l: "Documents & NOC", v: "NPR 15,000 - 35,000" },
-                     { l: "Medical & Biometrics", v: "NPR 12,000 - 22,000" },
-                     { l: "Visa Application", v: (selectedMatch.countryCode === "AU" ? "NPR 1,600 (AUD)" : selectedMatch.countryCode === "USA" ? "NPR 185 (USD)" : "NPR 85,000 - 150,000") },
-                   ].map((it, i) => (
-                     <div key={i} className="px-6 py-4 flex items-center justify-between font-black text-slate-900 text-[13px]">
-                        <span className="text-slate-400 font-medium">{it.l}</span>
-                        <span>{it.v}</span>
-                     </div>
-                   ))}
-                </div>
-             </div>
-
-             {/* 5. Tuition Fees Comparison */}
-             <div className="bg-white rounded-[24px] border border-slate-100 overflow-hidden shadow-sm">
-                <div className="p-5 flex items-center justify-between border-b border-slate-50">
-                   <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-orange-400/20 flex items-center justify-center text-orange-600">
-                         <GraduationCap className="w-5 h-5 text-orange-500" fill="currentColor" fillOpacity="0.2" />
-                      </div>
-                      <span className="font-bold text-slate-800">Tuition Fees</span>
-                   </div>
-                   <ChevronDown className="w-5 h-5 text-slate-300" />
-                </div>
-                <div className="divide-y divide-slate-50">
-                   {[
-                     { l: "USA/UK", v: "NPR 17-44 Lakhs", s: "per year" },
-                     { l: "Canada/Australia", v: "NPR 17-44 Lakhs", s: "per year" },
-                     { l: "Germany/Europe", v: "NPR 17-44 Lakhs", s: "per year" },
-                   ].map((it, i) => (
-                     <div key={i} className="px-6 py-4 flex items-center justify-between font-black text-slate-900 text-[13px]">
-                        <span className="text-slate-400 font-medium">{it.l}</span>
-                        <div className="flex items-baseline gap-1">
-                           <span>{it.v}</span>
-                           <span className="text-[9px] text-slate-300 uppercase font-bold">{it.s}</span>
+                    ))
+                  : costPeriod === "Year on year"
+                    ? Array.from({ length: graduationDuration }).map((_, i) => {
+                        const amount =
+                          i === 0
+                            ? totalYear1Npr
+                            : (tuitionUsd + yearlyLivingUsd) * usdToNpr;
+                        return (
+                          <div
+                            key={i}
+                            className="px-6 py-4 flex items-center justify-between font-black text-slate-900 text-[14px]"
+                          >
+                            <span className="text-slate-400 font-medium">
+                              Year {i + 1}
+                            </span>
+                            <span>{fmtLakhs(amount)}</span>
+                          </div>
+                        );
+                      })
+                    : [
+                        {
+                          l: "Tuition Fees",
+                          v: fmtLakhs(tuitionUsd * usdToNpr),
+                        },
+                        {
+                          l: "Living Expenses",
+                          v: fmtLakhs(yearlyLivingUsd * usdToNpr),
+                        },
+                        {
+                          l: "Initial Setup Cost",
+                          v: fmtLakhs(setupCostsUsd * usdToNpr),
+                        },
+                      ].map((it, i) => (
+                        <div
+                          key={i}
+                          className="px-6 py-4 flex items-center justify-between font-black text-slate-900 text-[14px]"
+                        >
+                          <span className="text-slate-400 font-medium">
+                            {it.l}
+                          </span>
+                          <span>{it.v}</span>
                         </div>
-                     </div>
-                   ))}
-                </div>
-             </div>
+                      ))}
+              </div>
+              <div className="p-4 bg-slate-50/50 text-center text-[12px] font-bold text-slate-500 border-t border-slate-50">
+                {costPeriod === "Year on year"
+                  ? `Projected over ${graduationDuration} years`
+                  : costPeriod === "Month on month"
+                    ? "Average monthly allocation"
+                    : "One-time setup costs included in Year 1"}
+              </div>
+            </div>
 
-             {/* 6. Visa & Government Costs */}
-             <div className="bg-white rounded-[24px] border border-slate-100 overflow-hidden shadow-sm">
-                <div className="p-5 flex items-center justify-between border-b border-slate-50">
-                   <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-blue-400/20 flex items-center justify-center text-blue-600">
-                         <CreditCard className="w-5 h-5 text-blue-500" fill="currentColor" fillOpacity="0.2" />
-                      </div>
-                      <span className="font-bold text-slate-800">Visa & Govnment Costs</span>
-                   </div>
-                   <ChevronDown className="w-5 h-5 text-slate-300" />
-                </div>
-                <div className="px-6 py-5 flex items-center justify-between">
-                   <div className="space-y-1">
-                      <p className="text-[13px] font-black text-slate-400 tracking-tight">Visa Fee</p>
-                   </div>
-                   <div className="text-right">
-                      <p className="text-[14px] font-black text-slate-900 tracking-tight">
-                         <span className="text-[10px] text-slate-300 font-bold mr-1 italic">Insurance -</span>
-                         NPR 1.5-5 Lakhs
-                      </p>
-                   </div>
-                </div>
-                <div className="px-6 py-5 flex items-center justify-between border-t border-slate-50">
-                   <span className="text-[13px] font-black text-slate-400 font-medium tracking-tight">Biometrics</span>
-                </div>
-             </div>
+            <button
+              onClick={() => {
+                setTransitionType("admission");
+                setStep(10);
+              }}
+              className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-[20px] font-black text-[15px] shadow-xl shadow-blue-500/20 active:scale-95 transition-all"
+            >
+              Next: Admission Chance
+            </button>
 
-             {/* 7. Travel & Setup */}
-             <div className="bg-white rounded-[24px] border border-slate-100 overflow-hidden shadow-sm">
-                <div className="p-5 flex items-center justify-between border-b border-slate-50">
-                   <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-purple-400/20 flex items-center justify-center text-purple-600">
-                         <Plane className="w-5 h-5 text-purple-500" fill="currentColor" fillOpacity="0.2" />
-                      </div>
-                      <span className="font-bold text-slate-800">Travel & Setup</span>
-                   </div>
-                   <ChevronDown className="w-5 h-5 text-slate-300" />
+            {/* 2. Monthly Expenses Breakdown - Always relevant */}
+            <div className="bg-white rounded-[24px] border border-slate-100 overflow-hidden shadow-sm">
+              <div className="p-5 flex items-center justify-between border-b border-slate-50">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-blue-400/20 flex items-center justify-center text-blue-600">
+                    <Calculator
+                      className="w-5 h-5 text-blue-500"
+                      fill="currentColor"
+                      fillOpacity="0.2"
+                    />
+                  </div>
+                  <span className="font-bold text-slate-800">
+                    Living Components
+                  </span>
                 </div>
-                <div className="px-6 py-5 flex items-center justify-between">
-                   <span className="text-[13px] font-black text-slate-400 font-medium tracking-tight">Flight Ticket</span>
-                   <span className="text-[13px] font-black text-slate-900 tracking-tight">NPR 47,000 - 2 Lakhs</span>
+                <ChevronDown className="w-5 h-5 text-slate-300" />
+              </div>
+              <div className="divide-y divide-slate-50">
+                {Object.entries(itemizedMonthly)
+                  .filter(([l]) => l !== "Tuition" && l !== "Education")
+                  .map(([l, v], i) => (
+                    <div
+                      key={i}
+                      className="px-6 py-4 flex items-center justify-between font-black text-slate-900 text-[14px]"
+                    >
+                      <span className="text-slate-400 font-medium">{l}</span>
+                      <span>{fmtNpr(v / 12)} /mo</span>
+                    </div>
+                  ))}
+              </div>
+            </div>
+
+            {/* 3. Pre-application Cost - Global context */}
+            <div className="bg-white rounded-[24px] border border-slate-100 overflow-hidden shadow-sm">
+              <div className="p-5 flex items-center justify-between border-b border-slate-50">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-emerald-400/20 flex items-center justify-center text-emerald-600">
+                    <Calculator
+                      className="w-5 h-5 text-emerald-500"
+                      fill="currentColor"
+                      fillOpacity="0.2"
+                    />
+                  </div>
+                  <span className="font-bold text-slate-800">
+                    Initial Milestone Costs
+                  </span>
                 </div>
-             </div>
+                <ChevronDown className="w-5 h-5 text-slate-300" />
+              </div>
+              <div className="divide-y divide-slate-50">
+                {[
+                  { l: "IELTS/PTE Exam", v: "NPR 29,500" },
+                  { l: "NOC & Docs", v: "NPR 15,000" },
+                  { l: "Health & Bio", v: "NPR 22,000" },
+                  { l: "Application Fees", v: "NPR 15,000 - 30,000" },
+                ].map((it, i) => (
+                  <div
+                    key={i}
+                    className="px-6 py-4 flex items-center justify-between font-black text-slate-900 text-[13px]"
+                  >
+                    <span className="text-slate-400 font-medium">{it.l}</span>
+                    <span>{it.v}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <button
+              onClick={handleSavePlan}
+              disabled={saving}
+              className={`w-full h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-[20px] font-black text-[15px] shadow-xl shadow-blue-500/20 active:scale-95 transition-all flex items-center justify-center ${saving ? "opacity-70 cursor-not-allowed" : ""}`}
+            >
+              {saving ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                "Save Success Plan"
+              )}
+            </button>
+
+            {/* 5. Tuition Fees Comparison */}
+            <div className="bg-white rounded-[24px] border border-slate-100 overflow-hidden shadow-sm">
+              <div className="p-5 flex items-center justify-between border-b border-slate-50">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-orange-400/20 flex items-center justify-center text-orange-600">
+                    <GraduationCap
+                      className="w-5 h-5 text-orange-500"
+                      fill="currentColor"
+                      fillOpacity="0.2"
+                    />
+                  </div>
+                  <span className="font-bold text-slate-800">
+                    Regional Comparison
+                  </span>
+                </div>
+                <ChevronDown className="w-5 h-5 text-slate-300" />
+              </div>
+              <div className="divide-y divide-slate-50">
+                {[
+                  { l: "USA/UK", v: "NPR 25-45 Lakhs", s: "Avg/yr" },
+                  { l: "Canada/Australia", v: "NPR 18-35 Lakhs", s: "Avg/yr" },
+                  { l: "Germany/Europe", v: "NPR 12-18 Lakhs", s: "Avg/yr" },
+                ].map((it, i) => (
+                  <div
+                    key={i}
+                    className="px-6 py-4 flex items-center justify-between font-black text-slate-900 text-[13px]"
+                  >
+                    <span className="text-slate-400 font-medium">{it.l}</span>
+                    <div className="flex items-baseline gap-1">
+                      <span>{it.v}</span>
+                      <span className="text-[9px] text-slate-300 uppercase font-bold">
+                        {it.s}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 6. Visa & Government Costs */}
+            <div className="bg-white rounded-[24px] border border-slate-100 overflow-hidden shadow-sm">
+              <div className="p-5 flex items-center justify-between border-b border-slate-50">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-blue-400/20 flex items-center justify-center text-blue-600">
+                    <CreditCard
+                      className="w-5 h-5 text-blue-500"
+                      fill="currentColor"
+                      fillOpacity="0.2"
+                    />
+                  </div>
+                  <span className="font-bold text-slate-800">
+                    Visa & Govnment Costs
+                  </span>
+                </div>
+                <ChevronDown className="w-5 h-5 text-slate-300" />
+              </div>
+              <div className="px-6 py-5 flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-[13px] font-black text-slate-400 tracking-tight">
+                    Visa Fee
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[14px] font-black text-slate-900 tracking-tight">
+                    <span className="text-[10px] text-slate-300 font-bold mr-1 italic">
+                      Insurance -
+                    </span>
+                    NPR 1.5-5 Lakhs
+                  </p>
+                </div>
+              </div>
+              <div className="px-6 py-5 flex items-center justify-between border-t border-slate-50">
+                <span className="text-[13px] font-black text-slate-400 font-medium tracking-tight">
+                  Biometrics
+                </span>
+              </div>
+            </div>
+
+            {/* 7. Travel & Setup */}
+            <div className="bg-white rounded-[24px] border border-slate-100 overflow-hidden shadow-sm">
+              <div className="p-5 flex items-center justify-between border-b border-slate-50">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-purple-400/20 flex items-center justify-center text-purple-600">
+                    <Plane
+                      className="w-5 h-5 text-purple-500"
+                      fill="currentColor"
+                      fillOpacity="0.2"
+                    />
+                  </div>
+                  <span className="font-bold text-slate-800">
+                    Travel & Setup
+                  </span>
+                </div>
+                <ChevronDown className="w-5 h-5 text-slate-300" />
+              </div>
+              <div className="px-6 py-5 flex items-center justify-between">
+                <span className="text-[13px] font-black text-slate-400 font-medium tracking-tight">
+                  Flight Ticket
+                </span>
+                <span className="text-[13px] font-black text-slate-900 tracking-tight">
+                  NPR 47,000 - 2 Lakhs
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       );
@@ -2992,17 +3240,28 @@ export default function AbroadLiftMatchesPage() {
     // 10: College acceptance - See complete details
     if (step === 10 && selectedMatch) {
       const profileScore = getEligibilityScore(form);
-      const admissionPct = Math.max(35, Math.min(95, Math.round((selectedMatch.admissionRate || 60) * 0.5 + profileScore * 0.5)));
+      const admissionPct = Math.max(
+        35,
+        Math.min(
+          95,
+          Math.round(
+            (selectedMatch.admissionRate || 60) * 0.5 + profileScore * 0.5,
+          ),
+        ),
+      );
       const admissionBand = getRateBand(admissionPct);
 
       return (
-        <AdmissionDetails 
-          form={form} 
-          selectedMatch={selectedMatch} 
-          admissionPct={admissionPct} 
-          admissionBand={admissionBand} 
-          onBack={() => setStep(8)} 
-          onAdvanceToVisa={() => { setTransitionType("visa"); setStep(11); }}
+        <AdmissionDetails
+          form={form}
+          selectedMatch={selectedMatch}
+          admissionPct={admissionPct}
+          admissionBand={admissionBand}
+          onBack={() => setStep(8)}
+          onAdvanceToVisa={() => {
+            setTransitionType("visa");
+            setStep(11);
+          }}
         />
       );
     }
@@ -3010,88 +3269,148 @@ export default function AbroadLiftMatchesPage() {
     // 11: Visa Readiness
     if (step === 11 && selectedMatch) {
       return (
-        <VisaEligibility 
-          form={form} 
-          selectedMatch={selectedMatch} 
-          onBack={() => setStep(8)} 
-          onComplete={() => { setTransitionType("roadmap"); setStep(12); }} 
+        <VisaEligibility
+          form={form}
+          selectedMatch={selectedMatch}
+          onBack={() => setStep(8)}
+          onComplete={() => {
+            setTransitionType("roadmap");
+            setStep(12);
+          }}
         />
       );
     }
 
-    if (step === 12 && selectedMatch) {
-       return (
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-full px-4 pb-32 space-y-6 bg-slate-50/30 min-h-screen">
+    if (step === 12 && selectedMatch && financialMetrics) {
+      return (
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-full px-4 pb-16 space-y-5 bg-white min-h-screen">
           <div className="flex items-center justify-between pt-2 pb-4 uppercase tracking-tighter italic">
-             <div className="flex items-center gap-4">
-                <button onClick={() => setStep(11)} className="p-1">
-                   <ChevronLeft className="w-6 h-6 text-slate-900" />
-                </button>
-                <h1 className="text-xl font-black text-slate-900 tracking-tight">Final Roadmap</h1>
-             </div>
+            <div className="flex items-center gap-4">
+              <button onClick={() => setStep(11)} className="p-1">
+                <ChevronLeft className="w-6 h-6 text-slate-900" />
+              </button>
+              <h1 className="text-xl font-black text-slate-900 tracking-tight">
+                Final Roadmap
+              </h1>
+            </div>
           </div>
 
-          <Card className="p-10 rounded-[40px] bg-slate-900 text-white shadow-2xl relative overflow-hidden">
-             <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full -mr-32 -mt-32 blur-3xl opacity-50" />
-             <div className="relative z-10 space-y-6">
-                <p className="text-blue-400 font-black uppercase tracking-[0.3em] text-[10px] italic">Projected ROI Breakdown</p>
-                <h2 className="text-4xl md:text-5xl font-black italic uppercase tracking-tighter">SUCCESS ROADMAP</h2>
-                <div className="grid grid-cols-2 gap-4 mt-8">
-                   <div className="bg-white/10 p-4 rounded-2xl border border-white/10 uppercase italic">
-                      <p className="text-[10px] text-slate-400 font-black">Tuition</p>
-                      <p className="font-black text-lg">24 Lakhs</p>
-                   </div>
-                   <div className="bg-white/10 p-4 rounded-2xl border border-white/10 uppercase italic">
-                      <p className="text-[10px] text-slate-400 font-black">Living</p>
-                      <p className="font-black text-lg">15 Lakhs</p>
-                   </div>
+          <Card className="p-6 md:p-10 rounded-[28px] md:rounded-[44px] bg-slate-900 text-white shadow-2xl relative overflow-hidden border-0">
+            <div className="absolute top-0 right-0 w-80 h-80 bg-blue-500/20 rounded-full -mr-40 -mt-40 blur-[100px] opacity-60" />
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/10 rounded-full -ml-32 -mb-32 blur-[80px] opacity-40" />
+
+            <div className="relative z-10 space-y-8">
+              <div className="flex items-center gap-3">
+                <div className="px-4 py-1.5 rounded-full bg-blue-500/20 text-blue-400 text-[10px] font-black uppercase tracking-[0.2em] border border-blue-500/20">
+                  Total Investment Projection
                 </div>
-             </div>
+              </div>
+
+              <div className="space-y-1">
+                <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest pl-1 italic">
+                  Projected Degree ROI
+                </p>
+                <h2 className="text-3xl md:text-6xl font-black italic uppercase tracking-tighter leading-none">
+                  {financialMetrics.fmtLakhs(
+                    financialMetrics.totalDegreeCostNpr,
+                  )}
+                </h2>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 md:gap-6 pt-2 md:pt-6">
+                <div className="bg-white/5 p-4 md:p-6 rounded-2xl md:rounded-3xl border border-white/10 group hover:bg-white/10 transition-colors">
+                  <div className="flex items-center gap-2 mb-2 md:mb-3">
+                    <GraduationCap className="w-3.5 h-3.5 md:w-4 md:h-4 text-blue-400" />
+                    <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">
+                      Total Tuition
+                    </p>
+                  </div>
+                  <p className="font-black text-lg md:text-2xl tracking-tight">
+                    {financialMetrics.fmtLakhs(
+                      financialMetrics.totalTuitionNpr,
+                    )}
+                  </p>
+                  <p className="text-[9px] font-bold text-slate-500 mt-1 italic">
+                    {financialMetrics.graduationDuration} Years Academic Fee
+                  </p>
+                </div>
+
+                <div className="bg-white/5 p-4 md:p-6 rounded-2xl md:rounded-3xl border border-white/10 group hover:bg-white/10 transition-colors">
+                  <div className="flex items-center gap-2 mb-2 md:mb-3">
+                    <Heart className="w-3.5 h-3.5 md:w-4 md:h-4 text-rose-400" />
+                    <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">
+                      Est. Living
+                    </p>
+                  </div>
+                  <p className="font-black text-lg md:text-2xl tracking-tight">
+                    {financialMetrics.fmtLakhs(financialMetrics.totalLivingNpr)}
+                  </p>
+                  <p className="text-[9px] font-bold text-slate-500 mt-1 italic">
+                    Housing, Food & Lifestyle
+                  </p>
+                </div>
+              </div>
+            </div>
           </Card>
 
-          <div className="pt-8 space-y-4">
-             <button 
-               onClick={() => { setTransitionType("summary"); setStep(13); }}
-               className="w-full h-16 bg-blue-600 text-white rounded-3xl font-black text-[15px] uppercase tracking-widest shadow-2xl shadow-blue-500/30 hover:scale-105 transition-all flex items-center justify-center gap-3 italic"
-             >
-               Next: Financial Summary <ArrowRight className="w-5 h-5" />
-             </button>
-             <button className="w-full h-14 bg-white/50 text-slate-500 rounded-3xl font-bold text-xs uppercase tracking-[0.2em] hover:bg-white transition-all flex items-center justify-center gap-3 italic">
-               <Download className="w-4 h-4" />
-               EXPORT PDF REPORT
-             </button>
+          <div className="space-y-4 pt-4">
+            <button
+              onClick={() => {
+                setTransitionType("summary");
+                setStep(13);
+              }}
+              className="w-full h-14 md:h-18 bg-blue-600 text-white rounded-[24px] md:rounded-[32px] font-black text-[14px] md:text-[15px] uppercase tracking-widest shadow-[0_20px_40px_-5px_rgba(37,99,235,0.3)] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-4 italic"
+            >
+              Verify Final Summary{" "}
+              <ArrowRight className="w-5 h-5 md:w-6 md:h-6" />
+            </button>
+            <button className="w-full h-14 md:h-16 bg-slate-50 text-slate-600 rounded-[24px] md:rounded-[32px] font-black text-[10px] md:text-xs uppercase tracking-[0.2em] hover:bg-slate-100 transition-all flex items-center justify-center gap-3 border border-slate-100 italic">
+              <Download className="w-4 h-4 md:w-5 md:h-5" />
+              GENERATE PDF REPORT
+            </button>
           </div>
         </div>
-       );
+      );
     }
 
-    
     // 13: Final Phase Financial Oracle & Roadmap
-    if (step === 13 && selectedMatch) {
-      const duration = parseInt(form.duration) || 3;
+    if (step === 13 && selectedMatch && financialMetrics) {
+      const {
+        graduationDuration: duration,
+        tuitionUsd,
+        yearlyLivingUsd,
+        usdToNpr,
+        setupCostsUsd,
+        totalDegreeCostNpr,
+      } = financialMetrics;
+
       const eligScore = getEligibilityScore(form);
       const scholPercent = eligScore >= 90 ? 50 : eligScore >= 80 ? 20 : 0;
 
-      const baseTuitionAnnual = selectedMatch.tuitionFee || 25000;
-      const totalScholSavings =
-        baseTuitionAnnual * (scholPercent / 100) * duration;
+      const baseTuitionAnnualNpr = tuitionUsd * usdToNpr;
+      const totalScholSavingsNpr =
+        baseTuitionAnnualNpr * (scholPercent / 100) * duration;
 
-      const tuitionAnnual = baseTuitionAnnual * (1 - scholPercent / 100);
-      const livingAnnual = 12000;
-      const oneTime = 3500;
+      const tuitionAnnualNpr = baseTuitionAnnualNpr * (1 - scholPercent / 100);
+      const livingAnnualNpr = yearlyLivingUsd * usdToNpr;
+      const oneTimeNpr = setupCostsUsd * usdToNpr;
 
-      const totalTuition = tuitionAnnual * duration;
-      const totalLiving = livingAnnual * duration;
-      const totalInvestment = totalTuition + totalLiving + oneTime;
+      const totalTuitionNpr = tuitionAnnualNpr * duration;
+      const totalLivingNpr = livingAnnualNpr * duration;
+      const totalInvestmentNpr = totalTuitionNpr + totalLivingNpr + oneTimeNpr;
 
       const toggleUSD = form.currency === "USD";
       const displayVal = (v: number) =>
-        toggleUSD ? (v / 1.35).toFixed(1) : v.toFixed(1);
+        toggleUSD ? (v / usdToNpr / 1000).toFixed(1) : (v / 100000).toFixed(1);
       const symbol = toggleUSD ? "$" : "NPR";
       const unit = toggleUSD ? "k" : "L";
 
-      const tuitionPercent = Math.round((totalTuition / totalInvestment) * 100);
-      const livingPercent = Math.round((totalLiving / totalInvestment) * 100);
+      const tuitionPercent = Math.round(
+        (totalTuitionNpr / totalInvestmentNpr) * 100,
+      );
+      const livingPercent = Math.round(
+        (totalLivingNpr / totalInvestmentNpr) * 100,
+      );
       const miscPercent = 100 - tuitionPercent - livingPercent;
 
       const meta = {
@@ -3126,7 +3445,7 @@ export default function AbroadLiftMatchesPage() {
         selectedMatch.countryCode === "US" || selectedMatch.countryCode === "UK"
           ? "premium"
           : selectedMatch.countryCode === "CA" ||
-            selectedMatch.countryCode === "AU"
+              selectedMatch.countryCode === "AU"
             ? "average"
             : "budget";
 
@@ -3143,7 +3462,7 @@ export default function AbroadLiftMatchesPage() {
         }).format(npr / USD_TO_NPR);
 
       return (
-        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 max-w-full px-8 lg:px-16 pb-32">
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 max-w-full px-4 md:px-8 lg:px-16 pb-20">
           {/* 1. Header Spotlight */}
           <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-10 border-b border-slate-50 pb-12">
             <div>
@@ -3176,9 +3495,9 @@ export default function AbroadLiftMatchesPage() {
               </p>
             </div>
 
-            <div className="relative group">
+            <div className="relative group w-full md:w-auto">
               <div
-                className={`bg-${scholPercent > 0 ? "emerald-600 shadow-emerald-500/20" : "blue-600 shadow-blue-500/20"} text-white p-10 rounded-[48px] shadow-2xl text-center scale-105 ring-8 ring-blue-50 transition-all`}
+                className={`bg-${scholPercent > 0 ? "emerald-600 shadow-emerald-500/20" : "blue-600 shadow-blue-500/20"} text-white p-6 md:p-10 rounded-[32px] md:rounded-[48px] shadow-2xl text-center scale-100 md:scale-105 ring-4 md:ring-8 ring-blue-50 transition-all`}
               >
                 <p className="text-[10px] font-black opacity-80 uppercase tracking-[0.3em] mb-4">
                   {scholPercent > 0
@@ -3189,14 +3508,14 @@ export default function AbroadLiftMatchesPage() {
                   <span className="opacity-60 text-2xl mr-1 non-italic font-medium">
                     {symbol}
                   </span>
-                  {displayVal(totalInvestment)}
+                  {displayVal(totalInvestmentNpr)}
                   <span className="opacity-60 text-3xl ml-1">{unit}</span>
                 </h3>
                 {scholPercent > 0 && (
                   <div className="mt-4 px-4 py-1.5 rounded-full bg-white/20 text-[9px] font-black uppercase tracking-widest inline-flex items-center gap-2">
                     <Sparkles className="w-3 h-3" />
                     Saved {symbol}
-                    {displayVal(totalScholSavings)}
+                    {displayVal(totalScholSavingsNpr)}
                     {unit} via Merit
                   </div>
                 )}
@@ -3312,7 +3631,8 @@ export default function AbroadLiftMatchesPage() {
                   </h4>
                   <div className="flex items-end justify-between h-64 gap-6 px-4">
                     {Array.from({ length: duration }).map((_, i) => {
-                      const annualTotal = tuitionAnnual + livingAnnual;
+                      const annualTotal =
+                        tuitionAnnualNpr + livingAnnualNpr / duration;
                       const h = 100 - i * 12;
                       return (
                         <div
@@ -3363,21 +3683,37 @@ export default function AbroadLiftMatchesPage() {
                     </thead>
                     <tbody className="text-xs font-bold text-slate-700">
                       {[
-                        { t: "Tuition Fee", f: "Annual", v: tuitionAnnual },
+                        { t: "Tuition Fee", f: "Annual", v: tuitionAnnualNpr },
                         {
                           t: "Living (Rent/Food)",
                           f: "Monthly",
-                          v: livingAnnual,
+                          v: livingAnnualNpr / 12,
                         },
-                        { t: "Health Insurance", f: "One-time", v: 800 },
-                        { t: "Resource Material", f: "Semester", v: 500 },
-                        { t: "Flight Estimate", f: "One-time", v: 1200 },
+                        {
+                          t: "Health Insurance",
+                          f: "One-time",
+                          v: 800 * usdToNpr,
+                        },
+                        {
+                          t: "Resource Material",
+                          f: "Semester",
+                          v: 500 * usdToNpr,
+                        },
+                        {
+                          t: "Flight Estimate",
+                          f: "One-time",
+                          v: 1200 * usdToNpr,
+                        },
                         {
                           t: "Visa Fees",
                           f: "One-time",
-                          v: (meta as any).v || 350,
+                          v: (meta as any).v * usdToNpr || 350 * usdToNpr,
                         },
-                        { t: "Enrollment Fees", f: "One-time", v: 450 },
+                        {
+                          t: "Enrollment Fees",
+                          f: "One-time",
+                          v: 450 * usdToNpr,
+                        },
                       ].map((item, idx) => (
                         <tr
                           key={idx}
@@ -3404,7 +3740,7 @@ export default function AbroadLiftMatchesPage() {
                         </td>
                         <td className="px-4 py-4" />
                         <td className="px-4 py-4 text-right font-black text-lg rounded-r-2xl">
-                          {symbol} {displayVal(totalInvestment)} {unit}
+                          {symbol} {displayVal(totalInvestmentNpr)} {unit}
                         </td>
                       </tr>
                     </tbody>
@@ -3450,7 +3786,7 @@ export default function AbroadLiftMatchesPage() {
                           <ShieldAlert className="w-5 h-5 text-amber-400 shrink-0 mt-1" />
                           <p className="text-sm font-medium italic">
                             Recommended visa proof: {symbol}
-                            {displayVal(totalInvestment * 1.05)}
+                            {displayVal(totalInvestmentNpr * 1.05)}
                             {unit}.
                           </p>
                         </div>
@@ -3490,15 +3826,17 @@ export default function AbroadLiftMatchesPage() {
                       return (
                         <div
                           key={band.key}
-                          className={`p-3 rounded-2xl border transition-all ${isSelected
-                            ? "bg-white border-blue-300 shadow-sm"
-                            : "bg-transparent border-slate-200"
-                            }`}
+                          className={`p-3 rounded-2xl border transition-all ${
+                            isSelected
+                              ? "bg-white border-blue-300 shadow-sm"
+                              : "bg-transparent border-slate-200"
+                          }`}
                         >
                           <div className="flex items-center justify-between gap-2">
                             <span
-                              className={`text-xs font-black ${isSelected ? "text-blue-700" : "text-slate-700"
-                                }`}
+                              className={`text-xs font-black ${
+                                isSelected ? "text-blue-700" : "text-slate-700"
+                              }`}
                             >
                               {band.label}
                             </span>
@@ -3531,7 +3869,9 @@ export default function AbroadLiftMatchesPage() {
                     disabled={saving}
                     className={`w-full h-16 bg-blue-600 text-white rounded-3xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-blue-500/30 hover:scale-105 transition-all flex items-center justify-center gap-3 italic ${saving ? "opacity-70" : ""}`}
                   >
-                    {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : (
+                    {saving ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
                       <>
                         <Save className="w-5 h-5" />
                         SAVE PLAN & FINISH
@@ -3562,7 +3902,6 @@ export default function AbroadLiftMatchesPage() {
     return null;
   };
 
-
   /* ─────────────── RENDER ─────────────── */
   return (
     <div className="min-h-screen w-full flex flex-col lg:flex-row bg-white relative overflow-hidden font-sans selection:bg-blue-500/30 selection:text-blue-900">
@@ -3571,22 +3910,34 @@ export default function AbroadLiftMatchesPage() {
         <div className="relative hidden lg:flex lg:w-[45%] h-screen bg-slate-100 overflow-hidden animate-in fade-in slide-in-from-left duration-700">
           <Image
             src={
-              step === 1 ? "/country.png" : 
-              step === 2 ? "/abrd.png" : 
-              step === 3 ? "/studies.png" : 
-              step === 4 ? "/graduation.png" : 
-              step === 5 ? "/ielts.png" : 
-              step === 6 ? "/intake.png" : 
-              "/abroad.jpg"
+              step === 1
+                ? "/country.png"
+                : step === 2
+                  ? "/abrd.png"
+                  : step === 3
+                    ? "/studies.png"
+                    : step === 4
+                      ? "/graduation.png"
+                      : step === 5
+                        ? "/ielts.png"
+                        : step === 6
+                          ? "/intake.png"
+                          : "/abroad.jpg"
             }
             alt={
-              step === 1 ? "Study Destinations" : 
-              step === 2 ? "Study Level" : 
-              step === 3 ? "Program Selection" : 
-              step === 4 ? "Academic History" : 
-              step === 5 ? "English proficiency" : 
-              step === 6 ? "Target Intake" : 
-              "Global Destinations"
+              step === 1
+                ? "Study Destinations"
+                : step === 2
+                  ? "Study Level"
+                  : step === 3
+                    ? "Program Selection"
+                    : step === 4
+                      ? "Academic History"
+                      : step === 5
+                        ? "English proficiency"
+                        : step === 6
+                          ? "Target Intake"
+                          : "Global Destinations"
             }
             fill
             className="object-cover "
@@ -3640,36 +3991,41 @@ export default function AbroadLiftMatchesPage() {
         className={`relative flex-1 flex flex-col bg-white overflow-hidden h-full lg:h-[calc(100vh-80px)]`}
       >
         {/* Simple Top Navigation Navbar matching the minimalist screenshot */}
-        {step > 0 && step !== 7 && step !== 9 && step !== 10 && step !== 11 && step !== 12 && (
-          <div className="px-6 py-4 mt-3 lg:px-12 flex justify-between items-center z-30 print:hidden relative bg-white">
-            <div className="w-12 h-10 flex items-center">
-              {step > 0 && step < 7 && (
-                <button
-                  onClick={handleBack}
-                  className="text-slate-900 transition-colors hover:text-blue-500"
-                >
-                  <ChevronLeft className="w-6 h-6" strokeWidth={3} />
-                </button>
-              )}
-              {step > 7 && step !== 9 && (
-                <button
-                  onClick={() => setStep(step - 1)}
-                  className="text-slate-900 transition-colors hover:text-blue-500"
-                >
-                  <ChevronLeft className="w-6 h-6" strokeWidth={3} />
-                </button>
-              )}
+        {step > 0 &&
+          step !== 7 &&
+          step !== 9 &&
+          step !== 10 &&
+          step !== 11 &&
+          step !== 12 && (
+            <div className="px-6 py-4 mt-3 lg:px-12 flex justify-between items-center z-30 print:hidden relative bg-white">
+              <div className="w-12 h-10 flex items-center">
+                {step > 0 && step < 7 && (
+                  <button
+                    onClick={handleBack}
+                    className="text-slate-900 transition-colors hover:text-blue-500"
+                  >
+                    <ChevronLeft className="w-6 h-6" strokeWidth={3} />
+                  </button>
+                )}
+                {step > 7 && step !== 9 && (
+                  <button
+                    onClick={() => setStep(step - 1)}
+                    className="text-slate-900 transition-colors hover:text-blue-500"
+                  >
+                    <ChevronLeft className="w-6 h-6" strokeWidth={3} />
+                  </button>
+                )}
+              </div>
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                {step > 0 && step < 7 && (
+                  <span className="text-[19px] font-bold text-[#111827] tracking-tight">
+                    {STEPS[step]?.label}
+                  </span>
+                )}
+              </div>
+              <div className="w-12"></div>
             </div>
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              {step > 0 && step < 7 && (
-                <span className="text-[19px] font-bold text-[#111827] tracking-tight">
-                  {STEPS[step]?.label}
-                </span>
-              )}
-            </div>
-            <div className="w-12"></div>
-          </div>
-        )}
+          )}
 
         {/* Progress Header - Now below the title */}
         {step > 0 && step < 7 && (
@@ -3678,10 +4034,9 @@ export default function AbroadLiftMatchesPage() {
               {Array.from({ length: 6 }).map((_, i) => (
                 <div
                   key={i}
-                  className={`h-[4px] rounded-full transition-all duration-500 ease-out ${i + 1 === step
-                      ? "w-8 bg-blue-500"
-                      : "w-8 bg-slate-100"
-                    }`}
+                  className={`h-[4px] rounded-full transition-all duration-500 ease-out ${
+                    i + 1 === step ? "w-8 bg-blue-500" : "w-8 bg-slate-100"
+                  }`}
                 />
               ))}
             </div>
@@ -3700,24 +4055,25 @@ export default function AbroadLiftMatchesPage() {
         </div>
 
         {/* Step Navigation Footer - Fixed Bottom for absolute stickiness */}
-        {step > 0 && step < 13 && (
-          <div className={`fixed bottom-0 left-0 right-0 ${step < 7 ? "lg:left-[45%]" : "lg:left-0"} pb-8 px-6 md:pb-12 bg-white/95 backdrop-blur-md pt-4 z-[70] border-t border-slate-100 flex justify-center shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.03)]`}>
+        {step > 0 && step < 13 && !(step === 7 && matches.length === 0) && (
+          <div
+            className={`fixed bottom-0 left-0 right-0 ${step < 7 ? "lg:left-[45%]" : "lg:left-0"} pb-8 px-6 md:pb-12 bg-white/95 backdrop-blur-md pt-4 z-[70] border-t border-slate-100 flex justify-center shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.03)]`}
+          >
             <div className="w-full max-w-[340px] flex justify-center pt-0">
               <button
                 onClick={handleNext}
                 disabled={!canContinue()}
-                className={`w-full h-14 rounded-[30px] font-bold text-[16px] transition-all flex items-center justify-center tracking-wide ${canContinue()
+                className={`w-full h-14 rounded-[30px] font-bold text-[16px] transition-all flex items-center justify-center tracking-wide ${
+                  canContinue()
                     ? "bg-[#3686FF] text-white shadow-[0_8px_20px_-6px_rgba(59,130,246,0.35)]"
                     : "bg-[#eff5fd] text-[#9ca3af] cursor-not-allowed"
-                  }`}
+                }`}
               >
                 {step === 7 ? "Analyze & Match" : "Continue"}
               </button>
             </div>
           </div>
         )}
-
-
       </div>
 
       <style

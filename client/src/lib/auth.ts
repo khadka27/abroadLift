@@ -4,6 +4,12 @@ import bcrypt from "bcrypt";
 import prisma from "./db";
 import { hashOtpCode } from "./phoneVerification";
 
+const AUTH_SECRET = process.env.NEXTAUTH_SECRET;
+
+if (!AUTH_SECRET) {
+  throw new Error("NEXTAUTH_SECRET is required for secure JWT sessions.");
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -31,7 +37,7 @@ export const authOptions: NextAuthOptions = {
           });
         }
 
-        if (!user || !user.password) {
+        if (!user?.password) {
           throw new Error("No account found with that email or username.");
         }
 
@@ -48,26 +54,21 @@ export const authOptions: NextAuthOptions = {
         // If the user has a code but isn't verified, verify them now
         if (credentials.otp && !user.phoneVerified) {
           const inputHash = hashOtpCode(credentials.otp);
-          
+
           if (inputHash === user.otpCodeHash) {
             // Mark as verified in DB
             await prisma.user.update({
               where: { id: user.id },
-              data: { phoneVerified: true, otpCodeHash: null, otpExpiresAt: null },
+              data: {
+                phoneVerified: true,
+                otpCodeHash: null,
+                otpExpiresAt: null,
+              },
             });
             // Update local user object
             user.phoneVerified = true;
           } else {
-            // For testing/development, allow 123456 as a fallback if the user requested static code
-            if (credentials.otp === "123456") {
-                await prisma.user.update({
-                    where: { id: user.id },
-                    data: { phoneVerified: true, otpCodeHash: null, otpExpiresAt: null },
-                });
-                user.phoneVerified = true;
-            } else {
-                throw new Error("Invalid OTP code. Please check and try again.");
-            }
+            throw new Error("Invalid OTP code. Please check and try again.");
           }
         }
 
@@ -93,14 +94,19 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session?.user) {
-        session.user.role = token.role as string;
-        session.user.id = token.id as string;
+        session.user.role = token.role;
+        session.user.id = token.id;
       }
       return session;
     },
   },
   session: {
     strategy: "jwt",
+    maxAge: 60 * 60 * 24 * 7,
+    updateAge: 60 * 60 * 24,
   },
-  secret: process.env.NEXTAUTH_SECRET || "fallback_secret",
+  jwt: {
+    maxAge: 60 * 60 * 24 * 7,
+  },
+  secret: AUTH_SECRET,
 };

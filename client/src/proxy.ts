@@ -1,8 +1,8 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 
-export default withAuth(
-  function proxy(req) {
+export const proxy = withAuth(
+  function handleProxy(req) {
     const token = req.nextauth.token;
     const path = req.nextUrl.pathname;
 
@@ -39,7 +39,6 @@ export const config = {
   matcher: [
     "/dashboard/:path*",
     "/profile/:path*",
-    "/matches/:path*",
     "/applications/:path*",
     "/eligibility/:path*",
     "/costing/:path*",

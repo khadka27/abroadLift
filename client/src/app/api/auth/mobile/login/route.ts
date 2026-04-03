@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
+import { encode } from "next-auth/jwt";
 import prisma from "@/lib/db";
 
 export async function POST(req: Request) {
@@ -9,7 +10,7 @@ export async function POST(req: Request) {
     if (!identifier || !password) {
       return NextResponse.json(
         { error: "Identifier and password are required." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -28,10 +29,10 @@ export async function POST(req: Request) {
       });
     }
 
-    if (!user || !user.password) {
+    if (!user?.password) {
       return NextResponse.json(
         { error: "No account found with that email or username." },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -40,16 +41,25 @@ export async function POST(req: Request) {
     if (!isCorrectPassword) {
       return NextResponse.json(
         { error: "Incorrect password. Please try again." },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
-    // In a real scenario, we'd sign a JWT here. 
-    // Since I don't want to install new packages if not present, 
-    // I'll return the user object as a "token" for now (NOT secure, but works for the current state).
-    // Better: if I can use next-auth's internal secret.
-    
-    const token = Buffer.from(JSON.stringify({ id: user.id, email: user.email })).toString('base64');
+    const secret = process.env.NEXTAUTH_SECRET;
+    if (!secret) {
+      throw new Error("NEXTAUTH_SECRET is required for secure JWT issuance.");
+    }
+
+    const token = await encode({
+      secret,
+      maxAge: 60 * 60 * 24 * 7,
+      token: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        tokenType: "mobile",
+      },
+    });
 
     return NextResponse.json({
       user: {
@@ -60,13 +70,13 @@ export async function POST(req: Request) {
         role: user.role,
         profile: user.profile,
       },
-      token: "mobile_" + token, // Simple mock token
+      token,
     });
   } catch (error) {
     console.error("[MOBILE_LOGIN_ERROR]", error);
     return NextResponse.json(
       { error: "Something went wrong. Please try again." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

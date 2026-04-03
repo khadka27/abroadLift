@@ -51,8 +51,18 @@ function LoginForm() {
       if (result?.error) {
         setError(result.error);
       } else {
+        // Fetch the updated session to determine the user's role
+        const sessionRes = await fetch("/api/auth/session");
+        const session = await sessionRes.json();
+        
         const callbackUrl = searchParams.get("callbackUrl");
-        router.push(callbackUrl || "/");
+        if (callbackUrl) {
+          router.push(callbackUrl);
+        } else if (session?.user?.role === "ADMIN") {
+          router.push("/admin/dashboard");
+        } else {
+          router.push("/");
+        }
         router.refresh();
       }
     } catch {
