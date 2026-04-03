@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import {
   Search,
@@ -11,7 +11,13 @@ import {
   Calendar,
   Wallet,
   CheckCircle2,
-  ArrowRight
+  ArrowRight,
+  X,
+  Info,
+  Sparkles,
+  Building2,
+  Award,
+  Users,
 } from "lucide-react";
 import { Match, Form } from "@/types/matches";
 import { User } from "next-auth";
@@ -44,16 +50,20 @@ export function UniversitySelection({
   onSelect,
   onAdjustPreferences,
   onClearFilters,
-  runMatch
+  runMatch,
 }: UniversitySelectionProps) {
-
   if (loading) return null; // Handled by transition screen in parent
 
   if (error) {
     return (
       <div className="text-center py-20 px-6">
         <p className="text-red-500 font-bold mb-4">{error}</p>
-        <button onClick={runMatch} className="text-blue-600 font-black underline">Try again</button>
+        <button
+          onClick={runMatch}
+          className="text-blue-600 font-black underline"
+        >
+          Try again
+        </button>
       </div>
     );
   }
@@ -67,23 +77,24 @@ export function UniversitySelection({
             <Search className="w-10 h-10 text-blue-400" />
           </div>
         </div>
-        
+
         <h3 className="text-[28px] font-[900] text-[#111827] mb-4 tracking-tight">
           No direct matches found
         </h3>
         <p className="text-[#64748b] font-medium text-[16px] mb-12 max-w-md mx-auto leading-relaxed">
-          Our engine couldn&apos;t find an exact match for your current filters. Try broadening your criteria for better results.
+          Our engine couldn&apos;t find an exact match for your current filters.
+          Try broadening your criteria for better results.
         </p>
-        
+
         <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
-          <button 
-            onClick={onAdjustPreferences} 
+          <button
+            onClick={onAdjustPreferences}
             className="w-full sm:w-auto px-10 h-14 bg-[#3686FF] hover:bg-[#2970E6] text-white rounded-2xl font-black text-[12px] uppercase tracking-[0.2em] shadow-[0_8px_20px_-6px_rgba(59,130,246,0.35)] transition-all active:scale-95"
           >
             Adjust Preferences
           </button>
-          <button 
-            onClick={onClearFilters} 
+          <button
+            onClick={onClearFilters}
             className="w-full sm:w-auto px-10 h-14 bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 rounded-2xl font-black text-[12px] uppercase tracking-[0.2em] transition-all active:scale-95 shadow-sm"
           >
             Clear Filters
@@ -132,7 +143,22 @@ export function UniversitySelection({
   );
 }
 
-function MatchCard({ match: m, currency: c, selected, onSelect }: { match: Match; currency: string; selected?: boolean; onSelect?: () => void }) {
+function MatchCard({
+  match: m,
+  currency: c,
+  selected,
+  onSelect,
+}: {
+  match: Match;
+  currency: string;
+  selected?: boolean;
+  onSelect?: () => void;
+}) {
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<
+    "estimates" | "overview" | "rankings" | "courses" | "facts"
+  >("estimates");
+
   const fmtVal = (n: number) =>
     new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -140,16 +166,46 @@ function MatchCard({ match: m, currency: c, selected, onSelect }: { match: Match
       maximumFractionDigits: 0,
     }).format(n);
 
+  const admissionChance = Math.max(10, Math.min(95, m.admissionRate || 60));
+  const yearlyLiving = Math.round((m.tuitionFee || 20000) * 0.45);
+  const courses =
+    m.popularPrograms && m.popularPrograms.length > 0
+      ? m.popularPrograms
+      : ["Computer Science", "Business Analytics", "Data Science"];
+
+  const tabs = [
+    { id: "estimates", label: "Estimates" },
+    { id: "overview", label: "Overview" },
+    { id: "rankings", label: "Rankings" },
+    { id: "courses", label: "Courses & Fees" },
+    { id: "facts", label: "Key Facts" },
+  ] as const;
+
   return (
     <div
       className={`bg-white border text-left rounded-[28px] md:rounded-[36px] overflow-hidden transition-all duration-500 cursor-pointer relative group flex flex-col h-full ${selected ? "border-blue-500 ring-1 ring-blue-500/20 shadow-2xl translate-y-[-6px]" : "border-slate-100 hover:shadow-2xl hover:border-blue-200 hover:translate-y-[-4px]"}`}
       onClick={onSelect}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onSelect?.();
+        }
+      }}
+      role="button"
+      tabIndex={0}
     >
       <div className="relative w-full h-[160px] md:h-[230px] overflow-hidden">
-        <Image src={m.banner || "/uni-default.webp"} alt={m.name} fill className="object-cover group-hover:scale-110 transition-transform duration-1000" />
+        <Image
+          src={m.banner || "/uni-default.webp"}
+          alt={m.name}
+          fill
+          className="object-cover group-hover:scale-110 transition-transform duration-1000"
+        />
         <div className="absolute top-4 right-4 md:top-5 md:right-5 px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-white/90 backdrop-blur-md border border-white flex items-center gap-2 shadow-lg">
           <Trophy className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#3b82f6]" />
-          <span className="text-[10px] md:text-[11px] font-extrabold text-[#3b82f6] uppercase tracking-widest">#{m.rankingWorld || 1} Global</span>
+          <span className="text-[10px] md:text-[11px] font-extrabold text-[#3b82f6] uppercase tracking-widest">
+            #{m.rankingWorld || 1} Global
+          </span>
         </div>
       </div>
 
@@ -157,47 +213,413 @@ function MatchCard({ match: m, currency: c, selected, onSelect }: { match: Match
         <div className="flex items-center justify-between mb-4 md:mb-6">
           <div className="flex items-center gap-2 text-slate-400">
             <MapPin className="w-3.5 h-3.5 md:w-4 md:h-4" />
-            <span className="text-[10px] md:text-[11px] font-bold uppercase tracking-widest truncate max-w-[120px] md:max-w-[140px] text-slate-500">{m.location || "LONDON, UK"}</span>
+            <span className="text-[10px] md:text-[11px] font-bold uppercase tracking-widest truncate max-w-[120px] md:max-w-[140px] text-slate-500">
+              {m.location || "LONDON, UK"}
+            </span>
           </div>
-          <div className="px-4 py-1 rounded-full bg-[#ff9f43] text-white text-[8px] md:text-[9px] font-bold uppercase tracking-widest shadow-sm">Recommended</div>
+          <div className="px-4 py-1 rounded-full bg-[#ff9f43] text-white text-[8px] md:text-[9px] font-bold uppercase tracking-widest shadow-sm">
+            Recommended
+          </div>
         </div>
 
         <div className="flex items-center gap-4 md:gap-5 mb-6 md:mb-8">
           <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-white border border-slate-100 flex items-center justify-center overflow-hidden shrink-0 shadow-sm relative p-2 md:p-3">
-            {m.logo ? <Image src={m.logo} alt={m.name} fill className="object-contain p-2" /> : <span className="text-blue-600 font-semibold text-[18px] md:text-[22px]">{m.name.charAt(0)}</span>}
+            {m.logo ? (
+              <Image
+                src={m.logo}
+                alt={m.name}
+                fill
+                className="object-contain p-2"
+              />
+            ) : (
+              <span className="text-blue-600 font-semibold text-[18px] md:text-[22px]">
+                {m.name.charAt(0)}
+              </span>
+            )}
           </div>
           <div className="min-w-0">
-            <h3 className="text-[18px] md:text-[22px] font-bold text-[#111827] leading-tight mb-0.5 md:mb-1 line-clamp-1">{m.name}</h3>
-            <p className="text-[#4F46E5] font-semibold text-[14px] md:text-[16px] tracking-tight truncate">{m.popularPrograms?.[0] || "MSc Computer Science"}</p>
+            <h3 className="text-[18px] md:text-[22px] font-bold text-[#111827] leading-tight mb-0.5 md:mb-1 line-clamp-1">
+              {m.name}
+            </h3>
+            <p className="text-[#4F46E5] font-semibold text-[14px] md:text-[16px] tracking-tight truncate">
+              {m.popularPrograms?.[0] || "MSc Computer Science"}
+            </p>
           </div>
         </div>
 
         <div className="space-y-4 md:space-y-6 mb-8 md:mb-10">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3 text-slate-500"><Calendar className="w-4 h-4 md:w-5 md:h-5" /><span className="text-[12px] md:text-[13px] font-semibold text-black">Duration</span></div>
-            <span className="text-[12px] md:text-[13px] font-semibold text-[#111827]">1 Year</span>
+            <div className="flex items-center gap-3 text-slate-500">
+              <Calendar className="w-4 h-4 md:w-5 md:h-5" />
+              <span className="text-[12px] md:text-[13px] font-semibold text-black">
+                Duration
+              </span>
+            </div>
+            <span className="text-[12px] md:text-[13px] font-semibold text-[#111827]">
+              1 Year
+            </span>
           </div>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3 text-slate-500"><Wallet className="w-4 h-4 md:w-5 md:h-5" /><span className="text-[12px] md:text-[13px] font-semibold text-black">Tuition</span></div>
-            <span className="text-[12px] md:text-[13px] font-semibold text-[#111827]">{m.tuitionFee ? `${fmtVal(m.tuitionFee)} / yr` : "TBD"}</span>
+            <div className="flex items-center gap-3 text-slate-500">
+              <Wallet className="w-4 h-4 md:w-5 md:h-5" />
+              <span className="text-[12px] md:text-[13px] font-semibold text-black">
+                Tuition
+              </span>
+            </div>
+            <span className="text-[12px] md:text-[13px] font-semibold text-[#111827]">
+              {m.tuitionFee ? `${fmtVal(m.tuitionFee)} / yr` : "TBD"}
+            </span>
           </div>
           <div className="space-y-2 md:space-y-3">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3 text-slate-500"><CheckCircle2 className="w-4 h-4 md:w-5 md:h-5 text-[#10b981]" /><span className="text-[12px] md:text-[13px] font-semibold text-black">Acceptance</span></div>
-              <span className="text-[13px] md:text-[14px] font-extrabold text-[#10b981] uppercase">{m.admissionRate || 78}%</span>
+              <div className="flex items-center gap-3 text-slate-500">
+                <CheckCircle2 className="w-4 h-4 md:w-5 md:h-5 text-[#10b981]" />
+                <span className="text-[12px] md:text-[13px] font-semibold text-black">
+                  Acceptance
+                </span>
+              </div>
+              <span className="text-[13px] md:text-[14px] font-extrabold text-[#10b981] uppercase">
+                {m.admissionRate || 78}%
+              </span>
             </div>
             <div className="h-1.5 w-full bg-slate-50 rounded-full overflow-hidden border border-slate-100">
-              <div className="h-full bg-[#10b981] rounded-full transition-all duration-1000" style={{ width: `${m.admissionRate || 78}%` }} />
+              <div
+                className="h-full bg-[#10b981] rounded-full transition-all duration-1000"
+                style={{ width: `${m.admissionRate || 78}%` }}
+              />
             </div>
           </div>
         </div>
 
-        <div className="mt-auto">
-          <button onClick={(e) => { e.stopPropagation(); onSelect?.(); }} className="w-full h-14 md:h-16 rounded-[24px] md:rounded-[30px] bg-[#3686FF] text-white font-bold text-[14px] md:text-[16px] shadow-[0_8px_25px_-5px_rgba(37,99,235,0.4)] flex items-center justify-center gap-2 group">
-            Select University <ArrowRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1.5 transition-transform" />
+        <div className="mt-auto space-y-2.5">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelect?.();
+            }}
+            className="w-full h-14 md:h-16 rounded-[24px] md:rounded-[30px] bg-[#3686FF] text-white font-bold text-[14px] md:text-[16px] shadow-[0_8px_25px_-5px_rgba(37,99,235,0.4)] flex items-center justify-center gap-2 group"
+          >
+            Select University{" "}
+            <ArrowRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1.5 transition-transform" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setActiveTab("estimates");
+              setDetailsOpen(true);
+            }}
+            className="w-full h-11 rounded-[16px] border border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold text-[13px] transition-colors"
+          >
+            View Details
           </button>
         </div>
       </div>
+
+      {detailsOpen && (
+        <div className="fixed inset-0 z-[120] bg-black/50 backdrop-blur-[1px] p-3 md:p-6">
+          <button
+            aria-label="Close details"
+            className="absolute inset-0"
+            onClick={() => setDetailsOpen(false)}
+          />
+          <div className="relative mx-auto h-full w-full max-w-md md:max-w-2xl rounded-[24px] bg-white overflow-hidden flex flex-col">
+            <div className="relative h-24 md:h-36 shrink-0">
+              <Image
+                src={m.banner || "/uni-default.webp"}
+                alt={m.name}
+                fill
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+              <div className="absolute left-4 bottom-3 text-white">
+                <h3 className="text-[20px] md:text-[24px] font-black leading-none">
+                  {m.name}
+                </h3>
+                <p className="text-[11px] md:text-[12px] opacity-90 mt-1 flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5" />
+                  {m.location || "Unknown location"}
+                </p>
+              </div>
+              <button
+                onClick={() => setDetailsOpen(false)}
+                className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/95 text-slate-700 flex items-center justify-center"
+                aria-label="Close details"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="shrink-0 border-b border-slate-100 px-2 md:px-4 overflow-x-auto">
+              <div className="flex min-w-max">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`px-4 md:px-5 h-11 text-[12px] font-bold border-b-2 transition-colors ${
+                      activeTab === tab.id
+                        ? "text-blue-600 border-blue-600"
+                        : "text-slate-400 border-transparent"
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 md:p-6">
+              {activeTab === "estimates" && (
+                <div className="space-y-4">
+                  <div className="rounded-2xl border border-slate-100 p-4">
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+                      Estimated Total Cost / Yr
+                    </p>
+                    <p className="text-[34px] font-black text-slate-900 leading-none">
+                      {fmtVal((m.tuitionFee || 0) + yearlyLiving)}
+                    </p>
+                    <div className="mt-4 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                      <div
+                        className="h-full bg-blue-500"
+                        style={{ width: "58%" }}
+                      />
+                    </div>
+                    <div className="mt-3 flex items-center gap-4 text-[11px] text-slate-500 font-semibold">
+                      <span className="flex items-center gap-1">
+                        <span className="w-2 h-2 rounded-full bg-blue-500" />{" "}
+                        Tuition
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <span className="w-2 h-2 rounded-full bg-amber-400" />{" "}
+                        Living
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500" />{" "}
+                        Other
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-slate-100 p-4">
+                    <p className="text-[20px] font-extrabold text-slate-900 mb-2">
+                      Your Chances
+                    </p>
+                    <div className="flex items-end gap-2">
+                      <span className="text-[34px] font-black text-blue-600 leading-none">
+                        {admissionChance}%
+                      </span>
+                      <span className="text-[12px] font-semibold text-slate-500 pb-1">
+                        admission chance
+                      </span>
+                    </div>
+                    <p className="text-[12px] text-slate-500 mt-3">
+                      Based on your profile and this university&apos;s trend
+                      data.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "overview" && (
+                <div className="space-y-4">
+                  <div className="rounded-2xl border border-slate-100 p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Info className="w-4 h-4 text-blue-500" />
+                      <h4 className="font-bold text-slate-900">
+                        About University
+                      </h4>
+                    </div>
+                    <p className="text-[13px] text-slate-600 leading-relaxed">
+                      {m.description ||
+                        `${m.name} offers strong academics, modern campus facilities, and excellent global exposure for international students.`}
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl border border-slate-100 p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Sparkles className="w-4 h-4 text-amber-500" />
+                      <h4 className="font-bold text-slate-900">Highlights</h4>
+                    </div>
+                    <div className="space-y-2">
+                      {courses.slice(0, 3).map((program) => (
+                        <div
+                          key={program}
+                          className="rounded-xl bg-slate-50 border border-slate-100 px-3 py-2 text-[13px] font-medium text-slate-700"
+                        >
+                          {program}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "rankings" && (
+                <div className="space-y-4">
+                  <div className="rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white p-5">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Award className="w-4 h-4" />
+                      <p className="text-[13px] font-bold">Global Excellence</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="rounded-xl bg-white/10 border border-white/15 p-3">
+                        <p className="text-[10px] uppercase font-bold opacity-80">
+                          QS World
+                        </p>
+                        <p className="text-[30px] leading-none font-black mt-1">
+                          #{m.rankingWorld || "-"}
+                        </p>
+                      </div>
+                      <div className="rounded-xl bg-white/10 border border-white/15 p-3">
+                        <p className="text-[10px] uppercase font-bold opacity-80">
+                          National
+                        </p>
+                        <p className="text-[30px] leading-none font-black mt-1">
+                          #{m.rankingNational || "-"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "courses" && (
+                <div className="space-y-3">
+                  {courses.map((program, idx) => (
+                    <div
+                      key={`${program}-${idx}`}
+                      className="rounded-2xl border border-slate-100 p-4"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="font-bold text-slate-900 text-[14px]">
+                            {program}
+                          </p>
+                          <p className="text-[12px] text-slate-500 mt-1 flex items-center gap-1.5">
+                            <Calendar className="w-3.5 h-3.5" />
+                            {m.deadline || m.applicationDeadline || "Rolling"}
+                          </p>
+                        </div>
+                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-blue-50 text-blue-600">
+                          {formProgramTag(program)}
+                        </span>
+                      </div>
+                      <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
+                        <p className="text-[11px] text-slate-500">
+                          Tuition Fee
+                        </p>
+                        <p className="text-[18px] font-black text-slate-900">
+                          {m.tuitionFee ? `${fmtVal(m.tuitionFee)}/yr` : "TBD"}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {activeTab === "facts" && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="rounded-2xl border border-slate-100 p-3">
+                      <div className="flex items-center gap-1.5 text-slate-400 text-[11px] font-bold uppercase">
+                        <Building2 className="w-3.5 h-3.5" /> Type
+                      </div>
+                      <p className="text-[15px] font-extrabold text-slate-900 mt-2">
+                        {m.type || "Public"}
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-slate-100 p-3">
+                      <div className="flex items-center gap-1.5 text-slate-400 text-[11px] font-bold uppercase">
+                        <Award className="w-3.5 h-3.5" /> Established
+                      </div>
+                      <p className="text-[15px] font-extrabold text-slate-900 mt-2">
+                        {m.founded || "N/A"}
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-slate-100 p-3">
+                      <div className="flex items-center gap-1.5 text-slate-400 text-[11px] font-bold uppercase">
+                        <MapPin className="w-3.5 h-3.5" /> Campus
+                      </div>
+                      <p className="text-[15px] font-extrabold text-slate-900 mt-2 line-clamp-1">
+                        {m.location || "N/A"}
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-slate-100 p-3">
+                      <div className="flex items-center gap-1.5 text-slate-400 text-[11px] font-bold uppercase">
+                        <Users className="w-3.5 h-3.5" /> Students
+                      </div>
+                      <p className="text-[15px] font-extrabold text-slate-900 mt-2">
+                        {m.studentPopulation
+                          ? `${m.studentPopulation.toLocaleString()}+`
+                          : "N/A"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-slate-100 p-4">
+                    <div className="space-y-2 text-[13px] text-slate-600">
+                      <p>
+                        <span className="font-semibold text-slate-800">
+                          English Requirement:
+                        </span>{" "}
+                        IELTS {m.englishReq || "6.5"}
+                      </p>
+                      <p>
+                        <span className="font-semibold text-slate-800">
+                          Minimum GPA:
+                        </span>{" "}
+                        {m.gpaRequirement || "3.0"}/4.0
+                      </p>
+                      <p>
+                        <span className="font-semibold text-slate-800">
+                          International Students:
+                        </span>{" "}
+                        {m.internationalPercentage || "N/A"}%
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="shrink-0 border-t border-slate-100 p-4">
+              <button
+                onClick={() => {
+                  setDetailsOpen(false);
+                  onSelect?.();
+                }}
+                className="w-full h-12 rounded-[14px] bg-[#3686FF] text-white font-bold text-[14px]"
+              >
+                Shortlist University
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
+}
+
+function formProgramTag(program: string) {
+  const lower = program.toLowerCase();
+  if (
+    lower.includes("engineer") ||
+    lower.includes("computer") ||
+    lower.includes("data")
+  ) {
+    return "Engineering";
+  }
+  if (
+    lower.includes("business") ||
+    lower.includes("management") ||
+    lower.includes("finance")
+  ) {
+    return "Business";
+  }
+  if (lower.includes("law")) {
+    return "Law";
+  }
+  if (lower.includes("health") || lower.includes("medical")) {
+    return "Health";
+  }
+  return "General";
 }
