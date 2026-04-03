@@ -64,7 +64,7 @@ export function AdmissionDetails({
   ];
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-full px-4 pb-32 space-y-5 bg-white min-h-screen">
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-full px-4 pb-16 space-y-5 bg-white min-h-screen">
       {/* Header */}
       <div className="flex items-center justify-between pt-2 pb-4 italic uppercase tracking-tighter">
          <div className="flex items-center gap-4">
@@ -76,18 +76,18 @@ export function AdmissionDetails({
          </div>
       </div>
 
-      <Card className="p-8 rounded-[32px] border border-slate-100 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.05)] relative overflow-hidden">
+      <Card className="p-6 md:p-8 rounded-[24px] md:rounded-[32px] border border-slate-100 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.05)] relative overflow-hidden">
          <div className="relative z-10 flex items-center justify-between">
-            <div className="space-y-4">
-               <p className="text-[13px] font-bold text-slate-600 leading-none tracking-tight">Admission Probability</p>
-               <h2 className="text-2xl font-black text-slate-900 leading-tight">
-                 {admissionPct}% <span className="text-blue-600">— {admissionBand.label}</span>
+            <div className="space-y-3 md:space-y-4">
+               <p className="text-[12px] md:text-[13px] font-bold text-slate-600 leading-none tracking-tight">Admission Probability</p>
+               <h2 className="text-xl md:text-2xl font-black text-slate-900 leading-tight">
+                 {admissionPct}% <span className="text-blue-600 md:inline block">— {admissionBand.label}</span>
                </h2>
-               <div className="inline-flex px-4 py-2 bg-slate-900 text-white text-[10px] font-black rounded-full uppercase tracking-widest shadow-sm">
+               <div className="inline-flex px-3 py-1.5 md:px-4 md:py-2 bg-slate-900 text-white text-[9px] md:text-[10px] font-black rounded-full uppercase tracking-widest shadow-sm">
                  ● Profile Match: {Math.round(admissionPct * 0.9)}%
                </div>
             </div>
-            <div className="relative w-24 h-24 shrink-0">
+            <div className="relative w-20 h-20 md:w-24 md:h-24 shrink-0">
                <svg viewBox="0 0 36 36" className="w-full h-full transform -rotate-90 scale-110">
                   <circle cx="18" cy="18" r="16" fill="transparent" stroke="#f1f5f9" strokeWidth="4" />
                   <circle 
@@ -100,26 +100,26 @@ export function AdmissionDetails({
                   />
                </svg>
                <div className="absolute inset-0 flex items-center justify-center">
-                 <span className="text-lg font-black text-slate-900">{admissionPct}%</span>
+                 <span className="text-base md:text-lg font-black text-slate-900">{admissionPct}%</span>
                </div>
             </div>
          </div>
       </Card>
 
       <div className="bg-white rounded-[24px] border border-slate-100 overflow-hidden shadow-sm">
-         <div className="p-5 flex items-center justify-between border-b border-slate-50 bg-slate-50/50">
-            <span className="font-bold text-slate-800 uppercase text-[12px] tracking-widest">Your Profile Analysis</span>
+         <div className="p-4 md:p-5 flex items-center justify-between border-b border-slate-50 bg-slate-50/50">
+            <span className="font-bold text-slate-800 uppercase text-[11px] md:text-[12px] tracking-widest">Your Profile Analysis</span>
             <ChevronDown className="w-5 h-5 text-slate-300" />
          </div>
-         <div className="px-5 py-6 space-y-6">
+         <div className="px-4 py-5 md:px-5 md:py-6 space-y-4 md:space-y-6">
             {analysisItems.map((item, idx) => (
-              <div key={idx} className="flex items-center gap-4">
-                 <div className={`w-10 h-10 rounded-2xl ${item.bg} flex items-center justify-center ${item.color} shadow-sm border border-white`}>
-                   <item.icon className="w-5 h-5" />
+              <div key={idx} className="flex items-center gap-3 md:gap-4">
+                 <div className={`w-9 h-9 md:w-10 md:h-10 rounded-xl md:rounded-2xl ${item.bg} flex items-center justify-center ${item.color} shadow-sm border border-white`}>
+                   <item.icon className="w-4.5 h-4.5 md:w-5 md:h-5" />
                  </div>
                  <div className="space-y-0.5">
-                   <p className="text-[14px] font-black text-slate-800 leading-none">{item.label}</p>
-                   <p className={`text-[10px] font-bold uppercase tracking-tight ${item.isPositive ? "text-emerald-500" : "text-amber-500"}`}>
+                   <p className="text-[13px] md:text-[14px] font-black text-slate-800 leading-none">{item.label}</p>
+                   <p className={`text-[9px] md:text-[10px] font-bold uppercase tracking-tight ${item.isPositive ? "text-emerald-500" : "text-amber-500"}`}>
                      {item.isPositive ? "Strong Point" : "Risk Factor"}
                    </p>
                  </div>
@@ -129,36 +129,36 @@ export function AdmissionDetails({
       </div>
 
       {/* Suggested University Cards */}
-      <div className="pt-6 space-y-6">
+      <div className="pt-4 md:pt-6 space-y-4 md:space-y-6">
          <div className="flex items-center justify-between">
-            <h3 className="font-black text-slate-900 text-lg uppercase tracking-tight italic">Recommended Safety Picks</h3>
-            <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest underline cursor-pointer">View All</span>
+            <h3 className="font-black text-slate-900 text-base md:text-lg uppercase tracking-tight italic">Recommended Safety Picks</h3>
+            <span className="text-[9px] md:text-[10px] font-black text-blue-600 uppercase tracking-widest underline cursor-pointer">View All</span>
          </div>
          <div className="flex gap-4 overflow-x-auto pb-4 snap-x no-scrollbar">
             {[selectedMatch, selectedMatch].map((m, i) => (
-              <Card key={i} className="min-w-[300px] rounded-[36px] border border-slate-100 overflow-hidden shadow-xl snap-start bg-white group hover:border-blue-200 transition-all duration-500">
-                 <div className="h-44 bg-slate-100 relative overflow-hidden">
+              <Card key={i} className="min-w-[260px] md:min-w-[300px] rounded-[28px] md:rounded-[36px] border border-slate-100 overflow-hidden shadow-xl snap-start bg-white group hover:border-blue-200 transition-all duration-500">
+                 <div className="h-32 md:h-44 bg-slate-100 relative overflow-hidden">
                     <Image src={m.banner || "/uni-default.webp"} layout="fill" objectFit="cover" alt="U" className="group-hover:scale-110 transition-transform duration-700" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-                    <div className="absolute top-4 right-4 bg-emerald-500/95 backdrop-blur-md px-4 py-2 rounded-2xl text-[10px] font-black text-white shadow-lg">
+                    <div className="absolute top-3 right-3 md:top-4 md:right-4 bg-emerald-500/95 backdrop-blur-md px-3 py-1.5 md:px-4 md:py-2 rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black text-white shadow-lg">
                       {Math.min(98, admissionPct + 15)}% CHANCE
                     </div>
                  </div>
-                 <div className="p-7 space-y-5">
-                    <h4 className="font-black text-slate-900 leading-snug group-hover:text-blue-600 transition-colors">{m.name}</h4>
-                    <div className="flex items-center justify-between border-t border-slate-50 pt-5">
+                 <div className="p-5 md:p-7 space-y-4 md:space-y-5">
+                    <h4 className="font-black text-slate-900 text-[14px] md:text-base leading-snug group-hover:text-blue-600 transition-colors line-clamp-1">{m.name}</h4>
+                    <div className="flex items-center justify-between border-t border-slate-50 pt-4 md:pt-5">
                        <div className="space-y-1">
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Est. Tuition</p>
-                          <p className="font-black text-slate-900 text-[15px]">NPR {Math.round((m.tuitionFee || 22000) * 1.38 / 100000)} Lakhs</p>
+                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Est. Tuition</p>
+                          <p className="font-black text-slate-900 text-[13px] md:text-[15px]">NPR {Math.round((m.tuitionFee || 22000) * 1.38 / 100000)} Lakhs</p>
                        </div>
-                       <span className="px-4 py-2 bg-emerald-50 text-emerald-600 text-[10px] font-black rounded-xl uppercase border border-emerald-100">SAFE</span>
+                       <span className="px-3 py-1.5 bg-emerald-50 text-emerald-600 text-[9px] font-black rounded-lg uppercase border border-emerald-100">SAFE</span>
                     </div>
                  </div>
               </Card>
             ))}
          </div>
       </div>
-      <button onClick={onAdvanceToVisa} className="w-full h-18 bg-blue-600 text-white rounded-[28px] font-black text-[15px] uppercase tracking-widest shadow-[0_20px_40px_-5px_rgba(37,99,235,0.3)] flex items-center justify-center gap-3 mt-10 group hover:bg-blue-700 transition-all active:scale-95 duration-300 italic">Check Visa Probability <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" /></button>
+      <button onClick={onAdvanceToVisa} className="w-full h-16 md:h-18 bg-blue-600 text-white rounded-[24px] md:rounded-[28px] font-black text-[14px] md:text-[15px] uppercase tracking-widest shadow-[0_20px_40px_-5px_rgba(37,99,235,0.3)] flex items-center justify-center gap-3 mt-6 md:mt-10 group hover:bg-blue-700 transition-all active:scale-95 duration-300 italic">Check Visa Probability <ArrowRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-1 transition-transform" /></button>
     </div>
   );
 }

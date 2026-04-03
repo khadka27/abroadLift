@@ -558,7 +558,7 @@ function SearchSelect({
           setOpen(!open);
           setQuery("");
         }}
-        className={`w-full relative flex items-center pl-10 pr-4 h-[60px] bg-[#f8fafc] border rounded-[22px] text-left transition-all ${open
+        className={`w-full relative flex items-center pl-10 pr-4 h-[50px] md:h-[60px] bg-[#f8fafc] border rounded-[18px] md:rounded-[22px] text-left transition-all ${open
           ? "border-blue-500 ring-4 ring-blue-500/5 bg-white shadow-lg"
           : "border-slate-200 hover:border-blue-200 shadow-sm"
           }`}
@@ -1273,19 +1273,19 @@ function GenericEngineScreen({ config, onFinish }: { config: EngineConfig; onFin
   return (
     <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-[#fdfdfd] overflow-hidden">
       {/* Abstract Animated Mesh Background Pattern */}
-      <div 
-        className="absolute inset-0 opacity-[0.02] pointer-events-none" 
+      <div
+        className="absolute inset-0 opacity-[0.02] pointer-events-none"
         style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, black 1px, transparent 0)', backgroundSize: '24px 24px' }}
       />
-      
+
       <div className="relative z-10 w-full max-w-sm px-8 flex flex-col items-center">
-        
+
         {/* Unique Circular Progress & Icon Container */}
         <div className="relative w-48 h-48 flex items-center justify-center mb-10">
-          
+
           {/* Breathing Radial Glow */}
-          <motion.div 
-            className={`absolute inset-0 rounded-full blur-[40px] opacity-20 ${config.glow}`} 
+          <motion.div
+            className={`absolute inset-0 rounded-full blur-[40px] opacity-20 ${config.glow}`}
             animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.4, 0.2] }}
             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
           />
@@ -1359,7 +1359,7 @@ function GenericEngineScreen({ config, onFinish }: { config: EngineConfig; onFin
           {/* Active Logs (Left) */}
           <div className="space-y-4 flex-1">
             {checklist.map((item) => (
-              <motion.div 
+              <motion.div
                 key={item.id}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: item.status === "pending" ? 0.4 : 1, x: 0 }}
@@ -1369,9 +1369,9 @@ function GenericEngineScreen({ config, onFinish }: { config: EngineConfig; onFin
                 {item.status === 'complete' ? (
                   <Check className="w-[16px] h-[16px] text-emerald-500" strokeWidth={3} />
                 ) : item.status === 'loading' ? (
-                   <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
-                     <Loader2 className={`w-[16px] h-[16px] ${config.accent}`} />
-                   </motion.div>
+                  <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
+                    <Loader2 className={`w-[16px] h-[16px] ${config.accent}`} />
+                  </motion.div>
                 ) : (
                   <div className="w-[16px] h-[16px] rounded border-2 border-slate-200" />
                 )}
@@ -1969,7 +1969,7 @@ export default function AbroadLiftMatchesPage() {
           </div>
 
           {/* Hero image — small on mobile, taller on desktop */}
-          <div className="w-full mb-4 overflow-hidden rounded-[20px] shadow-sm border border-slate-50">
+          <div className="w-full mb-4 overflow-hidden rounded-[20px] shadow-sm border border-slate-50 lg:hidden">
             <Image
               src="/country.png"
               alt="Destinations"
@@ -2029,24 +2029,24 @@ export default function AbroadLiftMatchesPage() {
 
       return (
         <div className="animate-in fade-in zoom-in-95 duration-700 w-full max-w-5xl mx-auto pb-2 px-4">
-          <div className="mb-6 text-center">
-            <h2 className="text-[20px] lg:text-[24px] font-bold text-[#111827] tracking-tight">
+          <div className="mb-3 md:mb-6 text-center">
+            <h2 className="text-[18px] md:text-[20px] lg:text-[24px] font-bold text-[#111827] tracking-tight">
               What level of study are you planning?
             </h2>
           </div>
 
-          <div className="w-full mb-8 overflow-hidden rounded-[24px] shadow-sm border border-slate-50 lg:hidden">
+          <div className="w-full mb-4 md:mb-8 overflow-hidden rounded-[24px] shadow-sm border border-slate-50 lg:hidden">
             <Image
               src="/abrd.png"
               alt="Study Level"
               width={800}
               height={400}
-              className="w-full h-[110px] md:h-[180px] object-cover"
+              className="w-full h-[85px] md:h-[180px] object-cover"
               priority
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-5 w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 md:gap-4 lg:gap-5 w-full">
             {DISPLAY_DEGREES.map((d) => {
               const isSel = form.degree === d.v;
               const Icon = d.icon;
@@ -2054,28 +2054,28 @@ export default function AbroadLiftMatchesPage() {
                 <button
                   key={d.v}
                   onClick={() => updateForm("degree", d.v)}
-                  className={`group relative flex items-center gap-6 px-8 py-5 rounded-[22px] border transition-all duration-300 ${isSel
+                  className={`group relative flex items-center gap-4 md:gap-6 px-5 md:px-8 py-3.5 md:py-5 rounded-[18px] md:rounded-[22px] border transition-all duration-300 ${isSel
                     ? "border-blue-500 bg-white shadow-lg shadow-blue-500/5 -translate-y-0.5"
                     : "border-slate-100 bg-white shadow-sm hover:border-blue-200"
                     }`}
                 >
                   <div
-                    className={`shrink-0 w-[52px] h-[52px] rounded-xl flex items-center justify-center transition-all border ${isSel
+                    className={`shrink-0 w-[40px] h-[40px] md:w-[52px] md:h-[52px] rounded-xl flex items-center justify-center transition-all border ${isSel
                       ? "bg-white text-slate-900 border-blue-500 shadow-sm"
                       : "bg-slate-50 text-slate-400 border-slate-100"
                       }`}
                   >
-                    <Icon className="w-6 h-6" strokeWidth={1.5} />
+                    <Icon className="w-5 h-5 md:w-6 md:h-6" strokeWidth={1.5} />
                   </div>
                   <span
-                    className={`text-[17px] font-semibold ${isSel ? "text-slate-900" : "text-slate-700"
+                    className={`text-[15px] md:text-[17px] font-semibold ${isSel ? "text-slate-900" : "text-slate-700"
                       }`}
                   >
                     {d.l}
                   </span>
                   {isSel && (
-                    <div className="ml-auto w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center shadow-sm">
-                      <CheckCircle2 className="w-4 h-4 text-white" />
+                    <div className="ml-auto w-5 h-5 md:w-6 md:h-6 bg-blue-500 rounded-full flex items-center justify-center shadow-sm">
+                      <CheckCircle2 className="w-3.5 h-3.5 md:w-4 md:h-4 text-white" />
                     </div>
                   )}
                 </button>
@@ -2095,37 +2095,38 @@ export default function AbroadLiftMatchesPage() {
 
       return (
         <div className="flex flex-col animate-in fade-in zoom-in-95 duration-700 w-full max-w-5xl mx-auto pb-2 px-4">
-          <div className="mb-6 text-center">
-            <h2 className="text-[20px] lg:text-[24px] font-bold text-[#111827] tracking-tight">
+          <div className="mb-3 md:mb-6 text-center">
+            <h2 className="text-[18px] md:text-[20px] lg:text-[24px] font-bold text-[#111827] tracking-tight">
               What do you want to study?
             </h2>
           </div>
 
-          <div className="w-full mb-8 overflow-hidden rounded-[24px] shadow-sm border border-slate-50 lg:hidden">
+          <div className="w-full mb-4 md:mb-8 overflow-hidden rounded-[24px] shadow-sm border border-slate-50 lg:hidden">
             <Image
               src="/studies.png"
               alt="Field of Study"
               width={800}
               height={400}
-              className="w-full h-[110px] md:h-[180px] object-cover"
+              className="w-full h-[85px] md:h-[180px] object-cover"
               priority
             />
           </div>
 
-          <div className="relative mb-8 max-w-2xl mx-auto w-full">
-            <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400">
-              <Search className="w-5 h-5" />
+          <div className="sticky top-[60px] md:top-[70px] z-20 bg-white/95 backdrop-blur-sm pb-3 md:pb-0 md:relative md:top-auto md:z-auto md:bg-transparent md:backdrop-blur-none mb-3 md:mb-8 max-w-2xl mx-auto w-full">
+            <div className="relative">
+              <div className="absolute left-4 md:left-5 top-1/2 -translate-y-1/2 text-slate-400">
+                <Search className="w-4 h-4 md:w-5 md:h-5" />
+              </div>
+              <input
+                type="text"
+                placeholder={'\u201CSearch study courses\u201D'}
+                className="w-full h-[48px] md:h-[60px] pl-11 md:pl-14 pr-4 bg-[#f8fafc] border border-slate-200 rounded-[16px] md:rounded-[20px] text-[14px] md:text-[16px] font-medium text-slate-900 placeholder:text-slate-400 placeholder:italic focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all shadow-sm"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
-            <input
-              type="text"
-              placeholder='“Search study courses”'
-              className="w-full h-[60px] pl-14 pr-4 bg-[#f8fafc] border border-slate-200 rounded-[20px] text-[16px] font-medium text-slate-900 placeholder:text-slate-400 placeholder:italic focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all shadow-sm"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 md:gap-4 w-full">
             {filteredFields.map((f) => {
               const isSel = form.field === f;
               return (
@@ -2135,24 +2136,24 @@ export default function AbroadLiftMatchesPage() {
                       updateForm("field", isSel ? "" : f);
                       updateForm("program", "");
                     }}
-                    className={`w-full h-[64px] px-8 flex items-center justify-between rounded-[22px] border transition-all duration-300 ${isSel
+                    className={`w-full h-[50px] md:h-[64px] px-5 md:px-8 flex items-center justify-between rounded-[16px] md:rounded-[22px] border transition-all duration-300 ${isSel
                       ? "border-blue-500 bg-white shadow-lg shadow-blue-500/5 -translate-y-0.5"
                       : "border-slate-100 bg-white shadow-sm hover:border-blue-200"
                       }`}
                   >
-                    <span className={`text-[16px] font-semibold ${isSel ? "text-slate-900" : "text-slate-700"}`}>
+                    <span className={`text-[14px] md:text-[16px] font-semibold ${isSel ? "text-slate-900" : "text-slate-700"}`}>
                       {f}
                     </span>
-                    <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform duration-300 ${isSel ? "rotate-180 text-blue-500" : ""}`} />
+                    <ChevronDown className={`w-4 h-4 md:w-5 md:h-5 text-slate-400 transition-transform duration-300 ${isSel ? "rotate-180 text-blue-500" : ""}`} />
                   </button>
 
                   {isSel && (
-                    <div className="mt-3 p-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 animate-in fade-in slide-in-from-top-2 duration-300 bg-slate-50/50 rounded-[24px] border border-slate-100">
+                    <div className="mt-2 md:mt-3 p-2 md:p-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1.5 md:gap-2 animate-in fade-in slide-in-from-top-2 duration-300 bg-slate-50/50 rounded-[18px] md:rounded-[24px] border border-slate-100">
                       {(PROGRAMS[f] || []).map((p) => (
                         <button
                           key={p}
                           onClick={() => updateForm("program", p)}
-                          className={`w-full text-left px-5 py-3.5 rounded-[16px] text-[14px] font-semibold transition-all ${form.program === p
+                          className={`w-full text-left px-4 md:px-5 py-2.5 md:py-3.5 rounded-[12px] md:rounded-[16px] text-[13px] md:text-[14px] font-semibold transition-all ${form.program === p
                             ? "bg-blue-600 text-white shadow-md"
                             : "text-slate-600 hover:bg-white hover:shadow-sm"
                             }`}
@@ -2183,19 +2184,19 @@ export default function AbroadLiftMatchesPage() {
 
       return (
         <div className="flex flex-col animate-in fade-in zoom-in-95 duration-700 w-full max-w-5xl mx-auto pb-2 px-4 mt-1">
-          <div className="mb-6 text-center">
-            <h2 className="text-[20px] lg:text-[24px] font-bold text-[#111827] tracking-tight">
+          <div className="mb-3 md:mb-6 text-center">
+            <h2 className="text-[18px] md:text-[20px] lg:text-[24px] font-bold text-[#111827] tracking-tight">
               Tell us about your background
             </h2>
           </div>
 
-          <div className="w-full mb-8 overflow-hidden rounded-[24px] shadow-sm border border-slate-50 lg:hidden">
+          <div className="w-full mb-4 md:mb-8 overflow-hidden rounded-[24px] shadow-sm border border-slate-50 lg:hidden">
             <Image
               src="/graduation.png"
               alt="Academics"
               width={800}
               height={400}
-              className="w-full h-[110px] md:h-[180px] object-cover"
+              className="w-full h-[85px] md:h-[180px] object-cover"
               priority
             />
           </div>
@@ -2224,7 +2225,7 @@ export default function AbroadLiftMatchesPage() {
                   max="4.0"
                   step="0.01"
                   placeholder="Academics Score (eg: 3.8)"
-                  className={`w-full h-[60px] px-6 bg-[#f8fafc] border rounded-[22px] text-[16px] font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all shadow-sm ${form.gpa && (parseFloat(form.gpa) < 0 || parseFloat(form.gpa) > 4.0) ? 'border-red-400 ring-2 ring-red-500/20' : 'border-slate-200'}`}
+                  className={`w-full h-[50px] md:h-[60px] px-6 bg-[#f8fafc] border rounded-[22px] text-[16px] font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all shadow-sm ${form.gpa && (parseFloat(form.gpa) < 0 || parseFloat(form.gpa) > 4.0) ? 'border-red-400 ring-2 ring-red-500/20' : 'border-slate-200'}`}
                   value={form.gpa}
                   onChange={(e) => updateForm("gpa", e.target.value)}
                 />
@@ -2257,11 +2258,11 @@ export default function AbroadLiftMatchesPage() {
 
       return (
         <div className="flex flex-col animate-in fade-in zoom-in-95 duration-700 w-full max-w-5xl mx-auto pb-2 px-4">
-          <div className="mb-2 text-center">
-            <h2 className="text-[20px] lg:text-[24px] font-bold text-[#111827] tracking-tight">
+          <div className="mb-1.5 md:mb-2 text-center">
+            <h2 className="text-[18px] md:text-[20px] lg:text-[24px] font-bold text-[#111827] tracking-tight">
               Do you have an English test score?
             </h2>
-            <p className="text-[14px] text-slate-500 font-medium mt-1">
+            <p className="text-[13px] md:text-[14px] text-slate-500 font-medium mt-1">
               This helps us estimate your admission chances
             </p>
           </div>
@@ -2281,7 +2282,7 @@ export default function AbroadLiftMatchesPage() {
             <div className="grid grid-cols-2 gap-3 w-full mb-5">
               <button
                 onClick={() => updateForm("hasEnglishTest", true)}
-                className={`h-[54px] flex items-center justify-center rounded-[22px] font-bold text-[15px] transition-all border ${form.hasEnglishTest === true
+                className={`h-[48px] md:h-[54px] flex items-center justify-center rounded-[22px] font-bold text-[15px] transition-all border ${form.hasEnglishTest === true
                   ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/20"
                   : "bg-white text-slate-600 border-slate-100 shadow-sm hover:border-blue-200"
                   }`}
@@ -2294,7 +2295,7 @@ export default function AbroadLiftMatchesPage() {
                   updateForm("testType", "NONE");
                   updateForm("testScore", "0");
                 }}
-                className={`h-[54px] flex items-center justify-center rounded-[22px] font-bold text-[15px] transition-all border ${form.hasEnglishTest === false
+                className={`h-[48px] md:h-[54px] flex items-center justify-center rounded-[22px] font-bold text-[15px] transition-all border ${form.hasEnglishTest === false
                   ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/20"
                   : "bg-white text-slate-600 border-slate-100 shadow-sm hover:border-blue-200"
                   }`}
@@ -2304,7 +2305,7 @@ export default function AbroadLiftMatchesPage() {
             </div>
 
             {form.hasEnglishTest === true && (
-              <div className="w-full space-y-8 animate-in fade-in slide-in-from-top-4 duration-500">
+              <div className="w-full space-y-4 md:space-y-8 animate-in fade-in slide-in-from-top-4 duration-500">
                 <div className="text-center">
                   <p className="text-[16px] font-bold text-slate-800">Describe your English level?</p>
                 </div>
@@ -2330,7 +2331,7 @@ export default function AbroadLiftMatchesPage() {
                       type="number"
                       step={form.testType === "IELTS" ? "0.5" : "1"}
                       placeholder="Enter your score"
-                      className="w-full h-[60px] px-6 bg-[#f8fafc] border border-slate-200 rounded-[22px] text-[16px] font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all shadow-sm"
+                      className="w-full h-[50px] md:h-[60px] px-6 bg-[#f8fafc] border border-slate-200 rounded-[22px] text-[16px] font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all shadow-sm"
                       value={form.testScore === "0" ? "" : form.testScore}
                       onChange={(e) => updateForm("testScore", e.target.value)}
                     />
@@ -2374,42 +2375,42 @@ export default function AbroadLiftMatchesPage() {
       return (
         <div className="flex flex-col animate-in fade-in zoom-in-95 duration-700 w-full max-w-5xl mx-auto pb-4 px-4">
           <div className="mb-2 text-center">
-            <h2 className="text-[20px] lg:text-[24px] font-bold text-[#111827] tracking-tight">
+            <h2 className="text-[18px] md:text-[20px] lg:text-[24px] font-bold text-[#111827] tracking-tight">
               When do you want to start your studies?
             </h2>
-            <p className="text-[14px] text-slate-500 font-medium mt-1">
+            <p className="text-[13px] md:text-[14px] text-slate-500 font-medium mt-1">
               This helps us estimate your admission chances
             </p>
           </div>
 
-          <div className="w-full mb-8 overflow-hidden rounded-[24px] shadow-sm border border-slate-50 lg:hidden">
+          <div className="w-full mb-4 md:mb-8 overflow-hidden rounded-[24px] shadow-sm border border-slate-50 lg:hidden">
             <Image
               src="/intake.png"
               alt="World Map"
               width={800}
               height={400}
-              className="w-full h-[110px] md:h-[180px] object-cover"
+              className="w-full h-[85px] md:h-[180px] object-cover"
               priority
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4 w-full max-w-2xl mx-auto mb-10">
+          <div className="grid grid-cols-2 gap-3 md:gap-4 w-full max-w-2xl mx-auto mb-10">
             {INTAKE_OPTIONS.map((opt) => {
               const isSel = form.intake === opt.main;
               return (
                 <button
                   key={opt.main}
                   onClick={() => updateForm("intake", opt.main)}
-                  className={`flex flex-col items-start gap-0.5 p-3 md:p-5 lg:p-6 rounded-[20px] border transition-all text-left group overflow-hidden relative ${isSel
+                  className={`flex flex-col items-start gap-0.5 p-2.5 md:p-5 lg:p-6 rounded-[18px] md:rounded-[20px] border transition-all text-left group overflow-hidden relative ${isSel
                     ? "border-blue-500 bg-blue-50/20 shadow-lg shadow-blue-500/10"
                     : "border-slate-100 bg-white shadow-sm hover:border-blue-200"
                     }`}
                 >
-                  <div className="flex items-center gap-1.5">
-                    <Calendar className={`w-3.5 h-3.5 md:w-4 md:h-4 ${isSel ? "text-blue-500" : "text-red-400"}`} />
-                    <span className="text-[13px] md:text-[15px] font-bold text-slate-800">{opt.main}</span>
+                  <div className="flex items-center gap-1 md:gap-1.5">
+                    <Calendar className={`w-3 h-3 md:w-3.5 md:h-3.5 ${isSel ? "text-blue-500" : "text-red-400"}`} />
+                    <span className="text-[12px] md:text-[13px] font-bold text-slate-800">{opt.main}</span>
                   </div>
-                  <span className={`text-[11px] md:text-[12px] font-medium ml-5 ${isSel ? "text-blue-600" : "text-slate-500"}`}>
+                  <span className={`text-[10px] md:text-[11px] font-medium ml-4 ${isSel ? "text-blue-600" : "text-slate-500"}`}>
                     {opt.sub}
                   </span>
                 </button>
@@ -2491,38 +2492,39 @@ export default function AbroadLiftMatchesPage() {
           admissionBand={admissionBand}
           onAdvanceToCost={() => setStep(9)}
           onAdvanceToAdmission={() => { setTransitionType("admission"); setStep(10); }}
+          onAdvanceToVisa={() => { setTransitionType("visa"); setStep(11); }}
           onGoToMatches={() => setStep(7)}
         />
       );
     }
 
     if (step === 9 && selectedMatch && financialMetrics) {
-      const { 
-        tuitionUsd, 
-        yearlyLivingUsd, 
-        setupCostsUsd, 
-        graduationDuration, 
-        totalYear1Npr, 
-        totalDegreeCostNpr, 
-        itemizedMonthly, 
-        fmtNpr, 
-        fmtLakhs, 
-        usdToNpr 
+      const {
+        tuitionUsd,
+        yearlyLivingUsd,
+        setupCostsUsd,
+        graduationDuration,
+        totalYear1Npr,
+        totalDegreeCostNpr,
+        itemizedMonthly,
+        fmtNpr,
+        fmtLakhs,
+        usdToNpr
       } = financialMetrics;
 
       const tuitionPct = apiCostEstimate ? Math.round((apiCostEstimate.education_npr / totalYear1Npr) * 100) : Math.round((tuitionUsd / (tuitionUsd + yearlyLivingUsd + setupCostsUsd)) * 100);
       const livingPct = 100 - tuitionPct;
       const monthlyTotalNpr = Math.round((tuitionUsd + yearlyLivingUsd) * usdToNpr / 12);
 
-      const displayAmountNpr = 
+      const displayAmountNpr =
         costPeriod === "Month on month" ? monthlyTotalNpr :
-        costPeriod === "Year on year" ? totalDegreeCostNpr :
-        totalYear1Npr;
+          costPeriod === "Year on year" ? totalDegreeCostNpr :
+            totalYear1Npr;
 
-      const displayLabel = 
+      const displayLabel =
         costPeriod === "Month on month" ? "Average Monthly Cost" :
-        costPeriod === "Year on year" ? `Total ${graduationDuration}-Year Estimate` :
-        "First Year Total Investment";
+          costPeriod === "Year on year" ? `Total ${graduationDuration}-Year Estimate` :
+            "First Year Total Investment";
 
       return (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-full px-4 pb-12 space-y-5 bg-white min-h-screen">
@@ -2593,8 +2595,8 @@ export default function AbroadLiftMatchesPage() {
                     <Calculator className="w-5 h-5 text-emerald-500" fill="currentColor" fillOpacity="0.2" />
                   </div>
                   <span className="font-bold text-slate-800">
-                    {costPeriod === "Month on month" ? "Monthly Breakdown" : 
-                     costPeriod === "Year on year" ? "Multi-Year Projection" : "Year 1 Breakdown"}
+                    {costPeriod === "Month on month" ? "Monthly Breakdown" :
+                      costPeriod === "Year on year" ? "Multi-Year Projection" : "Year 1 Breakdown"}
                   </span>
                 </div>
                 <ChevronDown className="w-5 h-5 text-slate-300" />
@@ -2603,8 +2605,8 @@ export default function AbroadLiftMatchesPage() {
                 {costPeriod === "Month on month" ? (
                   Object.entries(itemizedMonthly).map(([l, v], i) => (
                     <div key={i} className="px-6 py-4 flex items-center justify-between font-black text-slate-900 text-[14px]">
-                       <span className="text-slate-400 font-medium">{l}</span>
-                       <span>{fmtNpr(v / (l === "Tuition" || l === "Education" ? 12 : 1))}</span>
+                      <span className="text-slate-400 font-medium">{l}</span>
+                      <span>{fmtNpr(v / (l === "Tuition" || l === "Education" ? 12 : 1))}</span>
                     </div>
                   ))
                 ) : costPeriod === "Year on year" ? (
@@ -2631,9 +2633,9 @@ export default function AbroadLiftMatchesPage() {
                 )}
               </div>
               <div className="p-4 bg-slate-50/50 text-center text-[12px] font-bold text-slate-500 border-t border-slate-50">
-                {costPeriod === "Year on year" ? `Projected over ${graduationDuration} years` : 
-                 costPeriod === "Month on month" ? "Average monthly allocation" :
-                 "One-time setup costs included in Year 1"}
+                {costPeriod === "Year on year" ? `Projected over ${graduationDuration} years` :
+                  costPeriod === "Month on month" ? "Average monthly allocation" :
+                    "One-time setup costs included in Year 1"}
               </div>
             </div>
 
@@ -2809,7 +2811,7 @@ export default function AbroadLiftMatchesPage() {
 
     if (step === 12 && selectedMatch && financialMetrics) {
       return (
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-full px-4 pb-32 space-y-6 bg-white min-h-screen">
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-full px-4 pb-16 space-y-5 bg-white min-h-screen">
           <div className="flex items-center justify-between pt-2 pb-4 uppercase tracking-tighter italic">
             <div className="flex items-center gap-4">
               <button onClick={() => setStep(11)} className="p-1">
@@ -2819,55 +2821,55 @@ export default function AbroadLiftMatchesPage() {
             </div>
           </div>
 
-          <Card className="p-10 rounded-[44px] bg-slate-900 text-white shadow-2xl relative overflow-hidden border-0">
+          <Card className="p-6 md:p-10 rounded-[28px] md:rounded-[44px] bg-slate-900 text-white shadow-2xl relative overflow-hidden border-0">
             <div className="absolute top-0 right-0 w-80 h-80 bg-blue-500/20 rounded-full -mr-40 -mt-40 blur-[100px] opacity-60" />
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/10 rounded-full -ml-32 -mb-32 blur-[80px] opacity-40" />
-            
+
             <div className="relative z-10 space-y-8">
               <div className="flex items-center gap-3">
                 <div className="px-4 py-1.5 rounded-full bg-blue-500/20 text-blue-400 text-[10px] font-black uppercase tracking-[0.2em] border border-blue-500/20">
                   Total Investment Projection
                 </div>
               </div>
-              
-              <div className="space-y-2">
-                <p className="text-slate-400 font-bold uppercase text-[11px] tracking-widest pl-1 italic">Projected Degree ROI</p>
-                <h2 className="text-5xl md:text-6xl font-black italic uppercase tracking-tighter leading-none">
+
+              <div className="space-y-1">
+                <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest pl-1 italic">Projected Degree ROI</p>
+                <h2 className="text-3xl md:text-6xl font-black italic uppercase tracking-tighter leading-none">
                   {financialMetrics.fmtLakhs(financialMetrics.totalDegreeCostNpr)}
                 </h2>
               </div>
 
-              <div className="grid grid-cols-2 gap-6 pt-6">
-                <div className="bg-white/5 p-6 rounded-3xl border border-white/10 group hover:bg-white/10 transition-colors">
-                  <div className="flex items-center gap-2 mb-3">
-                    <GraduationCap className="w-4 h-4 text-blue-400" />
-                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Total Tuition</p>
+              <div className="grid grid-cols-2 gap-3 md:gap-6 pt-2 md:pt-6">
+                <div className="bg-white/5 p-4 md:p-6 rounded-2xl md:rounded-3xl border border-white/10 group hover:bg-white/10 transition-colors">
+                  <div className="flex items-center gap-2 mb-2 md:mb-3">
+                    <GraduationCap className="w-3.5 h-3.5 md:w-4 md:h-4 text-blue-400" />
+                    <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">Total Tuition</p>
                   </div>
-                  <p className="font-black text-2xl tracking-tight">{financialMetrics.fmtLakhs(financialMetrics.totalTuitionNpr)}</p>
-                  <p className="text-[10px] font-bold text-slate-500 mt-1 italic">{financialMetrics.graduationDuration} Years Academic Fee</p>
+                  <p className="font-black text-lg md:text-2xl tracking-tight">{financialMetrics.fmtLakhs(financialMetrics.totalTuitionNpr)}</p>
+                  <p className="text-[9px] font-bold text-slate-500 mt-1 italic">{financialMetrics.graduationDuration} Years Academic Fee</p>
                 </div>
-                
-                <div className="bg-white/5 p-6 rounded-3xl border border-white/10 group hover:bg-white/10 transition-colors">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Heart className="w-4 h-4 text-rose-400" />
-                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Est. Living</p>
+
+                <div className="bg-white/5 p-4 md:p-6 rounded-2xl md:rounded-3xl border border-white/10 group hover:bg-white/10 transition-colors">
+                  <div className="flex items-center gap-2 mb-2 md:mb-3">
+                    <Heart className="w-3.5 h-3.5 md:w-4 md:h-4 text-rose-400" />
+                    <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">Est. Living</p>
                   </div>
-                  <p className="font-black text-2xl tracking-tight">{financialMetrics.fmtLakhs(financialMetrics.totalLivingNpr)}</p>
-                  <p className="text-[10px] font-bold text-slate-500 mt-1 italic">Housing, Food & Lifestyle</p>
+                  <p className="font-black text-lg md:text-2xl tracking-tight">{financialMetrics.fmtLakhs(financialMetrics.totalLivingNpr)}</p>
+                  <p className="text-[9px] font-bold text-slate-500 mt-1 italic">Housing, Food & Lifestyle</p>
                 </div>
               </div>
             </div>
           </Card>
 
-          <div className="space-y-4 pt-10">
+          <div className="space-y-4 pt-4">
             <button
               onClick={() => { setTransitionType("summary"); setStep(13); }}
-              className="w-full h-18 bg-blue-600 text-white rounded-[32px] font-black text-[15px] uppercase tracking-widest shadow-[0_20px_40px_-5px_rgba(37,99,235,0.3)] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-4 italic"
+              className="w-full h-14 md:h-18 bg-blue-600 text-white rounded-[24px] md:rounded-[32px] font-black text-[14px] md:text-[15px] uppercase tracking-widest shadow-[0_20px_40px_-5px_rgba(37,99,235,0.3)] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-4 italic"
             >
-              Verify Final Summary <ArrowRight className="w-6 h-6" />
+              Verify Final Summary <ArrowRight className="w-5 h-5 md:w-6 md:h-6" />
             </button>
-            <button className="w-full h-16 bg-slate-50 text-slate-600 rounded-[32px] font-black text-xs uppercase tracking-[0.2em] hover:bg-slate-100 transition-all flex items-center justify-center gap-3 border border-slate-100 italic">
-              <Download className="w-5 h-5" />
+            <button className="w-full h-14 md:h-16 bg-slate-50 text-slate-600 rounded-[24px] md:rounded-[32px] font-black text-[10px] md:text-xs uppercase tracking-[0.2em] hover:bg-slate-100 transition-all flex items-center justify-center gap-3 border border-slate-100 italic">
+              <Download className="w-4 h-4 md:w-5 md:h-5" />
               GENERATE PDF REPORT
             </button>
           </div>
@@ -2961,7 +2963,7 @@ export default function AbroadLiftMatchesPage() {
         }).format(npr / USD_TO_NPR);
 
       return (
-        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 max-w-full px-8 lg:px-16 pb-32">
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 max-w-full px-4 md:px-8 lg:px-16 pb-20">
           {/* 1. Header Spotlight */}
           <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-10 border-b border-slate-50 pb-12">
             <div>
@@ -2994,9 +2996,9 @@ export default function AbroadLiftMatchesPage() {
               </p>
             </div>
 
-            <div className="relative group">
+            <div className="relative group w-full md:w-auto">
               <div
-                className={`bg-${scholPercent > 0 ? "emerald-600 shadow-emerald-500/20" : "blue-600 shadow-blue-500/20"} text-white p-10 rounded-[48px] shadow-2xl text-center scale-105 ring-8 ring-blue-50 transition-all`}
+                className={`bg-${scholPercent > 0 ? "emerald-600 shadow-emerald-500/20" : "blue-600 shadow-blue-500/20"} text-white p-6 md:p-10 rounded-[32px] md:rounded-[48px] shadow-2xl text-center scale-100 md:scale-105 ring-4 md:ring-8 ring-blue-50 transition-all`}
               >
                 <p className="text-[10px] font-black opacity-80 uppercase tracking-[0.3em] mb-4">
                   {scholPercent > 0

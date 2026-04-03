@@ -234,7 +234,7 @@ export default function Navbar() {
                         key={sub.label}
                         href={sub.href}
                         onClick={() => setMobileOpen(false)}
-                        className="text-base font-bold text-blue-800/50 hover:text-[#009dff]"
+                        className="text-base font-bold text-gray-700! hover:text-[#009dff]! transition-colors"
                       >
                         {sub.label}
                       </Link>
