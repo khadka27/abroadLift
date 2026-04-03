@@ -349,7 +349,11 @@ function RegisterForm() {
                 value=""
                 onChange={() => {}}
                 type="text"
-                suffix={<span className="text-[11px] font-bold text-[#3381FF] pr-2">OTP</span>}
+                suffix={
+                  <span className="text-[11px] font-bold text-[#3381FF] pr-2">
+                    OTP
+                  </span>
+                }
               />
 
               {/* Terms & Conditions */}

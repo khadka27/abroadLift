@@ -44,8 +44,10 @@ export function toE164(dialCode: string, phoneNumber: string) {
 }
 
 export function generateOtpCode() {
-  // Static code for testing as requested
-  return "123456";
+  return crypto
+    .randomInt(0, 10 ** OTP_LENGTH)
+    .toString()
+    .padStart(OTP_LENGTH, "0");
 }
 
 export function hashOtpCode(otpCode: string) {
@@ -62,7 +64,9 @@ async function sendViaTwilio(
   otpCode: string,
 ) {
   // Twilio sending skipped for testing
-  console.log(`[TEST_MODE] Skipping ${channel} send to ${phoneE164}. Code: ${otpCode}`);
+  console.log(
+    `[TEST_MODE] Skipping ${channel} send to ${phoneE164}. Code: ${otpCode}`,
+  );
   return true;
 }
 
@@ -76,9 +80,9 @@ export async function trySendOtp({
   prefersWhatsApp: boolean;
 }) {
   const primaryChannel: OtpChannel = prefersWhatsApp ? "WHATSAPP" : "SMS";
-  
+
   // Directly "send" via mock
   await sendViaTwilio(primaryChannel, phoneE164, otpCode);
-  
+
   return { sent: true, channel: primaryChannel };
 }
