@@ -16,7 +16,7 @@ import { Feather, Ionicons, MaterialIcons, MaterialCommunityIcons } from "@expo/
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useUser } from "../context/UserContext";
 import { ProfileAvatar } from "../../components/ProfileAvatar";
-import { getWorqnowUniversityDetail, WorqnowUniversity } from "../../lib/worqnow";
+import { getUniversityDetails, UniversityDetail } from "../../lib/api";
 import { ActivityIndicator } from "react-native";
 
 const { width, height } = Dimensions.get("window");
@@ -70,19 +70,24 @@ const UNIVERSITIES: Record<string, any> = {
 const TABS = ["Estimates", "Overview", "Rankings", "Courses & Fees"];
 
 export default function UniversityDetails() {
-  const { id, country, name } = useLocalSearchParams();
+  const { id, country: countryParam, name } = useLocalSearchParams();
   const insets = useSafeAreaInsets();
-  const { selectUniversity } = useUser();
+  const { userData, selectUniversity } = useUser();
+  
+  // Resolve the actual country to use for API and display
+  const currentCountry = (countryParam && countryParam !== "undefined") 
+    ? (countryParam as string) 
+    : (userData.country || "UK");
   const [selectedTab, setSelectedTab] = useState("Estimates");
   const [courseSearch, setCourseSearch] = useState("");
   const [loading, setLoading] = useState(true);
-  const [uniData, setUniData] = useState<WorqnowUniversity | null>(null);
+  const [uniData, setUniData] = useState<UniversityDetail | null>(null);
 
   useEffect(() => {
     let mounted = true;
     const load = async () => {
       setLoading(true);
-      const data = await getWorqnowUniversityDetail(id as string, country as string);
+      const data = await getUniversityDetails(id as string, currentCountry);
       if (mounted) {
         setUniData(data);
         setLoading(false);
@@ -90,21 +95,21 @@ export default function UniversityDetails() {
     };
     load();
     return () => { mounted = false; };
-  }, [id, country]);
+  }, [id, currentCountry]);
 
   const fallback = UNIVERSITIES["3"];
   const details = {
     title: uniData?.name || (name as string) || fallback.title,
-    location: uniData?.city ? `${uniData.city}${uniData.region ? ", " + uniData.region : ""}` : fallback.location,
-    image: fallback.image, // Placeholder since WorqNow API doesn't return images
-    description: "This data is powered by WorqNow. " + fallback.description,
-    type: uniData?.is_russell_group ? "Russell Group" : fallback.type,
-    established: fallback.established,
-    campus: fallback.campus,
-    students: fallback.students,
+    location: uniData?.location || fallback.location,
+    image: uniData?.image || fallback.image, 
+    description: uniData?.description || fallback.description,
+    type: uniData?.type || fallback.type,
+    established: uniData?.established || fallback.established,
+    campus: uniData?.campus || fallback.campus,
+    students: uniData?.students || fallback.students,
     ranking_world: uniData?.ranking_world || "N/A",
     ranking_national: uniData?.ranking_national || "N/A",
-    fee_usd: uniData?.estimatedFeeUSD || 65000,
+    fee_usd: uniData?.tuitionValue || 65000,
   };
 
   const renderEstimates = () => (
@@ -296,7 +301,7 @@ export default function UniversityDetails() {
           name: c.name,
           duration: c.level.join(", ") || "Unknown",
           mode: "Full-time",
-          fee: details.fee_usd ? `$${details.fee_usd}/yr` : "Unknown",
+          fee: c.fee || (details.fee_usd ? `$${details.fee_usd.toLocaleString()}/yr` : "Unknown"),
           category: c.category.toUpperCase() || "GENERAL"
       })) : [
         { name: "MSc Computer Science", duration: "2 Years", mode: "Full-time", fee: "$62,000/yr", category: "ENGINEERING" },

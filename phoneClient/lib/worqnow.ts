@@ -27,6 +27,11 @@ export interface WorqnowUniversity {
   courses?: { name: string; category: string; level: string[] }[];
   scholarships?: { name: string; value: string }[];
   is_russell_group?: boolean;
+  description?: string;
+  type?: string;
+  established?: string;
+  campus?: string;
+  students?: string;
 }
 
 const universityCache: Record<string, WorqnowUniversity[]> = {};

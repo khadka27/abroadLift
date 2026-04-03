@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
 
-const API_BASE_URL = Platform.OS === 'android' ? 'http://192.168.1.68:3000/api' : 'http://localhost:3000/api';
+const API_BASE_URL = Platform.OS === 'android' ? `${process.env.EXPO_PUBLIC_API_URL}/api` : `http://192.168.1.68:3000/api`;
 // Fallback local IP for Expo Go on physical device if neither of the above works:
 // const API_BASE_URL = 'http://192.168.1.68:3000/api';
 
@@ -24,7 +24,19 @@ export interface UniversityResult {
   recommended?: boolean;
 }
 
-import { fetchWorqnowUniversities, WorqnowUniversity } from './worqnow';
+export interface UniversityDetail extends UniversityResult {
+  description?: string;
+  type?: string;
+  established?: string;
+  campus?: string;
+  students?: string;
+  ranking_world?: number | string;
+  ranking_national?: number | string;
+  courses?: { name: string; category: string; level: string[]; fee?: string | number }[];
+  scholarships?: { name: string; value: string }[];
+}
+
+import { fetchWorqnowUniversities, getWorqnowUniversityDetail, WorqnowUniversity } from './worqnow';
 
 export const login = async (identifier: string, password: string): Promise<any> => {
   try {
@@ -130,6 +142,36 @@ export const searchUniversities = async (query: string, countries: string = "All
   }
 };
 
+export const getUniversityDetails = async (id: string, country: string): Promise<UniversityDetail | null> => {
+  try {
+    // Basic guard for when 'country' arrives as a string "undefined"
+    const actualCountry = (country === "undefined" || !country) ? "uk" : country;
+    const data = await getWorqnowUniversityDetail(id, actualCountry);
+    if (!data) return null;
+
+    const processed = processResults([data], actualCountry)[0];
+    
+    return {
+      ...processed,
+      description: data.description || `The ${data.name} is a renowned institution located in ${data.city || data.region || country}. It offers a wide range of academic programs and is known for its commitment to excellence in research and teaching.`,
+      type: data.is_russell_group ? "Russell Group / Research" : (data.type || "Public Research"),
+      established: data.established || "N/A",
+      campus: data.campus || (data.city ? `${data.city} Campus` : "Contact University"),
+      students: data.students || "10,000+",
+      ranking_world: data.ranking_world || "N/A",
+      ranking_national: data.ranking_national || "N/A",
+      courses: data.courses?.map(c => ({
+        ...c,
+        fee: processed.tuition
+      })) || [],
+      scholarships: data.scholarships || []
+    };
+  } catch (error) {
+    console.error("Error fetching university details:", error);
+    return null;
+  }
+};
+
 const processResults = (results: any[], searchCountry: string): UniversityResult[] => {
   if (!results) return [];
   return results.map((res: any) => {
@@ -152,7 +194,7 @@ const processResults = (results: any[], searchCountry: string): UniversityResult
     else if (rate <= 30) chance = "Low";
 
     // Fallback country name if API doesn't provide it
-    const displayCountry = res.country || (searchCountry !== "All" ? searchCountry : "Global");
+    const displayCountry = res.country || (searchCountry && searchCountry !== "All" ? searchCountry : "Global");
 
     return {
       id: String(uniqueId),
