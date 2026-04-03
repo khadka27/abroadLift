@@ -3945,12 +3945,14 @@ export default function AbroadLiftMatchesPage() {
 
           <div className="absolute top-[110px] left-8 lg:left-12 z-20">
             <div className="flex items-center gap-2 group">
-              <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform">
-                <GraduationCap className="text-white w-5 h-5" />
-              </div>
-              <span className="font-black text-xl tracking-tight text-white">
-                AbroadLift
-              </span>
+              <Image
+                src="/logo.png"
+                alt="AbroadLift"
+                width={280}
+                height={72}
+                className="h-11 w-auto drop-shadow-md"
+                priority
+              />
             </div>
           </div>
 
