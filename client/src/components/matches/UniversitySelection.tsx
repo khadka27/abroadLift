@@ -86,7 +86,7 @@ export function UniversitySelection({
     );
   }
 
-  if (!matches.length) {
+  if (!matches || matches.length === 0) {
     return (
       <div className="text-center py-20 md:py-32 animate-in fade-in zoom-in-95 duration-700 max-w-2xl mx-auto px-6">
         <div className="relative w-28 h-28 mx-auto mb-8">
@@ -630,7 +630,6 @@ function UniversityDetailsModal({
           </div>
         </div>
       </div>
-    </div>
   );
 }
 
