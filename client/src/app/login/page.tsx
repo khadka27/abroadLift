@@ -121,14 +121,8 @@ function LoginForm() {
         return;
       }
 
-      const sessionRes = await fetch("/api/auth/session");
-      const currentSession = await sessionRes.json();
-      if (currentSession?.user?.role === "ADMIN") {
-        router.push("/admin/dashboard");
-      } else {
-        router.push("/");
-      }
-      router.refresh();
+      // Don't redirect here - let useEffect handle it when session updates
+      // This ensures the session is fully established before redirecting
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
