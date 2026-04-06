@@ -16,6 +16,8 @@ export async function GET(req: Request) {
         name: true,
         username: true,
         email: true,
+        phoneNumber: true,
+        phoneE164: true,
         role: true,
         createdAt: true,
         profile: true, // Fetch entire profile
@@ -92,7 +94,10 @@ export async function PUT(req: Request) {
   if (username) {
     const existing = await prisma.user.findUnique({ where: { username } });
     if (existing && existing.id !== userIdSource) {
-      return NextResponse.json({ error: "Username already taken." }, { status: 409 });
+      return NextResponse.json(
+        { error: "Username already taken." },
+        { status: 409 },
+      );
     }
   }
 
@@ -100,15 +105,18 @@ export async function PUT(req: Request) {
   if (email) {
     const existingEmail = await prisma.user.findUnique({ where: { email } });
     if (existingEmail && existingEmail.id !== userIdSource) {
-      return NextResponse.json({ error: "Email already in use." }, { status: 409 });
+      return NextResponse.json(
+        { error: "Email already in use." },
+        { status: 409 },
+      );
     }
   }
 
   // Calculate probabilities and estimates locally for the Profile
   const gpaVal = gpa ? parseFloat(gpa) : 3.0;
   const testScoreVal = englishScore ? parseFloat(englishScore) : 0;
-  
-  let admissionProb = 50; 
+
+  let admissionProb = 50;
   if (gpaVal >= 3.5) admissionProb += 20;
   else if (gpaVal >= 3.0) admissionProb += 10;
   if (testScoreVal >= 7.0 || testScoreVal >= 100) admissionProb += 15;
@@ -120,7 +128,8 @@ export async function PUT(req: Request) {
   if (bankBalance && parseFloat(bankBalance) > 3000000) visaSuccessProb += 15;
   visaSuccessProb = Math.min(98, visaSuccessProb);
 
-  const estimatedAnnualCost = (yearlyBudget ? parseFloat(yearlyBudget) : 20000) + 12000;
+  const estimatedAnnualCost =
+    (yearlyBudget ? parseFloat(yearlyBudget) : 20000) + 12000;
 
   const profileData = {
     nationality: nationality || null,

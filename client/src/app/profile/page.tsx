@@ -140,7 +140,7 @@ export default function ProfilePage() {
         name: fullName,
         username: data.username || "",
         email: data.email || "",
-        phone: data.profile?.phone || "",
+        phone: data.phoneE164 || data.phoneNumber || data.profile?.phone || "",
         dob: data.profile?.dob || "",
         nationality: data.profile?.nationality || "",
         currentCountry: data.profile?.currentCountry || "",
