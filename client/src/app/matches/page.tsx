@@ -742,6 +742,23 @@ function MatchCard({
       maximumFractionDigits: 0,
     }).format(n);
 
+  const acceptanceRate =
+    typeof m.admissionRate === "number"
+      ? Math.max(0, Math.min(100, m.admissionRate))
+      : null;
+  const matchBadgeLabel =
+    m.matchType === "exact"
+      ? "Best Match"
+      : m.matchType === "similar"
+        ? "Similar"
+        : "Recommended";
+  const matchBadgeClass =
+    m.matchType === "exact"
+      ? "bg-emerald-500"
+      : m.matchType === "similar"
+        ? "bg-violet-500"
+        : "bg-[#ff9f43]";
+
   return (
     <div
       className={`bg-white border text-left rounded-[36px] overflow-hidden transition-all duration-500 cursor-pointer relative group flex flex-col h-full ${
@@ -763,7 +780,7 @@ function MatchCard({
         <div className="absolute top-5 right-5 px-4 py-2 rounded-full bg-white/90 backdrop-blur-md border border-white flex items-center gap-2 shadow-lg">
           <Trophy className="w-4 h-4 text-[#3b82f6]" />
           <span className="text-[11px] font-[800] text-[#3b82f6] uppercase tracking-wider">
-            #{m.rankingWorld || 1} Global
+            {m.rankingWorld ? `#${m.rankingWorld} Global` : "Ranking N/A"}
           </span>
         </div>
       </div>
@@ -774,11 +791,13 @@ function MatchCard({
           <div className="flex items-center gap-2 text-slate-400">
             <MapPin className="w-4 h-4" />
             <span className="text-[11px] font-bold uppercase tracking-widest truncate max-w-[140px] text-slate-500">
-              {m.location || "LONDON, UK"}
+              {m.location || "Location Unavailable"}
             </span>
           </div>
-          <div className="px-5 py-1.5 rounded-full bg-[#ff9f43] text-white text-[9px] font-bold uppercase tracking-widest shadow-sm">
-            Recommended
+          <div
+            className={`px-5 py-1.5 rounded-full text-white text-[9px] font-bold uppercase tracking-widest shadow-sm ${matchBadgeClass}`}
+          >
+            {matchBadgeLabel}
           </div>
         </div>
 
@@ -803,7 +822,7 @@ function MatchCard({
               {m.name}
             </h3>
             <p className="text-[#4F46E5] font-semibold text-[16px] tracking-tight">
-              {m.popularPrograms?.[0] || "MSc Computer Science"}
+              {m.popularPrograms?.[0] || "Program details available"}
             </p>
           </div>
         </div>
@@ -818,7 +837,9 @@ function MatchCard({
               </span>
             </div>
             <span className="text-[13px] font-semibold text-[#111827] ">
-              1 Year
+              {m.durationYears
+                ? `${m.durationYears} Year${m.durationYears > 1 ? "s" : ""}`
+                : "Varies by Program"}
             </span>
           </div>
           <div className="flex items-center justify-between">
@@ -841,13 +862,13 @@ function MatchCard({
                 </span>
               </div>
               <span className="text-[14px] font-extrabold text-[#10b981] uppercase">
-                {m.admissionRate || 78}%
+                {acceptanceRate !== null ? `${acceptanceRate}%` : "N/A"}
               </span>
             </div>
             <div className="h-2 w-full bg-slate-50 rounded-full overflow-hidden border border-slate-100">
               <div
                 className="h-full bg-[#10b981] rounded-full transition-all duration-1000"
-                style={{ width: `${m.admissionRate || 78}%` }}
+                style={{ width: `${acceptanceRate ?? 0}%` }}
               />
             </div>
           </div>
@@ -924,10 +945,16 @@ function MatchCard({
                   </span>
                 </div>
                 <p className="text-[14px] font-bold text-slate-900">
-                  {m.gpaRequirement || "3.0"}
-                  <span className="text-slate-400 text-[11px] font-bold">
-                    /4.0
-                  </span>
+                  {typeof m.gpaRequirement === "number" ? (
+                    <>
+                      {m.gpaRequirement}
+                      <span className="text-slate-400 text-[11px] font-bold">
+                        /4.0
+                      </span>
+                    </>
+                  ) : (
+                    "N/A"
+                  )}
                 </p>
               </div>
 
@@ -939,7 +966,9 @@ function MatchCard({
                   </span>
                 </div>
                 <p className="text-[14px] font-bold text-slate-900">
-                  IELTS {m.englishReq || "6.5"}
+                  {typeof m.englishReq === "number"
+                    ? `IELTS ${m.englishReq}`
+                    : "N/A"}
                 </p>
               </div>
 
@@ -952,7 +981,9 @@ function MatchCard({
                   </span>
                 </div>
                 <p className="text-[14px] font-bold text-slate-900">
-                  {m.internationalPercentage || "15"}%
+                  {typeof m.internationalPercentage === "number"
+                    ? `${m.internationalPercentage}%`
+                    : "N/A"}
                 </p>
               </div>
 
@@ -976,7 +1007,7 @@ function MatchCard({
                 </span>
                 <span className="text-[13px] font-bold text-rose-500 flex items-center gap-1.5">
                   <Clock className="w-3.5 h-3.5" />
-                  {m.applicationDeadline || "Rolling Admission"}
+                  {m.applicationDeadline || "Check university portal"}
                 </span>
               </div>
 

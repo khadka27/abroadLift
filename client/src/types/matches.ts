@@ -75,6 +75,7 @@ export interface Match {
   popularPrograms?: string[];
   applicationDeadline?: string;
   gpaRequirement?: number;
+  durationYears?: number;
   matchType?: string;
   internationalPercentage?: number;
   salaryMedian?: number;
