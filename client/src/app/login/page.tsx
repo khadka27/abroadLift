@@ -188,39 +188,44 @@ function LoginForm() {
             )}
 
             <form onSubmit={handleSubmit} className="w-full space-y-4">
-              <div className="grid grid-cols-[120px_1fr] gap-3">
-                <select
-                  value={countryDialCode}
-                  onChange={(e) => setCountryDialCode(e.target.value)}
-                  className="h-[56px] w-full rounded-[20px] border-none bg-[#F4F4F4] px-3 text-[14px] font-medium text-[#1e293b] outline-none transition-all focus:ring-2 focus:ring-blue-500/10"
-                >
-                  {COUNTRY_CODES.map((country) => (
-                    <option key={country.dialCode} value={country.dialCode}>
-                      {country.label} {country.dialCode}
-                    </option>
-                  ))}
-                </select>
+              {!otpSent && (
+                <>
+                  <div className="grid grid-cols-[120px_1fr] gap-3">
+                    <select
+                      value={countryDialCode}
+                      onChange={(e) => setCountryDialCode(e.target.value)}
+                      disabled={otpSent}
+                      className="h-[56px] w-full rounded-[20px] border-none bg-[#F4F4F4] px-3 text-[14px] font-medium text-[#1e293b] outline-none transition-all focus:ring-2 focus:ring-blue-500/10 disabled:opacity-50"
+                    >
+                      {COUNTRY_CODES.map((country) => (
+                        <option key={country.dialCode} value={country.dialCode}>
+                          {country.label} {country.dialCode}
+                        </option>
+                      ))}
+                    </select>
 
-                <InputField
-                  placeholder="9812345678"
-                  value={phoneNumber}
-                  onChange={(v) => setPhoneNumber(v)}
-                />
-              </div>
+                    <InputField
+                      placeholder="9812345678"
+                      value={phoneNumber}
+                      onChange={(v) => setPhoneNumber(v)}
+                    />
+                  </div>
 
-              <button
-                type="button"
-                onClick={handleSendOtp}
-                disabled={sendingOtp}
-                className="w-full h-[56px] border border-[#3381FF] text-[#3381FF] font-bold rounded-[20px] text-[14px] hover:bg-blue-50 transition-all disabled:opacity-70"
-              >
-                {sendingOtp ? "Sending OTP..." : "Send OTP"}
-              </button>
+                  <button
+                    type="button"
+                    onClick={handleSendOtp}
+                    disabled={sendingOtp || !phoneNumber.trim()}
+                    className="w-full h-[56px] bg-[#3381FF] text-white font-bold rounded-[20px] text-[14px] hover:bg-[#2970E6] transition-all disabled:opacity-70"
+                  >
+                    {sendingOtp ? "Sending OTP..." : "Send OTP"}
+                  </button>
+                </>
+              )}
 
-              {(otpSent || otpChannel) && (
-                <div className="space-y-2 fade-in">
+              {otpSent && (
+                <div className="space-y-4 fade-in">
                   <div className="flex flex-col items-center">
-                    <p className="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-3">
+                    <p className="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-4">
                       Verify OTP Code
                     </p>
                     <InputField
@@ -230,16 +235,28 @@ function LoginForm() {
                       type="text"
                     />
                   </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full h-[60px] bg-[#3381FF] text-white font-bold rounded-[30px] text-[16px] shadow-sm hover:bg-[#2970E6] transition-all active:scale-[0.98] disabled:opacity-70"
+                  >
+                    {loading ? "Logging In..." : "Login"}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOtpSent(false);
+                      setOtp("");
+                      setError("");
+                    }}
+                    className="w-full h-[56px] border border-[#D1D5DB] text-[#6B7280] font-bold rounded-[20px] text-[14px] hover:bg-gray-50 transition-all"
+                  >
+                    Change Phone Number
+                  </button>
                 </div>
               )}
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full h-[60px] bg-[#3381FF] text-white font-bold rounded-[30px] text-[16px] shadow-sm hover:bg-[#2970E6] transition-all active:scale-[0.98] disabled:opacity-70 mt-2"
-              >
-                {loading ? "Signing In..." : "Login"}
-              </button>
             </form>
 
             <p className="mt-6 text-[12px] font-medium text-black">
