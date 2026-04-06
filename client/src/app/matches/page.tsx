@@ -1702,9 +1702,9 @@ export default function AbroadLiftMatchesPage() {
     }
   };
 
-  const redirectToLoginForMatches = (match?: Match | null) => {
+  const redirectToSignupForMatches = (match?: Match | null) => {
     saveStep7State(match);
-    router.replace(`/login?callbackUrl=${encodeURIComponent("/matches")}`);
+    router.replace(`/register?callbackUrl=${encodeURIComponent("/matches")}`);
   };
 
   /* ─────────────── Shared State / Calc ─────────────── */
@@ -2051,7 +2051,7 @@ export default function AbroadLiftMatchesPage() {
       }
     } else if (step === 7) {
       if (!session) {
-        redirectToLoginForMatches(selectedMatch);
+        redirectToSignupForMatches(selectedMatch);
         return;
       }
       setTransitionType("finance");
@@ -2785,7 +2785,7 @@ export default function AbroadLiftMatchesPage() {
             session={session}
             onSelect={(m: Match) => {
               if (!session) {
-                redirectToLoginForMatches(m);
+                redirectToSignupForMatches(m);
                 return;
               }
               setSelectedMatch(m);
