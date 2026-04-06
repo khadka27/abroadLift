@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useState, useRef } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -312,22 +312,25 @@ function OTPInput({
   value: string;
   onChange: (v: string) => void;
 }) {
-  const otpDigits = value.split("").slice(0, 6);
-  const inputRefs: (HTMLInputElement | null)[] = Array(6).fill(null);
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  const handleChange = (index: number, digit: string) => {
-    if (!/^\d*$/.test(digit)) return;
+  // Initialize value to 6 digits (empty or space filled if needed)
+  const otpArray = value.split("").slice(0, 6);
+  while (otpArray.length < 6) otpArray.push("");
 
-    const newOtp = otpDigits.slice();
-    newOtp[index] = digit;
-    const otpString = newOtp.join("");
+  const handleChange = (index: number, newVal: string) => {
+    // Only allow digits
+    const digit = newVal.slice(-1); // Get the last typed character
+    if (digit && !/^\d$/.test(digit)) return;
 
-    onChange(otpString);
+    const newOtpArray = [...otpArray];
+    newOtpArray[index] = digit;
+    const finalOtp = newOtpArray.join("");
+    onChange(finalOtp);
 
+    // Automatically focus next input if a digit was entered
     if (digit && index < 5) {
-      setTimeout(() => {
-        inputRefs[index + 1]?.focus();
-      }, 0);
+      inputRefs.current[index + 1]?.focus();
     }
   };
 
@@ -336,57 +339,68 @@ function OTPInput({
     e: React.KeyboardEvent<HTMLInputElement>,
   ) => {
     if (e.key === "Backspace") {
-      if (!otpDigits[index] && index > 0) {
-        inputRefs[index - 1]?.focus();
+      e.preventDefault(); // Prevent double deletion since we're handling state manually
+      if (index > 0) {
+        const newOtpArray = [...otpArray];
+        newOtpArray[index] = "";
+        onChange(newOtpArray.join(""));
+        inputRefs.current[index - 1]?.focus();
       } else {
-        const newOtp = otpDigits.slice();
-        newOtp[index] = "";
-        onChange(newOtp.join(""));
+        const newOtpArray = [...otpArray];
+        newOtpArray[index] = "";
+        onChange(newOtpArray.join(""));
       }
     } else if (e.key === "ArrowLeft" && index > 0) {
-      inputRefs[index - 1]?.focus();
+      inputRefs.current[index - 1]?.focus();
     } else if (e.key === "ArrowRight" && index < 5) {
-      inputRefs[index + 1]?.focus();
+      inputRefs.current[index + 1]?.focus();
     }
   };
 
+  const handlePaste = (
+    index: number,
+    e: React.ClipboardEvent<HTMLInputElement>,
+  ) => {
+    const clipboard = e.clipboardData;
+    if (!clipboard) return;
+
+    const pastedData = clipboard.getData("text").slice(0, 6).split("");
+    if (pastedData.some((char) => !/^\d$/.test(char))) return;
+
+    const newOtpArray = [...otpArray];
+    pastedData.forEach((char, i) => {
+      if (index + i < 6) {
+        newOtpArray[index + i] = char;
+      }
+    });
+
+    onChange(newOtpArray.join(""));
+
+    // Focus the last filled box or the next one
+    const lastFocusedIndex = Math.min(index + pastedData.length, 5);
+    inputRefs.current[lastFocusedIndex]?.focus();
+  };
+
   return (
-    <div className="flex gap-3 justify-center w-full">
+    <div className="flex justify-between w-full">
       {Array(6)
         .fill(null)
         .map((_, index) => (
           <input
             key={index}
             ref={(el) => {
-              inputRefs[index] = el;
+              inputRefs.current[index] = el;
             }}
             type="text"
             inputMode="numeric"
             maxLength={1}
-            value={otpDigits[index] || ""}
+            value={otpArray[index]}
             onChange={(e) => handleChange(index, e.target.value)}
             onKeyDown={(e) => handleKeyDown(index, e)}
             onPaste={(e) => {
-              e.preventDefault();
-              const pastedData = e.clipboardData
-                .getData("text")
-                .slice(0, 6 - index);
-              if (!/^\d*$/.test(pastedData)) return;
-
-              const newOtp = otpDigits.slice(0, index);
-              pastedData.split("").forEach((digit) => {
-                newOtp.push(digit);
-              });
-              onChange(newOtp.slice(0, 6).join(""));
-
-              if (pastedData.length > 0) {
-                setTimeout(() => {
-                  const focusIndex = Math.min(index + pastedData.length, 5);
-                  inputRefs[focusIndex]?.focus();
-                }, 0);
-              }
+              handlePaste(index, e);
             }}
-            className="w-12 h-12 text-center text-[18px] font-bold border-2 border-[#E5E7EB] rounded-[12px] bg-white text-[#1e293b] focus:border-[#3381FF] focus:ring-2 focus:ring-[#3381FF]/10 outline-none transition-all"
+            className="w-12 h-12 text-center text-[20px] font-bold border-2 border-[#E5E7EB] rounded-[12px] bg-white text-[#0f172a] shadow-sm outline-none transition-all focus:border-gray-300"
           />
         ))}
     </div>

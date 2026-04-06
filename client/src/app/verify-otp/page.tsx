@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { AlertCircle, CheckCircle2, ShieldCheck } from "lucide-react";
@@ -138,13 +138,7 @@ function VerifyOtpForm() {
             >
               OTP Code
             </label>
-            <input
-              id="otp-code"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
-              placeholder="Enter 6 digit OTP"
-              className="w-full h-14 rounded-2xl border border-slate-200 bg-slate-50 px-5 text-[15px] font-medium text-slate-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-500/10"
-            />
+            <OTPInput value={otp} onChange={(v) => setOtp(v)} />
           </div>
 
           <button
@@ -175,6 +169,108 @@ function VerifyOtpForm() {
           </Link>
         </p>
       </div>
+    </div>
+  );
+}
+
+function OTPInput({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Initialize value to 6 digits (empty or space filled if needed)
+  const otpArray = value.split("").slice(0, 6);
+  while (otpArray.length < 6) otpArray.push("");
+
+  const handleChange = (index: number, newVal: string) => {
+    // Only allow digits
+    const digit = newVal.slice(-1); // Get the last typed character
+    if (digit && !/^\d$/.test(digit)) return;
+
+    const newOtpArray = [...otpArray];
+    newOtpArray[index] = digit;
+    const finalOtp = newOtpArray.join("");
+    onChange(finalOtp);
+
+    // Automatically focus next input if a digit was entered
+    if (digit && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleKeyDown = (
+    index: number,
+    e: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (e.key === "Backspace") {
+      e.preventDefault(); // Prevent double deletion since we're handling state manually
+      if (index > 0) {
+        const newOtpArray = [...otpArray];
+        newOtpArray[index] = "";
+        onChange(newOtpArray.join(""));
+        inputRefs.current[index - 1]?.focus();
+      } else {
+        const newOtpArray = [...otpArray];
+        newOtpArray[index] = "";
+        onChange(newOtpArray.join(""));
+      }
+    } else if (e.key === "ArrowLeft" && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    } else if (e.key === "ArrowRight" && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handlePaste = (
+    index: number,
+    e: React.ClipboardEvent<HTMLInputElement>,
+  ) => {
+    const clipboard = e.clipboardData;
+    if (!clipboard) return;
+
+    const pastedData = clipboard.getData("text").slice(0, 6).split("");
+    if (pastedData.some((char) => !/^\d$/.test(char))) return;
+
+    const newOtpArray = [...otpArray];
+    pastedData.forEach((char, i) => {
+      if (index + i < 6) {
+        newOtpArray[index + i] = char;
+      }
+    });
+
+    onChange(newOtpArray.join(""));
+
+    // Focus the last filled box or the next one
+    const lastFocusedIndex = Math.min(index + pastedData.length, 5);
+    inputRefs.current[lastFocusedIndex]?.focus();
+  };
+
+  return (
+    <div className="flex justify-between w-full">
+      {Array(6)
+        .fill(null)
+        .map((_, index) => (
+          <input
+            key={index}
+            ref={(el) => {
+              inputRefs.current[index] = el;
+            }}
+            type="text"
+            inputMode="numeric"
+            maxLength={1}
+            value={otpArray[index]}
+            onChange={(e) => handleChange(index, e.target.value)}
+            onKeyDown={(e) => handleKeyDown(index, e)}
+            onPaste={(e) => {
+              handlePaste(index, e);
+            }}
+            className="w-12 h-12 text-center text-[20px] font-bold border-2 border-[#E5E7EB] rounded-[12px] bg-white text-[#0f172a] shadow-sm outline-none transition-all focus:border-gray-300"
+          />
+        ))}
     </div>
   );
 }
