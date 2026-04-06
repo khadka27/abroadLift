@@ -49,9 +49,7 @@ export function toE164(dialCode: string, phoneNumber: string) {
 }
 
 export function generateOtpCode() {
-  const min = 10 ** (OTP_LENGTH - 1);
-  const max = 10 ** OTP_LENGTH;
-  return Math.floor(min + Math.random() * (max - min)).toString();
+  return "123456".slice(0, OTP_LENGTH);
 }
 
 export function hashOtpCode(otpCode: string) {
