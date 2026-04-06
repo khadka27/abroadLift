@@ -31,7 +31,6 @@ function LoginForm() {
   const [error, setError] = useState("");
   const [justRegistered, setJustRegistered] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
-  const [otpChannel, setOtpChannel] = useState("");
 
   useEffect(() => {
     if (status !== "authenticated") {
@@ -87,7 +86,6 @@ function LoginForm() {
       }
 
       setOtpSent(true);
-      setOtpChannel((data.channel || "").toLowerCase());
     } catch {
       setError("Unable to send OTP right now. Please try again.");
     } finally {
@@ -174,9 +172,7 @@ function LoginForm() {
             {otpSent && (
               <div className="w-full mb-6 bg-blue-50 border border-blue-100 text-blue-700 px-4 py-3 rounded-2xl flex items-center gap-3 text-sm font-medium">
                 <CheckCircle2 className="w-5 h-5 shrink-0" />
-                <span>
-                  OTP sent on {otpChannel === "sms" ? "SMS" : "WhatsApp"}.
-                </span>
+                <span>OTP sent via SMS.</span>
               </div>
             )}
 
@@ -318,6 +314,15 @@ function OTPInput({
   const otpArray = value.split("").slice(0, 6);
   while (otpArray.length < 6) otpArray.push("");
 
+  const otpBoxes = [
+    { id: "otp-digit-1", index: 0 },
+    { id: "otp-digit-2", index: 1 },
+    { id: "otp-digit-3", index: 2 },
+    { id: "otp-digit-4", index: 3 },
+    { id: "otp-digit-5", index: 4 },
+    { id: "otp-digit-6", index: 5 },
+  ];
+
   const handleChange = (index: number, newVal: string) => {
     // Only allow digits
     const digit = newVal.slice(-1); // Get the last typed character
@@ -383,26 +388,24 @@ function OTPInput({
 
   return (
     <div className="flex justify-between w-full">
-      {Array(6)
-        .fill(null)
-        .map((_, index) => (
-          <input
-            key={index}
-            ref={(el) => {
-              inputRefs.current[index] = el;
-            }}
-            type="text"
-            inputMode="numeric"
-            maxLength={1}
-            value={otpArray[index]}
-            onChange={(e) => handleChange(index, e.target.value)}
-            onKeyDown={(e) => handleKeyDown(index, e)}
-            onPaste={(e) => {
-              handlePaste(index, e);
-            }}
-            className="w-12 h-12 text-center text-[20px] font-bold border-2 border-[#E5E7EB] rounded-[12px] bg-white text-[#0f172a] shadow-sm outline-none transition-all focus:border-gray-300"
-          />
-        ))}
+      {otpBoxes.map(({ id, index }) => (
+        <input
+          key={id}
+          ref={(el) => {
+            inputRefs.current[index] = el;
+          }}
+          type="text"
+          inputMode="numeric"
+          maxLength={1}
+          value={otpArray[index]}
+          onChange={(e) => handleChange(index, e.target.value)}
+          onKeyDown={(e) => handleKeyDown(index, e)}
+          onPaste={(e) => {
+            handlePaste(index, e);
+          }}
+          className="w-12 h-12 text-center text-[20px] font-bold border-2 border-[#E5E7EB] rounded-[12px] bg-white text-[#0f172a] shadow-sm outline-none transition-all focus:border-gray-300"
+        />
+      ))}
     </div>
   );
 }

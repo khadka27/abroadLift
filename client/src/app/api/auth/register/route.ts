@@ -146,7 +146,6 @@ export async function POST(req: Request) {
     const otpSendResult = await trySendOtp({
       phoneE164,
       otpCode,
-      prefersWhatsApp: wantsWhatsApp,
     });
 
     if (!otpSendResult.sent) {

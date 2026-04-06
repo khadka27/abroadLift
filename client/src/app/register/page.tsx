@@ -344,13 +344,13 @@ function RegisterForm() {
                     </svg>
                   </div>
                   <span className="text-[13px] font-regular text-black select-none">
-                    Send OTP on WhatsApp first (fallback to SMS automatically)
+                    Send OTP via SMS for verification
                   </span>
                 </label>
               </div>
               <div className="w-full rounded-[20px] border border-blue-100 bg-blue-50 px-5 py-4 text-[12px] font-semibold text-blue-700">
-                Password is removed. After signup, we will send an OTP to verify
-                and login.
+                Password is removed. After signup, we will send an SMS OTP to
+                verify and login.
               </div>
 
               {/* Terms & Conditions */}

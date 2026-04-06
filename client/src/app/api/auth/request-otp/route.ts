@@ -48,7 +48,6 @@ export async function POST(req: Request) {
     const sendResult = await trySendOtp({
       phoneE164: normalizedPhoneE164,
       otpCode,
-      prefersWhatsApp: user.prefersWhatsApp,
     });
 
     if (!sendResult.sent) {

@@ -17,6 +17,11 @@ function twilioAuthHeader() {
   return `Basic ${encoded}`;
 }
 
+function getTwilioSmsFrom() {
+  const from = process.env.TWILIO_SMS_FROM?.trim();
+  return from || "";
+}
+
 export function normalizeDialCode(input: string) {
   const digits = input.replaceAll(/\D/g, "");
   return digits ? `+${digits}` : "";
@@ -44,8 +49,9 @@ export function toE164(dialCode: string, phoneNumber: string) {
 }
 
 export function generateOtpCode() {
-  // Temporary static OTP for testing signup/login flows.
-  return "123456".slice(0, OTP_LENGTH);
+  const min = 10 ** (OTP_LENGTH - 1);
+  const max = 10 ** OTP_LENGTH;
+  return Math.floor(min + Math.random() * (max - min)).toString();
 }
 
 export function hashOtpCode(otpCode: string) {
@@ -56,31 +62,61 @@ export function getOtpExpiry() {
   return new Date(Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000);
 }
 
-async function sendViaTwilio(
-  channel: OtpChannel,
-  phoneE164: string,
-  otpCode: string,
-) {
-  // Twilio sending skipped for testing
-  console.log(
-    `[TEST_MODE] Skipping ${channel} send to ${phoneE164}. Code: ${otpCode}`,
+async function sendViaTwilio(phoneE164: string, otpCode: string) {
+  const authHeader = twilioAuthHeader();
+  const from = getTwilioSmsFrom();
+
+  if (!authHeader || !from) {
+    console.error(
+      "[TWILIO_SMS_MISSING_CONFIG] Missing Twilio SMS credentials.",
+    );
+    return false;
+  }
+
+  const sid = process.env.TWILIO_ACCOUNT_SID?.trim();
+  if (!sid) {
+    return false;
+  }
+
+  const response = await fetch(
+    `https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: authHeader,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        From: from,
+        To: phoneE164,
+        Body: `Your AbroadLift verification code is ${otpCode}`,
+      }),
+    },
   );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("[TWILIO_SMS_ERROR]", response.status, errorText);
+    return false;
+  }
+
   return true;
 }
 
 export async function trySendOtp({
   phoneE164,
   otpCode,
-  prefersWhatsApp,
 }: {
   phoneE164: string;
   otpCode: string;
-  prefersWhatsApp: boolean;
 }) {
-  const primaryChannel: OtpChannel = prefersWhatsApp ? "WHATSAPP" : "SMS";
+  const primaryChannel: OtpChannel = "SMS";
 
-  // Directly "send" via mock
-  await sendViaTwilio(primaryChannel, phoneE164, otpCode);
+  const sent = await sendViaTwilio(phoneE164, otpCode);
+
+  if (!sent) {
+    return { sent: false, channel: primaryChannel };
+  }
 
   return { sent: true, channel: primaryChannel };
 }
