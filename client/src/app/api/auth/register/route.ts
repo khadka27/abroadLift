@@ -83,18 +83,90 @@ export async function POST(req: Request) {
     const existingEmail = await prisma.user.findUnique({
       where: { email: normalizedEmail },
     });
-    if (existingEmail) {
-      return NextResponse.json(
-        { error: "An account with this email already exists." },
-        { status: 409 },
-      );
-    }
-
-    // Check existing phone
     const existingPhone = await prisma.user.findUnique({
       where: { phoneE164 },
     });
-    if (existingPhone) {
+
+    if (existingEmail || existingPhone) {
+      if (
+        existingEmail &&
+        existingPhone &&
+        existingEmail.id === existingPhone.id
+      ) {
+        const existingUser = existingEmail;
+
+        if (!existingUser.phoneE164) {
+          return NextResponse.json(
+            { error: "Existing account has no valid phone number." },
+            { status: 400 },
+          );
+        }
+
+        const otpCode = generateOtpCode();
+        const otpHash = hashOtpCode(otpCode);
+        const otpExpiresAt = getOtpExpiry();
+
+        const otpSendResult = await trySendOtp({
+          phoneE164: existingUser.phoneE164,
+          otpCode,
+        });
+
+        if (!otpSendResult.sent) {
+          return NextResponse.json(
+            {
+              error: "Unable to send OTP right now. Please try again in a moment.",
+            },
+            { status: 503 },
+          );
+        }
+
+        await prisma.user.update({
+          where: { id: existingUser.id },
+          data: {
+            otpCodeHash: otpHash,
+            otpExpiresAt,
+            otpLastChannel: otpSendResult.channel,
+          },
+        });
+
+        return NextResponse.json(
+          {
+            existingUser: true,
+            message: "Account already exists. OTP sent for login.",
+            user: {
+              id: existingUser.id,
+              email: existingUser.email,
+              countryDialCode: existingUser.countryDialCode,
+              phoneNumber: existingUser.phoneNumber,
+              phoneE164: existingUser.phoneE164,
+            },
+            otp: {
+              sent: true,
+              channel: otpSendResult.channel,
+              phoneE164: existingUser.phoneE164,
+            },
+          },
+          { status: 200 },
+        );
+      }
+
+      if (existingEmail && existingPhone && existingEmail.id !== existingPhone.id) {
+        return NextResponse.json(
+          {
+            error:
+              "Email and phone number are already used by different accounts. Please login with phone OTP.",
+          },
+          { status: 409 },
+        );
+      }
+
+      if (existingEmail) {
+        return NextResponse.json(
+          { error: "An account with this email already exists." },
+          { status: 409 },
+        );
+      }
+
       return NextResponse.json(
         { error: "An account with this phone number already exists." },
         { status: 409 },

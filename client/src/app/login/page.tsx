@@ -31,6 +31,7 @@ function LoginForm() {
   const [sendingOtp, setSendingOtp] = useState(false);
   const [error, setError] = useState("");
   const [justRegistered, setJustRegistered] = useState(false);
+  const [existingAccountOtp, setExistingAccountOtp] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
 
   const safeCallbackUrl =
@@ -57,8 +58,22 @@ function LoginForm() {
   }, [status, session, router, safeCallbackUrl]);
 
   useEffect(() => {
-    if (searchParams.get("registered") === "1") {
-      setJustRegistered(true);
+    setJustRegistered(searchParams.get("registered") === "1");
+    setExistingAccountOtp(searchParams.get("existing") === "1");
+
+    const dialCodeFromQuery = searchParams.get("countryDialCode") || "";
+    const phoneFromQuery = searchParams.get("phoneNumber") || "";
+
+    if (dialCodeFromQuery) {
+      setCountryDialCode(normalizeDialCode(dialCodeFromQuery));
+    }
+
+    if (phoneFromQuery) {
+      setPhoneNumber(normalizePhoneNumber(phoneFromQuery));
+    }
+
+    if (searchParams.get("otp") === "1") {
+      setOtpSent(true);
     }
   }, [searchParams]);
 
@@ -177,6 +192,13 @@ function LoginForm() {
               <div className="w-full mb-6 bg-emerald-50 border border-emerald-100 text-emerald-600 px-4 py-3 rounded-2xl flex items-center gap-3 text-sm font-medium">
                 <CheckCircle2 className="w-5 h-5 shrink-0" />
                 <span>Account created! Please verify OTP and sign in.</span>
+              </div>
+            )}
+
+            {existingAccountOtp && (
+              <div className="w-full mb-6 bg-amber-50 border border-amber-200 text-amber-700 px-4 py-3 rounded-2xl flex items-center gap-3 text-sm font-medium">
+                <CheckCircle2 className="w-5 h-5 shrink-0" />
+                <span>Account already exists. Use OTP to login.</span>
               </div>
             )}
 

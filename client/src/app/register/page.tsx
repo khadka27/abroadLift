@@ -191,13 +191,26 @@ function RegisterForm() {
         }),
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        const data = await res.json();
         setServerError(data.error || "Registration failed.");
         return;
       }
 
-      const data = await res.json();
+      if (data?.existingUser) {
+        const loginDial = data?.user?.countryDialCode || form.countryDialCode;
+        const loginPhone = data?.user?.phoneNumber || form.phone;
+        const callbackParam = callbackUrl
+          ? `&callbackUrl=${encodeURIComponent(callbackUrl)}`
+          : "";
+
+        router.push(
+          `/login?existing=1&otp=1&countryDialCode=${encodeURIComponent(loginDial)}&phoneNumber=${encodeURIComponent(loginPhone)}${callbackParam}`,
+        );
+        return;
+      }
+
       const phoneE164 = data?.user?.phoneE164 || data?.otp?.phoneE164;
 
       if (!phoneE164) {
