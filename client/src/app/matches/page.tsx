@@ -1689,9 +1689,9 @@ export default function AbroadLiftMatchesPage() {
   const [relocationStats, setRelocationStats] = useState<any>(null);
   const [apiCostEstimate, setApiCostEstimate] = useState<any>(null);
 
-  const saveStep7State = (match?: Match | null) => {
+  const saveStep6State = (match?: Match | null) => {
     const nextMatch = match ?? selectedMatch;
-    const nextStep = 7;
+    const nextStep = 6;
     localStorage.setItem(
       MATCH_STORAGE_KEY,
       JSON.stringify({ form, step: nextStep, selectedMatch: nextMatch }),
@@ -1703,7 +1703,7 @@ export default function AbroadLiftMatchesPage() {
   };
 
   const redirectToSignupForMatches = (match?: Match | null) => {
-    saveStep7State(match);
+    saveStep6State(match);
     router.replace(`/register?callbackUrl=${encodeURIComponent("/matches")}`);
   };
 
