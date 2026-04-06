@@ -6,12 +6,25 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
+import {
+  normalizeDialCode,
+  normalizePhoneNumber,
+  toE164,
+} from "@/lib/phoneVerification";
+
+const COUNTRY_CODES = [
+  { label: "Nepal", dialCode: "+977" },
+  { label: "India", dialCode: "+91" },
+  { label: "United States", dialCode: "+1" },
+  { label: "United Kingdom", dialCode: "+44" },
+];
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session, status } = useSession();
-  const [phone, setPhone] = useState("+977");
+  const [countryDialCode, setCountryDialCode] = useState("+977");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [sendingOtp, setSendingOtp] = useState(false);
@@ -50,7 +63,11 @@ function LoginForm() {
   }
 
   const handleSendOtp = async () => {
-    if (!phone.trim()) {
+    const normalizedPhoneNumber = normalizePhoneNumber(phoneNumber);
+    const normalizedDialCode = normalizeDialCode(countryDialCode);
+    const phoneE164 = toE164(normalizedDialCode, normalizedPhoneNumber);
+
+    if (!phoneE164) {
       setError("Please enter your phone number first.");
       return;
     }
@@ -62,7 +79,11 @@ function LoginForm() {
       const res = await fetch("/api/auth/request-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phoneE164: phone.trim() }),
+        body: JSON.stringify({
+          countryDialCode: normalizedDialCode,
+          phoneNumber: normalizedPhoneNumber,
+          phoneE164,
+        }),
       });
 
       const data = await res.json();
@@ -82,7 +103,11 @@ function LoginForm() {
 
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
-    if (!phone.trim() || !otp.trim()) {
+    const normalizedPhoneNumber = normalizePhoneNumber(phoneNumber);
+    const normalizedDialCode = normalizeDialCode(countryDialCode);
+    const phoneE164 = toE164(normalizedDialCode, normalizedPhoneNumber);
+
+    if (!phoneE164 || !otp.trim()) {
       setError("Please enter your phone number and OTP.");
       return;
     }
@@ -92,7 +117,7 @@ function LoginForm() {
 
     try {
       const result = await signIn("credentials", {
-        phone: phone.trim(),
+        phone: phoneE164,
         otp: otp.trim(),
         redirect: false,
       });
@@ -179,11 +204,25 @@ function LoginForm() {
             )}
 
             <form onSubmit={handleSubmit} className="w-full space-y-4">
-              <InputField
-                placeholder="+9779812345678"
-                value={phone}
-                onChange={(v) => setPhone(v)}
-              />
+              <div className="grid grid-cols-[120px_1fr] gap-3">
+                <select
+                  value={countryDialCode}
+                  onChange={(e) => setCountryDialCode(e.target.value)}
+                  className="h-[56px] w-full rounded-[20px] border-none bg-[#F4F4F4] px-3 text-[14px] font-medium text-[#1e293b] outline-none transition-all focus:ring-2 focus:ring-blue-500/10"
+                >
+                  {COUNTRY_CODES.map((country) => (
+                    <option key={country.dialCode} value={country.dialCode}>
+                      {country.label} {country.dialCode}
+                    </option>
+                  ))}
+                </select>
+
+                <InputField
+                  placeholder="9812345678"
+                  value={phoneNumber}
+                  onChange={(v) => setPhoneNumber(v)}
+                />
+              </div>
 
               <button
                 type="button"
