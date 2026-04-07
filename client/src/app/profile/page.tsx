@@ -255,7 +255,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 p-4 md:p-8">
+    <main className="min-h-screen bg-slate-50 pt-[120px] pb-12 px-4 md:px-8">
       <div className="mx-auto grid max-w-7xl gap-5 lg:grid-cols-[260px_1fr]">
         <aside className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex items-center gap-3 pb-5">
@@ -279,11 +279,10 @@ export default function ProfilePage() {
                   key={item.id}
                   type="button"
                   onClick={() => setActiveTab(item.id)}
-                  className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-medium transition ${
-                    isActive
+                  className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-medium transition ${isActive
                       ? "bg-blue-50 text-blue-600"
                       : "text-slate-600 hover:bg-slate-50"
-                  }`}
+                    }`}
                 >
                   <Icon className="h-4 w-4" />
                   {item.label}
@@ -655,11 +654,10 @@ export default function ProfilePage() {
                         type="button"
                         key={item.id}
                         onClick={() => setSettingsTab(item.id)}
-                        className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium ${
-                          isActive
+                        className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium ${isActive
                             ? "bg-blue-50 text-blue-600"
                             : "text-slate-600 hover:bg-slate-50"
-                        }`}
+                          }`}
                       >
                         <Icon className="h-4 w-4" />
                         {item.label}

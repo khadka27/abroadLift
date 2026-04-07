@@ -14,7 +14,7 @@ export default function ClientWrapper({
   const pathname = usePathname();
 
   // Routes where we DON'T want the Navbar and Footer
-  const noShellRoutes = ["/matches", "/profile", "/login", "/register"];
+  const noShellRoutes = ["/matches", "/login", "/register"];
   const hideShell = noShellRoutes.some((r) => pathname?.startsWith(r));
 
   if (hideShell) {

@@ -2,7 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Match, Form } from '@/types/matches';
-import { Bell, Edit3, ChevronRight, FileText, Search, Target, Bookmark, Sparkles, MapPin, CheckCircle2, AlertTriangle, IndianRupee, ShieldCheck } from 'lucide-react';
+import { Bell, Edit3, ChevronLeft, ChevronRight, FileText, Search, Target, Bookmark, Sparkles, MapPin, CheckCircle2, AlertTriangle, IndianRupee, ShieldCheck } from 'lucide-react';
 import { FlagIcon } from './FlagIcon';
 
 interface StudyOverviewDashboardProps {
@@ -56,8 +56,16 @@ export function StudyOverviewDashboard({
 
 
       <div className="max-w-7xl mx-auto px-5 mt-8 space-y-10">
-        {/* Header Content */}
         <div className="flex flex-col items-start px-2">
+          {/* Back Button */}
+          <button 
+            onClick={onGoToMatches} 
+            className="flex items-center gap-1.5 text-slate-500 hover:text-[#3686FF] font-medium text-[14px] transition-colors mb-4 group"
+          >
+            <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+            Back to matches
+          </button>
+          
           <div className="flex items-center gap-1.5 bg-blue-50/80 border border-blue-100/50 text-[#3686FF] text-[12px] font-semibold px-3 py-1.5 rounded-full mb-4 shadow-sm">
             <Target className="w-4 h-4" />
             Generated from your profile
