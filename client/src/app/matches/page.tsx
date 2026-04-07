@@ -1689,9 +1689,11 @@ export default function AbroadLiftMatchesPage() {
   const [relocationStats, setRelocationStats] = useState<any>(null);
   const [apiCostEstimate, setApiCostEstimate] = useState<any>(null);
 
-  const saveStep6State = (match?: Match | null) => {
+  const [hasRestored, setHasRestored] = useState(false);
+
+  const saveSelectionState = (match?: Match | null) => {
     const nextMatch = match ?? selectedMatch;
-    const nextStep = 6;
+    const nextStep = 8; // Move to Cost Estimation after selection
     localStorage.setItem(
       MATCH_STORAGE_KEY,
       JSON.stringify({ form, step: nextStep, selectedMatch: nextMatch }),
@@ -1703,7 +1705,7 @@ export default function AbroadLiftMatchesPage() {
   };
 
   const redirectToSignupForMatches = (match?: Match | null) => {
-    saveStep6State(match);
+    saveSelectionState(match);
     router.replace(`/register?callbackUrl=${encodeURIComponent("/matches")}`);
   };
 
@@ -1828,6 +1830,7 @@ export default function AbroadLiftMatchesPage() {
         console.error("Failed to load match data", e);
       }
     }
+    setHasRestored(true);
   }, []);
 
   // Resume saved step after login/signup if flag is set
@@ -1859,9 +1862,10 @@ export default function AbroadLiftMatchesPage() {
   }, [status]);
 
   useEffect(() => {
+    if (!hasRestored) return;
     const data = { form, step, selectedMatch };
     localStorage.setItem(MATCH_STORAGE_KEY, JSON.stringify(data));
-  }, [form, step, selectedMatch]);
+  }, [form, step, selectedMatch, hasRestored]);
 
   useEffect(() => {
     if (step >= 8 && !session && status !== "loading") {

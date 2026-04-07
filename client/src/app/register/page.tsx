@@ -437,7 +437,11 @@ function RegisterForm() {
             <p className="text-[14px] font-regular text-black">
               Already have an account?{" "}
               <Link
-                href="/login"
+                href={
+                  callbackUrl
+                    ? `/login?callbackUrl=${encodeURIComponent(callbackUrl)}`
+                    : "/login"
+                }
                 className="text-[#3381FF] font-bold hover:underline"
               >
                 Login
