@@ -2241,9 +2241,9 @@ export default function AbroadLiftMatchesPage() {
     }
     if (step === 6) {
       setTransitionType("matching");
+      setStep(7);
       await runMatch();
       setTransitionType(null);
-      setStep(7);
 
       if (status === "authenticated") {
         fetch("/api/profile", {
@@ -3011,6 +3011,7 @@ export default function AbroadLiftMatchesPage() {
                 return;
               }
               setSelectedMatch(m);
+              setTransitionType("finance");
               setStep(8);
             }}
             onAdjustPreferences={() => setStep(6)}
