@@ -4473,10 +4473,10 @@ export default function AbroadLiftMatchesPage() {
 
   /* ─────────────── RENDER ─────────────── */
   return (
-    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-white relative overflow-hidden font-sans selection:bg-blue-500/30 selection:text-blue-900">
+    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-white relative overflow-x-hidden lg:h-[calc(100vh-80px)] lg:overflow-hidden font-sans selection:bg-blue-500/30 selection:text-blue-900">
       {/* Left Panel - Hero Sidebar */}
       {step < 7 && (
-        <div className="relative hidden lg:flex lg:w-[45%] h-screen bg-slate-100 overflow-hidden animate-in fade-in slide-in-from-left duration-700">
+        <div className="relative hidden lg:flex lg:w-[45%] lg:h-[calc(100vh-80px)] lg:sticky lg:top-0 bg-slate-100 overflow-hidden animate-in fade-in slide-in-from-left duration-700">
           <Image
             src={
               step === 1
@@ -4559,7 +4559,7 @@ export default function AbroadLiftMatchesPage() {
 
       {/* Right Panel - Dynamic Flow Area */}
       <div
-        className={`relative flex-1 flex flex-col bg-white overflow-hidden h-full lg:h-[calc(100vh-80px)]`}
+        className={`relative flex-1 flex flex-col bg-white min-h-0 overflow-y-auto overflow-x-hidden lg:h-[calc(100vh-80px)]`}
       >
         {/* Simple Top Navigation Navbar matching the minimalist screenshot */}
         {step > 0 &&
@@ -4617,7 +4617,7 @@ export default function AbroadLiftMatchesPage() {
 
         {/* Step Content Area */}
         <div
-          className={`flex-1 ${step < 7 ? "overflow-hidden" : "overflow-y-auto"} px-6 lg:px-12 ${step === 7 ? "pt-5" : step === 9 ? "pt-0" : "pt-3"} ${step === 7 || step === 8 ? "pb-0 lg:pb-0 px-0 lg:px-0" : step === 9 ? "pb-[60px]" : "pb-[160px] md:pb-[200px]"} overflow-x-hidden min-h-0 hide-scrollbar`}
+          className={`flex-1 overflow-y-auto px-6 lg:px-12 ${step === 7 ? "pt-5" : step === 9 ? "pt-0" : "pt-3"} ${step === 7 || step === 8 ? "pb-0 lg:pb-0 px-0 lg:px-0" : step === 9 ? "pb-[60px]" : "pb-[160px] md:pb-[200px]"} overflow-x-hidden min-h-0 hide-scrollbar`}
         >
           <div
             className={`${step >= 7 ? "max-w-full" : "max-w-4xl"} mx-auto min-h-full flex flex-col`}
