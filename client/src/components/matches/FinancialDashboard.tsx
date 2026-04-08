@@ -318,19 +318,19 @@ export function FinancialDashboard({
                   {[
                     {
                       label: "High (Premium Lifestyle)",
-                      val: fmtUsd(totalUsd * 1.3),
+                      valUsd: totalUsd * 1.3,
                       color: "bg-rose-500",
                       w: "90%",
                     },
                     {
                       label: "Average (Moderate)",
-                      val: fmtUsd(totalUsd),
+                      valUsd: totalUsd,
                       color: "bg-amber-500",
                       w: "65%",
                     },
                     {
                       label: "Low (Frugal)",
-                      val: fmtUsd(totalUsd * 0.75),
+                      valUsd: totalUsd * 0.75,
                       color: "bg-emerald-500",
                       w: "45%",
                     },
@@ -343,9 +343,7 @@ export function FinancialDashboard({
                           {b.label}
                         </span>
                         <span className="text-slate-900 font-bold text-[14px]">
-                          {fmtUsdRange(
-                            Number(b.val.replace(/[^0-9.]/g, "")) || totalUsd,
-                          )}
+                          {fmtUsdRange(b.valUsd)}
                         </span>
                       </div>
                       <div className="h-1.5 w-full bg-slate-50 rounded-full overflow-hidden">
@@ -355,14 +353,13 @@ export function FinancialDashboard({
                         />
                       </div>
                     </div>
-                          { label: "High (Premium Lifestyle)", valUsd: totalUsd * 1.3, color: "bg-rose-500", w: "90%" },
-                          { label: "Average (Moderate)", valUsd: totalUsd, color: "bg-amber-500", w: "65%" },
-                          { label: "Low (Frugal)", valUsd: totalUsd * 0.75, color: "bg-emerald-500", w: "45%" },
+                  ))}
+                </div>
+              </Card>
             )}
 
             {/* Potential Savings */}
             <Card className="p-8 rounded-[32px] border border-emerald-100 bg-emerald-50/30 shadow-sm">
-                              <span className="text-slate-900 font-bold text-[14px]">{fmtUsdRange(b.valUsd)}</span>
                 <TrendingDown className="w-4 h-4" />
                 Potential Savings
               </div>
