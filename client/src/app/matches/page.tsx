@@ -3335,6 +3335,11 @@ export default function AbroadLiftMatchesPage() {
         livingCostUsd;
       const totalYear1Npr = Math.round(totalYear1Usd * USD_TO_NPR);
       const costBand = getCostBand(totalYear1Usd, budgetUsd);
+      const nprRangeLakhs = (valueNpr: number, spread = 0.12) => {
+        const low = Math.max(0, Math.round(valueNpr * (1 - spread)));
+        const high = Math.round(valueNpr * (1 + spread));
+        return `NPR ${(low / 100000).toFixed(1)}L - NPR ${(high / 100000).toFixed(1)}L`;
+      };
 
       const signalCards = [
         {
@@ -3509,9 +3514,7 @@ export default function AbroadLiftMatchesPage() {
                     Projected Degree ROI
                   </p>
                   <h2 className="text-3xl md:text-6xl font-black italic uppercase tracking-tighter leading-none">
-                    {financialMetrics.fmtLakhs(
-                      financialMetrics.totalDegreeCostNpr,
-                    )}
+                    {nprRangeLakhs(financialMetrics.totalDegreeCostNpr)}
                   </h2>
                 </div>
 
@@ -3524,9 +3527,7 @@ export default function AbroadLiftMatchesPage() {
                       </p>
                     </div>
                     <p className="font-black text-lg md:text-2xl tracking-tight">
-                      {financialMetrics.fmtLakhs(
-                        financialMetrics.totalTuitionNpr,
-                      )}
+                      {nprRangeLakhs(financialMetrics.totalTuitionNpr, 0.1)}
                     </p>
                     <p className="text-[9px] font-bold text-slate-500 mt-1 italic">
                       {financialMetrics.graduationDuration} Years Academic Fee
@@ -3541,9 +3542,7 @@ export default function AbroadLiftMatchesPage() {
                       </p>
                     </div>
                     <p className="font-black text-lg md:text-2xl tracking-tight">
-                      {financialMetrics.fmtLakhs(
-                        financialMetrics.totalLivingNpr,
-                      )}
+                      {nprRangeLakhs(financialMetrics.totalLivingNpr, 0.1)}
                     </p>
                     <p className="text-[9px] font-bold text-slate-500 mt-1 italic">
                       Housing, Food & Lifestyle
@@ -3601,8 +3600,14 @@ export default function AbroadLiftMatchesPage() {
       const totalInvestmentNpr = totalTuitionNpr + totalLivingNpr + oneTimeNpr;
 
       const toggleUSD = form.currency === "USD";
-      const displayVal = (v: number) =>
-        toggleUSD ? (v / usdToNpr / 1000).toFixed(1) : (v / 100000).toFixed(1);
+      const displayVal = (v: number) => {
+        const low = Math.max(0, Math.round(v * 0.88));
+        const high = Math.round(v * 1.12);
+        if (toggleUSD) {
+          return `${(low / usdToNpr / 1000).toFixed(1)} - ${(high / usdToNpr / 1000).toFixed(1)}`;
+        }
+        return `${(low / 100000).toFixed(1)} - ${(high / 100000).toFixed(1)}`;
+      };
       const symbol = toggleUSD ? "$" : "NPR";
       const unit = toggleUSD ? "k" : "L";
 
@@ -4435,7 +4440,7 @@ export default function AbroadLiftMatchesPage() {
                   Year-1 Need
                 </p>
                 <p className="text-xl font-black text-slate-900 mt-1">
-                  NPR {(decisionSignals.yearOneNeedNpr / 100000).toFixed(1)}L
+                  {nprRangeLakhs(decisionSignals.yearOneNeedNpr)}
                 </p>
               </div>
               <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
@@ -4443,7 +4448,7 @@ export default function AbroadLiftMatchesPage() {
                   Declared Budget
                 </p>
                 <p className="text-xl font-black text-slate-900 mt-1">
-                  NPR {(decisionSignals.budgetNpr / 100000).toFixed(1)}L
+                  {nprRangeLakhs(decisionSignals.budgetNpr)}
                 </p>
               </div>
               <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">

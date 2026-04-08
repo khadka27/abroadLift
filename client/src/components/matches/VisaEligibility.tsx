@@ -123,7 +123,7 @@ export function VisaEligibility({
     return [
       {
         title: "Proof of Funds Mapping",
-        description: `Show ${selectedMatch.countryCode === "AU" ? "AUD 30,000+" : "$25,000+"} in liquid assets`,
+        description: `Show ${selectedMatch.countryCode === "AU" ? "AUD 28,000 - AUD 36,000" : "$22,000 - $30,000"} in liquid assets`,
         status: hasFunds ? "VERIFIED" : "REQUIRED",
       },
       {
@@ -308,7 +308,7 @@ export function VisaEligibility({
           setVisaGuidance([
             {
               title: "Proof of Funds Mapping",
-              description: `Show ${selectedMatch.countryCode === "AU" ? "AUD 30,000+" : "$25,000+"} in liquid assets`,
+              description: `Show ${selectedMatch.countryCode === "AU" ? "AUD 28,000 - AUD 36,000" : "$22,000 - $30,000"} in liquid assets`,
               status: hasFunds ? "VERIFIED" : "REQUIRED",
             },
             {
