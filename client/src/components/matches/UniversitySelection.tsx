@@ -42,6 +42,33 @@ interface UniversitySelectionProps {
 
 type DetailsTab = "estimates" | "overview" | "rankings" | "courses" | "facts";
 
+function getAcceptanceMeta(rate: number) {
+  if (rate >= 75) {
+    return {
+      label: "High",
+      textClass: "text-emerald-600",
+      barClass: "bg-emerald-500",
+      iconClass: "text-emerald-500",
+    };
+  }
+
+  if (rate >= 50) {
+    return {
+      label: "Medium",
+      textClass: "text-amber-600",
+      barClass: "bg-amber-500",
+      iconClass: "text-amber-500",
+    };
+  }
+
+  return {
+    label: "Low",
+    textClass: "text-rose-600",
+    barClass: "bg-rose-500",
+    iconClass: "text-rose-500",
+  };
+}
+
 function formatCurrency(value: number, currency: string) {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -192,6 +219,9 @@ function MatchCard({
   onSelect?: () => void;
   onOpenDetails?: () => void;
 }) {
+  const acceptanceRate = Math.max(5, Math.min(95, m.admissionRate || 78));
+  const acceptanceMeta = getAcceptanceMeta(acceptanceRate);
+
   return (
     <div
       className={`bg-white border text-left rounded-[20px] md:rounded-[24px] overflow-hidden transition-all duration-300 cursor-pointer relative group flex flex-col h-full ${selected ? "border-blue-500 ring-1 ring-blue-500/20 shadow-xl translate-y-[-4px]" : "border-slate-100 hover:shadow-xl hover:border-blue-200 hover:translate-y-[-2px]"}`}
@@ -278,19 +308,23 @@ function MatchCard({
           <div className="space-y-1.5 md:space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-slate-500">
-                <CheckCircle2 className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#10b981]" />
+                <CheckCircle2
+                  className={`w-3.5 h-3.5 md:w-4 md:h-4 ${acceptanceMeta.iconClass}`}
+                />
                 <span className="text-[11px] md:text-[12px] font-medium text-slate-700">
                   Acceptance
                 </span>
               </div>
-              <span className="text-[11px] md:text-[12px] font-bold text-[#10b981]">
-                {m.admissionRate || 78}%
+              <span
+                className={`text-[11px] md:text-[12px] font-bold ${acceptanceMeta.textClass}`}
+              >
+                {acceptanceRate}% ({acceptanceMeta.label})
               </span>
             </div>
             <div className="h-1 w-full bg-slate-50 rounded-full overflow-hidden border border-slate-100">
               <div
-                className="h-full bg-[#10b981] rounded-full transition-all duration-1000"
-                style={{ width: `${m.admissionRate || 78}%` }}
+                className={`h-full rounded-full transition-all duration-1000 ${acceptanceMeta.barClass}`}
+                style={{ width: `${acceptanceRate}%` }}
               />
             </div>
           </div>
@@ -375,274 +409,272 @@ function UniversityDetailsModal({
       />
       <div className="relative w-full max-w-[1040px] max-h-[92vh] rounded-[28px] bg-white border border-slate-200 shadow-[0_30px_80px_-25px_rgba(15,23,42,0.6)] overflow-hidden flex flex-col">
         <div className="relative h-32 md:h-52 shrink-0">
-            <Image
-              src={m.banner || "/uni-default.webp"}
-              alt={m.name}
-              fill
-              className="object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-            <div className="absolute left-4 md:left-7 bottom-3 md:bottom-5 text-white">
-              <h3 className="text-[20px] md:text-[34px] font-black leading-none">
-                {m.name}
-              </h3>
-              <p className="text-[11px] md:text-[14px] opacity-90 mt-1.5 flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5 md:w-4 md:h-4" />
-                {m.location || "Unknown location"}
-              </p>
-            </div>
-            <button
-              onClick={onClose}
-              className="absolute top-3 right-3 md:top-5 md:right-5 w-9 h-9 md:w-11 md:h-11 rounded-full bg-white/95 text-slate-700 flex items-center justify-center shadow-md"
-              aria-label="Close details"
-            >
-              <X className="w-4 h-4 md:w-5 md:h-5" />
-            </button>
+          <Image
+            src={m.banner || "/uni-default.webp"}
+            alt={m.name}
+            fill
+            className="object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+          <div className="absolute left-4 md:left-7 bottom-3 md:bottom-5 text-white">
+            <h3 className="text-[20px] md:text-[34px] font-black leading-none">
+              {m.name}
+            </h3>
+            <p className="text-[11px] md:text-[14px] opacity-90 mt-1.5 flex items-center gap-1.5">
+              <MapPin className="w-3.5 h-3.5 md:w-4 md:h-4" />
+              {m.location || "Unknown location"}
+            </p>
           </div>
+          <button
+            onClick={onClose}
+            className="absolute top-3 right-3 md:top-5 md:right-5 w-9 h-9 md:w-11 md:h-11 rounded-full bg-white/95 text-slate-700 flex items-center justify-center shadow-md"
+            aria-label="Close details"
+          >
+            <X className="w-4 h-4 md:w-5 md:h-5" />
+          </button>
+        </div>
 
-          <div className="shrink-0 border-b border-slate-100 px-2 md:px-6 overflow-x-auto bg-white">
-            <div className="flex min-w-max">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`px-4 md:px-6 h-11 md:h-14 text-[12px] md:text-[14px] font-bold border-b-2 transition-colors ${
-                    activeTab === tab.id
-                      ? "text-blue-600 border-blue-600"
-                      : "text-slate-400 border-transparent"
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex-1 overflow-y-auto p-4 md:p-7 bg-slate-50/40">
-            {activeTab === "estimates" && (
-              <div className="space-y-4">
-                <div className="rounded-2xl border border-slate-100 p-4">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-                    Estimated Total Cost / Yr
-                  </p>
-                  <p className="text-[34px] font-black text-slate-900 leading-none">
-                    {formatCurrency((m.tuitionFee || 0) + yearlyLiving, c)}
-                  </p>
-                  <div className="mt-4 h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                    <div
-                      className="h-full bg-blue-500"
-                      style={{ width: "58%" }}
-                    />
-                  </div>
-                  <div className="mt-3 flex items-center gap-4 text-[11px] text-slate-500 font-semibold">
-                    <span className="flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-blue-500" />{" "}
-                      Tuition
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-amber-400" />{" "}
-                      Living
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500" />{" "}
-                      Other
-                    </span>
-                  </div>
-                </div>
-
-                <div className="rounded-2xl border border-slate-100 p-4">
-                  <p className="text-[20px] font-extrabold text-slate-900 mb-2">
-                    Your Chances
-                  </p>
-                  <div className="flex items-end gap-2">
-                    <span className="text-[34px] font-black text-blue-600 leading-none">
-                      {admissionChance}%
-                    </span>
-                    <span className="text-[12px] font-semibold text-slate-500 pb-1">
-                      admission chance
-                    </span>
-                  </div>
-                  <p className="text-[12px] text-slate-500 mt-3">
-                    Based on your profile and this university&apos;s trend data.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {activeTab === "overview" && (
-              <div className="space-y-4">
-                <div className="rounded-2xl border border-slate-100 p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Info className="w-4 h-4 text-blue-500" />
-                    <h4 className="font-bold text-slate-900">
-                      About University
-                    </h4>
-                  </div>
-                  <p className="text-[13px] text-slate-600 leading-relaxed">
-                    {m.description ||
-                      `${m.name} offers strong academics, modern campus facilities, and excellent global exposure for international students.`}
-                  </p>
-                </div>
-
-                <div className="rounded-2xl border border-slate-100 p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Sparkles className="w-4 h-4 text-amber-500" />
-                    <h4 className="font-bold text-slate-900">Highlights</h4>
-                  </div>
-                  <div className="space-y-2">
-                    {courses.slice(0, 3).map((program) => (
-                      <div
-                        key={program}
-                        className="rounded-xl bg-slate-50 border border-slate-100 px-3 py-2 text-[13px] font-medium text-slate-700"
-                      >
-                        {program}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === "rankings" && (
-              <div className="space-y-4">
-                <div className="rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white p-5">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Award className="w-4 h-4" />
-                    <p className="text-[13px] font-bold">Global Excellence</p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="rounded-xl bg-white/10 border border-white/15 p-3">
-                      <p className="text-[10px] uppercase font-bold opacity-80">
-                        QS World
-                      </p>
-                      <p className="text-[30px] leading-none font-black mt-1">
-                        #{m.rankingWorld || "-"}
-                      </p>
-                    </div>
-                    <div className="rounded-xl bg-white/10 border border-white/15 p-3">
-                      <p className="text-[10px] uppercase font-bold opacity-80">
-                        National
-                      </p>
-                      <p className="text-[30px] leading-none font-black mt-1">
-                        #{m.rankingNational || "-"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === "courses" && (
-              <div className="space-y-3">
-                {courses.map((program, idx) => (
-                  <div
-                    key={`${program}-${idx}`}
-                    className="rounded-2xl border border-slate-100 p-4"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="font-bold text-slate-900 text-[14px]">
-                          {program}
-                        </p>
-                        <p className="text-[12px] text-slate-500 mt-1 flex items-center gap-1.5">
-                          <Calendar className="w-3.5 h-3.5" />
-                          {m.deadline || m.applicationDeadline || "Rolling"}
-                        </p>
-                      </div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-blue-50 text-blue-600">
-                        {formProgramTag(program)}
-                      </span>
-                    </div>
-                    <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
-                      <p className="text-[11px] text-slate-500">Tuition Fee</p>
-                      <p className="text-[18px] font-black text-slate-900">
-                        {m.tuitionFee
-                          ? `${formatCurrency(m.tuitionFee, c)}/yr`
-                          : "TBD"}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {activeTab === "facts" && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-2xl border border-slate-100 p-3">
-                    <div className="flex items-center gap-1.5 text-slate-400 text-[11px] font-bold uppercase">
-                      <Building2 className="w-3.5 h-3.5" /> Type
-                    </div>
-                    <p className="text-[15px] font-extrabold text-slate-900 mt-2">
-                      {m.type || "Public"}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-slate-100 p-3">
-                    <div className="flex items-center gap-1.5 text-slate-400 text-[11px] font-bold uppercase">
-                      <Award className="w-3.5 h-3.5" /> Established
-                    </div>
-                    <p className="text-[15px] font-extrabold text-slate-900 mt-2">
-                      {m.founded || "N/A"}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-slate-100 p-3">
-                    <div className="flex items-center gap-1.5 text-slate-400 text-[11px] font-bold uppercase">
-                      <MapPin className="w-3.5 h-3.5" /> Campus
-                    </div>
-                    <p className="text-[15px] font-extrabold text-slate-900 mt-2 line-clamp-1">
-                      {m.location || "N/A"}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-slate-100 p-3">
-                    <div className="flex items-center gap-1.5 text-slate-400 text-[11px] font-bold uppercase">
-                      <Users className="w-3.5 h-3.5" /> Students
-                    </div>
-                    <p className="text-[15px] font-extrabold text-slate-900 mt-2">
-                      {m.studentPopulation
-                        ? `${m.studentPopulation.toLocaleString()}+`
-                        : "N/A"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="rounded-2xl border border-slate-100 p-4">
-                  <div className="space-y-2 text-[13px] text-slate-600">
-                    <p>
-                      <span className="font-semibold text-slate-800">
-                        English Requirement:
-                      </span>{" "}
-                      IELTS {m.englishReq || "6.5"}
-                    </p>
-                    <p>
-                      <span className="font-semibold text-slate-800">
-                        Minimum GPA:
-                      </span>{" "}
-                      {m.gpaRequirement || "3.0"}/4.0
-                    </p>
-                    <p>
-                      <span className="font-semibold text-slate-800">
-                        International Students:
-                      </span>{" "}
-                      {m.internationalPercentage || "N/A"}%
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="shrink-0 border-t border-slate-100 p-4">
-            <button
-              type="button"
-              onClick={onShortlist}
-              className="w-full h-12 rounded-[14px] bg-[#3686FF] text-white font-bold text-[14px] shadow-[0_10px_24px_-10px_rgba(54,134,255,0.8)]"
-            >
-              Shortlist University
-            </button>
+        <div className="shrink-0 border-b border-slate-100 px-2 md:px-6 overflow-x-auto bg-white">
+          <div className="flex min-w-max">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                className={`px-4 md:px-6 h-11 md:h-14 text-[12px] md:text-[14px] font-bold border-b-2 transition-colors ${
+                  activeTab === tab.id
+                    ? "text-blue-600 border-blue-600"
+                    : "text-slate-400 border-transparent"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
         </div>
+
+        <div className="flex-1 overflow-y-auto p-4 md:p-7 bg-slate-50/40">
+          {activeTab === "estimates" && (
+            <div className="space-y-4">
+              <div className="rounded-2xl border border-slate-100 p-4">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+                  Estimated Total Cost / Yr
+                </p>
+                <p className="text-[34px] font-black text-slate-900 leading-none">
+                  {formatCurrency((m.tuitionFee || 0) + yearlyLiving, c)}
+                </p>
+                <div className="mt-4 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                  <div
+                    className="h-full bg-blue-500"
+                    style={{ width: "58%" }}
+                  />
+                </div>
+                <div className="mt-3 flex items-center gap-4 text-[11px] text-slate-500 font-semibold">
+                  <span className="flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-full bg-blue-500" />{" "}
+                    Tuition
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-full bg-amber-400" />{" "}
+                    Living
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500" />{" "}
+                    Other
+                  </span>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-slate-100 p-4">
+                <p className="text-[20px] font-extrabold text-slate-900 mb-2">
+                  Your Chances
+                </p>
+                <div className="flex items-end gap-2">
+                  <span className="text-[34px] font-black text-blue-600 leading-none">
+                    {admissionChance}%
+                  </span>
+                  <span className="text-[12px] font-semibold text-slate-500 pb-1">
+                    admission chance
+                  </span>
+                </div>
+                <p className="text-[12px] text-slate-500 mt-3">
+                  Based on your profile and this university&apos;s trend data.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "overview" && (
+            <div className="space-y-4">
+              <div className="rounded-2xl border border-slate-100 p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Info className="w-4 h-4 text-blue-500" />
+                  <h4 className="font-bold text-slate-900">About University</h4>
+                </div>
+                <p className="text-[13px] text-slate-600 leading-relaxed">
+                  {m.description ||
+                    `${m.name} offers strong academics, modern campus facilities, and excellent global exposure for international students.`}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-slate-100 p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Sparkles className="w-4 h-4 text-amber-500" />
+                  <h4 className="font-bold text-slate-900">Highlights</h4>
+                </div>
+                <div className="space-y-2">
+                  {courses.slice(0, 3).map((program) => (
+                    <div
+                      key={program}
+                      className="rounded-xl bg-slate-50 border border-slate-100 px-3 py-2 text-[13px] font-medium text-slate-700"
+                    >
+                      {program}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "rankings" && (
+            <div className="space-y-4">
+              <div className="rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white p-5">
+                <div className="flex items-center gap-2 mb-4">
+                  <Award className="w-4 h-4" />
+                  <p className="text-[13px] font-bold">Global Excellence</p>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="rounded-xl bg-white/10 border border-white/15 p-3">
+                    <p className="text-[10px] uppercase font-bold opacity-80">
+                      QS World
+                    </p>
+                    <p className="text-[30px] leading-none font-black mt-1">
+                      #{m.rankingWorld || "-"}
+                    </p>
+                  </div>
+                  <div className="rounded-xl bg-white/10 border border-white/15 p-3">
+                    <p className="text-[10px] uppercase font-bold opacity-80">
+                      National
+                    </p>
+                    <p className="text-[30px] leading-none font-black mt-1">
+                      #{m.rankingNational || "-"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "courses" && (
+            <div className="space-y-3">
+              {courses.map((program, idx) => (
+                <div
+                  key={`${program}-${idx}`}
+                  className="rounded-2xl border border-slate-100 p-4"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="font-bold text-slate-900 text-[14px]">
+                        {program}
+                      </p>
+                      <p className="text-[12px] text-slate-500 mt-1 flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5" />
+                        {m.deadline || m.applicationDeadline || "Rolling"}
+                      </p>
+                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-blue-50 text-blue-600">
+                      {formProgramTag(program)}
+                    </span>
+                  </div>
+                  <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
+                    <p className="text-[11px] text-slate-500">Tuition Fee</p>
+                    <p className="text-[18px] font-black text-slate-900">
+                      {m.tuitionFee
+                        ? `${formatCurrency(m.tuitionFee, c)}/yr`
+                        : "TBD"}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {activeTab === "facts" && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-2xl border border-slate-100 p-3">
+                  <div className="flex items-center gap-1.5 text-slate-400 text-[11px] font-bold uppercase">
+                    <Building2 className="w-3.5 h-3.5" /> Type
+                  </div>
+                  <p className="text-[15px] font-extrabold text-slate-900 mt-2">
+                    {m.type || "Public"}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-slate-100 p-3">
+                  <div className="flex items-center gap-1.5 text-slate-400 text-[11px] font-bold uppercase">
+                    <Award className="w-3.5 h-3.5" /> Established
+                  </div>
+                  <p className="text-[15px] font-extrabold text-slate-900 mt-2">
+                    {m.founded || "N/A"}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-slate-100 p-3">
+                  <div className="flex items-center gap-1.5 text-slate-400 text-[11px] font-bold uppercase">
+                    <MapPin className="w-3.5 h-3.5" /> Campus
+                  </div>
+                  <p className="text-[15px] font-extrabold text-slate-900 mt-2 line-clamp-1">
+                    {m.location || "N/A"}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-slate-100 p-3">
+                  <div className="flex items-center gap-1.5 text-slate-400 text-[11px] font-bold uppercase">
+                    <Users className="w-3.5 h-3.5" /> Students
+                  </div>
+                  <p className="text-[15px] font-extrabold text-slate-900 mt-2">
+                    {m.studentPopulation
+                      ? `${m.studentPopulation.toLocaleString()}+`
+                      : "N/A"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-slate-100 p-4">
+                <div className="space-y-2 text-[13px] text-slate-600">
+                  <p>
+                    <span className="font-semibold text-slate-800">
+                      English Requirement:
+                    </span>{" "}
+                    IELTS {m.englishReq || "6.5"}
+                  </p>
+                  <p>
+                    <span className="font-semibold text-slate-800">
+                      Minimum GPA:
+                    </span>{" "}
+                    {m.gpaRequirement || "3.0"}/4.0
+                  </p>
+                  <p>
+                    <span className="font-semibold text-slate-800">
+                      International Students:
+                    </span>{" "}
+                    {m.internationalPercentage || "N/A"}%
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="shrink-0 border-t border-slate-100 p-4">
+          <button
+            type="button"
+            onClick={onShortlist}
+            className="w-full h-12 rounded-[14px] bg-[#3686FF] text-white font-bold text-[14px] shadow-[0_10px_24px_-10px_rgba(54,134,255,0.8)]"
+          >
+            Shortlist University
+          </button>
+        </div>
       </div>
+    </div>
   );
 }
 
