@@ -42,7 +42,7 @@ export default function RecentUniversities() {
         showsVerticalScrollIndicator={false} 
         contentContainerStyle={styles.scrollContent}
       >
-        {userData.selectedUniversities.length === 0 ? (
+        {(userData.selectedUniversities || []).length === 0 ? (
           <View style={styles.emptyState}>
             <View style={styles.emptyIconBox}>
                 <Feather name="clock" size={40} color={THEME.textGray} />
@@ -57,7 +57,7 @@ export default function RecentUniversities() {
             </TouchableOpacity>
           </View>
         ) : (
-          userData.selectedUniversities.map((uni, index) => (
+          (userData.selectedUniversities || []).map((uni, index) => (
             <TouchableOpacity 
               key={`${uni.id}-${index}`} 
               activeOpacity={0.9} 

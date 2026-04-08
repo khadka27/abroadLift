@@ -1,5 +1,5 @@
 import { getServerSession } from "next-auth";
-import { getToken } from "next-auth/jwt";
+import { getToken, decode } from "next-auth/jwt";
 import { authOptions } from "./auth";
 
 /**
@@ -16,9 +16,25 @@ export async function getUserIdFromRequest(req: Request) {
   // 2. Try signed bearer token (mobile/native clients)
   const secret = process.env.NEXTAUTH_SECRET;
   if (!secret) {
+    console.error("[AUTH_HELPER] NEXTAUTH_SECRET is missing");
     return null;
   }
 
+  // Check Authorization header manually
+  const authHeader = req.headers.get("Authorization");
+  if (authHeader?.startsWith("Bearer ")) {
+    const token = authHeader.substring(7);
+    try {
+      const decoded = await decode({ token, secret });
+      if (decoded?.id && typeof decoded.id === "string") {
+        return decoded.id;
+      }
+    } catch (error) {
+      console.error("[AUTH_HELPER] Manual token decode failed:", error);
+    }
+  }
+
+  // 3. Fallback to standard getToken which looks at cookies/headers
   try {
     const jwt = await getToken({
       req: req as never,
@@ -29,7 +45,7 @@ export async function getUserIdFromRequest(req: Request) {
       return jwt.id;
     }
   } catch (error) {
-    console.error("[AUTH_HELPER] Failed to verify bearer token:", error);
+    console.error("[AUTH_HELPER] Failed to verify bearer token via getToken:", error);
   }
 
   return null;

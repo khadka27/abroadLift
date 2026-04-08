@@ -21,7 +21,7 @@ import { Feather, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { useUser } from "../context/UserContext";
 import { ProfileAvatar } from "../../components/ProfileAvatar";
-import { searchUniversities, UniversityResult } from "../../lib/api";
+import { searchUniversities, calculateAcceptanceChance, UniversityResult } from "../../lib/api";
 
 const { width, height } = Dimensions.get("window");
 
@@ -221,13 +221,33 @@ export default function UniversitySelection() {
 
   const filteredUniversities = useMemo(() => {
     return universities.filter(uni => {
+      // Study Level Filter
+      let levelMatch = true;
+      if (userData.studyLevel) {
+        const userLevel = userData.studyLevel.toLowerCase();
+        const uniLevels = (uni.levels || []).map((l: string) => l.toLowerCase());
+        
+        // Match "Bachelors", "Bachelor", "Undergraduate"
+        if (userLevel.includes("bachelor") || userLevel.includes("undergrad")) {
+           levelMatch = uniLevels.some(l => l.includes("bachelor") || l.includes("undergrad"));
+        }
+        // Match "Masters", "Master", "Postgraduate", "PG"
+        else if (userLevel.includes("master") || userLevel.includes("postgrad") || userLevel.includes("pg")) {
+           levelMatch = uniLevels.some(l => l.includes("master") || l.includes("postgrad") || l.includes("pg"));
+        }
+        
+        // If uni has no levels specified, we allow it (safety fallback)
+        if (!uni.levels || uni.levels.length === 0) levelMatch = true;
+      }
+
       const matchesChance = admissionChance === "All" || uni.admissionChance === admissionChance;
       const matchesRating = matchRating === "All" || parseFloat(uni.matchRating || "0") >= parseFloat(matchRating);
       const feeVal = uni.tuitionValue || 100000;
       const matchesFee = feeVal <= feeRange;
-      return matchesChance && matchesRating && matchesFee;
+      
+      return levelMatch && matchesChance && matchesRating && matchesFee;
     });
-  }, [universities, admissionChance, matchRating, feeRange]);
+  }, [universities, admissionChance, matchRating, feeRange, userData.studyLevel]);
 
   const resetFilters = () => {
     setAdmissionChance("All");
@@ -358,9 +378,9 @@ export default function UniversitySelection() {
                   <View style={styles.acceptanceRow}>
                     <View style={styles.acceptanceLabelBox}>
                         <Ionicons name="stats-chart" size={14} color="#64748B" />
-                        <Text style={styles.acceptanceLabel}>Admission Chance</Text>
+                        <Text style={styles.acceptanceLabel}>Acceptance</Text>
                     </View>
-                    <ProgressTracker percentage={uni.acceptanceRate} />
+                    <ProgressTracker percentage={calculateAcceptanceChance(userData, uni).score} />
                   </View>
                 </View>
               </TouchableOpacity>

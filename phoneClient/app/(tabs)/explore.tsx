@@ -12,12 +12,15 @@ import {
   TextInput,
   Platform,
   Modal,
+  ActivityIndicator,
 } from "react-native";
 import { router } from "expo-router";
 import { Feather, Ionicons, MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useUser } from "../context/UserContext";
 import { ProfileAvatar } from "../../components/ProfileAvatar";
+import { searchUniversities, calculateAcceptanceChance, UniversityResult } from "../../lib/api";
+import { useFocusEffect } from "@react-navigation/native";
 
 const { width } = Dimensions.get("window");
 
@@ -51,6 +54,119 @@ export default function DashboardScreen() {
   const { userData, setUserData } = useUser();
   const [showPlanModal, setShowPlanModal] = React.useState(false);
   const [modalStep, setModalStep] = React.useState<'options' | 'country'>('options');
+  const [recommendedUnis, setRecommendedUnis] = React.useState<UniversityResult[]>([]);
+  const [estimatedCost, setEstimatedCost] = React.useState<string>("--");
+  const [acceptanceChance, setAcceptanceChance] = React.useState<string>("--");
+  const [visaReadiness, setVisaReadiness] = React.useState<string>("--");
+  const [loadingUnis, setLoadingUnis] = React.useState(true);
+
+  const USD_TO_NPR = 134;
+
+  const calculateDynamicMetrics = (user: any) => {
+    // 1. Acceptance Chance calculation
+    const gpa = parseFloat(user.cgpa || "0");
+    const engScore = parseFloat(user.score || "0");
+    
+    // Normalize GPA
+    let gpaNorm = gpa / 4.0;
+    if (gpa > 4.5) gpaNorm = gpa / 10.0;
+    if (gpaNorm > 1) gpaNorm = 1;
+
+    // Normalize English (assuming IELTS 0-9)
+    let engNorm = engScore / 9.0;
+    if (engNorm > 1) engNorm = 1;
+
+    // Base probability
+    let prob = 35 + (gpaNorm * 40) + (engNorm * 20);
+
+    // Rank Factor
+    if (user.selectedUniversities?.length > 0) {
+      const rankStr = user.selectedUniversities[0].rank || "";
+      const rankVal = parseInt(rankStr.replace(/[^0-9]/g, ""));
+      if (!isNaN(rankVal)) {
+        if (rankVal < 50) prob -= 20;
+        else if (rankVal < 200) prob -= 10;
+        else if (rankVal > 500) prob += 10;
+      }
+    }
+
+    const finalProb = Math.min(98, Math.max(5, Math.round(prob)));
+    let chanceLabel = "Moderate";
+    if (finalProb >= 80) chanceLabel = "Very High";
+    else if (finalProb >= 65) chanceLabel = "High";
+    else if (finalProb < 45) chanceLabel = "Low";
+
+    setAcceptanceChance(`${finalProb}% - ${chanceLabel}`);
+
+    // 2. Visa Readiness (Placeholder dynamic)
+    let visaScore = 50 + (gpaNorm * 20) + (engNorm * 10);
+    const finalVisa = Math.min(95, Math.round(visaScore));
+    let visaLabel = "Good";
+    if (finalVisa < 65) visaLabel = "Needs Work";
+    else if (finalVisa > 85) visaLabel = "Strong";
+    setVisaReadiness(`${finalVisa}% - ${visaLabel}`);
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      let mounted = true;
+      const load = async () => {
+        try {
+          setLoadingUnis(true);
+          const { getCostOfLiving } = require("../../lib/api");
+          
+          const [results, costData] = await Promise.all([
+            searchUniversities("", userData.country || "UK"),
+            getCostOfLiving(userData.country || "UK")
+          ]);
+
+          if (mounted) {
+            // Filter by study level first
+            let filtered = results;
+            if (userData.studyLevel) {
+              const userLevel = userData.studyLevel.toLowerCase();
+              filtered = results.filter(uni => {
+                if (!uni.levels || uni.levels.length === 0) return true;
+                const uniLevels = uni.levels.map((l: string) => l.toLowerCase());
+                
+                if (userLevel.includes("bachelor") || userLevel.includes("undergrad")) {
+                   return uniLevels.some(l => l.includes("bachelor") || l.includes("undergrad"));
+                }
+                if (userLevel.includes("master") || userLevel.includes("postgrad") || userLevel.includes("pg")) {
+                   return uniLevels.some(l => l.includes("master") || l.includes("postgrad") || l.includes("pg"));
+                }
+                return true;
+              });
+            }
+
+            setRecommendedUnis(filtered.slice(0, 5));
+            
+            if (costData) {
+              const monthlyUsd = costData.monthly_estimate_usd || 1500;
+              const annualLivingUsd = monthlyUsd * 12;
+              
+              // Tuition logic: use selected uni if available, else regional average
+              let tuitionUsd = 20000;
+              if (userData.selectedUniversities?.length > 0) {
+                tuitionUsd = userData.selectedUniversities[0].tuitionValue || 20000;
+              }
+
+              const totalNpr = (annualLivingUsd + tuitionUsd) * USD_TO_NPR;
+              setEstimatedCost(`NPR ${(totalNpr / 1000000).toFixed(1)}M`);
+            }
+            
+            calculateDynamicMetrics(userData);
+            setLoadingUnis(false);
+          }
+        } catch (error) {
+          console.error("Error loading dashboard data:", error);
+          if (mounted) setLoadingUnis(false);
+        }
+      };
+      load();
+      return () => { mounted = false; };
+    }, [userData])
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -75,7 +191,11 @@ export default function DashboardScreen() {
         </View>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+      <ScrollView 
+        style={{ flex: 1 }}
+        showsVerticalScrollIndicator={false} 
+        contentContainerStyle={styles.scrollContent}
+      >
         
         {/* Study Plan Card */}
         <TouchableOpacity 
@@ -83,9 +203,9 @@ export default function DashboardScreen() {
           onPress={() => setShowPlanModal(true)}
         >
           <View style={styles.studyPlanInfo}>
-            <Text style={styles.flagEmoji}>{userData.flag}</Text>
+            <Text style={styles.flagEmoji}>{userData.flag || "🗺️"}</Text>
             <View style={styles.studyPlanTextWrapper}>
-                <Text style={styles.studyPlanLabel}>Study Plan <Text style={styles.studyCountry}>{userData.country}</Text></Text>
+                <Text style={styles.studyPlanLabel}>Study Plan <Text style={styles.studyCountry}>{userData.country || "Select country"}</Text></Text>
             </View>
           </View>
           <View style={styles.editButton}>
@@ -101,11 +221,11 @@ export default function DashboardScreen() {
               <View>
                 <View style={styles.statIconHeader}>
                   <View style={[styles.statIconBox, { backgroundColor: "#F3F4F6" }]}>
-                    <MaterialCommunityIcons name="currency-inr" size={20} color={THEME.textDark} />
+                    <MaterialCommunityIcons name="currency-usd" size={20} color={THEME.textDark} />
                   </View>
                   <Text style={styles.statTitle}>Estimated Cost</Text>
                 </View>
-                <Text style={styles.statValue}>NPR 20,500,00 <Text style={styles.statUnit}>/ year</Text></Text>
+                <Text style={styles.statValue}>{estimatedCost} <Text style={styles.statUnit}>/ year</Text></Text>
                 <View style={styles.statBadge}>
                   <View style={styles.affordableDot} />
                   <Text style={styles.statBadgeText}>Affordable</Text>
@@ -114,7 +234,10 @@ export default function DashboardScreen() {
               </View>
               <TouchableOpacity 
                 style={[styles.statButton, { backgroundColor: THEME.green }]}
-                onPress={() => router.push("/university/cost-breakdown")}
+                onPress={() => router.push({
+                  pathname: "/university/cost-breakdown",
+                  params: { country: userData.country || "UK" }
+                })}
               >
                 <Text style={styles.statButtonText}>View Breakdown</Text>
               </TouchableOpacity>
@@ -127,9 +250,9 @@ export default function DashboardScreen() {
                    <View style={[styles.statIconBox, { backgroundColor: "#FFF7ED" }]}>
                      <MaterialCommunityIcons name="target" size={20} color={THEME.orange} />
                    </View>
-                   <Text style={styles.statTitle}>Admission Chances</Text>
+                   <Text style={styles.statTitle}>Acceptance Chance</Text>
                  </View>
-                 <Text style={styles.statValue}>75% <Text style={styles.statUnit}>- Moderate</Text></Text>
+                 <Text style={styles.statValue}>{acceptanceChance}</Text>
                  
                  <View style={styles.checkRow}>
                     <Ionicons name="checkmark-circle" size={16} color={THEME.green} />
@@ -140,7 +263,7 @@ export default function DashboardScreen() {
                     <Text style={styles.checkText}>Improve IELTS</Text>
                  </View>
                </View>
- 
+
                <TouchableOpacity 
                  style={[styles.statButton, { backgroundColor: THEME.orange }]}
                  onPress={() => router.push("/university/admission-chance")}
@@ -148,7 +271,7 @@ export default function DashboardScreen() {
                  <Text style={styles.statButtonText}>Set Goals</Text>
                </TouchableOpacity>
             </View>
- 
+
             {/* Visa Readiness Card */}
             <View style={styles.statCard}>
                <View>
@@ -158,12 +281,12 @@ export default function DashboardScreen() {
                    </View>
                    <Text style={styles.statTitle}>Visa Readiness</Text>
                  </View>
-                 <Text style={styles.statValue}>60% <Text style={[styles.statUnit, { color: THEME.red, fontWeight: "800" }]}>- Needs Work</Text></Text>
+                 <Text style={styles.statValue}>{visaReadiness}</Text>
                  
                  <View style={styles.progressBarContainer}>
                     <View style={[styles.progressBarFull, { width: "60%", backgroundColor: THEME.blue }]} />
                  </View>
- 
+
                  <View style={styles.checkRow}>
                     <Ionicons name="checkmark-circle" size={16} color={THEME.green} />
                     <Text style={styles.checkText}>Strong Academics</Text>
@@ -173,7 +296,7 @@ export default function DashboardScreen() {
                     <Text style={styles.checkText}>Financial Proof Weak</Text>
                  </View>
                </View>
- 
+
                <TouchableOpacity 
                  style={[styles.statButton, { backgroundColor: THEME.blue }]}
                  onPress={() => router.push("/visa-readiness")}
@@ -190,12 +313,11 @@ export default function DashboardScreen() {
                  <Ionicons name="sparkles" size={18} color={THEME.orange} />
                  <Text style={styles.improveTitle}>Improve Your Chances</Text>
               </View>
-              <Text style={styles.improveSubtitle}>Follow these steps to boost your success rate.</Text>
-              <View style={styles.improveBullets}>
-                 <Text style={styles.bulletItem}>• Increase IELTS</Text>
-                 <Text style={styles.bulletItem}>• Apply for safer Unis</Text>
-              </View>
-              <TouchableOpacity style={styles.viewPlanButton}>
+              <Text style={styles.improveSubtitle} numberOfLines={2}>Get personalized steps to boost your success.</Text>
+              <TouchableOpacity 
+                 style={styles.viewPlanButton}
+                 onPress={() => router.push("/university/admission-chance")}
+              >
                 <Text style={styles.viewPlanButtonText}>View Plan</Text>
               </TouchableOpacity>
            </View>
@@ -226,71 +348,64 @@ export default function DashboardScreen() {
         </View>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.uniCardsScroll}>
-           <View style={styles.uniCard}>
-              <View style={styles.uniImageContainer}>
-                 <Image 
-                   source={{ uri: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?auto=format&fit=crop&q=80&w=400" }} 
-                   style={styles.uniImage} 
-                 />
-                 <View style={styles.matchBadge}>
-                    <Text style={styles.matchText}>85% Match</Text>
-                 </View>
-              </View>
-              <View style={styles.uniCardContent}>
-                 <Text style={styles.uniCardName}>University of Melbourne</Text>
-                 <View style={styles.uniLocationRow}>
-                    <Ionicons name="location" size={14} color={THEME.orange} />
-                    <Text style={styles.uniLocationText}>Melbourne, Australia</Text>
-                 </View>
-                 <View style={styles.uniCostRow}>
-                    <Text style={styles.uniCostValue}>NPR 20,500,00<Text style={styles.uniCostUnit}>/ year</Text></Text>
-                    <View style={styles.safeBadge}>
-                        <Text style={styles.safeText}>Safe</Text>
-                    </View>
-                 </View>
-                 <View style={styles.uniActions}>
-                    <TouchableOpacity style={styles.saveBtn}>
-                        <Text style={styles.saveBtnText}>Save</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.compareBtn}>
-                        <Text style={styles.compareBtnText}>Compare</Text>
-                    </TouchableOpacity>
-                 </View>
-              </View>
-           </View>
-
-           <View style={styles.uniCard}>
-              <View style={styles.uniImageContainer}>
-                 <Image 
-                   source={{ uri: "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&q=80&w=400" }} 
-                   style={styles.uniImage} 
-                 />
-                 <View style={styles.matchBadge}>
-                    <Text style={styles.matchText}>72% Match</Text>
-                 </View>
-              </View>
-              <View style={styles.uniCardContent}>
-                 <Text style={styles.uniCardName}>University of Toronto</Text>
-                 <View style={styles.uniLocationRow}>
-                    <Ionicons name="location" size={14} color={THEME.orange} />
-                    <Text style={styles.uniLocationText}>Toronto, Canada</Text>
-                 </View>
-                 <View style={styles.uniCostRow}>
-                    <Text style={styles.uniCostValue}>NPR 11,500,00<Text style={styles.uniCostUnit}>/ year</Text></Text>
-                    <View style={[styles.safeBadge, { backgroundColor: "#FFF7ED" }]}>
-                        <Text style={[styles.safeText, { color: THEME.orange }]}>Moderate</Text>
-                    </View>
-                 </View>
-                 <View style={styles.uniActions}>
-                    <TouchableOpacity style={styles.saveBtn}>
-                        <Text style={styles.saveBtnText}>Save</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.compareBtn}>
-                        <Text style={styles.compareBtnText}>Compare</Text>
-                    </TouchableOpacity>
-                 </View>
-              </View>
-           </View>
+           {loadingUnis ? (
+             <View style={{ width: width - 40, height: 280, justifyContent: 'center', alignItems: 'center' }}>
+               <ActivityIndicator size="large" color={THEME.blue} />
+               <Text style={{ marginTop: 12, color: THEME.textGray }}>Loading recommendations...</Text>
+             </View>
+           ) : recommendedUnis.length > 0 ? recommendedUnis.map((uni, idx) => (
+             <TouchableOpacity 
+               key={uni.id || idx} 
+               style={styles.uniCard}
+               onPress={() => router.push({
+                 pathname: "/university/[id]",
+                 params: { id: uni.id, country: uni.country, name: uni.name }
+               })}
+             >
+                <View style={styles.uniImageContainer}>
+                   <Image 
+                     source={{ uri: uni.image || "https://images.unsplash.com/photo-1542051841857-5f90071e7989?auto=format&fit=crop&q=80&w=400" }} 
+                     style={styles.uniImage} 
+                   />
+                   <View style={styles.matchBadge}>
+                      <Text style={styles.matchText}>{calculateAcceptanceChance(userData, uni).score}% Match</Text>
+                   </View>
+                </View>
+                <View style={styles.uniCardContent}>
+                   <Text style={styles.uniCardName} numberOfLines={1}>{uni.name}</Text>
+                   <View style={styles.uniLocationRow}>
+                      <Ionicons name="location" size={14} color={THEME.orange} />
+                      <Text style={styles.uniLocationText} numberOfLines={1}>{uni.location}</Text>
+                   </View>
+                   <View style={styles.uniCostRow}>
+                      <Text style={styles.uniCostValue}>{uni.tuition}<Text style={styles.uniCostUnit}>/ year</Text></Text>
+                      <View style={[styles.safeBadge, { backgroundColor: uni.acceptanceRate && uni.acceptanceRate > 50 ? "#DCFCE7" : "#FFF7ED" }]}>
+                          <Text style={[styles.safeText, { color: uni.acceptanceRate && uni.acceptanceRate > 50 ? THEME.green : THEME.orange }]}>
+                            {uni.acceptanceRate && uni.acceptanceRate > 50 ? "Safe" : "Moderate"}
+                          </Text>
+                      </View>
+                   </View>
+                   <View style={styles.uniActions}>
+                      <TouchableOpacity style={styles.saveBtn}>
+                          <Text style={styles.saveBtnText}>Save</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity 
+                        style={styles.compareBtn}
+                        onPress={() => router.push({
+                          pathname: "/university/[id]",
+                          params: { id: uni.id, country: uni.country, name: uni.name }
+                        })}
+                      >
+                          <Text style={styles.compareBtnText}>View</Text>
+                      </TouchableOpacity>
+                   </View>
+                </View>
+             </TouchableOpacity>
+           )) : (
+             <View style={{ width: width - 40, height: 100, justifyContent: 'center', alignItems: 'center' }}>
+               <Text style={{ color: THEME.textGray }}>No recommendations found for {userData.country}</Text>
+             </View>
+           )}
         </ScrollView>
 
         {/* Quick Actions */}
@@ -571,8 +686,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 16,
     elevation: 3,
-    minHeight: 280, // Ensure equal height for alignment
-    justifyContent: "space-between", // Push buttons to bottom
+    minHeight: 280, 
+    justifyContent: "space-between", 
   },
   statIconHeader: {
     flexDirection: "row",
@@ -628,41 +743,42 @@ const styles = StyleSheet.create({
   statSubtitle: {
     fontSize: 11,
     color: THEME.textGray,
-    marginBottom: 16,
+    fontWeight: "500",
+    lineHeight: 16,
   },
   statButton: {
-    height: 48,
-    borderRadius: 16,
+    height: 36,
+    borderRadius: 18,
     justifyContent: "center",
     alignItems: "center",
+    marginTop: 16,
   },
   statButtonText: {
-    color: THEME.white,
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "800",
+    color: THEME.white,
   },
   checkRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    marginBottom: 8,
+    gap: 6,
+    marginTop: 4,
   },
   checkText: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: THEME.textDark,
+    fontSize: 11,
+    color: THEME.textGray,
+    fontWeight: "600",
   },
   visaIconText: {
-    color: "white",
-    fontSize: 8,
+    fontSize: 10,
     fontWeight: "900",
+    color: THEME.white,
   },
   progressBarContainer: {
     height: 6,
-    backgroundColor: "#E2E8F0",
+    backgroundColor: "#F1F5F9",
     borderRadius: 3,
-    width: "100%",
-    marginBottom: 16,
+    marginVertical: 12,
     overflow: "hidden",
   },
   progressBarFull: {
@@ -670,54 +786,59 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   improveBanner: {
+    height: 160,
     marginHorizontal: 20,
-    backgroundColor: "#FDF5E1", // Warm beige/cream from mockup
-    borderRadius: 32,
-    padding: 24,
+    backgroundColor: "#FDF5E1",
+    borderRadius: 24,
     flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    overflow: "hidden",
     marginBottom: 32,
-    position: "relative",
-    overflow: "hidden", // Ensure image doesn't bleed out of rounded corners
+    borderWidth: 1,
+    borderColor: "#FEF3C7",
   },
   improveContent: {
-    width: "60%",
-    zIndex: 10,
+    flex: 1,
+    padding: 24,
+    justifyContent: "center",
   },
   improveTitleRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    marginBottom: 12,
+    marginBottom: 8,
   },
   improveTitle: {
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: "900",
     color: "#92400E",
   },
   improveSubtitle: {
-    fontSize: 12,
-    color: "#92400E",
-    opacity: 0.8,
-    marginBottom: 12,
+    fontSize: 13,
+    color: "#B45309",
+    marginBottom: 16,
     lineHeight: 18,
+    fontWeight: "500",
   },
   improveBullets: {
     marginBottom: 20,
+    gap: 4,
   },
   bulletItem: {
     fontSize: 12,
     fontWeight: "700",
-    color: "#92400E",
-    marginBottom: 4,
+    color: "#D97706",
   },
   viewPlanButton: {
-    backgroundColor: THEME.blue,
-    paddingVertical: 12,
+    backgroundColor: THEME.orange,
     paddingHorizontal: 20,
-    borderRadius: 16,
+    paddingVertical: 10,
+    borderRadius: 12,
     alignSelf: "flex-start",
+    shadowColor: THEME.orange,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   viewPlanButtonText: {
     color: THEME.white,
@@ -725,42 +846,41 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
   imageFadeContainer: {
-    position: "absolute",
-    right: 0,
-    top: 0,
-    bottom: 0,
-    width: "50%",
-    zIndex: 5,
+    width: 140,
+    position: "relative",
   },
   improveImage: {
     width: "100%",
     height: "100%",
   },
   fadeOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    width: "100%",
+    position: "absolute",
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 60,
   },
   sectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-end",
-    marginHorizontal: 20,
+    paddingHorizontal: 20,
     marginBottom: 20,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "900",
     color: THEME.textDark,
+    marginBottom: 4,
   },
   sectionSubtitle: {
-    fontSize: 12,
+    fontSize: 13,
     color: THEME.textGray,
-    marginTop: 4,
     fontWeight: "500",
   },
   seeAllText: {
-    fontSize: 13,
-    fontWeight: "700",
+    fontSize: 14,
+    fontWeight: "800",
     color: THEME.blue,
   },
   uniCardsScroll: {
@@ -768,22 +888,23 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
   },
   uniCard: {
-    width: 280,
+    width: 260,
     backgroundColor: THEME.white,
     borderRadius: 24,
-    overflow: "hidden",
-    marginHorizontal: 4,
+    marginHorizontal: 8,
     borderWidth: 1,
     borderColor: "#F1F5F9",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.05,
     shadowRadius: 20,
-    elevation: 3,
+    elevation: 4,
+    overflow: "hidden",
   },
   uniImageContainer: {
-    height: 140,
     width: "100%",
+    height: 140,
+    position: "relative",
   },
   uniImage: {
     width: "100%",
@@ -793,24 +914,26 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 12,
     right: 12,
-    backgroundColor: "#DCFCE7",
+    backgroundColor: "rgba(255, 255, 255, 0.95)",
     paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 10,
+    paddingVertical: 6,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.05)",
   },
   matchText: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: "900",
-    color: THEME.green,
+    color: THEME.blue,
   },
   uniCardContent: {
     padding: 16,
   },
   uniCardName: {
     fontSize: 16,
-    fontWeight: "800",
+    fontWeight: "900",
     color: THEME.textDark,
-    marginBottom: 8,
+    marginBottom: 6,
   },
   uniLocationRow: {
     flexDirection: "row",
@@ -821,13 +944,16 @@ const styles = StyleSheet.create({
   uniLocationText: {
     fontSize: 12,
     color: THEME.textGray,
-    fontWeight: "600",
+    fontWeight: "500",
   },
   uniCostRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 16,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: "#F8FAFC",
   },
   uniCostValue: {
     fontSize: 15,
@@ -835,73 +961,73 @@ const styles = StyleSheet.create({
     color: THEME.textDark,
   },
   uniCostUnit: {
-    fontSize: 11,
+    fontSize: 12,
     color: THEME.textGray,
     fontWeight: "500",
   },
   safeBadge: {
-    backgroundColor: "#DCFCE7",
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8,
   },
   safeText: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: "800",
-    color: THEME.green,
   },
   uniActions: {
     flexDirection: "row",
-    gap: 10,
+    gap: 8,
   },
   saveBtn: {
     flex: 1,
-    height: 44,
+    height: 38,
     borderRadius: 12,
-    backgroundColor: "#FFF7ED",
+    borderWidth: 1.5,
+    borderColor: "#F1F5F9",
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: THEME.white,
   },
   saveBtnText: {
-    color: THEME.orange,
     fontSize: 13,
     fontWeight: "800",
+    color: THEME.textGray,
   },
   compareBtn: {
-    flex: 1,
-    height: 44,
+    flex: 1.5,
+    height: 38,
     borderRadius: 12,
-    backgroundColor: "#E0F2FE",
+    backgroundColor: THEME.textDark,
     justifyContent: "center",
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
   compareBtnText: {
-    color: THEME.blue,
     fontSize: 13,
     fontWeight: "800",
+    color: THEME.white,
   },
   quickActionsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
+    gap: 12,
     marginBottom: 32,
   },
   quickActionItem: {
-    width: "46%",
+    width: (width - 44) / 2,
     backgroundColor: THEME.white,
     borderRadius: 20,
     padding: 16,
-    margin: "2%",
+    borderWidth: 1,
+    borderColor: "#F1F5F9",
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-    borderWidth: 1,
-    borderColor: "#F1F5F9",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.03,
-    shadowRadius: 8,
-    elevation: 1,
   },
   quickActionIconBox: {
     width: 40,
@@ -912,74 +1038,80 @@ const styles = StyleSheet.create({
   },
   quickActionText: {
     flex: 1,
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: "800",
     color: THEME.textDark,
-    lineHeight: 16,
+    lineHeight: 18,
   },
   globalSearchContainer: {
+    marginHorizontal: 20,
     flexDirection: "row",
-    paddingHorizontal: 20,
     gap: 10,
+    marginBottom: 40,
   },
   globalSearchBar: {
     flex: 1,
-    height: 54,
-    backgroundColor: "#F8FAFC",
-    borderWidth: 1,
-    borderColor: "#E2E8F0",
+    height: 52,
+    backgroundColor: "#F8FAFF",
     borderRadius: 16,
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
-    gap: 10,
+    gap: 12,
+    borderWidth: 1,
+    borderColor: "#EDF2F7",
   },
   globalSearchInput: {
     flex: 1,
-    fontSize: 14,
+    fontSize: 15,
+    fontWeight: "500",
     color: THEME.textDark,
-    fontWeight: "600",
   },
   filterBtnSmall: {
-    width: 54,
-    height: 54,
-    backgroundColor: THEME.blue,
+    width: 52,
+    height: 52,
+    backgroundColor: THEME.textDark,
     borderRadius: 16,
     justifyContent: "center",
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 2,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "flex-end",
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: "white",
+    backgroundColor: THEME.white,
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
     padding: 24,
-    paddingBottom: Platform.OS === 'ios' ? 40 : 24,
+    paddingTop: 12,
+    minHeight: 400,
   },
   modalIndicator: {
     width: 40,
     height: 4,
-    backgroundColor: "#E2E8F0",
+    backgroundColor: '#E2E8F0',
     borderRadius: 2,
-    alignSelf: "center",
-    marginBottom: 20,
+    alignSelf: 'center',
+    marginBottom: 24,
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: "800",
+    fontWeight: "900",
     color: THEME.textDark,
-    textAlign: "center",
+    marginBottom: 8,
   },
   modalSubtitle: {
-    fontSize: 14,
+    fontSize: 15,
     color: THEME.textGray,
-    textAlign: "center",
-    marginTop: 8,
-    marginBottom: 32,
+    marginBottom: 24,
+    fontWeight: "500",
   },
   modalOptions: {
     gap: 16,
@@ -987,81 +1119,79 @@ const styles = StyleSheet.create({
   modalOption: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F8FAFC",
     padding: 16,
+    backgroundColor: "#F8FAFC",
     borderRadius: 20,
+    gap: 16,
     borderWidth: 1,
     borderColor: "#F1F5F9",
   },
   modalOptionIcon: {
     width: 48,
     height: 48,
-    borderRadius: 24,
+    borderRadius: 16,
     justifyContent: "center",
     alignItems: "center",
   },
   modalOptionTextWrapper: {
     flex: 1,
-    marginLeft: 16,
   },
   modalOptionTitle: {
     fontSize: 15,
-    fontWeight: "700",
+    fontWeight: "800",
     color: THEME.textDark,
+    marginBottom: 2,
   },
   modalOptionDesc: {
     fontSize: 12,
     color: THEME.textGray,
-    marginTop: 2,
-  },
-  modalCloseBtn: {
-    marginTop: 24,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: "#F3F4F6",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalCloseBtnText: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: THEME.textGray,
+    fontWeight: "500",
   },
   modalHeaderRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 10,
+    marginBottom: 20,
   },
   modalGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "space-between",
-    paddingTop: 10,
+    gap: 12,
+    paddingBottom: 20,
   },
   modalCountryItem: {
-    width: "30%",
-    aspectRatio: 1,
+    width: (width - 72) / 2,
     backgroundColor: "#F8FAFC",
-    borderRadius: 20,
-    justifyContent: "center",
+    borderRadius: 16,
+    padding: 16,
     alignItems: "center",
-    marginBottom: 16,
     borderWidth: 1,
     borderColor: "#F1F5F9",
+    gap: 8,
   },
   modalCountrySelected: {
     borderColor: THEME.blue,
-    backgroundColor: "rgba(59, 130, 246, 0.05)",
-    borderWidth: 2,
+    backgroundColor: "#F0F9FF",
   },
   modalCountryFlag: {
     fontSize: 24,
-    marginBottom: 4,
   },
   modalCountryName: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: "700",
     color: THEME.textDark,
+  },
+  modalCloseBtn: {
+    marginTop: 20,
+    height: 52,
+    borderRadius: 16,
+    backgroundColor: "#F1F5F9",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalCloseBtnText: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: THEME.textGray,
   },
 });

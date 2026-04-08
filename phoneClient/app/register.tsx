@@ -37,55 +37,36 @@ export default function RegisterScreen() {
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("+977 ");
-  const [password, setPassword] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [countryCode, setCountryCode] = useState("+977");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleRegister = async () => {
-    if (!name || !email || !phone || !password) {
-      Alert.alert("Error", "Please fill in all fields.");
-      return;
-    }
-
-    if (password.length < 8) {
-      Alert.alert("Error", "Password must be at least 8 characters.");
+    if (!name || !email || !phoneNumber) {
+      Alert.alert("Error", "Please fill in all required fields.");
       return;
     }
 
     setIsSubmitting(true);
     try {
-      // Basic splitting of phone number for the API
-      // In a real app, use a dedicated phone input component
-      let dialCode = "+977"; // Default
-      let number = phone;
-
-      if (phone.startsWith("+")) {
-        const parts = phone.split(" ");
-        if (parts.length > 1) {
-          dialCode = parts[0];
-          number = parts.slice(1).join("");
-        } else {
-          // Fallback if no space provided
-          dialCode = phone.substring(0, 3);
-          number = phone.substring(3);
-        }
-      }
-
-      await register({
+      const phoneE164 = `${countryCode}${phoneNumber.replace(/\D/g, "")}`;
+      
+      const response = await register({
         name,
-        username: email.split("@")[0] + Math.floor(Math.random() * 1000), // Auto-generate username for now
         email,
-        password,
-        countryDialCode: dialCode,
-        phoneNumber: number,
+        countryDialCode: countryCode,
+        phoneNumber: phoneNumber.replace(/\D/g, ""),
         prefersWhatsApp: true,
       });
 
-      // Automatically log in after registration to get a valid token
-      await login(email, password);
-
-      // Redirect directly to the setup flow instead of explore or back to login
-      router.push("/setup/country");
+      // Redirect to verification screen
+      router.push({
+        pathname: "/verify-otp",
+        params: { 
+            phoneE164, 
+            purpose: "register" 
+        }
+      });
     } catch (error: any) {
       Alert.alert(
         "Registration Failed",
@@ -191,40 +172,18 @@ export default function RegisterScreen() {
 
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Phone Number</Text>
-                <View style={styles.inputWrapper}>
-                  <Feather
-                    name="phone"
-                    size={20}
-                    color={COLORS.primaryBlue}
-                    style={styles.inputIcon}
-                  />
+                <View style={styles.phoneInputWrapper}>
+                  <View style={styles.countryCodeBox}>
+                     <Text style={styles.countryCodeText}>{countryCode}</Text>
+                     <Feather name="chevron-down" size={14} color={COLORS.textDark} />
+                  </View>
                   <TextInput
-                    placeholder="+977 98XXXXXXXX"
+                    placeholder="Enter phone number"
                     placeholderTextColor="rgba(15, 23, 42, 0.3)"
                     style={styles.input}
                     keyboardType="phone-pad"
-                    value={phone}
-                    onChangeText={setPhone}
-                  />
-                </View>
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Password</Text>
-                <View style={styles.inputWrapper}>
-                  <Feather
-                    name="lock"
-                    size={20}
-                    color={COLORS.primaryBlue}
-                    style={styles.inputIcon}
-                  />
-                  <TextInput
-                    placeholder="Create a password"
-                    placeholderTextColor="rgba(15, 23, 42, 0.3)"
-                    style={styles.input}
-                    secureTextEntry
-                    value={password}
-                    onChangeText={setPassword}
+                    value={phoneNumber}
+                    onChangeText={setPhoneNumber}
                   />
                 </View>
               </View>
@@ -357,6 +316,31 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderWidth: 1,
     borderColor: COLORS.glassBorder,
+  },
+  phoneInputWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.5)",
+    borderRadius: 18,
+    height: 54,
+    paddingHorizontal: 4,
+    borderWidth: 1,
+    borderColor: COLORS.glassBorder,
+  },
+  countryCodeBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    height: 44,
+    paddingHorizontal: 12,
+    borderRadius: 14,
+    marginRight: 8,
+    gap: 4,
+  },
+  countryCodeText: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: COLORS.textDark,
   },
   inputIcon: {
     marginRight: 12,

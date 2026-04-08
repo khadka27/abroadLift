@@ -10,10 +10,12 @@ import {
   StatusBar,
   Platform,
 } from "react-native";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { Feather, Ionicons, MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useUser } from "../context/UserContext";
 import { ProfileAvatar } from "../../components/ProfileAvatar";
+import { getCostOfLiving, getRelocationIndex, getUniversityDetails } from "../../lib/api";
+import { ActivityIndicator } from "react-native";
 
 const { width } = Dimensions.get("window");
 
@@ -56,7 +58,14 @@ const CostItem = ({ label, value, subValue, footerText }: { label: string; value
 );
 
 export default function CostBreakdownScreen() {
+  const { id, country: countryParam } = useLocalSearchParams();
+  const { userData } = useUser();
   const [activeTab, setActiveTab] = React.useState("First year");
+  const [loading, setLoading] = React.useState(true);
+  const [costData, setCostData] = React.useState<any>(null);
+  const [qoiData, setQoiData] = React.useState<any>(null);
+  const [uniData, setUniData] = React.useState<any>(null);
+  
   const [expandedSections, setExpandedSections] = React.useState<string[]>([
     "year-tuition", 
     "year-living", 
@@ -64,8 +73,35 @@ export default function CostBreakdownScreen() {
     "pre-app", 
     "regional", 
     "visa", 
-    "travel"
+    "travel",
+    "roi"
   ]);
+
+  const USD_TO_NPR = 134;
+
+  const currentCountry = (countryParam as string) || userData.country || "UK";
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const [cost, qoi, uni] = await Promise.all([
+          getCostOfLiving(currentCountry),
+          getRelocationIndex(currentCountry),
+          id ? getUniversityDetails(id as string, currentCountry) : Promise.resolve(null)
+        ]);
+        
+        setCostData(cost);
+        setQoiData(qoi);
+        setUniData(uni);
+      } catch (error) {
+        console.error("Error fetching cost data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [currentCountry, id]);
 
   const toggleSection = (id: string) => {
     setExpandedSections(prev => 
@@ -74,6 +110,33 @@ export default function CostBreakdownScreen() {
   };
 
   const isExpanded = (id: string) => expandedSections.includes(id);
+
+  if (loading) {
+    return (
+      <View style={[styles.container, { justifyContent: "center", alignItems: "center" }]}>
+        <ActivityIndicator size="large" color={THEME.primary} />
+        <Text style={{ marginTop: 12, color: THEME.textGray, fontWeight: "600" }}>Calculating Estimates...</Text>
+      </View>
+    );
+  }
+
+  // Calculate values
+  const monthlyUsd = costData?.monthly_estimate_usd || 1500;
+  const annualLivingUsd = monthlyUsd * 12;
+  const tuitionUsd = uniData?.tuitionValue || 20000;
+  
+  const totalFirstYearNpr = (tuitionUsd + annualLivingUsd) * USD_TO_NPR;
+  const fmtNpr = (v: number) => {
+     if (v >= 100000) return `NPR ${(v / 100000).toFixed(1)} Lakhs`;
+     return `NPR ${v.toLocaleString()}`;
+  };
+
+  const fmtCurrency = (v: number) => v.toLocaleString();
+
+  // ROI / QOI mapping
+  const qualityOfLife = qoiData?.quality_of_life_index || "N/A";
+  const safety = qoiData?.safety_index || "N/A";
+  const health = qoiData?.health_care_index || "N/A";
 
   return (
     <SafeAreaView style={styles.container}>
@@ -99,11 +162,11 @@ export default function CostBreakdownScreen() {
         <View style={styles.summaryCard}>
           <View style={styles.summaryContent}>
             <View style={styles.summaryLeft}>
-              <Text style={styles.summaryTitle}>Total Estimated Cost</Text>
-              <Text style={styles.summaryValue}>NPR 25 - 40 Lakhs</Text>
+              <Text style={styles.summaryTitle}>Total Estimated Cost (Year 1)</Text>
+              <Text style={styles.summaryValue}>{fmtNpr(totalFirstYearNpr)}</Text>
               <View style={styles.averageBadge}>
                 <View style={styles.orangeDot} />
-                <Text style={styles.averageBadgeText}>Average Cost</Text>
+                <Text style={styles.averageBadgeText}>{currentCountry} Average</Text>
               </View>
             </View>
             <View style={styles.chartContainer}>
@@ -140,7 +203,7 @@ export default function CostBreakdownScreen() {
           {/* Year Breakdown (Tuition/Education) */}
           <View style={styles.sectionBox}>
             <SectionHeader 
-              title="Year Breakdown" 
+              title="Tuition & Fees" 
               icon="wallet-outline" 
               color="#A3E635" 
               expanded={isExpanded("year-tuition")}
@@ -148,10 +211,9 @@ export default function CostBreakdownScreen() {
             />
             {isExpanded("year-tuition") && (
               <View style={styles.sectionBody}>
-                <CostItem label="Year 1" value="NPR 30 Lakhs" />
-                <CostItem label="Year 2" value="NPR 25 Lakhs" />
-                <CostItem label="Year 3" value="NPR 20 Lakhs" />
-                <Text style={styles.footerInfoText}>Tuition may reduce after first year</Text>
+                <CostItem label="Annual Tuition" value={fmtNpr(tuitionUsd * USD_TO_NPR)} subValue={`$${tuitionUsd.toLocaleString()}`} />
+                <CostItem label="Study Level" value={uniData?.type || userData.studyLevel || "Masters"} />
+                <Text style={styles.footerInfoText}>Fees vary by course and university</Text>
               </View>
             )}
           </View>
@@ -163,7 +225,7 @@ export default function CostBreakdownScreen() {
           {/* Year Breakdown (Living) */}
           <View style={styles.sectionBox}>
             <SectionHeader 
-              title="Year Breakdown" 
+              title="Living Expenses" 
               icon="information-outline" 
               color="#A3E635" 
               expanded={isExpanded("year-living")}
@@ -171,11 +233,10 @@ export default function CostBreakdownScreen() {
             />
             {isExpanded("year-living") && (
               <View style={styles.sectionBody}>
-                <CostItem label="Rent" value="15,000" />
-                <CostItem label="Food" value="10,000" />
-                <CostItem label="Transport" value="3,000" />
-                <CostItem label="Other" value="5,000" />
-                <Text style={styles.footerInfoText}>Part time Incomes (Optional)</Text>
+                <CostItem label="Annual Total" value={fmtNpr(annualLivingUsd * USD_TO_NPR)} subValue={`$${annualLivingUsd.toLocaleString()}`} />
+                <CostItem label="Rent (Approx)" value={fmtNpr((monthlyUsd * 0.4) * USD_TO_NPR)} subValue="40% of budget" />
+                <CostItem label="Food & Others" value={fmtNpr((monthlyUsd * 0.6) * USD_TO_NPR)} subValue="60% of budget" />
+                <Text style={styles.footerInfoText}>Based on average {currentCountry} lifestyle</Text>
               </View>
             )}
           </View>
@@ -184,7 +245,7 @@ export default function CostBreakdownScreen() {
           <View style={styles.sectionBox}>
             <SectionHeader 
               title="Total Monthly Cost" 
-              icon="information-outline" 
+              icon="calendar-outline" 
               color="#A3E635" 
               expanded={isExpanded("monthly")}
               onToggle={() => toggleSection("monthly")}
@@ -192,8 +253,29 @@ export default function CostBreakdownScreen() {
             {isExpanded("monthly") && (
               <View style={styles.sectionBody}>
                 <View style={styles.compactMonthlyRow}>
-                   <Text style={styles.monthlyValueText}>NPR 33,000 / month - NPR 3.9 Lakhs / year</Text>
+                   <Text style={styles.monthlyValueText}>{fmtNpr(monthlyUsd * USD_TO_NPR)} / month</Text>
+                   <Text style={[styles.itemFooterText, { marginTop: 4 }]}>Approx. ${monthlyUsd.toLocaleString()} USD</Text>
                 </View>
+              </View>
+            )}
+          </View>
+
+          {/* ROI & Quality of Index */}
+          <View style={styles.sectionBox}>
+            <SectionHeader 
+              title="ROI & Quality Index" 
+              icon="trending-up" 
+              color={THEME.blue} 
+              expanded={isExpanded("roi")}
+              onToggle={() => toggleSection("roi")}
+            />
+            {isExpanded("roi") && (
+              <View style={styles.sectionBody}>
+                <CostItem label="Quality of Life" value={String(qualityOfLife)} subValue="Index / 200" />
+                <CostItem label="Safety Index" value={String(safety)} subValue="Index / 100" />
+                <CostItem label="Health Care" value={String(health)} subValue="Index / 100" />
+                <CostItem label="Purchasing Power" value={qoiData?.purchasing_power_index || "N/A"} subValue="Index" />
+                <Text style={styles.footerInfoText}>High index indicates better return on living</Text>
               </View>
             )}
           </View>

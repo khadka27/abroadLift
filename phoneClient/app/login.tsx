@@ -35,37 +35,27 @@ export default function LoginScreen() {
   const insets = useSafeAreaInsets();
   const { login, userData } = useUser();
   
-  const [identifier, setIdentifier] = useState("");
-  const [password, setPassword] = useState("");
+  const [countryCode, setCountryCode] = useState("+977");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleLogin = async () => {
-    if (!identifier || !password) {
-      Alert.alert("Error", "Please enter both identifier and password.");
+    if (!phoneNumber) {
+      Alert.alert("Error", "Please enter your phone number.");
       return;
     }
 
+    const phoneE164 = `${countryCode}${phoneNumber.replace(/\D/g, "")}`;
     setIsSubmitting(true);
     try {
-      const user = await login(identifier, password);
-      // Sequential check for missing setup fields to decide redirection
-      if (!user.country) {
-          router.push("/setup/country");
-      } else if (!user.studyLevel) {
-          router.push("/setup/study-level");
-      } else if (!user.fieldOfStudy) {
-          router.push("/setup/field-of-study");
-      } else if (!user.cgpa || !user.recentAcademicField) {
-          router.push("/setup/academics");
-      } else if (!user.score && !user.englishLevel) {
-          router.push("/setup/english-test");
-      } else if (!user.intake) {
-          router.push("/setup/target");
-      } else {
-          router.push("/(tabs)/explore");
-      }
+      const { requestOtp } = require("../lib/api");
+      await requestOtp({ phoneE164 });
+      router.push({
+        pathname: "/verify-otp",
+        params: { phoneE164, purpose: "login" }
+      });
     } catch (error: any) {
-      Alert.alert("Login Failed", error.message || "Something went wrong. Please check your credentials.");
+      Alert.alert("Login Failed", error.message || "Something went wrong.");
     } finally {
       setIsSubmitting(false);
     }
@@ -113,31 +103,19 @@ export default function LoginScreen() {
               />
               <View style={styles.glassOverlay} />
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Email or Username</Text>
-                <View style={styles.inputWrapper}>
-                  <Feather name="user" size={20} color={COLORS.primaryBlue} style={styles.inputIcon} />
+                <Text style={styles.label}>Phone Number</Text>
+                <View style={styles.phoneInputWrapper}>
+                  <View style={styles.countryCodeBox}>
+                     <Text style={styles.countryCodeText}>{countryCode}</Text>
+                     <Feather name="chevron-down" size={14} color={COLORS.textDark} />
+                  </View>
                   <TextInput
-                    placeholder="Email or Username"
+                    placeholder="Enter phone number"
                     placeholderTextColor="rgba(15, 23, 42, 0.3)"
                     style={styles.input}
-                    autoCapitalize="none"
-                    value={identifier}
-                    onChangeText={setIdentifier}
-                  />
-                </View>
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Password</Text>
-                <View style={styles.inputWrapper}>
-                  <Feather name="lock" size={20} color={COLORS.primaryBlue} style={styles.inputIcon} />
-                  <TextInput
-                    placeholder="Enter your password"
-                    placeholderTextColor="rgba(15, 23, 42, 0.3)"
-                    style={styles.input}
-                    secureTextEntry
-                    value={password}
-                    onChangeText={setPassword}
+                    keyboardType="phone-pad"
+                    value={phoneNumber}
+                    onChangeText={setPhoneNumber}
                   />
                 </View>
               </View>
@@ -288,6 +266,31 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderWidth: 1,
     borderColor: COLORS.glassBorder,
+  },
+  phoneInputWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.5)",
+    borderRadius: 18,
+    height: 54,
+    paddingHorizontal: 4,
+    borderWidth: 1,
+    borderColor: COLORS.glassBorder,
+  },
+  countryCodeBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    height: 44,
+    paddingHorizontal: 12,
+    borderRadius: 14,
+    marginRight: 8,
+    gap: 4,
+  },
+  countryCodeText: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: COLORS.textDark,
   },
   inputIcon: {
     marginRight: 12,

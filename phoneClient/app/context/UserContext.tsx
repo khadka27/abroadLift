@@ -30,7 +30,7 @@ type UserContextType = {
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (identifier: string, password: string) => Promise<any>;
+  login: (phoneE164: string, otp: string) => Promise<any>;
   register: (data: any) => Promise<any>;
   logout: () => Promise<void>;
   setUserData: (data: UserData | ((prev: UserData) => UserData)) => void;
@@ -94,6 +94,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
               englishLevel: profile.englishLevel || "",
               yearlyBudget: profile.yearlyBudget ? String(profile.yearlyBudget) : "",
               scholarshipNeeded: profile.scholarshipNeeded ?? false,
+              selectedUniversities: data.user?.selectedUniversities || (storedUser ? JSON.parse(storedUser).selectedUniversities : []) || [],
             };
             _setUserData(refreshedUser);
             AsyncStorage.setItem('@user_data', JSON.stringify(refreshedUser));
@@ -110,9 +111,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // Login handler
-  const login = async (identifier: string, password: string) => {
+  const login = async (phoneE164: string, otp: string) => {
     try {
-      const data = await apiLogin(identifier, password);
+      const data = await apiLogin(phoneE164, otp);
       // data: { user, token }
       const incomingUser = data.user;
       const profile = incomingUser.profile || {};
@@ -132,6 +133,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         englishLevel: profile.englishLevel || userData.englishLevel,
         yearlyBudget: profile.yearlyBudget ? String(profile.yearlyBudget) : userData.yearlyBudget,
         scholarshipNeeded: profile.scholarshipNeeded ?? userData.scholarshipNeeded,
+        selectedUniversities: incomingUser.selectedUniversities || userData.selectedUniversities || [],
       };
 
       setToken(data.token);
