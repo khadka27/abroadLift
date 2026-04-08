@@ -2190,6 +2190,13 @@ export default function AbroadLiftMatchesPage() {
         return;
       }
 
+      const resumeToStep = (targetStep: number) => {
+        if (targetStep === 8) {
+          setTransitionType("finance");
+        }
+        setStep(targetStep);
+      };
+
       localStorage.removeItem(RETURN_STEP_KEY);
 
       const saved = localStorage.getItem(MATCH_STORAGE_KEY);
@@ -2197,7 +2204,7 @@ export default function AbroadLiftMatchesPage() {
         try {
           const data = JSON.parse(saved);
           if (typeof data.step === "number") {
-            setStep(data.step);
+            resumeToStep(data.step);
             return;
           }
         } catch {
@@ -2206,7 +2213,7 @@ export default function AbroadLiftMatchesPage() {
       }
 
       const fallbackStep = Number.parseInt(pendingStep, 10);
-      setStep(Number.isNaN(fallbackStep) ? 8 : fallbackStep);
+      resumeToStep(Number.isNaN(fallbackStep) ? 8 : fallbackStep);
     }
   }, [status]);
 
