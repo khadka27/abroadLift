@@ -1830,7 +1830,8 @@ export default function AbroadLiftMatchesPage() {
       try {
         const data = JSON.parse(saved);
         if (data.form) setForm(data.form);
-        if (pendingStep && data.selectedMatch) setSelectedMatch(data.selectedMatch);
+        if (pendingStep && data.selectedMatch)
+          setSelectedMatch(data.selectedMatch);
         if (pendingStep && data.matches) setMatches(data.matches);
       } catch (e) {
         console.error("Failed to load match data", e);
