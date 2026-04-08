@@ -2054,16 +2054,9 @@ export default function AbroadLiftMatchesPage() {
     }
     if (step === 6) {
       setTransitionType("matching");
-      const fetchedMatches = await runMatch();
-
-      if (session && fetchedMatches.length > 0) {
-        setSelectedMatch((prev) => prev ?? fetchedMatches[0]);
-        setTransitionType("finance");
-        setStep(8);
-      } else {
-        setTransitionType(null);
-        setStep(7);
-      }
+      await runMatch();
+      setTransitionType(null);
+      setStep(7);
 
       if (status === "authenticated") {
         fetch("/api/profile", {
