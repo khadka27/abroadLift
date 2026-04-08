@@ -2052,6 +2052,19 @@ export default function AbroadLiftMatchesPage() {
       setStep(11);
       return;
     }
+    if (step === 11) {
+      setTransitionType("roadmap");
+      setStep(12);
+      return;
+    }
+    if (step === 12) {
+      setTransitionType("summary");
+      setStep(13);
+      return;
+    }
+    if (step === 13) {
+      return;
+    }
     if (step === 6) {
       setTransitionType("matching");
       await runMatch();
@@ -3813,6 +3826,24 @@ export default function AbroadLiftMatchesPage() {
                 }`}
               >
                 Continue
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step >= 8 && step <= 13 && (
+          <div className="fixed bottom-0 left-0 right-0 pb-6 px-4 md:pb-8 md:px-6 bg-white/90 backdrop-blur-md pt-3 z-[70] border-t border-slate-100 flex justify-center shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.03)]">
+            <div className="w-full max-w-[520px] flex justify-center">
+              <button
+                onClick={handleNext}
+                disabled={step === 13}
+                className={`w-full h-14 rounded-[24px] font-bold text-[15px] transition-all flex items-center justify-center tracking-wide ${
+                  step === 13
+                    ? "bg-[#eff5fd] text-[#9ca3af] cursor-not-allowed"
+                    : "bg-[#3686FF] text-white shadow-[0_8px_20px_-6px_rgba(59,130,246,0.35)]"
+                }`}
+              >
+                {step === 13 ? "Final Step Reached" : "Next Step"}
               </button>
             </div>
           </div>
