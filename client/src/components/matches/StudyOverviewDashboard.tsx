@@ -79,6 +79,33 @@ export function StudyOverviewDashboard({
         ? "Moderate"
         : "Needs Work";
 
+  const roadmapSteps = [
+    {
+      title: "Cost",
+      subtitle: "Trim the first-year budget",
+      detail: formatNprLakhRange(totalYear1Npr),
+      action: onAdvanceToCost,
+      cta: "Open breakdown",
+      accent: "from-blue-500 to-cyan-500",
+    },
+    {
+      title: "Admission",
+      subtitle: `Lift your ${admissionPct}% match score`,
+      detail: admissionBand.label,
+      action: onAdvanceToAdmission,
+      cta: "Improve profile",
+      accent: "from-amber-500 to-orange-500",
+    },
+    {
+      title: "Visa",
+      subtitle: "Strengthen financial proof",
+      detail: `${visaChance}% readiness`,
+      action: onAdvanceToVisa,
+      cta: "Review visa",
+      accent: "from-emerald-500 to-teal-500",
+    },
+  ];
+
   return (
     <div className="bg-white min-h-screen text-slate-900 py-5">
       <div className="max-w-7xl mx-auto px-5 mt-8 space-y-10">
@@ -105,16 +132,16 @@ export function StudyOverviewDashboard({
         </div>
 
         {/* Selected University Details Bar */}
-        <div className="flex items-center justify-between border border-slate-200 rounded-[8px] bg-white px-4 py-2.5 shadow-sm w-full mt-4">
-          <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border border-slate-200 rounded-2xl bg-white/95 px-4 py-3 shadow-sm w-full mt-4">
+          <div className="flex items-center gap-3 min-w-0">
             <div className="w-[30px] h-[22px] rounded-[3px] overflow-hidden shadow-sm border border-black/10 flex-shrink-0">
               <FlagIcon
                 countryCode={selectedMatch.countryCode || form.countries[0]}
                 className="w-full h-full object-cover"
               />
             </div>
-            <div className="flex items-baseline gap-2">
-              <span className="font-semibold text-[15px] text-slate-900 leading-none">
+            <div className="flex items-baseline gap-2 min-w-0 flex-wrap">
+              <span className="font-semibold text-[15px] text-slate-900 leading-none truncate max-w-[220px]">
                 {selectedMatch.name}
               </span>
               <span className="text-[#3686FF] text-[13px] font-medium tracking-wide uppercase leading-none">
@@ -124,16 +151,16 @@ export function StudyOverviewDashboard({
           </div>
           <button
             onClick={onGoToMatches}
-            className="flex items-center gap-1.5 text-[#3686FF] hover:text-blue-600 font-medium text-[13px] transition-colors ml-4 whitespace-nowrap"
+            className="flex items-center gap-1.5 text-[#3686FF] hover:text-blue-600 font-medium text-[13px] transition-colors whitespace-nowrap self-start sm:self-auto"
           >
             <Edit3 className="w-3.5 h-3.5" /> Edit Selection
           </button>
         </div>
 
         {/* Engine Metric Cards (Responsive Layout) */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 overflow-x-auto md:overflow-x-visible pb-4 no-scrollbar -mx-5 px-5 md:mx-0 md:px-0 snap-x">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
           {/* Cost Card */}
-          <div className="min-w-[260px] bg-white border border-slate-200 rounded-3xl p-5 shadow-md snap-center flex flex-col justify-between">
+          <div className="bg-white border border-slate-200 rounded-[28px] p-5 shadow-[0_14px_40px_rgba(15,23,42,0.06)] flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-6 h-6 rounded-full overflow-hidden flex items-center justify-center">
@@ -177,7 +204,7 @@ export function StudyOverviewDashboard({
           </div>
 
           {/* Admission Card */}
-          <div className="min-w-[260px] bg-white border border-slate-200 rounded-3xl p-5 shadow-md snap-center flex flex-col justify-between ">
+          <div className="bg-white border border-slate-200 rounded-[28px] p-5 shadow-[0_14px_40px_rgba(15,23,42,0.06)] flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-6 h-6 rounded-full bg-red-100 text-red-500 flex items-center justify-center border border-red-200">
@@ -225,7 +252,7 @@ export function StudyOverviewDashboard({
           </div>
 
           {/* Visa Readiness Card */}
-          <div className="min-w-[260px] bg-white border border-slate-200 rounded-3xl p-5 shadow-md snap-center flex flex-col justify-between">
+          <div className="bg-white border border-slate-200 rounded-[28px] p-5 shadow-[0_14px_40px_rgba(15,23,42,0.06)] flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-6 h-6 rounded-full overflow-hidden flex items-center justify-center">
@@ -277,45 +304,66 @@ export function StudyOverviewDashboard({
           </div>
         </div>
 
-        {/* Improve Chances Banner */}
-        <div className="relative bg-gradient-to-br from-[#fdfbf6] to-[#f4ead9] border border-[#e8dcc4] rounded-3xl p-6 overflow-hidden shadow-sm flex items-center">
-          <div className="relative z-10 w-3/5">
-            <h3 className="text-[32px] font-medium text-slate-900 flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-amber-500" /> Improve Your
-              Chances
-            </h3>
-            <p className="text-[16px] font-regular text-slate-600 mt-2 mb-3">
-              {" "}
-              Follow these steps to boost your success rate.
-            </p>
-            <ul className="text-[16px] font-regular text-slate-800 space-y-1.5 mb-4 ml-1">
-              <li className="flex items-center gap-1.5">
-                <div className="w-1 h-1 bg-slate-900 rounded-full" /> Increase
-                IELTS target
-              </li>
-              <li className="flex items-center gap-1.5">
-                <div className="w-1 h-1 bg-slate-900 rounded-full" /> Apply for
-                safer Unis
-              </li>
-            </ul>
-            <button className="bg-[#3686FF]  text-white font-black text-[16px] px-6 py-2.5 rounded-full shadow-md shadow-blue-500/20 transition-all">
-              View Plan
-            </button>
-          </div>
-          <div className="absolute right-0 bottom-0 w-48 h-48 opacity-100 pointer-events-none translate-x-[5%] translate-y-[5%]">
-            <Image
-              src="/group.png"
-              alt="Improve"
-              fill
-              className="object-contain object-right-bottom"
-            />
+        {/* Final Roadmap */}
+        <div className="relative overflow-hidden rounded-[32px] border border-slate-200 bg-gradient-to-br from-slate-950 via-slate-900 to-[#10213d] p-6 md:p-8 shadow-[0_24px_70px_rgba(15,23,42,0.22)]">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(56,134,255,0.20),transparent_30%),radial-gradient(circle_at_bottom_left,rgba(16,185,129,0.16),transparent_28%)]" />
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center gap-6">
+            <div className="flex-1">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.24em] text-sky-200">
+                <Sparkles className="w-4 h-4" /> Final Roadmap
+              </div>
+              <h3 className="mt-4 text-[28px] md:text-[34px] font-semibold text-white tracking-tight leading-tight max-w-2xl">
+                A focused plan to raise admission chances and keep your costs
+                under control.
+              </h3>
+              <p className="mt-3 max-w-2xl text-[15px] md:text-[16px] leading-relaxed text-slate-300">
+                Use the roadmap below to move from estimate to action in three
+                steps: cost, admission, and visa readiness.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full lg:max-w-[58%]">
+              {roadmapSteps.map((step) => (
+                <button
+                  key={step.title}
+                  onClick={step.action}
+                  className="group text-left rounded-[24px] border border-white/10 bg-white/5 p-4 backdrop-blur-sm transition-transform hover:-translate-y-0.5 hover:bg-white/10"
+                >
+                  <div
+                    className={`h-1.5 w-16 rounded-full bg-gradient-to-r ${step.accent} mb-4`}
+                  />
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">
+                        Step
+                      </p>
+                      <h4 className="mt-1 text-[18px] font-semibold text-white">
+                        {step.title}
+                      </h4>
+                    </div>
+                    <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-white transition-colors" />
+                  </div>
+                  <p className="mt-2 text-[13px] leading-relaxed text-slate-300">
+                    {step.subtitle}
+                  </p>
+                  <div className="mt-4 flex items-center justify-between gap-3">
+                    <span className="text-[13px] font-bold text-white">
+                      {step.detail}
+                    </span>
+                    <span className="text-[12px] font-semibold text-sky-300">
+                      {step.cta}
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
         {/* Recommended Universities */}
         <div>
-          <div className="flex items-center justify-between mb-4">
-            <div>
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 mb-4">
+            <div className="space-y-1">
               <h2 className="text-[20px] font-semibold text-slate-900">
                 Recommended Universities
               </h2>
@@ -325,13 +373,13 @@ export function StudyOverviewDashboard({
             </div>
             <Link
               href="/matches"
-              className="text-[#3686FF] text-[14px] font-regular hover:underline"
+              className="text-[#3686FF] text-[14px] font-semibold hover:underline"
             >
               See All
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-x-auto md:overflow-x-visible pb-4 no-scrollbar -mx-5 px-5 md:mx-0 md:px-0 snap-x">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {matches.slice(0, 3).map((uni, idx) => {
               const costUsd = Math.round(
                 uni.currency === "NPR"
@@ -347,7 +395,7 @@ export function StudyOverviewDashboard({
               return (
                 <div
                   key={idx}
-                  className="min-w-[300px] bg-white border border-slate-200 rounded-[20px] overflow-hidden shadow-sm flex flex-col snap-center"
+                  className="bg-white border border-slate-200 rounded-[24px] overflow-hidden shadow-[0_12px_35px_rgba(15,23,42,0.06)] flex flex-col"
                 >
                   <div className="h-[140px] relative bg-slate-200">
                     <Image
@@ -373,7 +421,7 @@ export function StudyOverviewDashboard({
                         />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-[17px] text-slate-900 leading-tight mb-1 truncate max-w-[200px]">
+                        <h3 className="font-semibold text-[17px] text-slate-900 leading-tight mb-1 truncate max-w-[220px]">
                           {uni.name}
                         </h3>
                         <p className="text-[11px] font-semibold text-slate-500 flex items-center gap-1 uppercase tracking-wide">
@@ -382,8 +430,8 @@ export function StudyOverviewDashboard({
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between mb-5 mt-auto">
-                      <div className="font-semibold text-[15px] text-slate-900">
+                    <div className="flex items-center justify-between gap-3 mb-5 mt-auto">
+                      <div className="font-semibold text-[15px] text-slate-900 leading-tight">
                         {formatNprLakhRange(costNpr, 0.1)}
                         <span className="text-[12px] font-regular text-slate-500">
                           {" "}
@@ -397,7 +445,7 @@ export function StudyOverviewDashboard({
                       </span>
                     </div>
 
-                    <button className="w-full bg-[#3686FF] hover:bg-blue-600 text-white font-semibold text-[14px] py-3 rounded-[12px] shadow-sm mb-3 flex items-center justify-center gap-1.5 transition-all">
+                    <button className="w-full bg-[#3686FF] hover:bg-blue-600 text-white font-semibold text-[14px] py-3 rounded-[14px] shadow-sm mb-3 flex items-center justify-center gap-1.5 transition-all">
                       Select University <span>&rarr;</span>
                     </button>
 
