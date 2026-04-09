@@ -1132,7 +1132,7 @@
 //   );
 // }
 
-
+"use client";
 import HeroSection from "@/components/home/HeroSection";
 import StatsBar from "@/components/home/StatsBar";
 import EverythingSection from "@/components/home/EverythingSection";
