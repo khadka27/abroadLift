@@ -14,7 +14,8 @@
  * We map the band to a numeric range for budget filtering.
  */
 
-const BASE_URL = "https://api.worqnow.ai/education";
+const BASE_URL =
+  process.env.WORQNOW_BASE_URL || "https://api.worqnow.ai/education";
 
 /** Realistic annual international tuition ranges in USD by fee band */
 const FEE_BAND_USD_RANGE: Record<string, { min: number; max: number }> = {

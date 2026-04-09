@@ -38,6 +38,8 @@ function normalizeCountryCode(country: string): string {
   return COUNTRY_ALIAS_TO_CODE[key] || key;
 }
 
+const DEFAULT_COUNTRIES = process.env.POPULAR_STUDY_COUNTRIES || "DE,JP,KR";
+
 interface SearchResult {
   id: string | number;
   name: string;
@@ -51,7 +53,7 @@ interface SearchResult {
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const q = (searchParams.get("q") || "").trim();
-  const countriesParam = searchParams.get("countries") || "USA";
+  const countriesParam = searchParams.get("countries") || DEFAULT_COUNTRIES;
   const selectedCountries = countriesParam
     .split(",")
     .map((c) => normalizeCountryCode(c))

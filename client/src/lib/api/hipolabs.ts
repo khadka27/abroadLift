@@ -1,4 +1,5 @@
-const BASE_URL = "http://universities.hipolabs.com/search";
+const BASE_URL =
+  process.env.HIPOLABS_API_URL || "http://universities.hipolabs.com/search";
 
 const COUNTRY_CODE_TO_NAME: Record<string, string> = {
   US: "United States",

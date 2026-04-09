@@ -38,6 +38,8 @@ function normalizeCountryCode(country: string): string {
   return COUNTRY_ALIAS_TO_CODE[key] || key;
 }
 
+const DEFAULT_COUNTRIES = process.env.POPULAR_STUDY_COUNTRIES || "DE,JP,KR";
+
 function seededInt(seed: string, min: number, max: number) {
   let hash = 0;
   for (let i = 0; i < seed.length; i += 1) {
@@ -228,7 +230,9 @@ function mapHipolabsUniversityToMatch({
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const countriesParam =
-    searchParams.get("countries") || searchParams.get("country") || "USA";
+    searchParams.get("countries") ||
+    searchParams.get("country") ||
+    DEFAULT_COUNTRIES;
   const selectedCountries = countriesParam
     .split(",")
     .map((country) => normalizeCountryCode(country))
