@@ -1140,24 +1140,30 @@ import SolutionsSection from "@/components/home/SolutionsSection";
 import TrustedPartnersSection from "@/components/home/TrustedPartnersSection";
 import AdmissionSection from "@/components/home/AdmissionSection";
 import ConfidenceSection from "@/components/home/ConfidenceSection";
-import CostSection from "@/components/home/CostSection";
+
 import HowItWorksSection from "@/components/home/HowItWorksSection";
 import CTABanner from "@/components/home/CTABanner";
-import GetStartedSection from "@/components/home/GetStartedSection";
+
+import EstimateSection from "@/components/home/EstimateSection";
+import TestimonialsSection from "@/components/home/TestimonialsSection";
+import VisaReadinessSection from "@/components/home/VisaReadinessSection";
 
 const HomePage = () => (
-  <div className="min-h-screen mx-auto max-w-[1440px] px-6 sm:px-8 lg:px-12">
+  <div className="min-h-screen  px-6 sm:px-8 lg:px-12">
     <HeroSection />
     <StatsBar />
     <EverythingSection />
     <SolutionsSection />
+    <EstimateSection />
+    <TestimonialsSection/>
     <TrustedPartnersSection />
     <AdmissionSection />
     <ConfidenceSection />
-    <CostSection />
+    <VisaReadinessSection />
+  
     <HowItWorksSection />
     <CTABanner />
-    <GetStartedSection />
+
   </div>
 );
 

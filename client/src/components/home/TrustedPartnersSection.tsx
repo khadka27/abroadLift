@@ -46,12 +46,12 @@ const TrustedPartnersSection = () => {
   const [activeCountry, setActiveCountry] = useState("Canada");
 
   return (
-    <section className="py-20 bg-background">
-      <div className="container mx-auto px-6 text-center">
-        <span className="text-primary font-semibold text-sm uppercase tracking-wider">
+    <section className="py-24 bg-[#F8FAFF] -mx-6 sm:-mx-8 lg:-mx-12 px-6 sm:px-8 lg:px-12 relative overflow-hidden">
+      <div className="w-full max-w-[1280px] mx-auto text-center relative z-10">
+        <span className="text-[#3686FF] font-medium text-[14px] uppercase tracking-wider">
           TRUSTED PARTNERS
         </span>
-        <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-3 mb-8">
+        <h2 className="text-[34px] md:text-[36px] font-bold text-foreground mt-3 mb-8">
           Trusted by 1,500+ Universities, Colleges
           <br />
           and Schools Worldwide
@@ -62,11 +62,7 @@ const TrustedPartnersSection = () => {
             <button
               key={c.name}
               onClick={() => setActiveCountry(c.name)}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-full border text-sm font-medium transition-colors ${
-                activeCountry === c.name
-                  ? "border-primary bg-primary/5 text-foreground"
-                  : "border-border bg-card text-foreground hover:border-primary/50"
-              }`}
+              className={`flex items-center gap-2 px-[24px] py-[16px] rounded-[10px]  text-[14px] font-regular transition-colors shadow-sm bg-[#F5F5F5] text-[#0f172a]`}
             >
               <span className="text-lg">{c.flag}</span> {c.name}
             </button>
@@ -115,13 +111,13 @@ const TrustedPartnersSection = () => {
                     </p>
                   </div>
                 </div>
-                <Button className="w-full mt-4 rounded-lg">View Details</Button>
+                <Button className="w-full bg-[#3686FF] px-[24px] py-[12px] mt-4 rounded-[10px]">View Details</Button>
               </div>
             </div>
           ))}
         </div>
 
-        <Button size="lg" className="rounded-full px-8 gap-2">
+        <Button size="lg" className="rounded-[10px] bg-[#3686FF] hover:bg-[#3686FF] px-[24px] py-[12px] gap-2">
           Explore More Canadian Institutions <ArrowRight className="w-4 h-4" />
         </Button>
       </div>

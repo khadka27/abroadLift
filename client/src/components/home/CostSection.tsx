@@ -9,7 +9,7 @@ const features = [
 ];
 
 const CostSection = () => (
-  <section className="py-20 relative overflow-hidden" style={{ background: "hsl(var(--light-blue-bg))" }}>
+  <section className="py-20 relative overflow-hidden" >
     {/* Dot pattern top right */}
     <div className="absolute top-10 right-10 grid grid-cols-4 gap-2 opacity-20">
       {Array.from({ length: 16 }).map((_, i) => (

@@ -11,36 +11,53 @@ const features = [
 ];
 
 const SolutionsSection = () => (
-  <section className="py-20 relative overflow-hidden" style={{ background: "hsl(var(--light-blue-bg))" }}>
-    {/* Decorative blob */}
-    <div className="absolute -left-20 top-1/2 -translate-y-1/2 w-64 h-64 rounded-full opacity-30" style={{ background: "hsl(var(--hero-blob))" }} />
+  <section className="relative py-24 bg-[#F8FAFC] overflow-hidden -mx-6 sm:-mx-8 lg:-mx-12 px-6 sm:px-8 lg:px-12">
+    {/* Left Splash Decoration */}
+    <div className="absolute top-[18%] left-[2%] lg:left-[8%] pointer-events-none hidden sm:block rotate-[35deg]">
+      <svg width="58" height="58" viewBox="0 0 48 48" fill="#3686FF">
+        <path d="M12,24 C22,18 40,22 46,24 C40,26 22,30 12,24 Z" />
+        <path d="M16,14 C26,6 42,12 44,16 C34,14 22,12 16,14 Z" />
+        <path d="M18,34 C26,42 42,36 44,32 C34,34 22,36 18,34 Z" opacity="0.8" />
+      </svg>
+    </div>
 
-    <div className="container mx-auto px-6 relative z-10 text-center">
-      <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
+    {/* Right Wave Decoration */}
+
+    <div className="w-full max-w-[1280px] mx-auto relative z-10 text-center">
+      <h2 className="text-[32px] sm:text-[38px] lg:text-[36px] font-semibold text-[#0f172a] mb-2 tracking-tight">
         Find Every Solution, From Applications
       </h2>
-      <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">
+      <h2 className="text-[32px] sm:text-[38px] lg:text-[36px] font-semibold text-[#3686FF] mb-6 tracking-tight">
         to Accommodations
       </h2>
-      <p className="text-muted-foreground max-w-2xl mx-auto mb-12">
-        Access our full 360 Solutions, covering everything from application to arrival. Get instant language test vouchers, explore financial services, and invest in your future with flexible student loans. It&apos;s all here.
+      <p className="text-[#475569] max-w-[800px] mx-auto font-regular mb-14 text-[15px] sm:text-[16px] leading-[1.6]">
+        Access our full 360 Solutions, covering everything from application to arrival. Get instant language
+        test vouchers, explore financial services, and invest in your future with flexible student loans. It's all
+        here.
       </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-[1000px] mx-auto mb-14">
         {features.map((f) => (
-          <div key={f.title} className="bg-card rounded-xl p-6 text-center shadow-sm">
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-              <FileText className="w-5 h-5 text-primary" />
+          <div
+            key={f.title}
+            className="bg-white rounded-[16px] px-6 py-10 text-center shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300 border border-gray-50 flex flex-col items-center"
+          >
+            <div className="w-[42px] h-[42px] rounded-full bg-[#8CBAFD] flex items-center justify-center mb-5 shrink-0">
+              <FileText className="w-[20px] h-[20px] text-white" strokeWidth={2.5} />
             </div>
-            <h3 className="font-bold text-foreground mb-2">{f.title}</h3>
-            <p className="text-muted-foreground text-sm">{f.desc}</p>
+            <h3 className="font-semibold text-[#0f172a] text-[16px] mb-3 tracking-tight">{f.title}</h3>
+            <p className="text-[#475569] font-regular text-[16px] leading-relaxed max-w-[240px] mx-auto">
+              {f.desc}
+            </p>
           </div>
         ))}
       </div>
 
-      <Button size="lg" className="rounded-full px-8 gap-2">
-        Register as a Student <ArrowRight className="w-4 h-4" />
-      </Button>
+      <div className="flex justify-center">
+        <Button className="bg-[#3686FF] text-white px-[24px] py-[12px] rounded-[10px] font-semibold text-[15px] shadow-[0_8px_25px_rgb(51,102,255,0.25)] transition-all hover:scale-105 hover:shadow-[0_8px_30px_rgb(51,102,255,0.35)]">
+          Register as a Student <ArrowRight className="w-5 h-5 ml-1.5" />
+        </Button>
+      </div>
     </div>
   </section>
 );

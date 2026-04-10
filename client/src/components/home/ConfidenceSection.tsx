@@ -2,8 +2,8 @@ import { Wrench, ListChecks, ShieldCheck, Smartphone } from "lucide-react";
 import Image from "next/image";
 
 const ConfidenceSection = () => (
-  <section className="py-20 bg-card">
-    <div className="container mx-auto px-6">
+  <section className="py-20 bg-blue-50/50 -mx-6 sm:-mx-8 lg:-mx-12 px-6 sm:px-8 lg:px-12 relative overflow-hidden">
+    <div className="w-full max-w-[1280px] mx-auto relative z-10">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between mb-12 gap-8">
         <div className="max-w-xl">
@@ -16,7 +16,7 @@ const ConfidenceSection = () => (
             decide, prepare, and apply with confidence.
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center  gap-3">
           <div className="flex -space-x-2">
             {[1, 2, 3].map((i) => (
               <div

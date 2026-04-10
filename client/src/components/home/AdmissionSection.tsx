@@ -9,64 +9,104 @@ const points = [
   "Profile-based recommendations",
 ];
 
-const AdmissionSection = () => (
-  <section
-    className="py-20 relative overflow-hidden"
-    style={{ background: "hsl(var(--light-blue-bg))" }}
-  >
-    {/* Decorative circles */}
-    <div className="absolute top-10 left-10 w-48 h-48 rounded-full border-2 border-border opacity-30" />
-    <div className="absolute top-20 left-20 w-32 h-32 rounded-full border-2 border-border opacity-20" />
+const DecorativeSplash = () => (
+  <svg width="40" height="40" viewBox="0 0 40 40" fill="none" className="absolute -top-16 left-0 mix-blend-multiply opacity-80 z-20">
+    <path d="M22 6C22 13 14 18 6 22C14 26 22 31 22 38C22 31 30 26 38 22C30 18 22 13 22 6Z" fill="#3686FF" />
+  </svg>
+);
 
-    <div className="container mx-auto px-6">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-        {/* Left - Image */}
-        <div className="relative flex justify-center">
-          <div className="relative">
-            <div
-              className="absolute inset-0 rounded-full"
-              style={{ background: "hsl(var(--hero-blob))" }}
-            />
+const AdmissionSection = () => (
+  <section className="py-18  relative overflow-hidden">
+    {/* Decorative Top-Left Circles */}
+    <svg width="200" height="200" viewBox="0 0 200 200" fill="none" className="absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+      <circle cx="100" cy="100" r="140" stroke="#E2E8F0" strokeWidth="4" />
+      <circle cx="100" cy="100" r="180" stroke="#E2E8F0" strokeWidth="4" />
+    </svg>
+
+    <div className="container max-w-[1280px] mx-auto px-6 lg:px-12 relative z-10 w-full h-full">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        
+        {/* Left - Image Grid Wrapper aligned to sit flush on bottom edge via negative margin */}
+        <div className="relative w-full max-w-[550px] mx-auto lg:mr-auto lg:ml-0 flex justify-center lg:justify-start -mb-24 mt-8 lg:mt-0">
+          <div className="relative w-full max-w-[380px] h-[480px]">
+            {/* Custom SVG Blob perfectly mirroring the referenced design */}
+            <div className="absolute inset-x-0 bottom-0 top-[20px] -z-10 translate-x-[5%] pointer-events-none">
+               <svg 
+                width="100%" 
+                height="100%" 
+                viewBox="0 0 400 480" 
+                preserveAspectRatio="none"
+              >
+                 <defs>
+                  <linearGradient id="blobGrad" x1="0.5" y1="0" x2="0.5" y2="1">
+                    <stop offset="0%" stopColor="#3686FF" />
+                    <stop offset="65%" stopColor="#7DAEFF" />
+                    <stop offset="100%" stopColor="#F8FAFF" stopOpacity="0" />
+                  </linearGradient>
+                </defs>
+                <path 
+                  d="M 0 0 
+                     H 260 
+                     A 50 50 0 0 1 310 50 
+                     V 160 
+                     C 310 220, 400 180, 400 250 
+                     V 430 
+                     A 50 50 0 0 1 350 480 
+                     H 0 
+                     V 0 Z" 
+                  fill="url(#blobGrad)"
+                />
+              </svg>
+            </div>
+            
             <Image
               src="/assets/graduate-woman.png"
-              alt="Graduate student"
-              width={256}
-              height={320}
-              className="relative z-10 w-72 md:w-80 h-auto object-contain"
+              alt="Understand Admission Probability"
+              fill
+              className="object-contain object-bottom block"
+              priority
             />
           </div>
         </div>
 
         {/* Right - Content */}
-        <div>
-          {/* Decorative icon */}
-          <div className="text-primary text-3xl mb-4">✦</div>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+        <div className="max-w-[540px] relative z-10 mx-auto lg:mx-0 mt-8 md:mt-16 lg:mt-10 text-left">
+          {/* Splash Decor */}
+         
+          
+          <h2 className="text-[30px] sm:text-[33px] lg:text-[36px] font-bold text-[#0f172a] leading-[1.1] mb-3 tracking-tight">
             Understand Your Admission Probability
           </h2>
-          <p className="text-muted-foreground mb-8">
+          <p className="text-[#334155] text-[15px] sm:text-[16px] mb-6 leading-relaxed font-regular">
             Know where you are competitive before spending time and money on
             applications.
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-            {points.map((p) => (
-              <div key={p} className="flex items-start gap-2">
-                <CheckCircle2 className="w-5 h-5 text-primary mt-0.5 shrink-0" />
-                <span className="text-foreground font-medium text-sm">{p}</span>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4 mb-8 max-w-[650px]">
+             {points.map((p) => (
+              <div key={p} className="flex items-start gap-4">
+                <CheckCircle2
+                  className="w-[20px] h-[20px] text-[#3686FF] mt-[2px] shrink-0"
+                  strokeWidth={2.5}
+                />
+                <span className="text-[#0f172a] font-semibold text-[16px]">
+                  {p}
+                </span>
               </div>
             ))}
           </div>
-          <Button size="lg" className="rounded-full px-8 gap-2">
-            Get Started Now <ArrowRight className="w-4 h-4" />
+
+          <Button className="bg-[#3686FF] text-white px-[24px] py-[12px] h-auto rounded-[10px] font-semibold text-[15px] shadow-[0_8px_30px_rgb(51,102,255,0.3)] transition-all hover:scale-105 hover:shadow-[0_8px_35px_rgb(51,102,255,0.4)]">
+            Get Started Now <ArrowRight className="w-5 h-5 ml-1.5" strokeWidth={2.5} />
           </Button>
         </div>
       </div>
     </div>
 
-    {/* Dot pattern */}
-    <div className="absolute bottom-10 right-10 grid grid-cols-4 gap-2 opacity-20">
-      {Array.from({ length: 16 }).map((_, i) => (
-        <div key={i} className="w-2 h-2 rounded-full bg-primary" />
+    {/* Bottom Right Dot Pattern */}
+    <div className="absolute bottom-12 right-12 grid grid-rows-3 grid-cols-5 gap-2.5 opacity-60 pointer-events-none">
+      {Array.from({ length: 15 }).map((_, i) => (
+        <div key={i} className="w-[5px] h-[5px] rounded-full bg-[#A5C6FF]" />
       ))}
     </div>
   </section>
