@@ -2,12 +2,12 @@ import { Wrench, ListChecks, ShieldCheck, Smartphone } from "lucide-react";
 import Image from "next/image";
 
 const ConfidenceSection = () => (
-  <section className="py-20 bg-blue-50/50 -mx-6 sm:-mx-8 lg:-mx-12 px-6 sm:px-8 lg:px-12 relative overflow-hidden">
+  <section className="py-12 bg-blue-50/50 -mx-6 sm:-mx-8 lg:-mx-12 px-6 sm:px-8 lg:px-12 relative overflow-hidden">
     <div className="w-full max-w-[1280px] mx-auto relative z-10">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between mb-12 gap-8">
         <div className="max-w-xl">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+          <h2 className="text-[32px] sm:text-[36px] lg:text-[40px] font-bold text-foreground mb-4">
             Apply on Your Own with Confidence
           </h2>
           <p className="text-muted-foreground">

@@ -16,7 +16,7 @@ const DecorativeSplash = () => (
 );
 
 const AdmissionSection = () => (
-  <section className="py-18  relative overflow-hidden">
+  <section className="py-10 relative overflow-hidden">
     {/* Decorative Top-Left Circles */}
     <svg width="200" height="200" viewBox="0 0 200 200" fill="none" className="absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
       <circle cx="100" cy="100" r="140" stroke="#E2E8F0" strokeWidth="4" />
@@ -74,7 +74,7 @@ const AdmissionSection = () => (
           {/* Splash Decor */}
          
           
-          <h2 className="text-[30px] sm:text-[33px] lg:text-[36px] font-bold text-[#0f172a] leading-[1.1] mb-3 tracking-tight">
+          <h2 className="text-[32px] sm:text-[34px] lg:text-[40px] font-bold text-[#0f172a] leading-[1.1] mb-3 tracking-tight">
             Understand Your Admission Probability
           </h2>
           <p className="text-[#334155] text-[15px] sm:text-[16px] mb-6 leading-relaxed font-regular">

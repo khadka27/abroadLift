@@ -11,7 +11,7 @@ const features = [
 ];
 
 const SolutionsSection = () => (
-  <section className="relative py-24 bg-[#F8FAFC] overflow-hidden -mx-6 sm:-mx-8 lg:-mx-12 px-6 sm:px-8 lg:px-12">
+  <section className="relative py-14 bg-[#F8FAFC] overflow-hidden -mx-6 sm:-mx-8 lg:-mx-12 px-6 sm:px-8 lg:px-12">
     {/* Left Splash Decoration */}
     <div className="absolute top-[18%] left-[2%] lg:left-[8%] pointer-events-none hidden sm:block rotate-[35deg]">
       <svg width="58" height="58" viewBox="0 0 48 48" fill="#3686FF">
@@ -24,10 +24,10 @@ const SolutionsSection = () => (
     {/* Right Wave Decoration */}
 
     <div className="w-full max-w-[1280px] mx-auto relative z-10 text-center">
-      <h2 className="text-[32px] sm:text-[38px] lg:text-[36px] font-semibold text-[#0f172a] mb-2 tracking-tight">
+      <h2 className="text-[32px] sm:text-[36px] lg:text-[40px] font-semibold text-[#0f172a] mb-2 tracking-tight">
         Find Every Solution, From Applications
       </h2>
-      <h2 className="text-[32px] sm:text-[38px] lg:text-[36px] font-semibold text-[#3686FF] mb-6 tracking-tight">
+      <h2 className="text-[32px] sm:text-[36px] lg:text-[40px] font-semibold text-[#3686FF] mb-6 tracking-tight">
         to Accommodations
       </h2>
       <p className="text-[#475569] max-w-[800px] mx-auto font-regular mb-14 text-[15px] sm:text-[16px] leading-[1.6]">
