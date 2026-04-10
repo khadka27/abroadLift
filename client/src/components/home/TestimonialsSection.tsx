@@ -58,7 +58,7 @@ const TestimonialsSection = () => {
         <h2 className="text-[32px] sm:text-[34px] lg:text-[36px] font-bold text-[#0f172a] mb-4 tracking-tight">
           What Our Students Have to Say
         </h2>
-        <p className="text-[#475569] text-[15px] sm:text-[16px] mb-10 font-regular">
+        <p className="text-[#475569] text-[15px] sm:text-[16px] mb-11 font-regular">
           Hear from real international students about their experience.
         </p>
 

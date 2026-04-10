@@ -49,9 +49,9 @@ const costItems = [
 ];
 
 const EstimateSection = () => (
-  <section className="py-20 bg-white -mx-6 sm:-mx-8 lg:-mx-12">
+  <section className="py-14 bg-white -mx-6 sm:-mx-8 lg:-mx-12">
     <div className="w-full max-w-[1280px] mx-auto px-6 lg:px-12 text-center">
-      <h2 className="text-[32px] sm:text-[36px] lg:text-[40px] font-bold text-[#0f172a] mb-4 tracking-tight">
+      <h2 className="text-[32px] sm:text-[36px] lg:text-[40px] font-semibold text-[#0f172a] mb-4 tracking-tight">
         Estimate You Need to Plan and Self-Apply
       </h2>
       <p className="text-[#475569] text-[15px] sm:text-[16px] font-regular mb-16">

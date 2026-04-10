@@ -4,7 +4,12 @@ import { Button } from "@/components/ui/button";
 
 const EverythingSection = () => (
   <section className="relative py-8 bg-white overflow-hidden">
-    <div className="container max-w-[1280px] mx-auto px-6 lg:px-12 relative z-10 flex items-center">
+    <div className="container max-w-[1280px] mx-auto px-6 lg:px-12 relative z-10">
+      {/* Mobile Title - Shows first on small screens */}
+      <h2 className="lg:hidden text-[32px] sm:text-[34px] font-semibold text-[#0f172a] leading-[1.1] mb-10 tracking-tight text-center">
+        Everything You Need to Plan and Self-Apply
+      </h2>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 lg:gap-34 items-center">
         {/* Left - Images Grid */}
         <div className="relative w-full max-w-[550px] mx-auto lg:mr-auto lg:ml-0 mt-2 lg:mt-0">
@@ -40,11 +45,11 @@ const EverythingSection = () => (
         </div>
 
         {/* Right - Content */}
-        <div className="max-w-[540px] relative z-10 mx-auto lg:mx-0 mt-16 md:mt-24 lg:mt-0">
-          <h2 className="text-[32px] sm:text-[34px] lg:text-[40px] font-bold text-[#0f172a] leading-[1.1] mb-6 tracking-tight">
+        <div className="max-w-[540px] relative z-10 mx-auto lg:mx-0 mt-3 md:mt-24 lg:mt-0">
+          <h2 className="hidden lg:block text-[32px] lg:text-[40px] font-bold text-[#0f172a] leading-[1.1] mb-6 tracking-tight">
             Everything You Need to Plan and Self-Apply
           </h2>
-          <p className="text-[#334155] text-[15px] sm:text-[16px] mb-8 leading-relaxed font-regular">
+          <p className="text-[#334155] text-[16px] sm:text-[16px] mb-8 leading-relaxed font-regular text-center lg:text-left">
             AbroadLift is built for students who want clarity before they apply.
             Get a step-by-step system that works like a digital study abroad
             counsellor.
@@ -66,9 +71,11 @@ const EverythingSection = () => (
               </li>
             ))}
           </ul>
-          <Button className="bg-[#3686FF]  text-white px-[24px] py-[12px] rounded-[10px] font-semibold text-[15px] shadow-[0_8px_30px_rgb(51,102,255,0.3)] transition-all hover:scale-105 hover:shadow-[0_8px_35px_rgb(51,102,255,0.4)]">
-            Create an Student Account <ArrowRight className="w-5 h-5 ml-1.5" />
-          </Button>
+          <div className="flex justify-center lg:justify-start">
+            <Button className="bg-[#3686FF]  text-white px-[24px] py-[12px] rounded-[10px] font-semibold text-[15px] shadow-[0_8px_30px_rgb(51,102,255,0.3)] transition-all hover:scale-105 hover:shadow-[0_8px_35px_rgb(51,102,255,0.4)]">
+              Create an Student Account <ArrowRight className="w-5 h-5 ml-1.5" />
+            </Button>
+          </div>
         </div>
       </div>
     </div>

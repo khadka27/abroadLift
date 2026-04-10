@@ -24,6 +24,11 @@ const AdmissionSection = () => (
     </svg>
 
     <div className="container max-w-[1280px] mx-auto px-6 lg:px-12 relative z-10 w-full h-full">
+      {/* Mobile Title - Shows first on small screens */}
+      <h2 className="lg:hidden text-[32px] sm:text-[34px] font-bold text-[#0f172a] leading-[1.1] mb-8 tracking-tight text-center">
+        Understand Your Admission Probability
+      </h2>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
         
         {/* Left - Image Grid Wrapper aligned to sit flush on bottom edge via negative margin */}
@@ -71,13 +76,11 @@ const AdmissionSection = () => (
 
         {/* Right - Content */}
         <div className="max-w-[540px] relative z-10 mx-auto lg:mx-0 mt-8 md:mt-16 lg:mt-10 text-left">
-          {/* Splash Decor */}
-         
-          
-          <h2 className="text-[32px] sm:text-[34px] lg:text-[40px] font-bold text-[#0f172a] leading-[1.1] mb-3 tracking-tight">
+          {/* Desktop Title - Hidden on mobile */}
+          <h2 className="hidden lg:block text-[32px] lg:text-[40px] font-bold text-[#0f172a] leading-[1.1] mb-3 tracking-tight">
             Understand Your Admission Probability
           </h2>
-          <p className="text-[#334155] text-[15px] sm:text-[16px] mb-6 leading-relaxed font-regular">
+          <p className="text-[#334155] text-[15px] sm:text-[16px] mb-6 leading-relaxed font-regular text-center lg:text-left">
             Know where you are competitive before spending time and money on
             applications.
           </p>
@@ -96,9 +99,11 @@ const AdmissionSection = () => (
             ))}
           </div>
 
-          <Button className="bg-[#3686FF] text-white px-[24px] py-[12px] h-auto rounded-[10px] font-semibold text-[15px] shadow-[0_8px_30px_rgb(51,102,255,0.3)] transition-all hover:scale-105 hover:shadow-[0_8px_35px_rgb(51,102,255,0.4)]">
-            Get Started Now <ArrowRight className="w-5 h-5 ml-1.5" strokeWidth={2.5} />
-          </Button>
+          <div className="flex justify-center lg:justify-start">
+            <Button className="bg-[#3686FF] text-white px-[24px] py-[12px] h-auto rounded-[10px] font-semibold text-[15px] shadow-[0_8px_30px_rgb(51,102,255,0.3)] transition-all hover:scale-105 hover:shadow-[0_8px_35px_rgb(51,102,255,0.4)]">
+              Get Started Now <ArrowRight className="w-5 h-5 ml-1.5" strokeWidth={2.5} />
+            </Button>
+          </div>
         </div>
       </div>
     </div>
