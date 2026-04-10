@@ -26,7 +26,7 @@ const DecorativeSplash = () => (
 );
 
 const AdmissionSection = () => (
-  <section className="py-18  relative overflow-hidden">
+  <section className="py-10 relative overflow-hidden">
     {/* Decorative Top-Left Circles */}
     <svg
       width="200"

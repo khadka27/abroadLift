@@ -93,14 +93,14 @@ const HeroSection = () => {
 
       {/* Main content */}
       <div className="relative z-10 w-full max-w-[1280px] mx-auto px-6 lg:px-12 flex-grow flex flex-col">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 flex-grow">
+        <div className="flex flex-col-reverse lg:grid lg:grid-cols-2 gap-3 lg:gap-8 flex-grow">
           {/* Left content */}
           <div className="flex flex-col justify-center  max-w-[580px] mt-10 lg:mt-0 lg:translate-y-10 xl:translate-x-4">
             <h1 className="text-[35px] sm:text-[37px] lg:text-[40px] font-bold text-[#0f172a] leading-[1.1] mb-6 tracking-tight">
               Match, Plan and Self-Apply
               <br className="hidden lg:block" /> with Confidence
             </h1>
-            <p className="text-[#334155] text-[16px] sm:text-[17px] mb-8 leading-relaxed max-w-[450px] font-regular">
+            <p className="text-[#334155] text-[16px] sm:text-[17px] mb-8 leading-relaxed max-w-[450px] font-regular text-center sm:text-left mx-auto sm:mx-0">
               Find the right colleges, estimate your total cost, check your
               admission chances, and track your visa readiness
             </p>

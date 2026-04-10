@@ -72,7 +72,7 @@ const VisaReadinessSection = () => {
           <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-blue-50/50 text-[#3686FF] font-semibold tracking-wider text-[14px] uppercase mb-6 shadow-sm">
             RECRUITMENT PARTNERS
           </div>
-          <h2 className="text-[32px] md:text-[34px] lg:text-[36px] font-bold text-[#0f172a] leading-[1.1] mb-5 tracking-tight">
+          <h2 className="text-[32px] sm:text-[36px] lg:text-[40px] font-bold text-[#0f172a] leading-[1.1] mb-5 tracking-tight">
             Track Your Visa Readiness
           </h2>
           <p className="text-[#475569] text-[16px] leading-relaxed font-regular">

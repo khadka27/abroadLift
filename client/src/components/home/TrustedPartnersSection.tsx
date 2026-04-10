@@ -51,7 +51,7 @@ const TrustedPartnersSection = () => {
         <span className="text-[#3686FF] font-medium text-[14px] uppercase tracking-wider">
           TRUSTED PARTNERS
         </span>
-        <h2 className="text-[34px] md:text-[36px] font-bold text-foreground mt-3 mb-8">
+        <h2 className="text-[32px] sm:text-[36px] lg:text-[40px] font-bold text-foreground mt-3 mb-8">
           Trusted by 1,500+ Universities, Colleges
           <br />
           and Schools Worldwide

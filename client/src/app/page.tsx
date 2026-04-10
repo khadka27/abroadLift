@@ -410,8 +410,8 @@
 //       <TestimonialCarousel />
 
 //       {/* ── TRUSTED UNIVERSITIES SECTION ── */}
-//       <section className="py-24 px-6 lg:px-12 bg-white">
-//         <div className="max-w-[1280px] mx-auto">
+//       <section className="py-24 bg-white relative -mx-6 sm:-mx-8 lg:-mx-12">
+//         <div className="w-full max-w-[1280px] mx-auto px-6 text-center">
 //           <div className="text-center mb-16 fade-up">
 //             <h3 className="text-[#3366FF] font-black tracking-[0.2em] uppercase text-xs mb-4">
 //               Trusted Partners

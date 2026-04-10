@@ -4,11 +4,11 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 const EverythingSection = () => (
-  <section className="relative py-18 bg-white overflow-hidden">
-    <div className="container max-w-[1280px] mx-auto px-6 lg:px-12 relative z-10 hidden md:block lg:flex lg:items-center">
+  <section className="relative py-8 bg-white overflow-hidden">
+    <div className="container max-w-[1280px] mx-auto px-6 lg:px-12 relative z-10 flex items-center">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 lg:gap-34 items-center">
         {/* Left - Images Grid */}
-        <div className="relative w-full max-w-[550px] mx-auto lg:mr-auto lg:ml-0 mt-8 lg:mt-0">
+        <div className="relative w-full max-w-[550px] mx-auto lg:mr-auto lg:ml-0 mt-2 lg:mt-0">
           {/* Main rectangular image */}
           <div className="relative w-[380px] sm:w-[450px] h-[280px] sm:h-[320px]">
             <Image
@@ -44,7 +44,7 @@ const EverythingSection = () => (
 
         {/* Right - Content */}
         <div className="max-w-[540px] relative z-10 mx-auto lg:mx-0 mt-16 md:mt-24 lg:mt-0">
-          <h2 className="text-[30px] sm:text-[33px] lg:text-[36px] font-bold text-[#0f172a] leading-[1.1] mb-6 tracking-tight">
+          <h2 className="text-[32px] sm:text-[34px] lg:text-[40px] font-bold text-[#0f172a] leading-[1.1] mb-6 tracking-tight">
             Everything You Need to Plan and Self-Apply
           </h2>
           <p className="text-[#334155] text-[15px] sm:text-[16px] mb-8 leading-relaxed font-regular">
