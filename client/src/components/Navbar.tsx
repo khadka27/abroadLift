@@ -142,15 +142,15 @@ export default function Navbar() {
               <li key={l.label} className="relative group py-4">
                 <Link
                   href={l.href}
-                  className={`text-[15px] font-semibold tracking-tight transition-all flex items-center gap-1.5 hover:text-blue-600! ${
-                    scrolled ? "text-blue-600!" : "text-blue-700!"
+                  className={`text-[15px] font-medium tracking-tight transition-all flex items-center gap-1.5 ${
+                    scrolled ? "text-black!" : "text-black!"
                   }`}
                 >
                   {l.label}
                   {l.hasDropdown && (
                     <ChevronDown
                       className={`w-4 h-4 transition-transform group-hover:rotate-180 ${
-                        scrolled ? "text-blue-400!" : "text-blue-500!"
+                        scrolled ? "text-black!" : "text-black!"
                       }`}
                     />
                   )}
@@ -202,8 +202,8 @@ export default function Navbar() {
                   href="/profile"
                   className={`p-2 rounded-xl transition-all ${
                     scrolled
-                      ? "text-blue-600! hover:bg-slate-50 hover:text-blue-700!"
-                      : "text-blue-700! hover:bg-slate-50 hover:text-blue-600!"
+                      ? "text-black"
+                      : "text-black"
                   }`}
                 >
                   <User className="w-6 h-6 outline-none" strokeWidth={1.5} />
@@ -211,7 +211,7 @@ export default function Navbar() {
 
                 <Link
                   href="/matches"
-                  className="flex items-center gap-2 bg-[#3366FF] text-white font-bold px-7 py-3 rounded-2xl text-[15px] shadow-xl shadow-blue-500/25 hover:bg-[#2952CC] hover:-translate-y-0.5 transition-all duration-300 active:scale-95"
+                  className="flex items-center gap-2 bg-[#3686FF] text-white font-bold px-7 py-3 rounded-2xl text-[15px] shadow-xl shadow-blue-500/25 hover:bg-[#2952CC] hover:-translate-y-0.5 transition-all duration-300 active:scale-95"
                 >
                   Get Started
                   <ArrowRight className="w-4 h-4" />
@@ -220,14 +220,14 @@ export default function Navbar() {
             ) : (
               <Link
                 href={`/login?callbackUrl=${encodeURIComponent(pathname)}`}
-                className="flex items-center gap-2 bg-[#3366FF] text-white font-bold px-7 py-3 rounded-2xl text-[15px] shadow-xl shadow-blue-500/25 hover:bg-[#2952CC] hover:-translate-y-0.5 transition-all duration-300 active:scale-95"
+                className="flex items-center gap-2 bg-[#3686FF] text-white font-bold px-[24px] py-[12px] rounded-2xl text-[15px] shadow-xl shadow-blue-500/25 hover:-translate-y-0.5 transition-all duration-300 active:scale-95"
               >
                 Login
               </Link>
             )}
           </div>
 
-          {/* Mobileburger (Hidden by default, used for secondary menu if needed, but we'll focus on the bottom nav) */}
+          {/* Mobile hamburger */}
           <button
             className={`lg:hidden w-11 h-11 flex justify-center items-center rounded-2xl border transition-all shadow-sm bg-white border-gray-100 text-gray-900`}
             onClick={() => setMobileOpen(!mobileOpen)}
@@ -240,7 +240,7 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* Mobile drawer (Backup for deep links) */}
+        {/* Mobile drawer */}
         {mobileOpen && (
           <div className="lg:hidden absolute top-full left-0 w-full border-b border-gray-100 bg-white px-6 py-10 flex flex-col gap-6 shadow-2xl animate-fade-in-nav">
             {NAV_LINKS.map((l) => (
@@ -289,66 +289,6 @@ export default function Navbar() {
           </div>
         )}
       </nav>
-      {/* Mobile Floating Bottom Nav */}
-      <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[95%] max-w-[440px] z-50 h-20 bg-white rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-gray-100 flex items-center justify-around px-2">
-        {/* Animated Notch/Cutout (SVG for the smooth curve) */}
-        <div
-          className="absolute top-0 h-full transition-all duration-500 ease-out pointer-events-none"
-          style={{
-            left: `${activeMobileTabIndex * 20 + 10}%`,
-            width: "20%",
-            transform: "translateX(-50%)",
-          }}
-        >
-          {/* The Notch SVG */}
-          <div className="absolute -top-[18px] left-1/2 -translate-x-1/2 w-[70px] h-[30px]">
-            <svg
-              viewBox="0 0 70 30"
-              className="w-full h-full fill-white drop-shadow-[0_-5px_5px_rgba(0,0,0,0.02)]"
-            >
-              <path d="M0 30 C15 30 15 0 35 0 C55 0 55 30 70 30 L0 30 Z" />
-            </svg>
-            {/* The Indicator Dot */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-blue-600 rounded-full shadow-[0_0_10px_rgba(51,102,255,0.8)]" />
-          </div>
-        </div>
-
-        {mobileTabs.map((tab) => {
-          const isActive = pathname === tab.href;
-          const Icon = tab.icon;
-
-          return (
-            <Link
-              key={tab.label}
-              href={tab.href}
-              className="relative flex flex-col items-center justify-center w-1/5 h-full z-10"
-            >
-              <div
-                className={`transition-all duration-500 ${
-                  isActive
-                    ? "text-[#3366FF] -translate-y-4 scale-110"
-                    : "text-gray-400"
-                }`}
-              >
-                <Icon
-                  size={isActive ? 28 : 24}
-                  strokeWidth={isActive ? 2.5 : 2}
-                />
-              </div>
-
-              <span
-                className={`text-[9px] font-bold absolute bottom-3 transition-all duration-300 ${
-                  isActive
-                    ? "text-[#3366FF] opacity-100 scale-100"
-                    : "text-gray-400 opacity-0 scale-50"
-                }`}
-              >
-                {tab.label}
-              </span>
-            </Link>
-          );
-        })}
-      </div>
     </>
   );
 }

@@ -6,9 +6,9 @@ const steps = [
 ];
 
 const HowItWorksSection = () => (
-  <section className="py-24 bg-white relative">
-    <div className="container max-w-[1280px] mx-auto px-6 text-center">
-      <h2 className="text-[34px] md:text-[36px] font-bold text-[#0B1A30] mb-4 tracking-tight">
+  <section className="py-24 bg-white relative -mx-6 sm:-mx-8 lg:-mx-12">
+    <div className="w-full max-w-[1280px] mx-auto px-6 text-center">
+      <h2 className="text-[32px] sm:text-[36px] lg:text-[40px] font-bold text-[#0B1A30] mb-4 tracking-tight">
         How AbroadLift Works
       </h2>
       <p className="text-[#475569] text-[16px] font-regular mb-20">
