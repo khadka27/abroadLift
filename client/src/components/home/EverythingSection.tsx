@@ -1,5 +1,6 @@
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 const EverythingSection = () => (
@@ -33,7 +34,9 @@ const EverythingSection = () => (
             <div className="w-full h-full rounded-full bg-[#2761B8] flex flex-col items-center justify-center text-white">
               <span className="text-[34px] font-[900] leading-[1.1]">95%</span>
               <span className="text-[12px] font-semibold text-center leading-[1.2] mt-0.5 tracking-wide">
-                Acceptance<br />Rate
+                Acceptance
+                <br />
+                Rate
               </span>
             </div>
           </div>
@@ -66,21 +69,19 @@ const EverythingSection = () => (
               </li>
             ))}
           </ul>
-          <Button className="bg-[#3686FF]  text-white px-[24px] py-[12px] rounded-[10px] font-semibold text-[15px] shadow-[0_8px_30px_rgb(51,102,255,0.3)] transition-all hover:scale-105 hover:shadow-[0_8px_35px_rgb(51,102,255,0.4)]">
-            Create an Student Account <ArrowRight className="w-5 h-5 ml-1.5" />
-          </Button>
+          <Link href="/register">
+            <Button className="bg-[#3686FF]  text-white px-[24px] py-[12px] rounded-[10px] font-semibold text-[15px] shadow-[0_8px_30px_rgb(51,102,255,0.3)] transition-all hover:scale-105 hover:shadow-[0_8px_35px_rgb(51,102,255,0.4)]">
+              Create an Student Account{" "}
+              <ArrowRight className="w-5 h-5 ml-1.5" />
+            </Button>
+          </Link>
         </div>
       </div>
     </div>
 
     {/* Faint Book Wireframe background graphic absolute bottom-right */}
     <div className="absolute bottom-[-5%] right-[-5%] pointer-events-none z-0 hidden lg:block opacity-60">
-      <svg
-        width="380"
-        height="280"
-        viewBox="0 0 380 280"
-        fill="none"
-      >
+      <svg width="380" height="280" viewBox="0 0 380 280" fill="none">
         <path
           d="M 60 220 C 120 230, 160 220, 190 200 C 220 220, 260 230, 320 220 L 320 100 C 260 110, 220 100, 190 80 C 160 100, 120 110, 60 100 Z"
           stroke="#E5EFFF"

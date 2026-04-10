@@ -42,7 +42,12 @@ const HeroSection = () => {
 
       {/* 3. Bottom dots burst */}
       <div className="absolute bottom-[5%] left-[24%] pointer-events-none z-0 hidden md:block">
-        <svg width="150" height="150" viewBox="0 0 150 150" className="opacity-70">
+        <svg
+          width="150"
+          height="150"
+          viewBox="0 0 150 150"
+          className="opacity-70"
+        >
           <g fill="#90B7FF">
             {/* Center dot */}
             <circle cx="75" cy="75" r="3" />
@@ -92,7 +97,8 @@ const HeroSection = () => {
           {/* Left content */}
           <div className="flex flex-col justify-center  max-w-[580px] mt-10 lg:mt-0 lg:translate-y-10 xl:translate-x-4">
             <h1 className="text-[35px] sm:text-[37px] lg:text-[40px] font-bold text-[#0f172a] leading-[1.1] mb-6 tracking-tight">
-              Match, Plan and Self-Apply<br className="hidden lg:block" /> with Confidence
+              Match, Plan and Self-Apply
+              <br className="hidden lg:block" /> with Confidence
             </h1>
             <p className="text-[#334155] text-[16px] sm:text-[17px] mb-8 leading-relaxed max-w-[450px] font-regular">
               Find the right colleges, estimate your total cost, check your
@@ -100,20 +106,26 @@ const HeroSection = () => {
             </p>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 sm:gap-8 mb-10">
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-[18px] h-[18px] text-[#22C55E]" strokeWidth={2.5} />
+                <CheckCircle2
+                  className="w-[18px] h-[18px] text-[#22C55E]"
+                  strokeWidth={2.5}
+                />
                 <span className="text-[#37C533] font-semibold text-[13px] uppercase tracking-wide">
                   160+ Countries
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-[18px] h-[18px] text-[#EF4444]" strokeWidth={2.5} />
+                <CheckCircle2
+                  className="w-[18px] h-[18px] text-[#EF4444]"
+                  strokeWidth={2.5}
+                />
                 <span className="text-[#FF0000] font-semibold text-[13px] uppercase tracking-wide">
                   1000+ Universities
                 </span>
               </div>
             </div>
             <div>
-              <Link href="/register">
+              <Link href="/matches">
                 <Button className="bg-[#3686FF]text-white px-[24px] py-[12px] rounded-[10px] font-semibold text-[16px] gap-2 shadow-[0_8px_30px_rgb(51,102,255,0.3)] transition-all hover:scale-105 hover:shadow-[0_8px_35px_rgb(51,102,255,0.4)]">
                   Get Started <ArrowRight className="w-5 h-5 ml-1" />
                 </Button>
@@ -144,4 +156,3 @@ const HeroSection = () => {
 };
 
 export default HeroSection;
-
