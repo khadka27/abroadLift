@@ -19,6 +19,11 @@ export const publicRoutes = [
   "/visa-rate",
   "/register",
   "/login",
+  "/legal",
+  "/terms",
+  "/privacy-policy",
+  "/cookie-policy",
+  "/disclaimer",
 ] as const;
 
 export function absoluteUrl(path = "/") {

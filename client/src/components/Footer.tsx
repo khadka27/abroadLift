@@ -35,6 +35,13 @@ const FOOTER_LINKS = {
     },
     { href: "https://api.data.gov", label: "Data.gov" },
   ],
+  Legal: [
+    { href: "/legal", label: "Legal Center" },
+    { href: "/terms", label: "Terms and Conditions" },
+    { href: "/privacy-policy", label: "Privacy Policy" },
+    { href: "/cookie-policy", label: "Cookie Policy" },
+    { href: "/disclaimer", label: "Disclaimer" },
+  ],
 };
 
 const BADGES = [
@@ -55,7 +62,7 @@ export default function Footer() {
 
       <div className="relative max-w-[1200px] mx-auto px-6">
         {/* Top grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[2.5fr_1fr_1fr_1fr] gap-12 lg:gap-8 mb-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[2.2fr_repeat(4,minmax(0,1fr))] gap-12 lg:gap-8 mb-16">
           {/* Brand column */}
           <div className="max-w-xs">
             <Link href="/" className="group mb-8 block w-fit no-underline">
