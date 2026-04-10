@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ArrowRight, MapPin, Calendar, Award } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 const countries = [
@@ -111,15 +112,23 @@ const TrustedPartnersSection = () => {
                     </p>
                   </div>
                 </div>
-                <Button className="w-full bg-[#3686FF] px-[24px] py-[12px] mt-4 rounded-[10px]">View Details</Button>
+                <Button className="w-full bg-[#3686FF] px-[24px] py-[12px] mt-4 rounded-[10px]">
+                  View Details
+                </Button>
               </div>
             </div>
           ))}
         </div>
 
-        <Button size="lg" className="rounded-[10px] bg-[#3686FF] hover:bg-[#3686FF] px-[24px] py-[12px] gap-2">
-          Explore More Canadian Institutions <ArrowRight className="w-4 h-4" />
-        </Button>
+        <Link href="/search">
+          <Button
+            size="lg"
+            className="rounded-[10px] bg-[#3686FF] hover:bg-[#3686FF] px-[24px] py-[12px] gap-2"
+          >
+            Explore More Canadian Institutions{" "}
+            <ArrowRight className="w-4 h-4" />
+          </Button>
+        </Link>
       </div>
     </section>
   );
