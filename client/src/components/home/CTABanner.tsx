@@ -54,7 +54,7 @@ const CTABanner = () => (
           </p>
           <div className="flex flex-wrap items-center gap-6">
             <Link href="/matches">
-              <Button className="h-[52px] text-black rounded-[12px] bg-white text-[#3366FF] hover:bg-white/90 font-bold px-[32px] text-[15px] gap-2 border-none transition-all hover:scale-105">
+              <Button className="h-[52px] text-black rounded-[12px] bg-white hover:bg-white/90 font-bold px-[32px] text-[15px] gap-2 border-none transition-all hover:scale-105">
                 Start Free Today <ArrowRight className="w-4 h-4 ml-1" strokeWidth={2.5} />
               </Button>
             </Link>
