@@ -1,6 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 const GraduationCapWatermark = () => (
   <svg
@@ -52,12 +53,10 @@ const CTABanner = () => (
             application success chances, and visa readiness.
           </p>
           <div className="flex flex-wrap items-center gap-6">
-            <Link
-              href="/matches"
-              className="h-[52px] flex items-center rounded-[12px] bg-white text-[#3686FF] hover:bg-white/90 font-bold px-[32px] text-[15px] gap-2"
-            >
-              Start Free Today{" "}
-              <ArrowRight className="w-4 h-4 ml-1" strokeWidth={2.5} />
+            <Link href="/matches">
+              <Button className="h-[52px] text-black rounded-[12px] bg-white text-[#3366FF] hover:bg-white/90 font-bold px-[32px] text-[15px] gap-2 border-none transition-all hover:scale-105">
+                Start Free Today <ArrowRight className="w-4 h-4 ml-1" strokeWidth={2.5} />
+              </Button>
             </Link>
             <Link
               href="/matches"

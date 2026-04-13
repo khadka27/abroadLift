@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 
 const HeroSection = () => {
   return (
-    <section className="relative min-h-[90vh] bg-[#E5EFFF] overflow-hidden flex flex-col w-full pt-24 lg:pt-0">
+    <section className="relative min-h-[90vh] bg-[#E5EFFF] overflow-hidden flex flex-col w-full pt-24 lg:pt-0 pb-4">
       {/* ── BACKGROUND SHAPES ── */}
 
       {/* 1. White Organic Blob on the left */}
@@ -96,7 +96,7 @@ const HeroSection = () => {
         <div className="flex flex-col-reverse lg:grid lg:grid-cols-2 gap-3 lg:gap-8 flex-grow">
           {/* Left content */}
           <div className="flex flex-col justify-center  max-w-[580px] mt-10 lg:mt-0 lg:translate-y-10 xl:translate-x-4">
-            <h1 className="text-[35px] sm:text-[37px] lg:text-[40px] font-bold text-[#0f172a] leading-[1.1] mb-6 tracking-tight">
+            <h1 className="text-[35px] sm:text-[37px] lg:text-[40px] font-bold text-[#0f172a] leading-[1.1] mb-6 tracking-tight text-center sm:text-left">
               Match, Plan and Self-Apply
               <br className="hidden lg:block" /> with Confidence
             </h1>
@@ -104,13 +104,13 @@ const HeroSection = () => {
               Find the right colleges, estimate your total cost, check your
               admission chances, and track your visa readiness
             </p>
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 sm:gap-8 mb-10">
+            <div className="flex flex-row items-center justify-center sm:justify-start gap-4 sm:gap-8 mb-5">
               <div className="flex items-center gap-2">
                 <CheckCircle2
                   className="w-[18px] h-[18px] text-[#22C55E]"
                   strokeWidth={2.5}
                 />
-                <span className="text-[#37C533] font-semibold text-[13px] uppercase tracking-wide">
+                <span className="text-[#37C533] font-semibold text-[13px] uppercase tracking-wide whitespace-nowrap">
                   160+ Countries
                 </span>
               </div>
@@ -119,14 +119,14 @@ const HeroSection = () => {
                   className="w-[18px] h-[18px] text-[#EF4444]"
                   strokeWidth={2.5}
                 />
-                <span className="text-[#FF0000] font-semibold text-[13px] uppercase tracking-wide">
+                <span className="text-[#FF0000] font-semibold text-[13px] uppercase tracking-wide whitespace-nowrap">
                   1000+ Universities
                 </span>
               </div>
             </div>
-            <div>
+            <div className="flex justify-center sm:justify-start">
               <Link href="/matches">
-                <Button className="bg-[#3686FF]text-white px-[24px] py-[12px] rounded-[10px] font-semibold text-[16px] gap-2 shadow-[0_8px_30px_rgb(51,102,255,0.3)] transition-all hover:scale-105 hover:shadow-[0_8px_35px_rgb(51,102,255,0.4)]">
+                <Button className="bg-[#3686FF] text-white px-[24px] py-[12px] rounded-[10px] font-semibold text-[16px] gap-2 shadow-[0_8px_30px_rgb(51,102,255,0.3)] transition-all hover:scale-105 hover:shadow-[0_8px_35px_rgb(51,102,255,0.4)]">
                   Get Started <ArrowRight className="w-5 h-5 ml-1" />
                 </Button>
               </Link>

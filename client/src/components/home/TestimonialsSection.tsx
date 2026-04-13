@@ -129,7 +129,7 @@ const TestimonialsSection = () => {
         </div>
 
         {/* Carousel Controls */}
-        <div className="flex items-center justify-center gap-8 mt-4">
+        <div className="flex items-center justify-center gap-8 mt-5">
           <button 
             onClick={prevSlide}
             className="w-10 h-10 flex items-center justify-center text-[#3686FF] hover:bg-blue-50 rounded-full transition-colors"

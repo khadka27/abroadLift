@@ -43,13 +43,11 @@ const SolutionsSection = () => (
     {/* Right Wave Decoration */}
 
     <div className="w-full max-w-[1280px] mx-auto relative z-10 text-center">
-      <h2 className="text-[32px] sm:text-[36px] lg:text-[40px] font-semibold text-[#0f172a] mb-2 tracking-tight">
-        Find Every Solution, From Applications
+      <h2 className="text-[32px] sm:text-[36px] lg:text-[40px] font-semibold text-[#0f172a] leading-[1.1] mb-4 tracking-tight">
+        Find Every Solution, From Applications{" "}
+        <span className="text-[#3686FF]">to Accommodations</span>
       </h2>
-      <h2 className="text-[32px] sm:text-[36px] lg:text-[40px] font-semibold text-[#3686FF] mb-6 tracking-tight">
-        to Accommodations
-      </h2>
-      <p className="text-[#475569] max-w-[800px] mx-auto font-regular mb-14 text-[15px] sm:text-[16px] leading-[1.6]">
+      <p className="text-[#475569] max-w-[800px] mx-auto font-regular mb-10 text-[15px] sm:text-[16px] leading-[1.5]">
         Access our full 360 Solutions, covering everything from application to
         arrival. Get instant language test vouchers, explore financial services,
         and invest in your future with flexible student loans. It&apos;s all here.

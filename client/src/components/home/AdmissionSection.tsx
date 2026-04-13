@@ -41,13 +41,13 @@ const AdmissionSection = () => (
 
     <div className="container max-w-[1280px] mx-auto px-6 lg:px-12 relative z-10 w-full h-full">
       {/* Mobile Title - Shows first on small screens */}
-      <h2 className="lg:hidden text-[32px] sm:text-[34px] font-bold text-[#0f172a] leading-[1.1] mb-8 tracking-tight text-center">
+      <h2 className="lg:hidden text-[28px] sm:text-[34px] font-bold text-[#0f172a] leading-[1.1] mb-6 tracking-tight text-center">
         Understand Your Admission Probability
       </h2>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
         {/* Left - Image Grid Wrapper aligned to sit flush on bottom edge via negative margin */}
-        <div className="relative w-full max-w-[550px] mx-auto lg:mr-auto lg:ml-0 flex justify-center lg:justify-start -mb-24 mt-8 lg:mt-0">
+        <div className="relative w-full max-w-[550px] mx-auto lg:mr-auto lg:ml-0 flex justify-center lg:justify-start lg:-mb-20 mt-3 lg:mt-0">
           <div className="relative w-full max-w-[380px] h-[480px]">
             {/* Custom SVG Blob perfectly mirroring the referenced design */}
             <div className="absolute inset-x-0 bottom-0 top-[20px] -z-10 translate-x-[5%] pointer-events-none">
@@ -90,12 +90,12 @@ const AdmissionSection = () => (
         </div>
 
         {/* Right - Content */}
-        <div className="max-w-[540px] relative z-10 mx-auto lg:mx-0 mt-8 md:mt-16 lg:mt-10 text-left">
+        <div className="max-w-[540px] relative z-10 mx-auto lg:mx-0 mt-3 md:mt-16 lg:mt-10 text-left">
           {/* Desktop Title - Hidden on mobile */}
           <h2 className="hidden lg:block text-[32px] lg:text-[40px] font-bold text-[#0f172a] leading-[1.1] mb-3 tracking-tight">
             Understand Your Admission Probability
           </h2>
-          <p className="text-[#334155] text-[15px] sm:text-[16px] mb-6 leading-relaxed font-regular text-center lg:text-left">
+          <p className="text-[#334155] text-[15px] sm:text-[16px] mb-4 leading-relaxed font-regular text-center lg:text-left">
             Know where you are competitive before spending time and money on
             applications.
           </p>
