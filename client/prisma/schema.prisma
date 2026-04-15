@@ -93,6 +93,22 @@ model StudentProfile {
     testDone          Boolean? @default(false)
     docsReady         Boolean? @default(false)
 
+    // Additional Information
+    middleName           String?
+    dob                  String?
+    firstLanguage        String?
+    citizenshipCountry   String?
+    passportNumber       String?
+    passportExpiryDate   String?
+    maritalStatus        String?
+    gender               String?
+    addressLine          String?
+    cityTown             String?
+    provinceState        String?
+    postalZipCode        String?
+    countryOfEducation   String?
+    graduatedInstitution Boolean? @default(false)
+
     // Calculated Scores
     admissionProb       Float?
     visaSuccessProb     Float?
