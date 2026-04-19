@@ -62,6 +62,10 @@ type ProfileState = {
   username: string;
   email: string;
   phoneNumber: string;
+  role: string;
+  createdAt: string;
+  phoneVerified: boolean;
+  prefersWhatsApp: boolean;
 
   // Personal
   nationality: string;
@@ -74,6 +78,7 @@ type ProfileState = {
   passportNumber: string;
   passportExpiryDate: string;
   passportReady: boolean;
+  middleName: string;
 
   // Address
   addressLine: string;
@@ -88,6 +93,14 @@ type ProfileState = {
   backlogs: string;
   studyGap: string;
   countryOfEducation: string;
+  graduatedInstitution: boolean;
+
+  // Aptitude Tests
+  aptitudeTest: string;
+  greVerbal: string;
+  greQuant: string;
+  greAwa: string;
+  gmatTotal: string;
 
   // Study preferences
   preferredCountry: string;
@@ -95,6 +108,9 @@ type ProfileState = {
   field: string;
   program: string;
   intake: string;
+  univType: string;
+  cityType: string;
+  duration: string;
 
   // English test
   hasEnglishTest: boolean | null;
@@ -108,6 +124,7 @@ type ProfileState = {
   bankBalance: string;
   sponsorType: string;
   sponsorIncome: string;
+  estimatedAnnualCost: string;
 
   // Readiness
   docsReady: boolean;
@@ -124,6 +141,10 @@ const DEFAULT_PROFILE: ProfileState = {
   username: "",
   email: "",
   phoneNumber: "",
+  role: "STUDENT",
+  createdAt: "",
+  phoneVerified: false,
+  prefersWhatsApp: true,
   nationality: "",
   currentCountry: "",
   dateOfBirth: "",
@@ -134,6 +155,7 @@ const DEFAULT_PROFILE: ProfileState = {
   passportNumber: "",
   passportExpiryDate: "",
   passportReady: false,
+  middleName: "",
   addressLine: "",
   cityTown: "",
   provinceState: "",
@@ -141,14 +163,23 @@ const DEFAULT_PROFILE: ProfileState = {
   highestEducation: "",
   passingYear: "",
   gpa: "",
-  backlogs: "",
-  studyGap: "",
+  backlogs: "0",
+  studyGap: "0",
   countryOfEducation: "",
+  graduatedInstitution: false,
+  aptitudeTest: "NONE",
+  greVerbal: "",
+  greQuant: "",
+  greAwa: "",
+  gmatTotal: "",
   preferredCountry: "",
   degreeLevel: "",
   field: "",
   program: "",
   intake: "",
+  univType: "",
+  cityType: "",
+  duration: "",
   hasEnglishTest: null,
   testType: "",
   englishScore: "",
@@ -158,6 +189,7 @@ const DEFAULT_PROFILE: ProfileState = {
   bankBalance: "",
   sponsorType: "",
   sponsorIncome: "",
+  estimatedAnnualCost: "",
   docsReady: false,
   loanWilling: false,
   scholarshipNeeded: false,
@@ -359,6 +391,10 @@ export default function ProfilePage() {
         username: data.username || "",
         email: data.email || "",
         phoneNumber: data.phoneE164 || data.phoneNumber || "",
+        role: data.role || "STUDENT",
+        createdAt: data.createdAt || "",
+        phoneVerified: data.phoneVerified ?? false,
+        prefersWhatsApp: data.prefersWhatsApp ?? true,
         // Personal
         nationality: p.nationality || "",
         currentCountry: p.currentCountry || "",
@@ -370,6 +406,7 @@ export default function ProfilePage() {
         passportNumber: p.passportNumber || "",
         passportExpiryDate: sanitizeDate(p.passportExpiryDate || ""),
         passportReady: p.passportReady ?? false,
+        middleName: p.middleName || "",
         // Address
         addressLine: p.addressLine || "",
         cityTown: p.cityTown || "",
@@ -379,15 +416,25 @@ export default function ProfilePage() {
         highestEducation: p.highestEducation || "",
         passingYear: p.passingYear?.toString() || "",
         gpa: p.gpa?.toString() || "",
-        backlogs: p.backlogs?.toString() || "",
-        studyGap: p.studyGap?.toString() || "",
+        backlogs: p.backlogs?.toString() || "0",
+        studyGap: p.studyGap?.toString() || "0",
         countryOfEducation: p.countryOfEducation || "",
+        graduatedInstitution: p.graduatedInstitution ?? false,
+        // Aptitude
+        aptitudeTest: p.aptitudeTest || "NONE",
+        greVerbal: p.greVerbal?.toString() || "",
+        greQuant: p.greQuant?.toString() || "",
+        greAwa: p.greAwa?.toString() || "",
+        gmatTotal: p.gmatTotal?.toString() || "",
         // Preferences
         preferredCountry: p.preferredCountry || "",
         degreeLevel: p.degreeLevel || "",
         field: p.field || "",
         program: p.program || "",
         intake: p.intake || "",
+        univType: p.univType || "",
+        cityType: p.cityType || "",
+        duration: p.duration?.toString() || "",
         // English
         hasEnglishTest: typeof p.hasEnglishTest === "boolean" ? p.hasEnglishTest : null,
         testType: p.testType || "",
@@ -399,6 +446,7 @@ export default function ProfilePage() {
         bankBalance: p.bankBalance?.toString() || "",
         sponsorType: p.sponsorType || "",
         sponsorIncome: p.sponsorIncome?.toString() || "",
+        estimatedAnnualCost: p.estimatedAnnualCost?.toString() || "",
         // Readiness
         docsReady: p.docsReady ?? false,
         loanWilling: p.loanWilling ?? false,
@@ -691,6 +739,7 @@ export default function ProfilePage() {
                     <SectionTitle icon={<User className="h-3.5 w-3.5" />} label="Personal Details" />
                     <div className="grid gap-2 sm:grid-cols-2">
                       <InfoRow icon={<User className="h-4 w-4" />} label="Full Name" value={fullName} accent />
+                      {profile.middleName && <InfoRow icon={<User className="h-4 w-4" />} label="Middle Name" value={profile.middleName} />}
                       <InfoRow icon={<Mail className="h-4 w-4" />} label="Email" value={profile.email} />
                       <InfoRow icon={<Phone className="h-4 w-4" />} label="Phone" value={profile.phoneNumber} />
                       <InfoRow icon={<Calendar className="h-4 w-4" />} label="Date of Birth" value={formatDateDisplay(profile.dateOfBirth)} />
@@ -758,8 +807,29 @@ export default function ProfilePage() {
                       <InfoRow icon={<Calendar className="h-4 w-4" />} label="Passing Year" value={profile.passingYear} />
                       <InfoRow icon={<BookOpen className="h-4 w-4" />} label="Backlogs" value={profile.backlogs ? `${profile.backlogs} backlog(s)` : "None"} />
                       <InfoRow icon={<BookOpen className="h-4 w-4" />} label="Study Gap" value={profile.studyGap ? `${profile.studyGap} year(s)` : "None"} />
+                      <ReadinessRow label="Graduated Institution" value={profile.graduatedInstitution} />
                     </div>
                   </div>
+
+                  {/* ─ Aptitude Tests ─ */}
+                  {profile.aptitudeTest !== "NONE" && (
+                    <div>
+                      <SectionTitle icon={<Award className="h-3.5 w-3.5" />} label="Aptitude Tests" />
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        <InfoRow icon={<Award className="h-4 w-4" />} label="Test Type" value={profile.aptitudeTest} accent />
+                        {profile.aptitudeTest === "GRE" && (
+                          <>
+                            <InfoRow icon={<TrendingUp className="h-4 w-4" />} label="Verbal" value={profile.greVerbal} />
+                            <InfoRow icon={<TrendingUp className="h-4 w-4" />} label="Quantitative" value={profile.greQuant} />
+                            <InfoRow icon={<TrendingUp className="h-4 w-4" />} label="AWA" value={profile.greAwa} />
+                          </>
+                        )}
+                        {profile.aptitudeTest === "GMAT" && (
+                          <InfoRow icon={<TrendingUp className="h-4 w-4" />} label="Total Score" value={profile.gmatTotal} />
+                        )}
+                      </div>
+                    </div>
+                  )}
 
                   {/* ─ English Test ─ */}
                   <div>
@@ -780,6 +850,9 @@ export default function ProfilePage() {
                       <InfoRow icon={<BookOpen className="h-4 w-4" />} label="Field of Study" value={profile.field} />
                       <InfoRow icon={<BookOpen className="h-4 w-4" />} label="Program" value={profile.program} />
                       <InfoRow icon={<Calendar className="h-4 w-4" />} label="Intake" value={profile.intake} />
+                      {profile.univType && <InfoRow icon={<Home className="h-4 w-4" />} label="University Type" value={profile.univType} />}
+                      {profile.cityType && <InfoRow icon={<MapPin className="h-4 w-4" />} label="City Type" value={profile.cityType} />}
+                      {profile.duration && <InfoRow icon={<Calendar className="h-4 w-4" />} label="Duration" value={`${profile.duration} year(s)`} />}
                     </div>
                   </div>
 
@@ -805,6 +878,7 @@ export default function ProfilePage() {
                       {profile.bankBalance && <InfoRow icon={<Banknote className="h-4 w-4" />} label="Bank Balance" value={formatCurrency(parseFloat(profile.bankBalance), profile.currency)} />}
                       {profile.sponsorType && <InfoRow icon={<User className="h-4 w-4" />} label="Sponsor Type" value={profile.sponsorType} />}
                       {profile.sponsorIncome && <InfoRow icon={<Banknote className="h-4 w-4" />} label="Sponsor Income" value={formatCurrency(parseFloat(profile.sponsorIncome), profile.currency)} />}
+                      {profile.estimatedAnnualCost && <InfoRow icon={<Calculator className="h-4 w-4" />} label="Est. Annual Cost" value={formatCurrency(parseFloat(profile.estimatedAnnualCost), profile.currency)} />}
                     </div>
                   </div>
 
@@ -989,12 +1063,18 @@ export default function ProfilePage() {
                     { label: "Username", value: `@${profile.username || "Not set"}` },
                     { label: "Email Address", value: profile.email || "Not set" },
                     { label: "Phone Number", value: profile.phoneNumber || "Not set" },
+                    { label: "Account Role", value: profile.role },
+                    { label: "Member Since", value: formatDateDisplay(profile.createdAt) },
                   ].map(({ label, value }) => (
                     <div key={label} className="rounded-2xl border border-slate-100 bg-slate-50 p-4 transition-all hover:border-blue-100 hover:bg-blue-50/40">
                       <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{label}</p>
                       <p className="mt-1 text-base font-bold text-slate-900">{value}</p>
                     </div>
                   ))}
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <ReadinessRow label="Phone Verified" value={profile.phoneVerified} />
+                    <ReadinessRow label="WhatsApp Prefers" value={profile.prefersWhatsApp} />
+                  </div>
                   <div className="mt-6 flex flex-wrap gap-3 border-t border-slate-100 pt-6">
                     <button type="button" onClick={() => { setActiveTab("overview"); setIsEditing(true); }} className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 px-5 py-2.5 text-sm font-bold text-white shadow-md">
                       <Pencil className="h-4 w-4" /> Edit Profile
