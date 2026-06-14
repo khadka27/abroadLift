@@ -1,6 +1,8 @@
+"use client";
 import { ArrowRight, FileText } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
 
 const features = [
   {
@@ -26,11 +28,32 @@ const features = [
   },
 ];
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+};
+
 const SolutionsSection = () => (
-  <section className="relative py-14 bg-[#F8FAFC] overflow-hidden -mx-6 sm:-mx-8 lg:-mx-12 px-6 sm:px-8 lg:px-12">
+  <section className="relative py-16 lg:py-24 bg-[#F8FAFC] overflow-hidden px-6 lg:px-12">
     {/* Left Splash Decoration */}
-    <div className="absolute top-[18%] left-[2%] lg:left-[8%] pointer-events-none hidden sm:block rotate-[35deg]">
-      <svg width="58" height="58" viewBox="0 0 48 48" fill="#3686FF">
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.5, rotate: 0 }}
+      whileInView={{ opacity: 1, scale: 1, rotate: 35 }}
+      viewport={{ once: true }}
+      transition={{ duration: 1 }}
+      className="absolute top-[18%] left-[2%] lg:left-[8%] pointer-events-none hidden sm:block"
+    >
+      <svg width="58" height="58" viewBox="0 0 48 48" fill="#3366FF">
         <path d="M12,24 C22,18 40,22 46,24 C40,26 22,30 12,24 Z" />
         <path d="M16,14 C26,6 42,12 44,16 C34,14 22,12 16,14 Z" />
         <path
@@ -38,50 +61,73 @@ const SolutionsSection = () => (
           opacity="0.8"
         />
       </svg>
-    </div>
-
-    {/* Right Wave Decoration */}
+    </motion.div>
 
     <div className="w-full max-w-[1280px] mx-auto relative z-10 text-center">
-      <h2 className="text-[32px] sm:text-[36px] lg:text-[40px] font-semibold text-[#0f172a] leading-[1.1] mb-4 tracking-tight">
+      <motion.h2 
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        className="text-[32px] sm:text-[40px] lg:text-[48px] font-extrabold text-[#0f172a] leading-[1.1] mb-6 tracking-tight"
+      >
         Find Every Solution, From Applications{" "}
-        <span className="text-[#3686FF]">to Accommodations</span>
-      </h2>
-      <p className="text-[#475569] max-w-[800px] mx-auto font-regular mb-10 text-[15px] sm:text-[16px] leading-[1.5]">
+        <span className="text-[#3366FF]">to Accommodations</span>
+      </motion.h2>
+      <motion.p 
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ delay: 0.1 }}
+        className="text-[#475569] max-w-[800px] mx-auto font-medium mb-16 text-[16px] sm:text-[18px] leading-[1.6]"
+      >
         Access our full 360 Solutions, covering everything from application to
         arrival. Get instant language test vouchers, explore financial services,
         and invest in your future with flexible student loans. It&apos;s all here.
-      </p>
+      </motion.p>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-[1000px] mx-auto mb-14">
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-50px" }}
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-[1100px] mx-auto mb-16"
+      >
         {features.map((f) => (
-          <div
+          <motion.div
             key={f.title}
-            className="bg-white rounded-[16px] px-6 py-10 text-center shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300 border border-gray-50 flex flex-col items-center"
+            variants={cardVariants}
+            whileHover={{ y: -8, scale: 1.02 }}
+            className="bg-white/80 backdrop-blur-sm rounded-[24px] px-8 py-10 text-center shadow-[0_4px_20px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(51,102,255,0.1)] transition-all duration-300 border border-white flex flex-col items-center group cursor-default"
           >
-            <div className="w-[42px] h-[42px] rounded-full bg-[#8CBAFD] flex items-center justify-center mb-5 shrink-0">
+            <div className="w-[56px] h-[56px] rounded-2xl bg-blue-50 flex items-center justify-center mb-6 shrink-0 group-hover:scale-110 group-hover:bg-[#3366FF] transition-all duration-300">
               <FileText
-                className="w-[20px] h-[20px] text-white"
-                strokeWidth={2.5}
+                className="w-[24px] h-[24px] text-[#3366FF] group-hover:text-white transition-colors duration-300"
+                strokeWidth={2}
               />
             </div>
-            <h3 className="font-semibold text-[#0f172a] text-[16px] mb-3 tracking-tight">
+            <h3 className="font-bold text-[#0f172a] text-[18px] mb-3 tracking-tight group-hover:text-[#3366FF] transition-colors">
               {f.title}
             </h3>
-            <p className="text-[#475569] font-regular text-[16px] leading-relaxed max-w-[240px] mx-auto">
+            <p className="text-[#64748b] font-medium text-[15px] leading-relaxed">
               {f.desc}
             </p>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
-      <div className="flex justify-center">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ delay: 0.4 }}
+        className="flex justify-center"
+      >
         <Link href="/register">
-          <Button className="bg-[#3686FF] text-white px-[24px] py-[12px] rounded-[10px] font-semibold text-[15px] shadow-[0_8px_25px_rgb(51,102,255,0.25)] transition-all hover:scale-105 hover:shadow-[0_8px_30px_rgb(51,102,255,0.35)]">
-            Register as a Student <ArrowRight className="w-5 h-5 ml-1.5" />
+          <Button className="bg-[#3366FF] text-white px-[32px] py-[24px] rounded-[16px] font-bold text-[16px] shadow-[0_10px_30px_rgb(51,102,255,0.3)] transition-all hover:scale-105 hover:bg-[#254bdb]">
+            Register as a Student <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
         </Link>
-      </div>
+      </motion.div>
     </div>
   </section>
 );

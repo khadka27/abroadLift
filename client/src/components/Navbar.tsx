@@ -9,7 +9,6 @@ import {
   X,
   User,
   ArrowRight,
-  ChevronDown,
   LayoutDashboard,
   Home,
   Search,
@@ -17,72 +16,9 @@ import {
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 
-interface SubLink {
-  href: string;
-  label: string;
-  desc: string;
-}
-
-interface NavLink {
-  href: string;
-  label: string;
-  hasDropdown?: boolean;
-  sublinks?: SubLink[];
-}
-
-const NAV_LINKS: NavLink[] = [
-  {
-    href: "/search",
-    label: "Find Programs",
-    hasDropdown: true,
-    sublinks: [
-      {
-        href: "/search",
-        label: "University Search",
-        desc: "Search over 15,000 global programs",
-      },
-      {
-        href: "/matches",
-        label: "AI Matcher",
-        desc: "Get personalized university recommendations",
-      },
-    ],
-  },
-  {
-    href: "#",
-    label: "Tools & Resources",
-    hasDropdown: true,
-    sublinks: [
-      {
-        href: "/eligibility",
-        label: "Eligibility Checker",
-        desc: "Check your admission chances",
-      },
-      {
-        href: "/costing",
-        label: "Cost Estimator",
-        desc: "Calculate your total study expenses",
-      },
-      {
-        href: "/visa-rate",
-        label: "Visa Success Rate",
-        desc: "Check your visa approval chances",
-      },
-      {
-        href: "/profile",
-        label: "My Profile",
-        desc: "Manage your applications & profile",
-      },
-    ],
-  },
-  { href: "/scholarships", label: "Scholarships" },
-];
-
-const MOBILE_TABS = [
-  { href: "/", label: "Home", icon: Home },
-  { href: "/search", label: "Search", icon: Search },
-  { href: "/matches", label: "Matches", icon: Sparkles },
-  { href: "/profile", label: "Profile", icon: User },
+const NAV_LINKS = [
+  { href: "/matches", label: "Start Matching" },
+  { href: "/search", label: "University Search" },
 ];
 
 export default function Navbar() {
@@ -92,17 +28,6 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const isAuthenticated = status === "authenticated";
   const isAdmin = session?.user?.role === "ADMIN";
-  const mobileTabs = isAuthenticated
-    ? MOBILE_TABS
-    : MOBILE_TABS.map((tab) =>
-        tab.href === "/profile"
-          ? { ...tab, href: "/login", label: "Login" }
-          : tab,
-      );
-  const activeMobileTabIndex = Math.max(
-    mobileTabs.findIndex((tab) => tab.href === pathname),
-    0,
-  );
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -142,40 +67,12 @@ export default function Navbar() {
               <li key={l.label} className="relative group py-4">
                 <Link
                   href={l.href}
-                  className={`text-[15px] font-medium tracking-tight transition-all flex items-center gap-1.5 ${
-                    scrolled ? "text-black!" : "text-black!"
+                  className={`text-[16px] font-bold tracking-tight transition-all flex items-center gap-1.5 hover:text-[#3366FF] ${
+                    scrolled ? "text-gray-900" : "text-gray-900"
                   }`}
                 >
                   {l.label}
-                  {l.hasDropdown && (
-                    <ChevronDown
-                      className={`w-4 h-4 transition-transform group-hover:rotate-180 ${
-                        scrolled ? "text-black!" : "text-black!"
-                      }`}
-                    />
-                  )}
                 </Link>
-
-                {l.hasDropdown && l.sublinks && (
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 z-50">
-                    <div className="bg-white border border-gray-100 rounded-3xl shadow-2xl p-4 min-w-[280px]">
-                      {l.sublinks.map((sub) => (
-                        <Link
-                          key={sub.label}
-                          href={sub.href}
-                          className="flex flex-col p-4 rounded-2xl hover:bg-emerald-50/50 group/sub transition-all"
-                        >
-                          <span className="text-sm font-black text-gray-900 group-hover/sub:text-[#009dff] transition-colors">
-                            {sub.label}
-                          </span>
-                          <span className="text-[11px] text-gray-400 font-medium">
-                            {sub.desc}
-                          </span>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </li>
             ))}
 
@@ -183,12 +80,12 @@ export default function Navbar() {
               <li className="relative group py-4">
                 <Link
                   href="/admin"
-                  className={`text-[15px] font-black transition-all flex items-center gap-1.5 hover:text-blue-600! ${
+                  className={`text-[16px] font-black transition-all flex items-center gap-1.5 hover:text-blue-600! ${
                     scrolled ? "text-blue-600!" : "text-blue-700!"
                   }`}
                 >
                   <LayoutDashboard className="w-4 h-4" />
-                  Admin Panel
+                  Admin
                 </Link>
               </li>
             )}
@@ -197,30 +94,27 @@ export default function Navbar() {
           {/* Right actions (Desktop Only) */}
           <div className="hidden lg:flex items-center gap-4 sm:gap-6">
             {isAuthenticated ? (
-              <>
-                <Link
-                  href="/profile"
-                  className={`p-2 rounded-xl transition-all ${
-                    scrolled
-                      ? "text-black"
-                      : "text-black"
-                  }`}
-                >
-                  <User className="w-6 h-6 outline-none" strokeWidth={1.5} />
-                </Link>
-
-                <Link
-                  href="/matches"
-                  className="flex items-center gap-2 bg-[#3686FF] text-white font-bold px-7 py-3 rounded-2xl text-[15px] shadow-xl shadow-blue-500/25 hover:bg-[#2952CC] hover:-translate-y-0.5 transition-all duration-300 active:scale-95"
-                >
-                  Get Started
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </>
+              <Link
+                href="/profile"
+                className="flex items-center gap-3 bg-[#3366FF] text-white font-bold px-[20px] py-[10px] rounded-2xl text-[15px] shadow-xl shadow-blue-500/25 hover:-translate-y-0.5 transition-all duration-300 active:scale-95 hover:bg-[#254bdb]"
+              >
+                {session?.user?.image ? (
+                  <div className="relative w-7 h-7 rounded-full overflow-hidden border border-white/20">
+                    <Image src={session.user.image} alt={session?.user?.name || "User"} fill className="object-cover" />
+                  </div>
+                ) : (
+                  <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center border border-white/20">
+                    <User className="w-4 h-4 text-white" />
+                  </div>
+                )}
+                <span className="max-w-[120px] truncate">
+                  {session?.user?.name || "My Profile"}
+                </span>
+              </Link>
             ) : (
               <Link
                 href={`/login?callbackUrl=${encodeURIComponent(pathname)}`}
-                className="flex items-center gap-2 bg-[#3686FF] text-white font-bold px-[24px] py-[12px] rounded-2xl text-[15px] shadow-xl shadow-blue-500/25 hover:-translate-y-0.5 transition-all duration-300 active:scale-95"
+                className="flex items-center gap-2 bg-[#3366FF] text-white font-bold px-[28px] py-[12px] rounded-2xl text-[15px] shadow-xl shadow-blue-500/25 hover:-translate-y-0.5 transition-all duration-300 active:scale-95 hover:bg-[#254bdb]"
               >
                 Login
               </Link>
@@ -247,35 +141,30 @@ export default function Navbar() {
               <div key={l.label} className="flex flex-col gap-4">
                 <Link
                   href={l.href}
-                  onClick={() => !l.hasDropdown && setMobileOpen(false)}
-                  className="text-xl font-extrabold text-blue-700! hover:text-blue-600! transition-colors"
+                  onClick={() => setMobileOpen(false)}
+                  className="text-xl font-extrabold text-blue-700 hover:text-blue-600 transition-colors"
                 >
                   {l.label}
                 </Link>
-                {l.hasDropdown && l.sublinks && (
-                  <div className="flex flex-col gap-3 pl-4 border-l-2 border-gray-100">
-                    {l.sublinks.map((sub) => (
-                      <Link
-                        key={sub.label}
-                        href={sub.href}
-                        onClick={() => setMobileOpen(false)}
-                        className="text-base font-bold text-gray-700! hover:text-[#009dff]! transition-colors"
-                      >
-                        {sub.label}
-                      </Link>
-                    ))}
-                  </div>
-                )}
               </div>
             ))}
             <div className="h-px bg-gray-100 my-2" />
             {isAuthenticated ? (
               <Link
-                href="/matches"
+                href="/profile"
                 onClick={() => setMobileOpen(false)}
-                className="flex items-center justify-center gap-2 bg-[#3366FF] text-white font-bold px-6 py-4 rounded-2xl shadow-lg shadow-blue-500/20"
+                className="flex items-center justify-center gap-3 bg-[#3366FF] text-white font-bold px-6 py-4 rounded-2xl shadow-lg shadow-blue-500/20"
               >
-                Get Started <ArrowRight className="w-4 h-4" />
+                {session?.user?.image ? (
+                  <div className="relative w-8 h-8 rounded-full overflow-hidden border border-white/20">
+                    <Image src={session.user.image} alt={session?.user?.name || "User"} fill className="object-cover" />
+                  </div>
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center border border-white/20">
+                    <User className="w-4 h-4 text-white" />
+                  </div>
+                )}
+                <span>{session?.user?.name || "My Profile"}</span>
               </Link>
             ) : (
               <Link

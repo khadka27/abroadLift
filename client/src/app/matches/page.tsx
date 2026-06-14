@@ -1,4 +1,4 @@
-﻿/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, useMemo, useEffect, useRef } from "react";
@@ -899,6 +899,7 @@ const DEF: Form = {
   field: "",
   program: "",
   intake: "",
+  intakeYear: "",
   aptitudeTest: "NONE",
   programTags: [],
   testType: "IELTS",
@@ -3415,6 +3416,16 @@ export default function AbroadLiftMatchesPage() {
         },
       ];
 
+      const currentYear = new Date().getFullYear();
+      const YEARS = [
+        currentYear.toString(),
+        (currentYear + 1).toString(),
+        (currentYear + 2).toString(),
+        (currentYear + 3).toString(),
+      ];
+      
+      const INTAKE_LABELS = INTAKE_OPTIONS.map(opt => `${opt.main} (${opt.meta}) - ${opt.sub}`);
+
       return (
         <div className="flex flex-col animate-in fade-in zoom-in-95 duration-700 w-full max-w-5xl mx-auto pb-4 px-4">
           <div className="mb-2 text-center">
@@ -3422,8 +3433,7 @@ export default function AbroadLiftMatchesPage() {
               When do you want to start your studies?
             </h2>
             <p className="text-[13px] md:text-[14px] text-slate-500 font-medium mt-1">
-              Study intakes for {countryGuide.countryName} and application
-              windows
+              Select your target year and study intake for {countryGuide.countryName}
             </p>
           </div>
 
@@ -3438,68 +3448,30 @@ export default function AbroadLiftMatchesPage() {
             />
           </div>
 
-          <div className="w-full max-w-2xl mx-auto mb-4 rounded-[18px] border border-blue-100 bg-blue-50/40 px-4 py-3">
-            <p className="text-[12px] md:text-[13px] font-semibold text-blue-700 mb-2">
-              Study Intakes by Country: {countryGuide.countryName}
-            </p>
-            <div className="space-y-1.5">
-              {countryGuide.intakes.map((item) => (
-                <div
-                  key={`${item.label}-${item.months}`}
-                  className="flex items-center justify-between text-[11px] md:text-[12px]"
-                >
-                  <span className="font-semibold text-slate-700">
-                    {item.label} ({item.months})
-                    {item.isMain
-                      ? " - Main"
-                      : item.isLimited
-                        ? " - Limited"
-                        : ""}
-                  </span>
-                  <span className="text-slate-500">
-                    Apply: {item.applyWindow}
-                  </span>
-                </div>
-              ))}
+          <div className="flex flex-col gap-6 w-full max-w-[500px] mx-auto md:max-w-2xl md:grid md:grid-cols-2 lg:gap-8 mb-8">
+            <div className="space-y-3">
+              <label className="text-[12px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                Target Year
+              </label>
+              <SearchSelect
+                placeholder="Select Target Year"
+                options={YEARS}
+                value={form.intakeYear}
+                onChange={(v) => updateForm("intakeYear", v)}
+              />
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 w-full max-w-2xl mx-auto mb-6">
-            {INTAKE_OPTIONS.map((opt) => {
-              const isSel = form.intake === opt.main;
-              return (
-                <button
-                  key={opt.main}
-                  onClick={() => updateForm("intake", opt.main)}
-                  className={`flex flex-col items-start gap-0.5 p-2.5 md:p-5 lg:p-6 rounded-[18px] md:rounded-[20px] border transition-all text-left group overflow-hidden relative ${
-                    isSel
-                      ? "border-blue-500 bg-blue-50/20 shadow-lg shadow-blue-500/10"
-                      : "border-slate-100 bg-white shadow-sm hover:border-blue-200"
-                  }`}
-                >
-                  <div className="flex items-center gap-1 md:gap-1.5">
-                    <Calendar
-                      className={`w-3 h-3 md:w-3.5 md:h-3.5 ${isSel ? "text-blue-500" : "text-red-400"}`}
-                    />
-                    <span className="text-[12px] md:text-[13px] font-bold text-slate-800">
-                      {opt.main}
-                    </span>
-                  </div>
-                  <span
-                    className={`text-[10px] md:text-[11px] font-medium ml-4 ${isSel ? "text-blue-600" : "text-slate-500"}`}
-                  >
-                    {opt.sub}
-                  </span>
-                  <span
-                    className={`mt-1 ml-4 text-[9px] md:text-[10px] font-semibold ${
-                      isSel ? "text-blue-700" : "text-slate-400"
-                    }`}
-                  >
-                    {opt.meta}
-                  </span>
-                </button>
-              );
-            })}
+            <div className="space-y-3">
+              <label className="text-[12px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                Intake Season
+              </label>
+              <SearchSelect
+                placeholder="Select Intake Season"
+                options={INTAKE_LABELS}
+                value={form.intake}
+                onChange={(v) => updateForm("intake", v)}
+              />
+            </div>
           </div>
 
           <div className="w-full max-w-2xl mx-auto mb-10 rounded-[18px] border border-slate-100 bg-white px-4 py-3 shadow-sm">

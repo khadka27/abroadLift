@@ -54,7 +54,7 @@ function LoginForm() {
       return;
     }
 
-    router.replace("/");
+    router.replace("/matches");
   }, [status, session, router, safeCallbackUrl]);
 
   useEffect(() => {

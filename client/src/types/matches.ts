@@ -41,6 +41,7 @@ export interface Form {
   budget: string;
   currency: string;
   intake: string;
+  intakeYear: string;
   aptitudeTest: string;
   programTags: string[];
   scholarship: boolean;
