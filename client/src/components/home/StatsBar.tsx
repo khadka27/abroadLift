@@ -1,6 +1,6 @@
 "use client";
 import { Globe2, Building2, GraduationCap, Headphones } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 
 const stats = [
   { icon: Globe2, label: "160+ Countries" },
@@ -9,7 +9,7 @@ const stats = [
   { icon: Headphones, label: "24/7 Support" },
 ];
 
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
@@ -22,7 +22,7 @@ const containerVariants = {
   }
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { opacity: 0, scale: 0.8 },
   visible: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: "easeOut" } }
 };
