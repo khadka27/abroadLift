@@ -234,176 +234,212 @@ function RegisterForm() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col font-poppins">
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans selection:bg-[#3686FF]/20 selection:text-[#3686FF]">
       <div className="flex-1 flex flex-col lg:flex-row relative">
-        {/* Left Side: Premium Image for Desktop */}
-        <div className="hidden lg:block lg:w-[50%] xl:w-[55%] relative overflow-hidden">
-          <Image
-            src="/signup-bg.png"
-            alt="University Campus"
-            fill
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 bg-linear-to-r from-black/10 to-transparent" />
-          <div className="absolute bottom-12 left-12 right-12 z-10 text-white drop-shadow-lg">
-            <h2 className="text-4xl font-bold mb-4">Dream Big. Go Global.</h2>
-            <p className="text-lg opacity-90 max-w-md">
-              Your future starts here. Join thousands of students who found
-              their perfect university match with AbroadLift.
+        {/* Left Pane: Visual Sidebar */}
+        <div className="hidden lg:flex lg:w-[42%] xl:w-[45%] relative overflow-hidden flex-col justify-between p-12 xl:p-16">
+          <div className="absolute inset-0 z-0">
+            <Image
+              src="/signup-bg.png"
+              alt="Register Background"
+              fill
+              priority
+              className="object-cover animate-pulse"
+              style={{ animationDuration: '8s' }}
+            />
+            <div className="absolute inset-0 bg-[#0A192F]/80 backdrop-blur-md" />
+            {/* Extra ambient glow circles */}
+            <div className="absolute -top-[10%] -left-[10%] w-[70%] h-[70%] bg-[#3686FF]/15 rounded-full blur-[100px]" />
+            <div className="absolute -bottom-[10%] -right-[10%] w-[60%] h-[60%] bg-indigo-50/15 rounded-full blur-[100px]" />
+          </div>
+
+          {/* Logo Capsule in Sidebar */}
+          <div className="relative z-10">
+            <Link href="/" className="inline-flex items-center gap-2 hover:scale-105 active:scale-95 transition-all duration-300">
+              <div className="bg-white px-5 py-2.5 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-slate-100 flex items-center justify-center">
+                <div className="relative w-[110px] h-[30px]">
+                  <Image
+                    src="/logo.png"
+                    alt="AbroadLift Logo"
+                    fill
+                    className="object-contain"
+                    priority
+                  />
+                </div>
+              </div>
+            </Link>
+          </div>
+
+          {/* Headline and messaging */}
+          <div className="relative z-10 max-w-md my-auto">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/10 mb-6">
+              <span className="w-2 h-2 rounded-full bg-[#3686FF] animate-pulse" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-white/90">Join AbroadLift</span>
+            </div>
+            <h2 className="text-[38px] xl:text-[46px] font-black leading-[1.15] mb-4 tracking-tighter text-white">
+              Start Your <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#3686FF] to-indigo-350">Global Journey</span>
+            </h2>
+            <p className="text-[14px] text-white/60 font-medium leading-relaxed max-w-sm">
+              Connect with top-tier universities, compare admissions criteria, plan your finances, and track your global study pathway in one unified platform.
             </p>
+          </div>
+
+          {/* Platform statistics */}
+          <div className="relative z-10 flex gap-4">
+            <div className="bg-white/10 backdrop-blur-md border border-white/10 rounded-[20px] p-5 flex-1">
+              <p className="text-[28px] font-black leading-none mb-1 text-white">15k+</p>
+              <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest">Programs</p>
+            </div>
+            <div className="bg-white/10 backdrop-blur-md border border-white/10 rounded-[20px] p-5 flex-1">
+              <p className="text-[28px] font-black leading-none mb-1 text-white">80+</p>
+              <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest">Countries</p>
+            </div>
           </div>
         </div>
 
-        {/* Right Side: Form Container */}
-        <div className="flex-1 relative flex items-center justify-center p-6 lg:bg-[#F9FAFB] overflow-hidden">
-          {/* Decorative element for desktop transition */}
-          <div
-            className="absolute left-[-100px] top-0 bottom-0 w-[200px] bg-[#F9FAFB] hidden lg:block"
-            style={{
-              clipPath: "polygon(100% 0, 0 0, 100% 100%)",
-            }}
-          />
-
-          <div className="w-full max-w-[400px] flex flex-col items-center py-4 fade-up lg:mt-0 relative z-10">
-            {/* Title */}
-            <h1 className="text-[34px] font-semibold text-[#0f172a] mb-12 leading-[1.1] tracking-tight text-center">
-              Create New Account
-            </h1>
+        {/* Right Pane: Form Container */}
+        <div className="flex-1 relative flex items-center justify-center p-6 sm:p-12 lg:bg-transparent overflow-y-auto z-10">
+          <div className="w-full max-w-[440px] flex flex-col py-4 relative z-10">
+            {/* Title & Mobile-only Logo */}
+            <div className="mb-8 text-center lg:text-left">
+              {/* Mobile-only logo display */}
+              <div className="lg:hidden flex justify-center mb-6">
+                <Link href="/" className="hover:scale-105 active:scale-95 transition-all">
+                  <div className="bg-white px-5 py-2.5 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-slate-200/60 flex items-center justify-center">
+                    <div className="relative w-[110px] h-[30px]">
+                      <Image
+                        src="/logo.png"
+                        alt="AbroadLift Logo"
+                        fill
+                        className="object-contain"
+                        priority
+                      />
+                    </div>
+                  </div>
+                </Link>
+              </div>
+              <h1 className="text-[30px] md:text-[36px] font-black text-slate-900 mb-2 tracking-tight">
+                Create Account
+              </h1>
+              <p className="text-slate-500 font-medium text-[14px]">
+                Join thousands of students studying abroad.
+              </p>
+            </div>
 
             {/* Error Notification */}
             {serverError && (
-              <div className="w-full mb-4 bg-red-50 text-red-600 px-4 py-3 rounded-2xl flex items-center gap-2 text-xs font-bold border border-red-100">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                {serverError}
+              <div className="w-full mb-6 bg-rose-50 border border-rose-100 text-rose-600 p-4 rounded-[20px] flex items-start gap-3 shadow-sm">
+                <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                <p className="font-bold text-[13px] mt-0.5">{serverError}</p>
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="w-full space-y-4">
-              <InputField
-                placeholder="Full name"
-                value={form.fullName}
-                error={errors.fullName}
-                onChange={(v) => handleChange("fullName", v)}
-              />
-              <InputField
-                placeholder="Email"
-                type="email"
-                value={form.email}
-                error={errors.email}
-                onChange={(v) => handleChange("email", v)}
-              />
-              <div className="w-full">
-                <div className="grid grid-cols-[1fr_2fr] gap-2">
-                  <div>
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest pl-2">Full Name</label>
+                <InputField
+                  placeholder="John Doe"
+                  value={form.fullName}
+                  error={errors.fullName}
+                  onChange={(v) => handleChange("fullName", v)}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest pl-2">Email Address</label>
+                <InputField
+                  placeholder="john@example.com"
+                  type="email"
+                  value={form.email}
+                  error={errors.email}
+                  onChange={(v) => handleChange("email", v)}
+                />
+              </div>
+
+              <div className="w-full space-y-1.5">
+                <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest pl-2">Phone Number</label>
+                <div className="flex gap-3">
+                  <div className="relative">
                     <select
                       value={form.countryDialCode}
-                      onChange={(e) =>
-                        handleChange("countryDialCode", e.target.value)
-                      }
-                      className="w-full h-[56px] bg-[#F4F4F4] border-none rounded-[20px] px-3 text-[14px] font-regular text-[#1e293b] outline-none focus:ring-2 focus:ring-blue-500/10 transition-all"
+                      onChange={(e) => handleChange("countryDialCode", e.target.value)}
+                      className="h-[60px] w-[110px] rounded-[20px] border border-slate-200 bg-white pl-4 pr-8 text-[15px] font-bold text-slate-900 outline-none transition-all focus:border-[#3686FF] focus:ring-4 focus:ring-[#3686FF]/10 shadow-sm appearance-none cursor-pointer"
                     >
                       {countryCodes.map((country) => (
-                        <option
-                          key={`${country.code}-${country.dialCode}`}
-                          value={country.dialCode}
-                        >
-                          {country.label} ({country.dialCode})
+                        <option key={`${country.code}-${country.dialCode}`} value={country.dialCode}>
+                          {country.dialCode} {country.code}
                         </option>
                       ))}
                     </select>
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                      </svg>
+                    </div>
                   </div>
-                  <InputField
-                    placeholder="Phone number"
-                    type="tel"
-                    value={form.phone}
-                    error={errors.phone}
-                    onChange={(v) => handleChange("phone", v)}
-                  />
+
+                  <div className="flex-1">
+                    <InputField
+                      placeholder="9812345678"
+                      type="tel"
+                      value={form.phone}
+                      error={errors.phone}
+                      onChange={(v) => handleChange("phone", v)}
+                    />
+                  </div>
                 </div>
                 {errors.countryDialCode && (
-                  <p className="mt-1 text-[10px] text-red-500 font-bold px-2">
-                    {errors.countryDialCode}
-                  </p>
+                  <p className="mt-2 text-[11px] text-rose-500 font-bold px-4">{errors.countryDialCode}</p>
                 )}
               </div>
 
               <div className="pt-1">
-                <label className="flex items-center gap-2.5 cursor-pointer group">
-                  <div className="relative flex items-center">
+                <label className="flex items-start gap-3 cursor-pointer group">
+                  <div className="relative flex items-center mt-0.5">
                     <input
                       type="checkbox"
                       checked={form.prefersWhatsApp}
-                      onChange={() =>
-                        setForm((p) => ({
-                          ...p,
-                          prefersWhatsApp: !p.prefersWhatsApp,
-                        }))
-                      }
-                      className="peer appearance-none w-5 h-5 border-2 border-black rounded-md checked:bg-black checked:border-black cursor-pointer transition-all hover:border-gray-300"
+                      onChange={() => setForm((p) => ({ ...p, prefersWhatsApp: !p.prefersWhatsApp }))}
+                      className="peer appearance-none w-5 h-5 border-2 border-slate-300 rounded-[6px] checked:bg-[#3686FF] checked:border-[#3686FF] cursor-pointer transition-all hover:border-[#3686FF]"
                     />
-                    <svg
-                      className="absolute left-[2.5px] w-4 h-4 text-white scale-0 peer-checked:scale-100 transition-transform pointer-events-none"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M5 13l4 4L19 7"
-                      />
+                    <svg className="absolute left-[2.5px] w-4 h-4 text-white scale-0 peer-checked:scale-100 transition-transform pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <span className="text-[13px] font-regular text-black select-none">
+                  <span className="text-[13px] font-bold text-slate-600 select-none">
                     Send OTP via SMS for verification
                   </span>
                 </label>
               </div>
-              <div className="w-full rounded-[20px] border border-blue-100 bg-blue-50 px-5 py-4 text-[12px] font-semibold text-blue-700">
-                Password is removed. After signup, we will send an SMS OTP to
-                verify and login.
+
+              <div className="w-full rounded-[20px] border border-blue-100 bg-blue-50/70 px-5 py-4 text-[12px] font-bold text-blue-700 shadow-sm leading-relaxed">
+                No password needed. We&apos;ll send an SMS OTP to verify your account when you login.
               </div>
 
               {/* Terms & Conditions */}
-              <div className="pt-2">
-                <label className="flex items-center gap-2.5 cursor-pointer group">
-                  <div className="relative flex items-center">
+              <div className="pt-1">
+                <label className="flex items-start gap-3 cursor-pointer group">
+                  <div className="relative flex items-center mt-0.5">
                     <input
                       type="checkbox"
                       checked={agreed}
                       onChange={() => setAgreed(!agreed)}
-                      className="peer appearance-none w-5 h-5 border-2 border-black rounded-md checked:bg-black checked:border-black cursor-pointer transition-all hover:border-gray-300"
+                      className="peer appearance-none w-5 h-5 border-2 border-slate-300 rounded-[6px] checked:bg-[#3686FF] checked:border-[#3686FF] cursor-pointer transition-all hover:border-[#3686FF]"
                     />
-                    <svg
-                      className="absolute left-[2.5px] w-4 h-4 text-white scale-0 peer-checked:scale-100 transition-transform pointer-events-none"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M5 13l4 4L19 7"
-                      />
+                    <svg className="absolute left-[2.5px] w-4 h-4 text-white scale-0 peer-checked:scale-100 transition-transform pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <span className="text-[14px] font-regular text-black select-none">
-                    Agree with{" "}
-                    <Link
-                      href="/terms"
-                      className="text-gray-700 underline decoration-gray-300 underline-offset-4"
-                    >
+                  <span className="text-[13px] font-bold text-slate-600 select-none">
+                    I agree to the{" "}
+                    <Link href="/terms" className="text-[#3686FF] hover:underline font-black">
                       Terms & Conditions
                     </Link>
                   </span>
                 </label>
                 {errors.agreed && (
-                  <p className="text-[10px] text-red-500 font-bold mt-1.5 px-1">
-                    {errors.agreed}
-                  </p>
+                  <p className="mt-2 text-[11px] text-rose-500 font-bold px-4">{errors.agreed}</p>
                 )}
               </div>
 
@@ -411,30 +447,30 @@ function RegisterForm() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full h-[60px] bg-[#3381FF] text-white font-bold rounded-[30px] text-[16px] shadow-sm hover:bg-[#2970E6] transition-all active:scale-[0.98] disabled:opacity-70 mt-2"
+                className="w-full h-[60px] bg-[#3686FF] text-white font-extrabold rounded-[20px] text-[14px] shadow-[0_8px_20px_rgba(54,134,255,0.2)] hover:shadow-[0_12px_25px_rgba(54,134,255,0.3)] hover:-translate-y-0.5 hover:bg-[#2970E6] transition-all disabled:opacity-50 disabled:hover:translate-y-0 active:translate-y-0 uppercase tracking-widest mt-4"
               >
-                {submitting ? "Processing..." : "Register"}
+                {submitting ? "Processing..." : "Create Account"}
               </button>
             </form>
 
             {/* Divider */}
-            <div className="w-full mt-6 mb-5 flex items-center justify-center">
-              <div className="h-px flex-1 bg-gray-100" />
-              <span className="px-4 text-[16px] font-regular text-black tracking-widest uppercase">
-                OR
+            <div className="w-full mt-6 mb-4 flex items-center justify-center">
+              <div className="h-px flex-1 bg-slate-200" />
+              <span className="px-4 text-[10px] font-black text-slate-400 tracking-widest uppercase">
+                OR CONTINUE WITH
               </span>
-              <div className="h-px flex-1 bg-gray-100" />
+              <div className="h-px flex-1 bg-slate-200" />
             </div>
 
             {/* Social Options */}
-            <div className="flex gap-4 mb-3">
+            <div className="flex gap-4 justify-center mb-6">
               <SocialButton icon={<GoogleIcon />} />
               <SocialButton icon={<AppleIcon />} />
               <SocialButton icon={<FacebookLogo />} />
             </div>
 
             {/* Footer */}
-            <p className="text-[14px] font-regular text-black">
+            <p className="text-[13px] font-semibold text-slate-500 text-center">
               Already have an account?{" "}
               <Link
                 href={
@@ -442,7 +478,7 @@ function RegisterForm() {
                     ? `/login?callbackUrl=${encodeURIComponent(callbackUrl)}`
                     : "/login"
                 }
-                className="text-[#3381FF] font-bold hover:underline"
+                className="text-[#3686FF] font-black hover:underline ml-1"
               >
                 Login
               </Link>
@@ -458,8 +494,8 @@ export default function RegisterPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-white flex items-center justify-center">
-          <div className="w-8 h-8 border-2 border-[#3381FF]/30 border-t-[#3381FF] rounded-full animate-spin" />
+        <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
+          <div className="w-12 h-12 border-[4px] border-[#3686FF]/20 border-t-[#3686FF] rounded-full animate-spin" />
         </div>
       }
     >
@@ -491,7 +527,7 @@ function InputField({
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className={`w-full h-[56px] bg-[#F4F4F4] border-none rounded-[20px] px-6 text-[16px] font-regular text-[#1e293b] placeholder:text-[#666666] outline-none focus:ring-2 focus:ring-blue-500/10 transition-all`}
+          className={`w-full h-[60px] bg-white border border-slate-200 rounded-[20px] px-5 text-[15px] font-bold text-slate-900 placeholder:text-slate-400 placeholder:font-medium outline-none focus:border-[#3686FF] focus:ring-4 focus:ring-[#3686FF]/10 transition-all shadow-sm ${error ? "border-rose-300 focus:border-rose-400 focus:ring-rose-400/20" : ""}`}
         />
         {suffix && (
           <div className="absolute right-5 top-1/2 -translate-y-1/2">
@@ -500,7 +536,7 @@ function InputField({
         )}
       </div>
       {error && (
-        <p className="mt-1 text-[10px] text-red-500 font-bold px-2">{error}</p>
+        <p className="mt-2 text-[11px] text-rose-500 font-bold px-4">{error}</p>
       )}
     </div>
   );

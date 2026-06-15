@@ -90,10 +90,8 @@ const CTABanner = () => (
               transition={{ delay: 0.3 }}
               className="flex flex-wrap items-center gap-6"
             >
-              <Link href="/matches">
-                <Button className="h-[56px] text-[#3366FF] rounded-2xl bg-white hover:bg-white/90 font-bold px-[32px] text-[16px] gap-2 border-none transition-all hover:scale-105 shadow-xl">
-                  Start Free Today <ArrowRight className="w-5 h-5 ml-1" strokeWidth={2.5} />
-                </Button>
+              <Link href="/matches" className="inline-flex items-center justify-center h-[56px] text-[#3366FF] rounded-2xl bg-white hover:bg-white/90 font-bold px-[32px] text-[16px] transition-all hover:scale-105 shadow-xl">
+                Start Free Today <ArrowRight className="w-5 h-5 ml-2" strokeWidth={2.5} />
               </Link>
               <Link
                 href="/matches"

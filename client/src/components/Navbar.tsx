@@ -8,11 +8,7 @@ import {
   Menu,
   X,
   User,
-  ArrowRight,
   LayoutDashboard,
-  Home,
-  Search,
-  Sparkles,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 
@@ -37,15 +33,16 @@ export default function Navbar() {
 
   return (
     <>
-      {/* Desktop & Mobile Top Bar (Logo Only on Mobile) */}
       <nav
-        className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ${
-          scrolled
-            ? "bg-white/95 backdrop-blur-md border-b border-gray-100 py-3 shadow-[0_4px_20px_rgba(0,0,0,0.03)]"
-            : "bg-white py-5 border-b border-gray-50/50"
-        }`}
+        className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 pt-4 px-4 sm:px-6 lg:px-12`}
       >
-        <div className="max-w-[1280px] mx-auto flex items-center justify-between px-6 lg:px-12">
+        <div 
+          className={`max-w-[1400px] mx-auto flex items-center justify-between px-5 py-3 lg:px-8 transition-all duration-500 rounded-full ${
+            scrolled
+              ? "bg-white/85 backdrop-blur-xl border border-white/40 shadow-[0_8px_30px_rgb(0,0,0,0.08)]"
+              : "bg-transparent py-4"
+          }`}
+        >
           {/* Logo */}
           <Link
             href="/"
@@ -62,59 +59,66 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Links (Hidden on Mobile) */}
-          <ul className="hidden lg:flex items-center gap-8 list-none m-0 p-0">
+          <ul className="hidden lg:flex items-center gap-10 list-none m-0 p-0">
             {NAV_LINKS.map((l) => (
-              <li key={l.label} className="relative group py-4">
+              <li key={l.label} className="relative group">
                 <Link
                   href={l.href}
-                  className={`text-[16px] font-bold tracking-tight transition-all flex items-center gap-1.5 hover:text-[#3366FF] ${
-                    scrolled ? "text-gray-900" : "text-gray-900"
+                  className={`text-[15px] font-bold tracking-tight transition-all flex items-center gap-1.5 hover:text-[#3366FF] ${
+                    pathname === l.href ? "text-[#3366FF]" : "text-gray-800"
                   }`}
                 >
                   {l.label}
                 </Link>
+                {/* Active indicator */}
+                {pathname === l.href && (
+                  <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[#3366FF]" />
+                )}
               </li>
             ))}
 
             {isAdmin && (
-              <li className="relative group py-4">
+              <li className="relative group">
                 <Link
                   href="/admin"
-                  className={`text-[16px] font-black transition-all flex items-center gap-1.5 hover:text-blue-600! ${
-                    scrolled ? "text-blue-600!" : "text-blue-700!"
+                  className={`text-[15px] font-black transition-all flex items-center gap-1.5 hover:text-[#3366FF] ${
+                    pathname === "/admin" ? "text-[#3366FF]" : "text-gray-800"
                   }`}
                 >
                   <LayoutDashboard className="w-4 h-4" />
                   Admin
                 </Link>
+                {pathname === "/admin" && (
+                  <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[#3366FF]" />
+                )}
               </li>
             )}
           </ul>
 
           {/* Right actions (Desktop Only) */}
-          <div className="hidden lg:flex items-center gap-4 sm:gap-6">
+          <div className="hidden lg:flex items-center gap-4 sm:gap-5">
             {isAuthenticated ? (
               <Link
                 href="/profile"
-                className="flex items-center gap-3 bg-[#3366FF] text-white font-bold px-[20px] py-[10px] rounded-2xl text-[15px] shadow-xl shadow-blue-500/25 hover:-translate-y-0.5 transition-all duration-300 active:scale-95 hover:bg-[#254bdb]"
+                className="flex items-center gap-3 bg-white border border-gray-100 text-gray-800 font-bold px-[20px] py-[10px] rounded-full text-[14px] shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 active:scale-95 group hover:border-blue-100"
               >
                 {session?.user?.image ? (
-                  <div className="relative w-7 h-7 rounded-full overflow-hidden border border-white/20">
+                  <div className="relative w-8 h-8 rounded-full overflow-hidden border border-gray-100 group-hover:border-blue-200 transition-colors">
                     <Image src={session.user.image} alt={session?.user?.name || "User"} fill className="object-cover" />
                   </div>
                 ) : (
-                  <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center border border-white/20">
-                    <User className="w-4 h-4 text-white" />
+                  <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100 group-hover:bg-blue-100 transition-colors">
+                    <User className="w-4 h-4 text-[#3366FF]" />
                   </div>
                 )}
-                <span className="max-w-[120px] truncate">
+                <span className="max-w-[120px] truncate group-hover:text-[#3366FF] transition-colors">
                   {session?.user?.name || "My Profile"}
                 </span>
               </Link>
             ) : (
               <Link
                 href={`/login?callbackUrl=${encodeURIComponent(pathname)}`}
-                className="flex items-center gap-2 bg-[#3366FF] text-white font-bold px-[28px] py-[12px] rounded-2xl text-[15px] shadow-xl shadow-blue-500/25 hover:-translate-y-0.5 transition-all duration-300 active:scale-95 hover:bg-[#254bdb]"
+                className="flex items-center gap-2 bg-[#3366FF] text-white font-bold px-[30px] py-[12px] rounded-full text-[15px] shadow-[0_8px_20px_rgb(51,102,255,0.3)] hover:-translate-y-0.5 transition-all duration-300 active:scale-95 hover:bg-[#254bdb]"
               >
                 Login
               </Link>
@@ -123,7 +127,9 @@ export default function Navbar() {
 
           {/* Mobile hamburger */}
           <button
-            className={`lg:hidden w-11 h-11 flex justify-center items-center rounded-2xl border transition-all shadow-sm bg-white border-gray-100 text-gray-900`}
+            className={`lg:hidden w-12 h-12 flex justify-center items-center rounded-full border transition-all ${
+              scrolled ? "bg-white border-gray-100 shadow-sm" : "bg-white/80 backdrop-blur-md border-white/50 shadow-sm"
+            } text-gray-900`}
             onClick={() => setMobileOpen(!mobileOpen)}
           >
             {mobileOpen ? (
@@ -136,32 +142,47 @@ export default function Navbar() {
 
         {/* Mobile drawer */}
         {mobileOpen && (
-          <div className="lg:hidden absolute top-full left-0 w-full border-b border-gray-100 bg-white px-6 py-10 flex flex-col gap-6 shadow-2xl animate-fade-in-nav">
+          <div className="lg:hidden absolute top-[110%] left-4 right-4 rounded-3xl border border-white/50 bg-white/95 backdrop-blur-2xl px-6 py-8 flex flex-col gap-6 shadow-[0_20px_60px_rgba(0,0,0,0.15)] animate-in slide-in-from-top-4 fade-in duration-300">
             {NAV_LINKS.map((l) => (
-              <div key={l.label} className="flex flex-col gap-4">
-                <Link
-                  href={l.href}
-                  onClick={() => setMobileOpen(false)}
-                  className="text-xl font-extrabold text-blue-700 hover:text-blue-600 transition-colors"
-                >
-                  {l.label}
-                </Link>
-              </div>
+              <Link
+                key={l.label}
+                href={l.href}
+                onClick={() => setMobileOpen(false)}
+                className={`text-xl font-extrabold transition-colors ${
+                  pathname === l.href ? "text-[#3366FF]" : "text-gray-800 hover:text-[#3366FF]"
+                }`}
+              >
+                {l.label}
+              </Link>
             ))}
-            <div className="h-px bg-gray-100 my-2" />
+            {isAdmin && (
+               <Link
+               href="/admin"
+               onClick={() => setMobileOpen(false)}
+               className={`text-xl font-extrabold transition-colors flex items-center gap-2 ${
+                 pathname === "/admin" ? "text-[#3366FF]" : "text-gray-800 hover:text-[#3366FF]"
+               }`}
+             >
+               <LayoutDashboard className="w-5 h-5" />
+               Admin
+             </Link>
+            )}
+            
+            <div className="h-px bg-gray-100/80 my-2" />
+            
             {isAuthenticated ? (
               <Link
                 href="/profile"
                 onClick={() => setMobileOpen(false)}
-                className="flex items-center justify-center gap-3 bg-[#3366FF] text-white font-bold px-6 py-4 rounded-2xl shadow-lg shadow-blue-500/20"
+                className="flex items-center justify-center gap-3 bg-gray-50 border border-gray-100 text-gray-900 font-bold px-6 py-4 rounded-full"
               >
                 {session?.user?.image ? (
-                  <div className="relative w-8 h-8 rounded-full overflow-hidden border border-white/20">
+                  <div className="relative w-8 h-8 rounded-full overflow-hidden border border-gray-200">
                     <Image src={session.user.image} alt={session?.user?.name || "User"} fill className="object-cover" />
                   </div>
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center border border-white/20">
-                    <User className="w-4 h-4 text-white" />
+                  <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100">
+                    <User className="w-4 h-4 text-[#3366FF]" />
                   </div>
                 )}
                 <span>{session?.user?.name || "My Profile"}</span>
@@ -170,7 +191,7 @@ export default function Navbar() {
               <Link
                 href={`/login?callbackUrl=${encodeURIComponent(pathname)}`}
                 onClick={() => setMobileOpen(false)}
-                className="flex items-center justify-center gap-2 bg-[#3366FF] text-white font-bold px-6 py-4 rounded-2xl shadow-lg shadow-blue-500/20"
+                className="flex items-center justify-center gap-2 bg-[#3366FF] text-white font-bold px-6 py-4 rounded-full shadow-[0_10px_30px_rgb(51,102,255,0.3)]"
               >
                 Login
               </Link>

@@ -1,5 +1,5 @@
 "use client";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { ArrowRight, CheckCircle2, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 
 const HeroSection = () => {
   return (
-    <section className="relative min-h-[90vh] bg-[#E5EFFF] overflow-hidden flex flex-col w-full pt-24 lg:pt-0 pb-4">
+    <section className="relative min-h-[100vh] lg:min-h-[90vh] bg-gradient-to-b from-[#E5EFFF] to-white overflow-hidden flex flex-col w-full pt-28 lg:pt-20 pb-12">
       {/* ── BACKGROUND SHAPES ── */}
 
       {/* 1. White Organic Blob on the left */}
@@ -15,7 +15,7 @@ const HeroSection = () => {
         initial={{ opacity: 0, x: -100 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 1.5, ease: "easeOut" }}
-        className="absolute top-0 left-[-2%] w-[45%] h-[120%] pointer-events-none z-0 hidden md:block"
+        className="absolute top-0 left-[-10%] w-[60%] h-[120%] pointer-events-none z-0 hidden lg:block"
       >
         <svg
           viewBox="0 0 500 800"
@@ -32,7 +32,7 @@ const HeroSection = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 0.4 }}
         transition={{ delay: 0.5, duration: 1.5 }}
-        className="absolute top-[-5%] left-[-2%] pointer-events-none z-0 hidden md:block opacity-40"
+        className="absolute top-[-5%] left-[-2%] pointer-events-none z-0 hidden lg:block opacity-40"
       >
         <svg
           width="250"
@@ -55,7 +55,7 @@ const HeroSection = () => {
       <motion.div 
         animate={{ scale: [1, 1.05, 1], opacity: [0.6, 0.9, 0.6] }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute bottom-[5%] left-[24%] pointer-events-none z-0 hidden md:block"
+        className="absolute bottom-[10%] left-[24%] pointer-events-none z-0 hidden lg:block"
       >
         <svg
           width="150"
@@ -91,7 +91,7 @@ const HeroSection = () => {
         initial={{ pathLength: 0, opacity: 0 }}
         animate={{ pathLength: 1, opacity: 1 }}
         transition={{ duration: 2, ease: "easeInOut" }}
-        className="absolute top-[8%] right-[-10%] pointer-events-none z-0 hidden md:block"
+        className="absolute top-[8%] right-[-10%] pointer-events-none z-0 hidden lg:block"
       >
         <svg width="500" height="500" viewBox="0 0 500 500" fill="none">
           <motion.path
@@ -115,77 +115,93 @@ const HeroSection = () => {
         </svg>
       </motion.div>
 
-      {/* Main content */}
-      <div className="relative z-10 w-full max-w-[1280px] mx-auto px-6 lg:px-12 flex-grow flex flex-col">
-        <div className="flex flex-col-reverse lg:grid lg:grid-cols-2 gap-3 lg:gap-8 flex-grow">
+      {/* Main content - Full width container */}
+      <div className="relative z-10 w-full max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-16 flex-grow flex flex-col">
+        <div className="flex flex-col-reverse lg:grid lg:grid-cols-2 gap-8 lg:gap-12 flex-grow items-center">
+          
           {/* Left content */}
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="flex flex-col justify-center max-w-[580px] mt-10 lg:mt-0 lg:translate-y-10 xl:translate-x-4 glass p-8 sm:p-10 rounded-[32px] border-white/40 shadow-xl lg:bg-transparent lg:shadow-none lg:border-none lg:p-0"
+            className="flex flex-col justify-center w-full mt-6 lg:mt-0 xl:translate-x-8"
           >
-            <h1 className="text-[35px] sm:text-[42px] lg:text-[48px] font-extrabold text-[#0f172a] leading-[1.1] mb-6 tracking-tight text-center sm:text-left drop-shadow-sm">
-              Match, Plan and Self-Apply
-              <br className="hidden lg:block" /> with <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#3366FF] to-[#6b91ff]">Confidence</span>
+            {/* Tagline */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.4 }}
+              className="inline-flex items-center gap-2 bg-blue-100/80 backdrop-blur-sm border border-blue-200 text-blue-700 px-4 py-2 rounded-full font-bold text-sm mx-auto lg:mx-0 mb-6 sm:mb-8"
+            >
+              <Star className="w-4 h-4 text-blue-600 fill-blue-600" />
+              <span>#1 AI Platform for Study Abroad</span>
+            </motion.div>
+
+            <h1 className="text-[40px] sm:text-[50px] lg:text-[56px] xl:text-[64px] font-extrabold text-[#0f172a] leading-[1.05] mb-6 tracking-tight text-center lg:text-left drop-shadow-sm">
+              Match, Plan and <br className="hidden sm:block" />
+              Self-Apply with <br className="hidden sm:block" />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#3366FF] to-[#00d4ff]">Confidence</span>
             </h1>
-            <p className="text-[#334155] text-[16px] sm:text-[18px] mb-8 leading-relaxed max-w-[450px] font-medium text-center sm:text-left mx-auto sm:mx-0">
+            
+            <p className="text-[#475569] text-[16px] sm:text-[18px] lg:text-[20px] mb-8 lg:mb-10 leading-relaxed max-w-[500px] font-medium text-center lg:text-left mx-auto lg:mx-0">
               Find the right colleges, estimate your total cost, check your
               admission chances, and track your visa readiness.
             </p>
+            
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6 }}
-              className="flex flex-row items-center justify-center sm:justify-start gap-4 sm:gap-8 mb-8"
+              className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-8"
             >
-              <div className="flex items-center gap-2 bg-white/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white shadow-sm">
+              <div className="flex items-center gap-2 bg-white/80 backdrop-blur-md px-4 py-2 rounded-full border border-gray-100 shadow-sm w-full sm:w-auto justify-center">
                 <CheckCircle2
-                  className="w-[18px] h-[18px] text-[#22C55E]"
+                  className="w-[20px] h-[20px] text-[#22C55E]"
                   strokeWidth={2.5}
                 />
-                <span className="text-[#15803d] font-bold text-[13px] uppercase tracking-wide whitespace-nowrap">
+                <span className="text-[#15803d] font-bold text-[14px] uppercase tracking-wide whitespace-nowrap">
                   160+ Countries
                 </span>
               </div>
-              <div className="flex items-center gap-2 bg-white/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white shadow-sm">
+              <div className="flex items-center gap-2 bg-white/80 backdrop-blur-md px-4 py-2 rounded-full border border-gray-100 shadow-sm w-full sm:w-auto justify-center">
                 <CheckCircle2
-                  className="w-[18px] h-[18px] text-[#EF4444]"
+                  className="w-[20px] h-[20px] text-[#EF4444]"
                   strokeWidth={2.5}
                 />
-                <span className="text-[#b91c1c] font-bold text-[13px] uppercase tracking-wide whitespace-nowrap">
+                <span className="text-[#b91c1c] font-bold text-[14px] uppercase tracking-wide whitespace-nowrap">
                   1000+ Universities
                 </span>
               </div>
             </motion.div>
+            
             <motion.div 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="flex justify-center sm:justify-start"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="flex justify-center lg:justify-start w-full sm:w-auto"
             >
-              <Link href="/matches">
-                <Button className="bg-gradient-to-r from-[#3366FF] to-[#254bdb] text-white px-[28px] py-[26px] rounded-2xl font-bold text-[18px] gap-2 shadow-[0_10px_40px_rgb(51,102,255,0.4)] transition-all border border-blue-400/30">
-                  Get Started Free <ArrowRight className="w-5 h-5 ml-1" />
+              <Link href="/matches" className="w-full sm:w-auto">
+                <Button className="w-full sm:w-auto bg-[#3366FF] hover:bg-[#254bdb] text-white px-8 py-7 rounded-full font-bold text-[18px] gap-2 shadow-[0_10px_30px_rgb(51,102,255,0.3)] transition-all">
+                  Get Started Free <ArrowRight className="w-6 h-6 ml-1" />
                 </Button>
               </Link>
             </motion.div>
           </motion.div>
 
           {/* Right content - Graduate image with circle */}
-          <div className="relative flex items-end justify-center lg:justify-end lg:h-full mt-12 lg:mt-0 perspective-1000">
+          <div className="relative flex items-center justify-center lg:justify-end w-full lg:h-full perspective-1000">
             <motion.div 
               initial={{ opacity: 0, scale: 0.9, rotateY: -10 }}
               animate={{ opacity: 1, scale: 1, rotateY: 0 }}
               transition={{ duration: 1, ease: "easeOut" }}
-              className="relative w-[340px] h-[340px] sm:w-[450px] sm:h-[450px] lg:w-[600px] lg:h-auto flex items-end justify-center xl:translate-x-12"
+              className="relative w-full max-w-[320px] sm:max-w-[450px] lg:max-w-[600px] aspect-square flex items-end justify-center"
             >
               {/* Thick Blue Circle */}
               <motion.div 
                 animate={{ rotate: 360 }}
                 transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-                className="absolute top-[1%] left-[50%] -translate-x-1/2 w-[60%] lg:w-[60%] aspect-square rounded-full border-[6px] lg:border-[8px] border-dashed border-[#3366FF]/40 pointer-events-none" 
+                className="absolute top-[5%] left-[50%] -translate-x-1/2 w-[70%] sm:w-[65%] lg:w-[60%] aspect-square rounded-full border-[6px] lg:border-[8px] border-dashed border-[#3366FF]/40 pointer-events-none" 
               />
-              <div className="absolute top-[3%] left-[50%] -translate-x-1/2 w-[56%] lg:w-[56%] aspect-square rounded-full border-[3px] lg:border-[4px] border-[#3366FF]/60 pointer-events-none backdrop-blur-[2px]" />
+              <div className="absolute top-[7%] left-[50%] -translate-x-1/2 w-[66%] sm:w-[61%] lg:w-[56%] aspect-square rounded-full border-[3px] lg:border-[4px] border-[#3366FF]/60 pointer-events-none backdrop-blur-[2px]" />
               
               {/* Graduate image */}
               <Image
@@ -201,12 +217,12 @@ const HeroSection = () => {
               <motion.div 
                 animate={{ y: [0, -15, 0] }}
                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute right-0 top-[20%] z-20 glass bg-white/70 px-4 py-3 rounded-2xl shadow-xl border border-white hidden sm:flex items-center gap-3"
+                className="absolute right-[-5%] sm:right-0 top-[20%] z-20 bg-white/90 backdrop-blur-md px-4 py-3 rounded-2xl shadow-xl border border-gray-100 flex items-center gap-3"
               >
                 <div className="w-10 h-10 rounded-full bg-blue-100 text-[#3366FF] flex items-center justify-center font-black text-xl">🎓</div>
                 <div>
-                  <div className="text-[14px] font-black text-gray-900 leading-none">Smart Match</div>
-                  <div className="text-[11px] font-bold text-gray-500 uppercase">AI Powered</div>
+                  <div className="text-[14px] font-black text-gray-900 leading-none mb-1">Smart Match</div>
+                  <div className="text-[11px] font-bold text-[#3366FF] uppercase">AI Powered</div>
                 </div>
               </motion.div>
             </motion.div>

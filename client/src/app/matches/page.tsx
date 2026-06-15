@@ -1815,45 +1815,39 @@ function GenericEngineScreen({
   const strokeDashoffset = circumference - (progress / 100) * circumference;
 
   return (
-    <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-[#fdfdfd] overflow-hidden">
-      {/* Abstract Animated Mesh Background Pattern */}
-      <div
-        className="absolute inset-0 opacity-[0.02] pointer-events-none"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle at 2px 2px, black 1px, transparent 0)",
-          backgroundSize: "24px 24px",
-        }}
-      />
+    <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-slate-50/70 backdrop-blur-xl overflow-hidden">
+      {/* Background Animated Blobs for Glassmorphism */}
+      <div className="absolute top-[20%] left-[20%] w-[500px] h-[500px] bg-blue-300/30 rounded-full blur-[120px] mix-blend-multiply animate-pulse" />
+      <div className="absolute bottom-[20%] right-[20%] w-[400px] h-[400px] bg-indigo-300/20 rounded-full blur-[100px] mix-blend-multiply animate-pulse" style={{ animationDelay: "2s" }} />
 
-      <div className="relative z-10 w-full max-w-sm px-8 flex flex-col items-center">
+      <Card className="relative z-10 w-full max-w-[500px] p-10 md:p-14 flex flex-col items-center rounded-[40px] border border-white/60 bg-white/80 shadow-[0_20px_80px_rgba(0,0,0,0.08)] backdrop-blur-2xl">
+        
         {/* Unique Circular Progress & Icon Container */}
         <div className="relative w-48 h-48 flex items-center justify-center mb-10">
           {/* Breathing Radial Glow */}
           <motion.div
-            className={`absolute inset-0 rounded-full blur-[40px] opacity-20 ${config.glow}`}
-            animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.4, 0.2] }}
+            className={`absolute inset-0 rounded-full blur-[40px] opacity-30 ${config.glow}`}
+            animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.5, 0.2] }}
             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
           />
 
           {/* SVG Progress Ring */}
-          <svg className="absolute inset-0 w-full h-full -rotate-90">
+          <svg className="absolute inset-0 w-full h-full -rotate-90 drop-shadow-sm">
             {/* Background Track */}
             <circle
               cx="96"
               cy="96"
               r={radius}
-              strokeWidth="1"
-              stroke="currentColor"
+              strokeWidth="4"
+              stroke="#f1f5f9"
               fill="transparent"
-              className="text-slate-200"
             />
             {/* Animated Progress */}
             <motion.circle
               cx="96"
               cy="96"
               r={radius}
-              strokeWidth="2.5"
+              strokeWidth="4.5"
               stroke="currentColor"
               fill="transparent"
               strokeLinecap="round"
@@ -1868,11 +1862,11 @@ function GenericEngineScreen({
           {/* Central Animated Content */}
           <div className="relative flex flex-col items-center justify-center gap-1 mt-1">
             <config.icon
-              className={`w-10 h-10 ${config.accent} opacity-90`}
-              strokeWidth={2}
+              className={`w-10 h-10 ${config.accent} drop-shadow-sm`}
+              strokeWidth={2.5}
             />
             <span
-              className={`text-[20px] font-black ${config.accent} tabular-nums tracking-tighter`}
+              className={`text-[26px] font-black ${config.accent} tabular-nums tracking-tighter drop-shadow-sm`}
             >
               {Math.round(progress)}%
             </span>
@@ -1880,12 +1874,12 @@ function GenericEngineScreen({
 
           {/* Orbiting Satellite Dot */}
           <motion.div
-            className={`absolute w-2 h-2 rounded-full ${config.accent.replace("text", "bg")} shadow-sm`}
+            className={`absolute w-3 h-3 rounded-full ${config.accent.replace("text", "bg")} shadow-lg`}
             style={{
               top: "50%",
               left: "50%",
-              marginTop: "-4px",
-              marginLeft: "-4px",
+              marginTop: "-6px",
+              marginLeft: "-6px",
             }}
             animate={{ rotate: 360 }}
             transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
@@ -1895,7 +1889,7 @@ function GenericEngineScreen({
         </div>
 
         {/* Typographical Title Header */}
-        <div className="h-8 mb-12 flex items-center justify-center">
+        <div className="h-10 mb-8 flex items-center justify-center">
           <AnimatePresence mode="wait">
             <motion.h1
               key={titleIndex}
@@ -1903,15 +1897,15 @@ function GenericEngineScreen({
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 1.02, y: -5 }}
               transition={{ duration: 0.5 }}
-              className="text-[18px] md:text-[22px] font-[900] text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 tracking-[0.2em] uppercase italic drop-shadow-sm"
+              className="text-[20px] md:text-[24px] font-extrabold text-slate-900 tracking-tight text-center"
             >
               {config.titles[titleIndex]}
             </motion.h1>
           </AnimatePresence>
         </div>
 
-        {/* Naked Architecture Dashboard */}
-        <div className="w-full max-w-[400px] flex justify-between items-end gap-6 border-t border-slate-200/40 pt-7">
+        {/* Checklists and Indicators */}
+        <div className="w-full flex justify-between items-end gap-6 border-t border-slate-100/80 pt-8 mt-2">
           {/* Active Logs (Left) */}
           <div className="space-y-4 flex-1">
             {checklist.map((item) => (
@@ -1922,27 +1916,29 @@ function GenericEngineScreen({
                 transition={{ duration: 0.4 }}
                 className="flex items-center gap-3.5"
               >
-                {item.status === "complete" ? (
-                  <Check
-                    className="w-[16px] h-[16px] text-emerald-500"
-                    strokeWidth={3}
-                  />
-                ) : item.status === "loading" ? (
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{
-                      duration: 1,
-                      repeat: Infinity,
-                      ease: "linear",
-                    }}
-                  >
-                    <Loader2 className={`w-[16px] h-[16px] ${config.accent}`} />
-                  </motion.div>
-                ) : (
-                  <div className="w-[16px] h-[16px] rounded border-2 border-slate-200" />
-                )}
+                <div className="w-7 h-7 rounded-full bg-white border border-slate-100 shadow-sm flex items-center justify-center shrink-0">
+                  {item.status === "complete" ? (
+                    <Check
+                      className="w-3.5 h-3.5 text-emerald-500"
+                      strokeWidth={3}
+                    />
+                  ) : item.status === "loading" ? (
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{
+                        duration: 1,
+                        repeat: Infinity,
+                        ease: "linear",
+                      }}
+                    >
+                      <Loader2 className={`w-3.5 h-3.5 ${config.accent}`} />
+                    </motion.div>
+                  ) : (
+                    <div className="w-1.5 h-1.5 rounded-full bg-slate-200" />
+                  )}
+                </div>
                 <span
-                  className={`text-[11px] md:text-[12px] font-[800] tracking-[0.15em] uppercase ${item.status === "complete" ? "text-slate-400 line-through" : "text-slate-800"}`}
+                  className={`text-[12px] md:text-[13px] font-bold tracking-wide ${item.status === "complete" ? "text-slate-400 line-through" : "text-slate-700"}`}
                 >
                   {item.text}
                 </span>
@@ -1954,11 +1950,11 @@ function GenericEngineScreen({
           <div className="flex flex-col items-end text-right gap-6">
             {dataIndicators.map((ind, idx) => (
               <div key={idx} className="flex flex-col items-end">
-                <span className="text-[10px] text-slate-400 font-[800] uppercase tracking-[0.2em] leading-none mb-1.5 opacity-80">
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none mb-2">
                   {ind.text}
                 </span>
                 <span
-                  className={`text-[24px] md:text-[28px] font-black tabular-nums tracking-tighter leading-none ${ind.active ? config.accent : "text-slate-300 drop-shadow-sm"}`}
+                  className={`text-[22px] md:text-[26px] font-black tabular-nums tracking-tighter leading-none ${ind.active ? config.accent : "text-slate-300 drop-shadow-sm"}`}
                 >
                   {ind.active ? ind.count.toLocaleString() : "---"}
                 </span>
@@ -1966,7 +1962,7 @@ function GenericEngineScreen({
             ))}
           </div>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }
@@ -5078,7 +5074,7 @@ export default function AbroadLiftMatchesPage() {
 
         {/* Step Content Area */}
         <div
-          className={`flex-1 overflow-y-auto px-6 lg:px-12 ${step === 7 ? "pt-5" : step === 9 ? "pt-0" : "pt-3"} ${step === 7 || step === 8 ? "pb-0 lg:pb-0 px-0 lg:px-0" : step === 9 ? "pb-[60px]" : "pb-[160px] md:pb-[200px]"} overflow-x-hidden min-h-0 hide-scrollbar`}
+          className={`flex-1 overflow-y-auto ${step >= 7 ? "px-0 lg:px-0 pt-0 pb-0" : "px-6 lg:px-12 pt-3 pb-[160px] md:pb-[200px]"} overflow-x-hidden min-h-0 hide-scrollbar`}
         >
           <div
             className={`${step >= 7 ? "max-w-full" : "max-w-4xl"} mx-auto min-h-full flex flex-col`}

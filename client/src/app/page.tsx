@@ -1149,7 +1149,7 @@ import TestimonialsSection from "@/components/home/TestimonialsSection";
 import VisaReadinessSection from "@/components/home/VisaReadinessSection";
 
 const HomePage = () => (
-  <div className="min-h-screen  px-6 sm:px-8 lg:px-12">
+  <div className="min-h-screen">
     <HeroSection />
     <StatsBar />
     <EverythingSection />
