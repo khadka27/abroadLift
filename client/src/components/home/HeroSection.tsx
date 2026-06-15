@@ -133,7 +133,6 @@ const HeroSection = () => {
               transition={{ delay: 0.4 }}
               className="inline-flex items-center gap-2 bg-blue-100/80 backdrop-blur-sm border border-blue-200 text-blue-700 px-4 py-2 rounded-full font-bold text-sm mx-auto lg:mx-0 mb-6 sm:mb-8"
             >
-              <Star className="w-4 h-4 text-blue-600 fill-blue-600" />
               <span>#1 AI Platform for Study Abroad</span>
             </motion.div>
 

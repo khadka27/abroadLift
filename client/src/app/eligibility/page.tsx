@@ -329,12 +329,9 @@ export default function EligibilityHub() {
 
   return (
     <div className={`min-h-screen bg-[#F8FAFC] pb-20`} style={{fontFamily: 'Inter, sans-serif'}}>
-      <main className="max-w-7xl mx-auto px-6 pt-12">
+      <main className="max-w-7xl mx-auto px-6 pt-24 lg:pt-28">
         <header className="mb-12">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
-            <div className="w-40 h-10 relative">
-              <NextImage src="/logo.png" alt="AbroadLift Logo" fill className="object-contain object-left" />
-            </div>
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-50 border border-teal-100 text-teal-700 text-xs font-black uppercase tracking-widest">
               <Sparkles className="w-4 h-4" /> AI-Powered Admissions Assistant
             </div>

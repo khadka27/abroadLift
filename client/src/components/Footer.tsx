@@ -24,8 +24,8 @@ const FOOTER_LINKS = {
   Legal: [
     { href: "/legal", label: "Legal Center" },
     { href: "/terms", label: "Terms and Conditions" },
-    { href: "/privacy", label: "Privacy Policy" },
-    { href: "/cookies", label: "Cookie Policy" },
+    { href: "/privacy-policy", label: "Privacy Policy" },
+    { href: "/cookie-policy", label: "Cookie Policy" },
     { href: "/disclaimer", label: "Disclaimer" },
   ],
 };
@@ -103,7 +103,7 @@ export default function Footer() {
               Terms and Conditions
             </Link>
             <span>|</span>
-            <Link href="/privacy" className="text-[#3686FF] hover:underline">
+            <Link href="/privacy-policy" className="text-[#3686FF] hover:underline">
               Privacy Policy
             </Link>
           </div>

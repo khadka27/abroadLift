@@ -11,58 +11,222 @@ export const metadata: Metadata = buildLegalMetadata({
 
 const sections = [
   {
-    heading: "Acceptance of Terms",
+    heading: "1. Acceptance of Terms",
     body: [
-      "By accessing or using AbroadLift, you agree to be bound by these Terms and Conditions. If you do not agree, you should not use the platform.",
-      "These terms apply to all visitors, registered users, and anyone interacting with AbroadLift services.",
+      "These Terms & Conditions (“Terms”) govern your access to and use of the AbroadLift website, mobile application, calculators, dashboards, saved profiles, alerts, tools, content, and related services (collectively, the “Platform”).",
+      "By creating an account, clicking “I Agree,” submitting information, uploading documents, or otherwise using the Platform, you confirm that you have read, understood, and agreed to these Terms, our Privacy Policy, and any other notices displayed on the Platform.",
+      "If you do not agree to these Terms, you must not use the Platform.",
     ],
   },
   {
-    heading: "Service Scope",
+    heading: "2. About AbroadLift",
     body: [
-      "AbroadLift provides university discovery, match suggestions, and planning tools based on data from internal logic and third-party education sources.",
-      "AbroadLift does not guarantee admission, visa approval, scholarship awards, or any specific academic or financial outcome.",
+      "AbroadLift is an information and self-application support platform for students exploring overseas education opportunities.",
+      "AbroadLift is not an education consultancy, immigration consultancy, migration agent, legal advisor, or financial advisor unless expressly stated under a separate written contract.",
+      "AbroadLift does not: guarantee admission, visas, scholarships, accommodation, or jobs; act as your authorized representative before any university, embassy, government authority, lender, or partner; or provide legal, immigration, tax, or regulated financial advice.",
+      "The Platform is intended to help users research, estimate, organize, compare, and prepare for self-application.",
     ],
   },
   {
-    heading: "Account Responsibilities",
+    heading: "3. Eligibility and Age Requirement",
     body: [
-      "You are responsible for the accuracy of information you submit, including scores, budget, and personal profile details.",
-      "You are responsible for maintaining the confidentiality of your account access and for all activities under your account.",
+      "The Platform is intended for users who are 18 years of age or older and legally capable of entering into a binding agreement.",
+      "You may create and operate an independent account only if you are at least 18 years old.",
+      "If you are under 18: you must not independently create an account or accept these Terms on your own; any access or use must be done only through a parent or lawful guardian where AbroadLift expressly permits such use; AbroadLift may require guardian verification or may refuse access entirely until you reach 18 years of age.",
+      "By creating an account, you represent and warrant that: you are at least 18 years old, or you are acting through a parent or lawful guardian in a manner specifically permitted by AbroadLift.",
+      "AbroadLift reserves the right to suspend, restrict, or terminate any account that does not satisfy these age and eligibility requirements.",
     ],
   },
   {
-    heading: "Acceptable Use",
+    heading: "4. Nature of the Information Provided",
     body: [
-      "You may not use the platform for unlawful activity, reverse engineering, abuse of APIs, spam, or attempts to disrupt services.",
-      "You may not misrepresent your identity or submit false or manipulated academic or financial information.",
+      "The Platform may provide: country-level study information, tuition estimates, admission process guidance, visa-related guidance, required document checklists, cost breakdowns, affordability indicators, financial proof indicators, bank-balance requirement references, estimated living expenses, timeline reminders, and external service references.",
+      "All such information is provided for general informational and planning purposes only.",
+      "Information shown on the Platform may be based on: publicly available data, institution-published content, user-entered data, historical cost patterns, internal estimate logic, or third-party feeds or partner-provided information.",
+      "Because tuition, visa fees, bank-balance requirements, document rules, insurance charges, flight costs, forex costs, housing costs, and government policies can change at any time, AbroadLift does not guarantee that any content or figure on the Platform is always current, complete, official, or suitable for your individual circumstances.",
+      "You are solely responsible for verifying critical requirements and final costs directly with the relevant institution, embassy, authority, or service provider before making decisions or payments.",
     ],
   },
   {
-    heading: "Intellectual Property",
+    heading: "5. No Consultancy, No Advisory Relationship, No Guaranteed Outcome",
     body: [
-      "All platform branding, interface design, and proprietary functionality are owned by AbroadLift or its licensors.",
-      "Third-party data, names, logos, and trademarks remain the property of their respective owners.",
+      "By using AbroadLift, you acknowledge and agree that:",
+      "a. AbroadLift is primarily a self-help information platform.",
+      "b. Use of the Platform does not create a consultancy, agency, legal advisory, fiduciary, or representative relationship between you and AbroadLift.",
+      "c. AbroadLift does not guarantee admission, visa approval, scholarship approval, education loan approval, accommodation allocation, post-study work opportunity, or any other outcome.",
+      "d. Any cost estimate, readiness score, affordability indication, or checklist is indicative only and not a promise or commitment.",
+      "e. Final application, payment, submission, and compliance responsibility remains with the user.",
     ],
   },
   {
-    heading: "Limitation of Liability",
+    heading: "6. User Responsibilities",
     body: [
-      "To the fullest extent permitted by law, AbroadLift is not liable for indirect, incidental, or consequential damages from the use of the platform.",
-      "AbroadLift tools are advisory in nature and should not replace official guidance from universities, embassies, or legal professionals.",
+      "You agree that you will: provide accurate, complete, and current information; update your data where relevant; verify final requirements independently; upload only genuine and lawfully obtained documents; keep your account credentials secure; and use the Platform only for lawful and legitimate purposes.",
+      "You must not: impersonate another person; provide false or misleading information; upload forged, manipulated, or fraudulent documents; misuse the Platform for spam, scraping, abuse, or unlawful activity; attempt to disrupt Platform security or integrity; or use the Platform to mislead institutions, embassies, or third parties.",
+      "You remain fully responsible for your own decisions, submissions, and communications with any external entity.",
     ],
   },
   {
-    heading: "Changes to Terms",
+    heading: "7. Documents and User Content",
     body: [
-      "We may revise these terms to reflect legal, technical, or business updates. Updated terms will be posted on this page.",
-      "Your continued use of AbroadLift after updates means you accept the revised terms.",
+      "The Platform may allow you to input or upload: personal details, academic records, ID status, passport details or passport status, test score details, budget-related data, bank-balance indicators, contact details, statements, resumes, or other supporting material.",
+      "You retain ownership of your original documents and personal submissions. However, by submitting them, you grant AbroadLift a non-exclusive right to store, process, classify, analyze, and use them for purposes including: account creation and management; generation of cost breakdowns; creation of checklists; personalization of dashboards; readiness assessment; support and troubleshooting; fraud prevention; audit, compliance, and dispute resolution; and sharing where you have requested or consented to such sharing.",
+      "You are solely responsible for ensuring that all information and documents you provide are accurate, lawful, and authentic.",
     ],
   },
   {
-    heading: "Contact",
+    heading: "8. Account Security",
     body: [
-      "For legal questions about these terms, contact the AbroadLift support team through official platform channels.",
+      "You are responsible for maintaining the confidentiality of your account login credentials and for all activities that occur through your account.",
+      "You must notify AbroadLift promptly if you suspect unauthorized access, misuse, or a security breach relating to your account.",
+      "AbroadLift may take reasonable steps including verification, access restriction, or account suspension where necessary to protect users, systems, or third parties.",
+    ],
+  },
+  {
+    heading: "9. Third-Party Services and External Entities",
+    body: [
+      "The Platform may reference or connect users with external entities, including but not limited to: universities and colleges, education platforms, exam providers, lenders and loan facilitators, insurers, accommodation providers, forex and remittance providers, telecom/SIM providers, travel providers, logistics and documentation partners, technology vendors, support providers, and service partners.",
+      "AbroadLift does not control such third parties and is not responsible for: their pricing, their service quality, their approvals or rejections, their communications, their privacy practices, their contract terms, or their conduct or omissions.",
+      "Any relationship, payment, decision, or dispute between you and a third party is primarily between you and that third party unless expressly stated otherwise.",
+    ],
+  },
+  {
+    heading: "10. Consent to Contact and Communications",
+    body: [
+      "By registering on the Platform or submitting your contact details, you consent to receive communications from AbroadLift regarding: account setup, saved preferences, estimate updates, reminders, requested information, support responses, alerts, product notices, security notices, and service-related communications.",
+      "Such communication may take place via: email, phone, SMS, WhatsApp, in-app notifications, or other digital channels reasonably used for service communication.",
+      "Where you separately provide consent, you also agree that your contact details and relevant profile information may be shared with selected third parties who may contact you directly regarding education-related products or services.",
+    ],
+  },
+  {
+    heading: "11. Data We May Collect",
+    body: [
+      "AbroadLift may collect personal and usage data including: full name, email address, mobile number, WhatsApp number, date of birth or age confirmation, nationality and residence country, education history, grades and qualifications, test details, passport status, destination preferences, course and intake preferences, budget information, funding preferences, bank-balance or financial readiness inputs, uploaded documents, support history, clickstream and usage analytics, and device, browser, log, and cookie-related information.",
+    ],
+  },
+  {
+    heading: "12. How Your Data May Be Used",
+    body: [
+      "Your data may be used for purposes including: account creation and authentication, personalized dashboard generation, cost estimation and breakdowns, documentation checklists, reminders and alerts, comparison tools, support, quality control, service improvement, fraud prevention, audit and system security, dispute handling, lawful compliance, and outreach where requested or consented to by you.",
+    ],
+  },
+  {
+    heading: "13. Sharing of Data With External Entities",
+    body: [
+      "You acknowledge and agree that AbroadLift can share your personal data and related information with relevant external entities, including entities outside your country.",
+      "This may include sharing with: educational institutions, counselors or advisors, exam providers, lenders, insurers, accommodation partners, telecom or utility providers, remittance/forex providers, travel-related providers, verification agencies, CRM, cloud, analytics, communications, and customer support vendors, and selected education or service partners.",
+      "Shared data may include: your contact details, academic profile, destination interests, budget range, readiness status, uploaded documents, document status, application-related preferences, financial preparation indicators, and other relevant information necessary for the intended purpose.",
+      "You understand and accept that: external entities may contact you directly, their own privacy policies and terms will apply, AbroadLift cannot fully control their conduct once lawful disclosure has been made, and consent for future sharing may be withdrawn, but past disclosures made lawfully may not always be reversible.",
+    ],
+  },
+  {
+    heading: "14. Cross-Border Data Processing",
+    body: [
+      "Because the Platform supports overseas education journeys, your data may be processed, stored, accessed, or transferred across jurisdictions.",
+      "By using the Platform and providing your data, you consent to such cross-border processing and storage, subject to applicable law.",
+      "AbroadLift may use service providers or partners located in other jurisdictions where reasonably necessary to operate the Platform and related services.",
+    ],
+  },
+  {
+    heading: "15. Data Retention",
+    body: [
+      "AbroadLift may retain your personal data for up to 10 years where reasonably necessary for the purposes for which it was collected or subsequently required, including: maintaining your profile and service history, allowing re-engagement or future use, audit and recordkeeping, fraud prevention, system security, dispute resolution, enforcement of contractual rights, and legal and regulatory compliance.",
+      "AbroadLift may retain data for a shorter period where continued retention is not reasonably necessary, and may delete, anonymize, restrict, or archive data earlier where appropriate.",
+      "Even if you request deletion or stop using the Platform, certain records may be retained for a reasonable period where necessary for: legal obligations, fraud prevention, backup integrity, security logs, dispute defense, and internal audit.",
+      "Retention does not mean all data will always be actively used for the entire retention period. Some records may be archived or restricted.",
+    ],
+  },
+  {
+    heading: "16. User Rights",
+    body: [
+      "Subject to applicable law, you may request to: access certain personal data held about you, correct inaccurate information, update outdated information, withdraw consent for certain future processing, request deletion of data where applicable, or raise a grievance or complaint.",
+      "AbroadLift may require reasonable verification of your identity before acting on such requests.",
+      "AbroadLift may decline or limit a request where retention or continued processing remains reasonably necessary for legal, security, audit, fraud prevention, or dispute-related purposes.",
+    ],
+  },
+  {
+    heading: "17. Fees, Pricing, and Payments",
+    body: [
+      "Some features of the Platform may be free, while some features may later become paid.",
+      "Unless specifically stated: third-party charges are not charges of AbroadLift; and university fees, visa fees, exam fees, insurance charges, loan processing charges, courier charges, flight costs, forex fees, and similar costs are payable to the respective third parties.",
+      "AbroadLift is not responsible for exchange-rate fluctuation, third-party refund refusal, or price changes.",
+      "Any paid feature introduced by AbroadLift may be governed by additional billing, pricing, and refund terms.",
+    ],
+  },
+  {
+    heading: "18. Intellectual Property",
+    body: [
+      "All Platform content, including its structure, design, text, graphics, interface, workflow logic, calculators, comparison models, and branding, is owned by or licensed to AbroadLift and protected by applicable intellectual property laws.",
+      "You receive only a limited, non-exclusive, revocable right to use the Platform for personal, lawful, non-commercial purposes.",
+      "You may not copy, republish, scrape, resell, distribute, reverse engineer, or commercially exploit the Platform or its content without prior written permission.",
+    ],
+  },
+  {
+    heading: "19. Prohibited Conduct",
+    body: [
+      "You must not: use the Platform for fraud or deception; submit false or forged materials; interfere with system performance or security; scrape or extract data at scale; misuse another user’s data; send unlawful, abusive, or harmful content through the Platform; or use the Platform in violation of any applicable law.",
+      "AbroadLift may investigate and act against suspected misuse.",
+    ],
+  },
+  {
+    heading: "20. Suspension and Termination",
+    body: [
+      "AbroadLift may suspend, restrict, or terminate your access to the Platform if: you breach these Terms, you provide false information, your actions create legal, compliance, or security risk, your account appears fraudulent, abusive, or unauthorized, or continued access is not appropriate for operational, legal, or security reasons.",
+      "You may stop using the Platform at any time. However, cessation of use does not automatically require immediate deletion of data where continued retention remains reasonably necessary under these Terms.",
+    ],
+  },
+  {
+    heading: "21. Disclaimer of Warranties",
+    body: [
+      "The Platform is provided on an “as is” and “as available” basis.",
+      "To the fullest extent permitted by law, AbroadLift disclaims all warranties, express or implied, including warranties relating to: accuracy, completeness, reliability, uninterrupted access, merchantability, fitness for a particular purpose, and non-infringement.",
+      "AbroadLift does not warrant that: the Platform will always be available or error-free, all estimates will match actual costs, all external information will remain current, any institution or authority will accept or approve a user, or any user will achieve a desired outcome.",
+    ],
+  },
+  {
+    heading: "22. Limitation of Liability",
+    body: [
+      "To the fullest extent permitted by law, AbroadLift and its founders, directors, employees, affiliates, contractors, and vendors shall not be liable for any indirect, incidental, consequential, special, punitive, or opportunity-related loss arising from: use of the Platform, reliance on cost estimates or planning information, third-party conduct, delays, denial of admission or visa, missed deadlines, data inaccuracies supplied by users or third parties, system outages, or financial or reputational loss.",
+      "Where liability cannot lawfully be excluded, it shall be limited to the maximum extent permitted by law.",
+      "If a court or authority determines direct liability on AbroadLift in relation to a paid feature, AbroadLift’s aggregate liability shall not exceed the amount directly paid by you to AbroadLift for that specific paid feature in the preceding twelve months.",
+    ],
+  },
+  {
+    heading: "23. Indemnity",
+    body: [
+      "You agree to indemnify and hold harmless AbroadLift and its affiliates, employees, contractors, officers, and service providers from and against claims, losses, damages, liabilities, and expenses arising out of or related to: your breach of these Terms, your misuse of the Platform, your violation of law, false or misleading information submitted by you, fraudulent or unauthorized documents uploaded by you, or disputes between you and any third party connected through the Platform.",
+    ],
+  },
+  {
+    heading: "24. Changes to Terms or Platform",
+    body: [
+      "AbroadLift may modify, update, suspend, or discontinue any part of the Platform or these Terms at any time.",
+      "Updated Terms will become effective when posted unless a later date is stated.",
+      "Your continued use of the Platform after updated Terms are posted constitutes acceptance of the revised Terms.",
+      "Where required, AbroadLift may seek fresh consent or acknowledgment before certain changes take effect.",
+    ],
+  },
+  {
+    heading: "25. Governing Law and Jurisdiction",
+    body: [
+      "These Terms shall be governed by the laws of Nepal, subject to any mandatory rights that may apply under the laws of another jurisdiction where a user resides.",
+      "Any dispute arising out of or in connection with these Terms or the Platform shall first be attempted to be resolved amicably.",
+      "If unresolved, the matter shall be subject to the jurisdiction of the competent courts of Pokhara or Kathmandu, Nepal, unless mandatory law requires otherwise.",
+      "AbroadLift may seek interim, urgent, protective, or injunctive relief in any competent jurisdiction where necessary.",
+    ],
+  },
+  {
+    heading: "26. Contact and Grievance",
+    body: [
+      "For support, complaints, privacy requests, or legal notices, contact: Support Email: info@fishtailinfosolutions.com",
+      "AbroadLift may request reasonable information to verify identity before processing a request.",
+    ],
+  },
+  {
+    heading: "27. Entire Agreement",
+    body: [
+      "These Terms, together with the Privacy Policy and any other notices, consent statements, and service-specific terms displayed on the Platform, constitute the complete agreement between you and AbroadLift in relation to the Platform.",
+      "If any clause is found invalid or unenforceable, the remaining provisions shall continue in full force.",
     ],
   },
 ];
@@ -71,8 +235,8 @@ export default function TermsPage() {
   return (
     <LegalPageShell
       title="Terms and Conditions"
-      description="Please read these terms carefully before using AbroadLift services."
-      lastUpdated="April 10, 2026"
+      description="These Terms & Conditions (“Terms”) govern your access to and use of the AbroadLift website, mobile application, calculators, dashboards, saved profiles, alerts, tools, content, and related services (collectively, the “Platform”)."
+      lastUpdated="June 15, 2026"
       sections={sections}
     />
   );

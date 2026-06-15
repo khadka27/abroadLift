@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
@@ -135,16 +136,13 @@ export default function VisaRatePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pt-24 pb-20">
+    <div className="min-h-screen bg-[#F8FAFC] pt-24 lg:pt-28 pb-20">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         <div className="flex flex-col lg:flex-row gap-12">
           
           {/* Left Column - Success Visualization */}
           <div className="flex-1 space-y-8">
             <div className="space-y-4">
-            <div className="w-40 h-10 relative mb-4">
-              <NextImage src="/logo.png" alt="AbroadLift Logo" fill className="object-contain object-left" />
-            </div>
             <Badge className="bg-blue-50 text-blue-600 border-none px-4 py-1.5 rounded-full font-bold text-xs tracking-widest uppercase">
               Visa AI Predictor
             </Badge>

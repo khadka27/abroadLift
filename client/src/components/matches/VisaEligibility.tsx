@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, sonarjs/cognitive-complexity */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React from "react";
