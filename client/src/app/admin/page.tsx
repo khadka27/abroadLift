@@ -4,6 +4,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import AdminSidebar from "@/components/admin/AdminSidebar";
 import {
   Users,
   GraduationCap,
@@ -16,6 +17,7 @@ import {
   TrendingUp,
   Loader2,
 } from "lucide-react";
+import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -148,8 +150,10 @@ export default function AdminPanel() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 pt-28 pb-20">
-      <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
+    <div className="min-h-screen bg-slate-50 flex">
+      <AdminSidebar />
+      <div className="flex-1 w-full pt-12 pb-20 overflow-y-auto">
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <div className="space-y-2">
@@ -179,26 +183,33 @@ export default function AdminPanel() {
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           {stats.map((stat, i) => (
-            <Card
+            <motion.div
               key={i}
-              className="p-8 border-none bg-white rounded-[32px] shadow-xl shadow-slate-200/40 group hover:-translate-y-1 transition-all duration-300"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: i * 0.1, ease: "easeOut" }}
             >
-              <div className="flex items-start justify-between">
-                <div className="space-y-4">
-                  <p className="text-sm font-black text-slate-400 uppercase tracking-widest">
-                    {stat.label}
-                  </p>
-                  <h3 className="text-4xl font-black text-slate-900">
-                    {stat.value}
-                  </h3>
+              <Card
+                className="relative overflow-hidden p-8 border border-white/60 bg-white/60 backdrop-blur-2xl rounded-[32px] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] group hover:-translate-y-2 hover:shadow-[0_40px_80px_-20px_rgba(79,70,229,0.15)] transition-all duration-500"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-white/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative z-10 flex items-start justify-between">
+                  <div className="space-y-4">
+                    <p className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">
+                      {stat.label}
+                    </p>
+                    <h3 className="text-5xl font-black text-slate-900 tracking-tighter">
+                      {stat.value}
+                    </h3>
+                  </div>
+                  <div
+                    className={`w-16 h-16 rounded-[20px] ${stat.bg} ${stat.color} flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500`}
+                  >
+                    <stat.icon className="w-8 h-8" />
+                  </div>
                 </div>
-                <div
-                  className={`w-14 h-14 rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform`}
-                >
-                  <stat.icon className="w-7 h-7" />
-                </div>
-              </div>
-            </Card>
+              </Card>
+            </motion.div>
           ))}
         </div>
 
@@ -465,6 +476,7 @@ export default function AdminPanel() {
             </div>
           )}
         </div>
+      </div>
       </div>
     </div>
   );

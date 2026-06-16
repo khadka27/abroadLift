@@ -3,8 +3,9 @@
 /* eslint-disable react-hooks/immutability */
 "use client";
 
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import AdminSidebar from "@/components/admin/AdminSidebar";
 import { useEffect, useState } from "react";
 import {
   Users,
@@ -25,9 +26,11 @@ import {
   Plus,
   X,
   PieChart,
-  Settings,
   Bell,
+  Eye,
 } from "lucide-react";
+import { motion } from "framer-motion";
+import { error } from "console";
 interface UserData {
   id: string;
   name: string;
@@ -36,40 +39,21 @@ interface UserData {
   phoneNumber: string | null;
   role: "STUDENT" | "ADMIN";
   createdAt: string;
-  profile: {
-    nationality: string | null;
-    currentCountry: string | null;
-  } | null;
+  profile: any;
 }
 
 export default function AdminDashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  const handleLogout = async () => {
-    await signOut({ redirect: false });
-    router.replace("/");
-    router.refresh();
-  };
   const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [registering, setRegistering] = useState(false);
-  const [error, setError] = useState("");
   const [stats, setStats] = useState({ total: 0, student: 0, admin: 0 });
-
-  const [showSettingsModal, setShowSettingsModal] = useState(false);
-  const [updatingProfile, setUpdatingProfile] = useState(false);
-  const [profileError, setProfileError] = useState("");
-  const [profileSuccess, setProfileSuccess] = useState("");
-  
-  const [profileData, setProfileData] = useState({
-    name: "",
-    email: "",
-    phoneNumber: "",
-    password: "",
-  });
+  const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
+  const [error, setError] = useState("");
 
   // Registration Form State
   const [formData, setFormData] = useState({
@@ -92,13 +76,6 @@ export default function AdminDashboard() {
     }
     if (session?.user.role === "ADMIN") {
       fetchUsers();
-      
-      // Initialize profile data
-      setProfileData((prev) => ({
-        ...prev,
-        name: session.user.name || "",
-        email: session.user.email || "",
-      }));
     }
   }, [status, session, router]);
 
@@ -155,30 +132,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleUpdateProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setUpdatingProfile(true);
-    setProfileError("");
-    setProfileSuccess("");
-    try {
-      const res = await fetch("/api/admin/profile", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(profileData),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setProfileSuccess("Profile updated successfully!");
-        setProfileData((prev) => ({ ...prev, password: "" })); // Clear password
-      } else {
-        setProfileError(data.error || "Failed to update profile");
-      }
-    } catch (err: any) {
-      setProfileError("Network error. Please try again.");
-    } finally {
-      setUpdatingProfile(false);
-    }
-  };
+
 
   const exportToExcel = () => {
     // Generate CSV content
@@ -232,97 +186,13 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
-      {/* Sidebar */}
-      <aside className="w-[280px] bg-slate-900 hidden md:flex flex-col text-slate-400">
-        <div className="p-8">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-indigo-500 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
-              <LayoutDashboard className="w-5 h-5 text-white" />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-black text-white tracking-widest text-[13px]">
-                ABROADLIFT
-              </span>
-              <span className="text-[10px] text-slate-500 font-bold tracking-widest leading-none mt-0.5 uppercase italic">
-                Admin Engine
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="px-6 mb-6">
-          <p className="text-[10px] font-black tracking-[0.2em] uppercase text-slate-600 mb-4 px-4">
-            Menu Section
-          </p>
-          <nav className="space-y-1.5">
-            <button className="w-full h-12 flex items-center gap-4 px-5 bg-indigo-500/10 text-white rounded-[16px] font-bold text-[13px] transition-all group overflow-hidden relative">
-              <div className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500" />
-              <Users className="w-4 h-4 text-indigo-400" />
-              User Directory
-            </button>
-            <button className="w-full h-12 flex items-center gap-4 px-5 hover:bg-slate-800/50 hover:text-slate-200 rounded-[16px] font-bold text-[13px] transition-all">
-              <PieChart className="w-4 h-4 text-slate-500" />
-              Analytics
-            </button>
-            <button className="w-full h-12 flex items-center gap-4 px-5 hover:bg-slate-800/50 hover:text-slate-200 rounded-[16px] font-bold text-[13px] transition-all">
-              <TrendingUp className="w-4 h-4 text-slate-500" />
-              Market Trends
-            </button>
-            <button
-              onClick={() => router.push("/")}
-              className="w-full h-12 flex items-center gap-4 px-5 hover:bg-slate-800/50 hover:text-slate-200 rounded-[16px] font-bold text-[13px] transition-all"
-            >
-              <Globe className="w-4 h-4 text-slate-500" />
-              View Site
-            </button>
-          </nav>
-        </div>
-
-        <div className="px-6 mt-auto mb-8">
-          <p className="text-[10px] font-black tracking-[0.2em] uppercase text-slate-600 mb-4 px-4">
-            Management
-          </p>
-          <nav className="space-y-1.5">
-            <button 
-              onClick={() => setShowSettingsModal(true)}
-              className="w-full h-12 flex items-center gap-4 px-5 hover:bg-slate-800/50 hover:text-slate-200 rounded-[16px] font-bold text-[13px] transition-all"
-            >
-              <Settings className="w-4 h-4 text-slate-500" />
-              System Setup
-            </button>
-            <button
-              onClick={handleLogout}
-              className="w-full h-12 flex items-center gap-4 px-5 group hover:bg-red-500/10 hover:text-red-400 rounded-[16px] font-bold text-[13px] transition-all"
-            >
-              <LogOut className="w-4 h-4 text-slate-500 group-hover:text-red-400" />
-              Sign out
-            </button>
-          </nav>
-        </div>
-
-        <div className="p-6 m-6 bg-slate-800/50 rounded-3xl border border-white/5">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-8 h-8 bg-emerald-500/20 rounded-xl flex items-center justify-center">
-              <TrendingUp className="w-4 h-4 text-emerald-400" />
-            </div>
-            <span className="text-[11px] font-black text-white tracking-tight uppercase italic">
-              Growth Pack
-            </span>
-          </div>
-          <p className="text-[10px] text-slate-500 font-bold leading-relaxed mb-4">
-            Optimize your data processing workflow with AI intelligence.
-          </p>
-          <button className="w-full py-2.5 bg-white text-slate-900 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-400 hover:text-white transition-all shadow-xl shadow-black/20">
-            UPGRADE PRO
-          </button>
-        </div>
-      </aside>
+      <AdminSidebar />
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
         {/* Header */}
-        <header className="h-[90px] bg-white border-b border-slate-200 flex items-center justify-between px-10 sticky top-0 z-10">
-          <div className="flex items-center gap-4 bg-slate-50 rounded-2xl px-5 h-[50px] border border-slate-200/50 w-full max-w-md focus-within:border-indigo-400 transition-colors">
+        <header className="h-[90px] bg-white/80 backdrop-blur-xl border-b border-white/50 flex items-center justify-between px-10 sticky top-0 z-10 shadow-sm">
+          <div className="flex items-center gap-4 bg-white/50 rounded-2xl px-5 h-[50px] border border-slate-200/50 w-full max-w-md focus-within:border-indigo-400 focus-within:bg-white transition-all shadow-sm">
             <Search className="w-4 h-4 text-slate-400" />
             <input
               type="text"
@@ -417,36 +287,47 @@ export default function AdminDashboard() {
                 border: "border-emerald-200/50",
               },
             ].map((stat, i) => (
-              <div
+              <motion.div
                 key={i}
-                className={`bg-white p-8 rounded-[40px] border ${stat.border} shadow-sm group hover:-translate-y-1 transition-all duration-300`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: i * 0.1, ease: "easeOut" }}
+                className={`relative overflow-hidden bg-white/60 backdrop-blur-2xl p-8 rounded-[40px] border border-white/60 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] group hover:-translate-y-2 transition-all duration-500`}
               >
-                <div className="flex items-center justify-between mb-6">
-                  <div
-                    className={`w-14 h-14 ${stat.light} rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110`}
-                  >
-                    <stat.icon className={`w-7 h-7 ${stat.color}`} />
+                <div className="absolute inset-0 bg-gradient-to-br from-white/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative z-10">
+                  <div className="flex items-center justify-between mb-6">
+                    <div
+                      className={`w-16 h-16 ${stat.light} rounded-2xl flex items-center justify-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-inner`}
+                    >
+                      <stat.icon className={`w-8 h-8 ${stat.color}`} />
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">
+                        {stat.label}
+                      </p>
+                      <p className="text-4xl font-black text-slate-900 tracking-tighter">
+                        {stat.value}
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">
-                      {stat.label}
-                    </p>
-                    <p className="text-3xl font-black text-slate-900 tracking-tighter">
-                      {stat.value}
+                  <div className="pt-5 border-t border-slate-200/50 flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    <p className="text-[11px] font-bold text-slate-500">
+                      {stat.sub}
                     </p>
                   </div>
                 </div>
-                <div className="pt-5 border-t border-slate-50 flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  <p className="text-[11px] font-bold text-slate-500">
-                    {stat.sub}
-                  </p>
-                </div>
-              </div>
+              </motion.div>
             ))}
           </div>
 
-          <div className="bg-white rounded-[45px] border border-slate-200 overflow-hidden shadow-sm shadow-slate-200/50">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="bg-white/80 backdrop-blur-xl rounded-[45px] border border-white/60 overflow-hidden shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]"
+          >
             <div className="p-10 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
               <div className="flex items-center gap-6">
                 <h2 className="font-black text-slate-900 tracking-tight text-xl">
@@ -488,10 +369,13 @@ export default function AdminDashboard() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-50">
-                  {filteredUsers.map((user) => (
-                    <tr
+                <tbody className="divide-y divide-slate-100">
+                  {filteredUsers.map((user, i) => (
+                    <motion.tr
                       key={user.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.4, delay: i * 0.05 }}
                       className="hover:bg-slate-50/70 transition-all group"
                     >
                       <td className="px-10 py-7">
@@ -549,8 +433,11 @@ export default function AdminDashboard() {
                       </td>
                       <td className="px-10 py-7">
                         <div className="flex items-center justify-center gap-2.5">
-                          <button className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-white rounded-xl transition-all opacity-0 group-hover:opacity-100 border border-transparent hover:border-slate-200 shadow-sm">
-                            <Award className="w-[18px] h-[18px]" />
+                          <button 
+                            onClick={() => setSelectedUser(user)}
+                            className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-white rounded-xl transition-all opacity-0 group-hover:opacity-100 border border-transparent hover:border-slate-200 shadow-sm"
+                          >
+                            <Eye className="w-[18px] h-[18px]" />
                           </button>
                           <button className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-white rounded-xl transition-all opacity-0 group-hover:opacity-100 border border-transparent hover:border-slate-200 shadow-sm">
                             <Trash2 className="w-[18px] h-[18px]" />
@@ -560,7 +447,7 @@ export default function AdminDashboard() {
                           </button>
                         </div>
                       </td>
-                    </tr>
+                    </motion.tr>
                   ))}
                 </tbody>
               </table>
@@ -592,7 +479,7 @@ export default function AdminDashboard() {
                 </span>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </main>
 
@@ -753,128 +640,231 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Settings Modal */}
-      {showSettingsModal && (
+
+
+      {/* User Details Modal */}
+      {selectedUser && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 sm:p-0">
           <div
-            onClick={() => setShowSettingsModal(false)}
+            onClick={() => setSelectedUser(null)}
             className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
           />
-          <div className="relative w-full max-w-xl bg-white rounded-[50px] overflow-hidden shadow-[0_40px_100px_-20px_rgba(0,0,0,0.3)] border border-white/20 animate-in zoom-in-95 duration-300">
+          <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white rounded-[50px] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.3)] border border-white/20 animate-in zoom-in-95 duration-300">
             {/* Modal Header */}
-            <div className="bg-slate-900 p-10 flex items-center justify-between relative overflow-hidden">
+            <div className="bg-slate-900 p-8 flex items-center justify-between relative overflow-hidden sticky top-0 z-20">
               <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-500/20 rounded-full blur-[80px]" />
-              <div className="relative z-10">
-                <h2 className="text-[26px] font-black text-white tracking-tightest leading-tight">
-                  System Setup
-                </h2>
-                <p className="text-slate-400 text-sm font-bold mt-1">
-                  Manage your administrative credentials
-                </p>
+              <div className="relative z-10 flex items-center gap-6">
+                <div className="w-16 h-16 bg-white/10 border border-white/20 rounded-2xl flex items-center justify-center font-black text-2xl text-white shadow-sm">
+                  {selectedUser.name?.[0].toUpperCase()}
+                </div>
+                <div>
+                  <h2 className="text-[26px] font-black text-white tracking-tightest leading-tight">
+                    {selectedUser.name}
+                  </h2>
+                  <div className="flex items-center gap-3 mt-2">
+                    <span className="px-3 py-1 bg-indigo-500 rounded-lg text-[10px] font-black text-white tracking-widest uppercase">
+                      {selectedUser.role}
+                    </span>
+                    <p className="text-slate-400 text-sm font-bold">
+                      @{selectedUser.username}
+                    </p>
+                  </div>
+                </div>
               </div>
               <button
-                onClick={() => setShowSettingsModal(false)}
-                className="w-12 h-12 flex items-center justify-center rounded-3xl bg-white/5 hover:bg-white/10 text-white transition-all"
+                onClick={() => setSelectedUser(null)}
+                className="w-12 h-12 flex items-center justify-center rounded-3xl bg-white/5 hover:bg-white/10 text-white transition-all z-10"
               >
                 <X className="w-6 h-6" />
               </button>
             </div>
 
-            {/* Modal Form */}
-            <form onSubmit={handleUpdateProfile} className="p-10 space-y-6 bg-white">
-              {profileError && (
-                <div className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3">
-                  <X className="w-4 h-4 text-red-500" />
-                  <span className="text-xs font-bold text-red-500">
-                    {profileError}
-                  </span>
+            {/* Modal Body */}
+            <div className="p-8 space-y-8 bg-slate-50">
+              {/* Registration Info */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+                  <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                    <UserCircle className="w-4 h-4" /> Core Details
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center pb-3 border-b border-slate-50">
+                      <span className="text-sm font-semibold text-slate-500">Record ID</span>
+                      <span className="text-sm font-black text-slate-800">{selectedUser.id}</span>
+                    </div>
+                    <div className="flex justify-between items-center pb-3 border-b border-slate-50">
+                      <span className="text-sm font-semibold text-slate-500">Registration Date</span>
+                      <span className="text-sm font-black text-slate-800">
+                        {new Date(selectedUser.createdAt).toLocaleDateString("en-US", {
+                          year: "numeric", month: "long", day: "numeric"
+                        })}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center pb-3 border-b border-slate-50">
+                      <span className="text-sm font-semibold text-slate-500">Email Address</span>
+                      <span className="text-sm font-black text-indigo-600">{selectedUser.email}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-semibold text-slate-500">Phone String</span>
+                      <span className="text-sm font-black text-slate-800">{selectedUser.phoneNumber || "N/A"}</span>
+                    </div>
+                  </div>
                 </div>
-              )}
-              {profileSuccess && (
-                <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-2xl flex items-center gap-3">
-                  <Award className="w-4 h-4 text-emerald-500" />
-                  <span className="text-xs font-bold text-emerald-600">
-                    {profileSuccess}
-                  </span>
-                </div>
-              )}
 
-              <div className="grid grid-cols-2 gap-5">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">
-                    Display Name
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Admin Name"
-                    className="w-full h-14 bg-slate-50 border border-slate-200 rounded-[20px] px-6 text-sm font-bold outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
-                    value={profileData.name}
-                    onChange={(e) =>
-                      setProfileData({ ...profileData, name: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">
-                    Phone String
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="+1 234 567 890"
-                    className="w-full h-14 bg-slate-50 border border-slate-200 rounded-[20px] px-6 text-sm font-bold outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
-                    value={profileData.phoneNumber}
-                    onChange={(e) =>
-                      setProfileData({ ...profileData, phoneNumber: e.target.value })
-                    }
-                  />
+                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+                  <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                    <Globe className="w-4 h-4" /> Demographics
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center pb-3 border-b border-slate-50">
+                      <span className="text-sm font-semibold text-slate-500">Nationality</span>
+                      <span className="text-sm font-black text-slate-800">{selectedUser.profile?.nationality || "N/A"}</span>
+                    </div>
+                    <div className="flex justify-between items-center pb-3 border-b border-slate-50">
+                      <span className="text-sm font-semibold text-slate-500">Current Country</span>
+                      <span className="text-sm font-black text-slate-800">{selectedUser.profile?.currentCountry || "N/A"}</span>
+                    </div>
+                    <div className="flex justify-between items-center pb-3 border-b border-slate-50">
+                      <span className="text-sm font-semibold text-slate-500">Date of Birth</span>
+                      <span className="text-sm font-black text-slate-800">{selectedUser.profile?.dob || "N/A"}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-semibold text-slate-500">First Language</span>
+                      <span className="text-sm font-black text-slate-800">{selectedUser.profile?.firstLanguage || "N/A"}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">
-                  Digital Email
-                </label>
-                <input
-                  type="email"
-                  required
-                  placeholder="admin@example.com"
-                  className="w-full h-14 bg-slate-50 border border-slate-200 rounded-[20px] px-6 text-sm font-bold outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
-                  value={profileData.email}
-                  onChange={(e) =>
-                    setProfileData({ ...profileData, email: e.target.value })
-                  }
-                />
+              {/* Education & Study Preferences */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+                  <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                    <PieChart className="w-4 h-4" /> Academic History
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center pb-3 border-b border-slate-50">
+                      <span className="text-sm font-semibold text-slate-500">Highest Education</span>
+                      <span className="text-sm font-black text-slate-800">{selectedUser.profile?.highestEducation || "N/A"}</span>
+                    </div>
+                    <div className="flex justify-between items-center pb-3 border-b border-slate-50">
+                      <span className="text-sm font-semibold text-slate-500">GPA / Score</span>
+                      <span className="text-sm font-black text-slate-800">{selectedUser.profile?.gpa || "N/A"}</span>
+                    </div>
+                    <div className="flex justify-between items-center pb-3 border-b border-slate-50">
+                      <span className="text-sm font-semibold text-slate-500">Passing Year</span>
+                      <span className="text-sm font-black text-slate-800">{selectedUser.profile?.passingYear || "N/A"}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-semibold text-slate-500">Backlogs / Study Gap</span>
+                      <span className="text-sm font-black text-slate-800">
+                        {selectedUser.profile?.backlogs || 0} / {selectedUser.profile?.studyGap || 0} years
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+                  <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                    <Search className="w-4 h-4" /> Study Preferences
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center pb-3 border-b border-slate-50">
+                      <span className="text-sm font-semibold text-slate-500">Degree Level</span>
+                      <span className="text-sm font-black text-slate-800">{selectedUser.profile?.degreeLevel || "N/A"}</span>
+                    </div>
+                    <div className="flex justify-between items-center pb-3 border-b border-slate-50">
+                      <span className="text-sm font-semibold text-slate-500">Target Field</span>
+                      <span className="text-sm font-black text-slate-800">{selectedUser.profile?.field || "N/A"}</span>
+                    </div>
+                    <div className="flex justify-between items-center pb-3 border-b border-slate-50">
+                      <span className="text-sm font-semibold text-slate-500">Preferred Country</span>
+                      <span className="text-sm font-black text-slate-800">{selectedUser.profile?.preferredCountry || "N/A"}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-semibold text-slate-500">Intake / Duration</span>
+                      <span className="text-sm font-black text-slate-800">
+                        {selectedUser.profile?.intake || "N/A"} {selectedUser.profile?.duration ? `(${selectedUser.profile.duration} yrs)` : ""}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div className="space-y-2 pt-2 border-t border-slate-100">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">
-                  New Secure Password <span className="text-slate-300 normal-case tracking-normal font-medium">(Leave blank to keep current)</span>
-                </label>
-                <input
-                  type="password"
-                  placeholder="••••••••"
-                  className="w-full h-14 bg-slate-50 border border-slate-200 rounded-[20px] px-6 text-sm font-bold outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
-                  value={profileData.password}
-                  onChange={(e) =>
-                    setProfileData({ ...profileData, password: e.target.value })
-                  }
-                />
+              {/* Test Scores & Financials */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+                  <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                    <Award className="w-4 h-4" /> Standardized Tests
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center pb-3 border-b border-slate-50">
+                      <span className="text-sm font-semibold text-slate-500">English Test</span>
+                      <span className="text-sm font-black text-slate-800">
+                        {selectedUser.profile?.hasEnglishTest ? `${selectedUser.profile?.testType} (${selectedUser.profile?.englishScore})` : "None"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center pb-3 border-b border-slate-50">
+                      <span className="text-sm font-semibold text-slate-500">Aptitude Test</span>
+                      <span className="text-sm font-black text-slate-800">{selectedUser.profile?.aptitudeTest || "NONE"}</span>
+                    </div>
+                    {selectedUser.profile?.aptitudeTest === "GRE" && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-semibold text-slate-500">GRE Score</span>
+                        <span className="text-sm font-black text-slate-800">
+                          V: {selectedUser.profile.greVerbal} | Q: {selectedUser.profile.greQuant} | AWA: {selectedUser.profile.greAwa}
+                        </span>
+                      </div>
+                    )}
+                    {selectedUser.profile?.aptitudeTest === "GMAT" && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-semibold text-slate-500">GMAT Total</span>
+                        <span className="text-sm font-black text-slate-800">{selectedUser.profile.gmatTotal}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+                  <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4" /> Financials & Docs
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center pb-3 border-b border-slate-50">
+                      <span className="text-sm font-semibold text-slate-500">Yearly Budget</span>
+                      <span className="text-sm font-black text-emerald-600">
+                        {selectedUser.profile?.yearlyBudget ? `${selectedUser.profile.currency} ${selectedUser.profile.yearlyBudget.toLocaleString()}` : "N/A"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center pb-3 border-b border-slate-50">
+                      <span className="text-sm font-semibold text-slate-500">Sponsor</span>
+                      <span className="text-sm font-black text-slate-800">
+                        {selectedUser.profile?.sponsorType || "N/A"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center pb-3 border-b border-slate-50">
+                      <span className="text-sm font-semibold text-slate-500">Needs Scholarship/Loan</span>
+                      <div className="flex gap-2">
+                        {selectedUser.profile?.scholarshipNeeded && <span className="px-2 py-1 bg-amber-100 text-amber-700 text-[9px] font-bold rounded-md">SCHOLARSHIP</span>}
+                        {selectedUser.profile?.loanWilling && <span className="px-2 py-1 bg-blue-100 text-blue-700 text-[9px] font-bold rounded-md">LOAN</span>}
+                        {!selectedUser.profile?.scholarshipNeeded && !selectedUser.profile?.loanWilling && <span className="text-sm font-black text-slate-800">No</span>}
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-semibold text-slate-500">Docs Ready</span>
+                      <span className="text-sm font-black text-slate-800">
+                        {selectedUser.profile?.docsReady ? "Yes" : "No"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div className="pt-4">
-                <button
-                  type="submit"
-                  disabled={updatingProfile}
-                  className="w-full h-16 bg-slate-900 hover:bg-indigo-600 text-white rounded-[24px] font-black text-[15px] uppercase tracking-widest transition-all shadow-2xl shadow-indigo-500/20 active:scale-95 disabled:opacity-50"
-                >
-                  {updatingProfile ? "Updating Profile..." : "Save Changes"}
-                </button>
-              </div>
-            </form>
+            </div>
           </div>
         </div>
       )}
     </div>
   );
 }
+

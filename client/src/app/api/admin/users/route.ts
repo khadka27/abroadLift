@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -20,12 +21,7 @@ export async function GET() {
         phoneNumber: true,
         role: true,
         createdAt: true,
-        profile: {
-          select: {
-            nationality: true,
-            currentCountry: true,
-          }
-        }
+        profile: true,
       },
       orderBy: {
         createdAt: "desc"

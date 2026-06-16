@@ -32,6 +32,10 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  if (pathname.startsWith("/admin")) {
+    return null;
+  }
+
   return (
     <>
       <nav

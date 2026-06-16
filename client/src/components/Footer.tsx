@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { Facebook, Twitter, Instagram } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 const FOOTER_LINKS = {
   Destinations: [
@@ -31,7 +34,12 @@ const FOOTER_LINKS = {
 };
 
 export default function Footer() {
+  const pathname = usePathname();
   const year = new Date().getFullYear();
+
+  if (pathname.startsWith("/admin")) {
+    return null;
+  }
 
   return (
     <footer className="bg-[#F4F7FF] pt-24 pb-12 overflow-hidden border-t border-gray-100">
