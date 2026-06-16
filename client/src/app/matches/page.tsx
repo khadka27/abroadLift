@@ -3528,7 +3528,7 @@ export default function AbroadLiftMatchesPage() {
               <span className="text-blue-500">Match Your Profile</span>
             </h2>
             <p className="text-slate-500 text-[15px] md:text-[16px] font-medium max-w-xl mx-auto">
-              Compare costs, admission chances, and visa success ΓÇö all in one
+              Compare costs, admission chances, and visa success - all in one
               place.
             </p>
           </div>

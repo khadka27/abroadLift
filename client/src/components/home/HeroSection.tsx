@@ -212,18 +212,7 @@ const HeroSection = () => {
                 className="relative z-10 w-full h-auto object-contain object-bottom drop-shadow-[0_20px_50px_rgba(0,0,0,0.2)] hover:scale-[1.02] transition-transform duration-500"
               />
 
-              {/* Floating badges */}
-              <motion.div 
-                animate={{ y: [0, -15, 0] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute right-[-5%] sm:right-0 top-[20%] z-20 bg-white/90 backdrop-blur-md px-4 py-3 rounded-2xl shadow-xl border border-gray-100 flex items-center gap-3"
-              >
-                <div className="w-10 h-10 rounded-full bg-blue-100 text-[#3366FF] flex items-center justify-center font-black text-xl">🎓</div>
-                <div>
-                  <div className="text-[14px] font-black text-gray-900 leading-none mb-1">Smart Match</div>
-                  <div className="text-[11px] font-bold text-[#3366FF] uppercase">AI Powered</div>
-                </div>
-              </motion.div>
+
             </motion.div>
           </div>
         </div>

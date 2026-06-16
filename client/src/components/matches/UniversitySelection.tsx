@@ -145,6 +145,7 @@ export function UniversitySelection({
 }: UniversitySelectionProps) {
   const [detailsMatch, setDetailsMatch] = useState<Match | null>(null);
   const [activeTab, setActiveTab] = useState<DetailsTab>("estimates");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const closeDetails = () => {
     setDetailsMatch(null);
@@ -154,6 +155,16 @@ export function UniversitySelection({
   const matchesByAcceptance = [...matches].sort(
     (a, b) => getRelevantAcceptanceRate(b) - getRelevantAcceptanceRate(a),
   );
+
+  const filteredMatches = matchesByAcceptance.filter((m) => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      m.name.toLowerCase().includes(q) ||
+      m.location?.toLowerCase().includes(q) ||
+      m.popularPrograms?.some((p) => p.toLowerCase().includes(q))
+    );
+  });
 
   if (loading) return null; // Handled by transition screen in parent
 
@@ -214,6 +225,8 @@ export function UniversitySelection({
           <Search className="absolute left-5 md:left-6 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
           <input
             type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search universities, courses..."
             className="w-full h-12 md:h-16 pl-12 md:pl-14 pr-6 bg-slate-50/50 rounded-[18px] md:rounded-2xl text-[14px] md:text-[15px] font-regular text-slate-900 outline-none focus:bg-white focus:ring-4 ring-blue-500/5 focus:border-blue-200 transition-all placeholder:text-slate-400"
           />
@@ -231,20 +244,26 @@ export function UniversitySelection({
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 pb-8 md:pb-12">
-        {matchesByAcceptance.map((m) => (
-          <div key={m.id} className="relative h-full">
-            <MatchCard
-              match={m}
-              currency={form.currency}
-              selected={selectedMatch?.id === m.id}
-              onSelect={() => onSelect(m)}
-              onOpenDetails={() => {
-                setDetailsMatch(m);
-                setActiveTab("estimates");
-              }}
-            />
+        {filteredMatches.length > 0 ? (
+          filteredMatches.map((m) => (
+            <div key={m.id} className="relative h-full">
+              <MatchCard
+                match={m}
+                currency={form.currency}
+                selected={selectedMatch?.id === m.id}
+                onSelect={() => onSelect(m)}
+                onOpenDetails={() => {
+                  setDetailsMatch(m);
+                  setActiveTab("estimates");
+                }}
+              />
+            </div>
+          ))
+        ) : (
+          <div className="col-span-full py-12 text-center text-slate-500 font-medium">
+            No universities found matching "{searchQuery}"
           </div>
-        ))}
+        )}
       </div>
 
       {detailsMatch && (
