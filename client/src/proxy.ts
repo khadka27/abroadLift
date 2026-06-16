@@ -9,7 +9,8 @@ export const proxy = withAuth(
     const isAuthPage =
       path.startsWith("/login") ||
       path.startsWith("/register") ||
-      path.startsWith("/signup");
+      path.startsWith("/signup") ||
+      path.startsWith("/admin/login");
 
     if (isAuthPage && token) {
       const callbackUrl = req.nextUrl.searchParams.get("callbackUrl") || "";
@@ -23,7 +24,7 @@ export const proxy = withAuth(
       return NextResponse.redirect(new URL(redirectPath, req.url));
     }
 
-    if (path.startsWith("/admin") && token?.role !== "ADMIN") {
+    if (path.startsWith("/admin") && !path.startsWith("/admin/login") && token?.role !== "ADMIN") {
       return NextResponse.redirect(new URL("/", req.url));
     }
 
@@ -48,7 +49,8 @@ export const proxy = withAuth(
         if (
           path.startsWith("/login") ||
           path.startsWith("/register") ||
-          path.startsWith("/signup")
+          path.startsWith("/signup") ||
+          path.startsWith("/admin/login")
         ) {
           return true;
         }

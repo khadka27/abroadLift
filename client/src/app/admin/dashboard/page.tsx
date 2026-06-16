@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable react-hooks/immutability */
 "use client";
 
 import { signOut, useSession } from "next-auth/react";
@@ -56,6 +59,18 @@ export default function AdminDashboard() {
   const [error, setError] = useState("");
   const [stats, setStats] = useState({ total: 0, student: 0, admin: 0 });
 
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [updatingProfile, setUpdatingProfile] = useState(false);
+  const [profileError, setProfileError] = useState("");
+  const [profileSuccess, setProfileSuccess] = useState("");
+  
+  const [profileData, setProfileData] = useState({
+    name: "",
+    email: "",
+    phoneNumber: "",
+    password: "",
+  });
+
   // Registration Form State
   const [formData, setFormData] = useState({
     name: "",
@@ -68,7 +83,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/admin/login?callbackUrl=/admin/dashboard");
       return;
     }
     if (session?.user && session.user.role !== "ADMIN") {
@@ -77,6 +92,13 @@ export default function AdminDashboard() {
     }
     if (session?.user.role === "ADMIN") {
       fetchUsers();
+      
+      // Initialize profile data
+      setProfileData((prev) => ({
+        ...prev,
+        name: session.user.name || "",
+        email: session.user.email || "",
+      }));
     }
   }, [status, session, router]);
 
@@ -130,6 +152,31 @@ export default function AdminDashboard() {
       setError("Network error. Please try again.");
     } finally {
       setRegistering(false);
+    }
+  };
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setUpdatingProfile(true);
+    setProfileError("");
+    setProfileSuccess("");
+    try {
+      const res = await fetch("/api/admin/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(profileData),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setProfileSuccess("Profile updated successfully!");
+        setProfileData((prev) => ({ ...prev, password: "" })); // Clear password
+      } else {
+        setProfileError(data.error || "Failed to update profile");
+      }
+    } catch (err: any) {
+      setProfileError("Network error. Please try again.");
+    } finally {
+      setUpdatingProfile(false);
     }
   };
 
@@ -236,7 +283,10 @@ export default function AdminDashboard() {
             Management
           </p>
           <nav className="space-y-1.5">
-            <button className="w-full h-12 flex items-center gap-4 px-5 hover:bg-slate-800/50 hover:text-slate-200 rounded-[16px] font-bold text-[13px] transition-all">
+            <button 
+              onClick={() => setShowSettingsModal(true)}
+              className="w-full h-12 flex items-center gap-4 px-5 hover:bg-slate-800/50 hover:text-slate-200 rounded-[16px] font-bold text-[13px] transition-all"
+            >
               <Settings className="w-4 h-4 text-slate-500" />
               System Setup
             </button>
@@ -697,6 +747,129 @@ export default function AdminDashboard() {
                 <p className="text-center text-[11px] font-bold text-slate-400 mt-6 uppercase tracking-widest">
                   Global Audit Trail Applied to This Entry
                 </p>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Settings Modal */}
+      {showSettingsModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 sm:p-0">
+          <div
+            onClick={() => setShowSettingsModal(false)}
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+          />
+          <div className="relative w-full max-w-xl bg-white rounded-[50px] overflow-hidden shadow-[0_40px_100px_-20px_rgba(0,0,0,0.3)] border border-white/20 animate-in zoom-in-95 duration-300">
+            {/* Modal Header */}
+            <div className="bg-slate-900 p-10 flex items-center justify-between relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-500/20 rounded-full blur-[80px]" />
+              <div className="relative z-10">
+                <h2 className="text-[26px] font-black text-white tracking-tightest leading-tight">
+                  System Setup
+                </h2>
+                <p className="text-slate-400 text-sm font-bold mt-1">
+                  Manage your administrative credentials
+                </p>
+              </div>
+              <button
+                onClick={() => setShowSettingsModal(false)}
+                className="w-12 h-12 flex items-center justify-center rounded-3xl bg-white/5 hover:bg-white/10 text-white transition-all"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Modal Form */}
+            <form onSubmit={handleUpdateProfile} className="p-10 space-y-6 bg-white">
+              {profileError && (
+                <div className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3">
+                  <X className="w-4 h-4 text-red-500" />
+                  <span className="text-xs font-bold text-red-500">
+                    {profileError}
+                  </span>
+                </div>
+              )}
+              {profileSuccess && (
+                <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-2xl flex items-center gap-3">
+                  <Award className="w-4 h-4 text-emerald-500" />
+                  <span className="text-xs font-bold text-emerald-600">
+                    {profileSuccess}
+                  </span>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-5">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">
+                    Display Name
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Admin Name"
+                    className="w-full h-14 bg-slate-50 border border-slate-200 rounded-[20px] px-6 text-sm font-bold outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
+                    value={profileData.name}
+                    onChange={(e) =>
+                      setProfileData({ ...profileData, name: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">
+                    Phone String
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="+1 234 567 890"
+                    className="w-full h-14 bg-slate-50 border border-slate-200 rounded-[20px] px-6 text-sm font-bold outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
+                    value={profileData.phoneNumber}
+                    onChange={(e) =>
+                      setProfileData({ ...profileData, phoneNumber: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">
+                  Digital Email
+                </label>
+                <input
+                  type="email"
+                  required
+                  placeholder="admin@example.com"
+                  className="w-full h-14 bg-slate-50 border border-slate-200 rounded-[20px] px-6 text-sm font-bold outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
+                  value={profileData.email}
+                  onChange={(e) =>
+                    setProfileData({ ...profileData, email: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="space-y-2 pt-2 border-t border-slate-100">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">
+                  New Secure Password <span className="text-slate-300 normal-case tracking-normal font-medium">(Leave blank to keep current)</span>
+                </label>
+                <input
+                  type="password"
+                  placeholder="••••••••"
+                  className="w-full h-14 bg-slate-50 border border-slate-200 rounded-[20px] px-6 text-sm font-bold outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
+                  value={profileData.password}
+                  onChange={(e) =>
+                    setProfileData({ ...profileData, password: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="pt-4">
+                <button
+                  type="submit"
+                  disabled={updatingProfile}
+                  className="w-full h-16 bg-slate-900 hover:bg-indigo-600 text-white rounded-[24px] font-black text-[15px] uppercase tracking-widest transition-all shadow-2xl shadow-indigo-500/20 active:scale-95 disabled:opacity-50"
+                >
+                  {updatingProfile ? "Updating Profile..." : "Save Changes"}
+                </button>
               </div>
             </form>
           </div>

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/immutability */
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
@@ -57,7 +58,7 @@ export default function AdminPanel() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login?callbackUrl=/admin");
+      router.push("/admin/login?callbackUrl=/admin");
       return;
     }
 

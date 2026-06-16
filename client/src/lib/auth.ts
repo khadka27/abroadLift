@@ -2,6 +2,7 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import prisma from "./db";
 import { hashOtpCode } from "./phoneVerification";
+import bcrypt from "bcrypt";
 
 const AUTH_SECRET = process.env.NEXTAUTH_SECRET;
 
@@ -53,6 +54,53 @@ export const authOptions: NextAuthOptions = {
             otpExpiresAt: null,
           },
         });
+
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        };
+      },
+    }),
+    CredentialsProvider({
+      id: "admin-credentials",
+      name: "Admin Credentials",
+      credentials: {
+        identifier: { label: "Email or Phone", type: "text" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.identifier || !credentials?.password) {
+          throw new Error("Please enter your identifier and password.");
+        }
+
+        const identifier = credentials.identifier.trim();
+
+        // Find admin user by email or phone
+        const user = await prisma.user.findFirst({
+          where: {
+            OR: [
+              { email: identifier },
+              { phoneE164: identifier },
+              { phoneNumber: identifier },
+            ],
+            role: "ADMIN",
+          },
+        });
+
+        if (!user || !user.password) {
+          throw new Error("Invalid credentials or unauthorized access.");
+        }
+
+        const isPasswordValid = await bcrypt.compare(
+          credentials.password,
+          user.password,
+        );
+
+        if (!isPasswordValid) {
+          throw new Error("Invalid credentials or unauthorized access.");
+        }
 
         return {
           id: user.id,

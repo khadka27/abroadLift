@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
+import bcrypt from "bcrypt";
 
 const connectionString = `${process.env.DATABASE_URL}`;
 const pool = new Pool({ connectionString });
@@ -40,10 +41,13 @@ async function main() {
     },
   });
 
+  const adminPassword = await bcrypt.hash("Admin123!", 10);
+
   const adminUser = await prisma.user.create({
     data: {
       username: "admin",
       email: "admin@abroadlift.com",
+      password: adminPassword,
       name: "System Administrator",
       countryDialCode: "+1",
       phoneNumber: "2025550123",
