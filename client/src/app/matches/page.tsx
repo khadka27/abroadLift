@@ -2936,20 +2936,20 @@ export default function AbroadLiftMatchesPage() {
             </p>
           </div>
 
-          {/* Hero image ΓÇö small on mobile, taller on desktop */}
-          <div className="w-full mb-4 overflow-hidden rounded-[20px] shadow-sm border border-slate-50 lg:hidden">
+          {/* Hero image — small on mobile, taller on desktop */}
+          <div className="w-full mb-6 overflow-hidden rounded-[24px] shadow-sm border border-slate-50 lg:hidden">
             <Image
               src="/country.png"
               alt="Destinations"
               width={800}
               height={400}
-              className="w-full h-[85px] md:h-[160px] lg:h-[200px] object-cover"
+              className="w-full h-[140px] md:h-[180px] lg:h-[200px] object-cover"
               priority
             />
           </div>
 
-          <div className="w-full px-4 overflow-visible">
-            <div className="grid grid-cols-4 gap-y-3 gap-x-1 sm:gap-x-4 w-full">
+          <div className="w-full px-2 sm:px-4 overflow-visible">
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-y-6 gap-x-2 sm:gap-x-4 w-full">
               {COUNTRIES.map((c: any) => {
                 const isSel = form.countries.includes(c.code);
                 return (
@@ -3011,13 +3011,13 @@ export default function AbroadLiftMatchesPage() {
             </h2>
           </div>
 
-          <div className="w-full mb-4 md:mb-8 overflow-hidden rounded-[24px] shadow-sm border border-slate-50 lg:hidden">
+          <div className="w-full mb-6 md:mb-8 overflow-hidden rounded-[24px] shadow-sm border border-slate-50 lg:hidden">
             <Image
               src="/abrd.png"
               alt="Study Level"
               width={800}
               height={400}
-              className="w-full h-[85px] md:h-[180px] object-cover"
+              className="w-full h-[140px] md:h-[180px] object-cover"
               priority
             />
           </div>
@@ -3081,13 +3081,13 @@ export default function AbroadLiftMatchesPage() {
             </h2>
           </div>
 
-          <div className="w-full mb-4 md:mb-8 overflow-hidden rounded-[24px] shadow-sm border border-slate-50 lg:hidden">
+          <div className="w-full mb-6 md:mb-8 overflow-hidden rounded-[24px] shadow-sm border border-slate-50 lg:hidden">
             <Image
               src="/studies.png"
               alt="Field of Study"
               width={800}
               height={400}
-              className="w-full h-[85px] md:h-[180px] object-cover"
+              className="w-full h-[140px] md:h-[180px] object-cover"
               priority
             />
           </div>
@@ -4931,61 +4931,52 @@ export default function AbroadLiftMatchesPage() {
 
   /* ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ RENDER ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
   return (
-    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-white relative overflow-x-hidden lg:h-[calc(100vh-80px)] lg:overflow-hidden font-sans selection:bg-blue-500/30 selection:text-blue-900">
+    <div className="min-h-screen lg:min-h-[calc(100vh-112px)] w-full flex flex-col lg:flex-row bg-white relative overflow-x-hidden lg:h-[calc(100vh-112px)] lg:overflow-hidden font-sans selection:bg-blue-500/30 selection:text-blue-900">
       {/* Left Panel - Hero Sidebar */}
       {step < 7 && (
-        <div className="relative hidden lg:flex lg:w-[45%] lg:h-[calc(100vh-80px)] lg:sticky lg:top-0 bg-slate-100 overflow-hidden animate-in fade-in slide-in-from-left duration-700">
-          <Image
-            src={
-              step === 1
-                ? "/country.png"
-                : step === 2
-                  ? "/abrd.png"
-                  : step === 3
-                    ? "/studies.png"
-                    : step === 4
-                      ? "/graduation.png"
-                      : step === 5
-                        ? "/ielts.png"
-                        : step === 6
-                          ? "/intake.png"
-                          : "/abroad.jpg"
-            }
-            alt={
-              step === 1
-                ? "Study Destinations"
-                : step === 2
-                  ? "Study Level"
-                  : step === 3
-                    ? "Program Selection"
-                    : step === 4
-                      ? "Academic History"
-                      : step === 5
-                        ? "English proficiency"
-                        : step === 6
-                          ? "Target Intake"
-                          : "Global Destinations"
-            }
-            fill
-            className="object-cover "
-            priority
-          />
+        <div className="relative hidden lg:flex lg:w-[45%] lg:h-[calc(100vh-112px)] lg:sticky lg:top-0 bg-white p-4 lg:p-6 lg:pr-2 animate-in fade-in slide-in-from-left duration-700">
+          <div className="relative w-full h-full rounded-[32px] overflow-hidden shadow-sm group">
+            <Image
+              src={
+                step === 1
+                  ? "/country.png"
+                  : step === 2
+                    ? "/abrd.png"
+                    : step === 3
+                      ? "/studies.png"
+                      : step === 4
+                        ? "/graduation.png"
+                        : step === 5
+                          ? "/ielts.png"
+                          : step === 6
+                            ? "/intake.png"
+                            : "/abroad.jpg"
+              }
+              alt={
+                step === 1
+                  ? "Study Destinations"
+                  : step === 2
+                    ? "Study Level"
+                    : step === 3
+                      ? "Program Selection"
+                      : step === 4
+                        ? "Academic History"
+                        : step === 5
+                          ? "English proficiency"
+                          : step === 6
+                            ? "Target Intake"
+                            : "Global Destinations"
+              }
+              fill
+              className="object-cover transition-transform duration-[1.5s] group-hover:scale-105"
+              priority
+            />
+            
+            {/* Elegant Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent z-10 pointer-events-none" />
 
-          <div className="absolute top-[110px] left-8 lg:left-12 z-20">
-            <div className="flex items-center gap-2 group">
-              <Image
-                src="/logo.png"
-                alt="AbroadLift"
-                width={280}
-                height={72}
-                className="h-11 w-auto drop-shadow-md"
-                priority
-              />
-            </div>
-          </div>
-
-          <div className="absolute bottom-12 left-12 right-12 z-20 hidden lg:block">
-            <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-[32px] shadow-2xl max-w-sm animate-in fade-in slide-in-from-bottom-8 duration-700">
+            <div className="absolute bottom-10 left-10 right-10 z-20 hidden lg:block">
+              <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-[28px] shadow-2xl max-w-sm animate-in fade-in slide-in-from-bottom-8 duration-700">
               <p className="text-white text-lg font-medium leading-relaxed italic mb-8">
                 &ldquo;AbroadLift made my application process simple and
                 stress-free. The intake selection were exactly what I
@@ -5013,11 +5004,12 @@ export default function AbroadLiftMatchesPage() {
             </div>
           </div>
         </div>
+        </div>
       )}
 
       {/* Right Panel - Dynamic Flow Area */}
       <div
-        className={`relative flex-1 flex flex-col bg-white min-h-0 overflow-y-auto overflow-x-hidden lg:h-[calc(100vh-80px)]`}
+        className={`relative flex-1 flex flex-col bg-white min-h-0 lg:overflow-hidden overflow-x-hidden lg:h-[calc(100vh-112px)]`}
       >
         {/* Simple Top Navigation Navbar matching the minimalist screenshot */}
         {step > 0 &&
@@ -5027,55 +5019,59 @@ export default function AbroadLiftMatchesPage() {
           step !== 10 &&
           step !== 11 &&
           step !== 12 && (
-            <div className="px-6 py-4 mt-3 lg:px-12 flex justify-between items-center z-30 print:hidden relative bg-white">
-              <div className="w-12 h-10 flex items-center">
-                {step > 0 && step < 7 && (
-                  <button
-                    onClick={handleBack}
-                    className="text-slate-900 transition-colors hover:text-blue-500"
-                  >
-                    <ChevronLeft className="w-6 h-6" strokeWidth={3} />
-                  </button>
-                )}
-                {step > 7 && step !== 9 && (
-                  <button
-                    onClick={() => setStep(step - 1)}
-                    className="text-slate-900 transition-colors hover:text-blue-500"
-                  >
-                    <ChevronLeft className="w-6 h-6" strokeWidth={3} />
-                  </button>
-                )}
+            <div className="px-6 py-4 mt-3 lg:px-12 flex flex-col items-center justify-center gap-3 z-30 print:hidden relative bg-white">
+              <div className="w-full flex justify-between items-center">
+                <div className="w-12 h-10 flex items-center">
+                  {step > 0 && step < 7 && (
+                    <button
+                      onClick={handleBack}
+                      className="text-slate-900 transition-colors hover:text-blue-500 flex items-center justify-center cursor-pointer"
+                    >
+                      <ChevronLeft className="w-6 h-6" strokeWidth={3} />
+                    </button>
+                  )}
+                  {step > 7 && step !== 9 && (
+                    <button
+                      onClick={() => setStep(step - 1)}
+                      className="text-slate-900 transition-colors hover:text-blue-500 flex items-center justify-center cursor-pointer"
+                    >
+                      <ChevronLeft className="w-6 h-6" strokeWidth={3} />
+                    </button>
+                  )}
+                </div>
+                <div className="flex-1 flex justify-center text-center">
+                  {step > 0 && step < 7 && (
+                    <span className="text-[20px] font-extrabold text-[#111827] tracking-tight">
+                      {STEPS[step]?.label}
+                    </span>
+                  )}
+                </div>
+                <div className="w-12"></div>
               </div>
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                {step > 0 && step < 7 && (
-                  <span className="text-[19px] font-bold text-[#111827] tracking-tight">
-                    {STEPS[step]?.label}
-                  </span>
-                )}
-              </div>
-              <div className="w-12"></div>
+              
+              {/* Progress Header - Now clearly centered below title */}
+              {step > 0 && step < 7 && (
+                <div className="flex items-center gap-1.5 mt-1">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className={`h-[4px] rounded-full transition-all duration-500 ease-out ${
+                        i + 1 === step
+                          ? "w-8 bg-blue-600"
+                          : i + 1 < step
+                            ? "w-8 bg-blue-600/30"
+                            : "w-8 bg-slate-100"
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
-        {/* Progress Header - Now below the title */}
-        {step > 0 && step < 7 && (
-          <div className="w-full flex justify-center pt-1 pb-3 bg-white shrink-0 print:hidden z-[60] relative">
-            <div className="flex items-center gap-1.5">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div
-                  key={i}
-                  className={`h-[4px] rounded-full transition-all duration-500 ease-out ${
-                    i + 1 === step ? "w-8 bg-blue-500" : "w-8 bg-slate-100"
-                  }`}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Step Content Area */}
         <div
-          className={`flex-1 overflow-y-auto ${step >= 7 ? "px-0 lg:px-0 pt-0 pb-0" : "px-6 lg:px-12 pt-3 pb-[160px] md:pb-[200px]"} overflow-x-hidden min-h-0 hide-scrollbar`}
+          className={`flex-1 overflow-y-auto ${step >= 7 ? "px-0 lg:px-0 pt-0 pb-[100px] md:pb-[120px]" : "px-6 lg:px-12 pt-3 pb-[160px] md:pb-[200px]"} overflow-x-hidden min-h-0 hide-scrollbar`}
         >
           <div
             className={`${step >= 7 ? "max-w-full" : "max-w-4xl"} mx-auto min-h-full flex flex-col`}
@@ -5084,10 +5080,10 @@ export default function AbroadLiftMatchesPage() {
           </div>
         </div>
 
-        {/* Step Navigation Footer - Fixed Bottom for absolute stickiness */}
+        {/* Step Navigation Footer - Absolute positioned inside Right Panel on desktop */}
         {step > 0 && step < 7 && (
           <div
-            className={`fixed bottom-0 left-0 right-0 ${step < 7 ? "lg:left-[45%]" : "lg:left-0"} pb-8 px-6 md:pb-12 bg-white/95 backdrop-blur-md pt-4 z-[70] border-t border-slate-100 flex justify-center shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.03)]`}
+            className={`fixed lg:absolute bottom-0 left-0 right-0 w-full pb-8 px-6 md:pb-12 bg-white/95 backdrop-blur-md pt-4 z-[70] border-t border-slate-100 flex justify-center shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.03)]`}
           >
             <div className="w-full max-w-[340px] flex justify-center pt-0">
               <button
@@ -5106,7 +5102,7 @@ export default function AbroadLiftMatchesPage() {
         )}
 
         {step >= 8 && step <= 14 && (
-          <div className="fixed bottom-0 left-0 right-0 pb-6 px-4 md:pb-8 md:px-6 bg-white/90 backdrop-blur-md pt-3 z-[70] border-t border-slate-100 flex justify-center shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.03)]">
+          <div className="fixed lg:absolute bottom-0 left-0 right-0 w-full pb-6 px-4 md:pb-8 md:px-6 bg-white/90 backdrop-blur-md pt-3 z-[70] border-t border-slate-100 flex justify-center shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.03)]">
             <div className="w-full max-w-[520px] flex justify-center">
               <button
                 onClick={handleNext}

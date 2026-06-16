@@ -161,12 +161,12 @@ export function StudyOverviewDashboard({
   ];
 
   return (
-    <div className="relative min-h-screen text-slate-900 pb-32 bg-gradient-to-br from-slate-50 via-indigo-50/20 to-slate-50 overflow-hidden">
+    <div className="relative min-h-screen text-slate-900 pb-24 md:pb-32 bg-gradient-to-br from-slate-50 via-indigo-50/20 to-slate-50 overflow-hidden">
       {/* Background Glowing Mesh Blobs */}
       <div className="absolute top-20 left-10 w-96 h-96 bg-blue-200/30 rounded-full blur-3xl pointer-events-none animate-pulse-ring" />
       <div className="absolute bottom-40 right-20 w-[450px] h-[450px] bg-indigo-100/40 rounded-full blur-3xl pointer-events-none animate-float" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 space-y-10 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 md:mt-8 space-y-8 md:space-y-10 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -184,11 +184,11 @@ export function StudyOverviewDashboard({
             Back to matches
           </button>
 
-          <div className="flex items-center gap-1.5 bg-blue-50/80 border border-blue-100/50 text-[#3686FF] text-[12px] font-semibold px-3.5 py-1.5 rounded-full mb-4 shadow-sm">
+          <div className="flex items-center gap-1.5 bg-blue-50/80 border border-blue-100/50 text-[#3686FF] text-[12px] font-semibold px-3.5 py-1.5 rounded-full mb-3 md:mb-4 shadow-sm w-fit">
             <Target className="w-4 h-4" />
             Generated from your profile
           </div>
-          <h2 className="text-[32px] sm:text-[40px] md:text-[46px] font-extrabold text-[#111827] tracking-tight leading-[1.1] bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 bg-clip-text text-transparent">
+          <h2 className="text-[28px] sm:text-[36px] md:text-[46px] font-extrabold text-[#111827] tracking-tight leading-[1.1] bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 bg-clip-text text-transparent">
             Your Preliminary Estimate
           </h2>
           <p className="text-[15px] md:text-[18px] text-slate-500 mt-2 font-medium">
@@ -201,27 +201,27 @@ export function StudyOverviewDashboard({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border border-white/60 rounded-3xl bg-white/70 backdrop-blur-md px-6 py-4 shadow-[0_8px_30px_rgb(0,0,0,0.02)] w-full mt-4 hover:border-blue-500/20 hover:shadow-lg transition-all duration-300"
+          className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-white/60 rounded-3xl bg-white/70 backdrop-blur-md px-5 py-4 shadow-[0_8px_30px_rgb(0,0,0,0.02)] w-full mt-4 hover:border-blue-500/20 hover:shadow-lg transition-all duration-300"
         >
-          <div className="flex items-center gap-3.5 min-w-0">
-            <div className="w-10 h-7 rounded-md overflow-hidden shadow-sm border border-black/10 flex-shrink-0">
-              <FlagIcon
-                countryCode={selectedMatch.countryCode || form.countries[0]}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="flex items-baseline gap-2.5 min-w-0 flex-wrap">
-              <span className="font-extrabold text-lg text-slate-900 leading-none truncate max-w-[280px]">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3.5 min-w-0 w-full sm:w-auto">
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <div className="w-10 h-7 rounded-md overflow-hidden shadow-sm border border-black/10 flex-shrink-0">
+                <FlagIcon
+                  countryCode={selectedMatch.countryCode || form.countries[0]}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <span className="font-extrabold text-base md:text-lg text-slate-900 leading-none truncate flex-1 sm:max-w-[280px]">
                 {selectedMatch.name}
               </span>
-              <span className="text-[#3686FF] text-xs font-black tracking-widest uppercase leading-none bg-blue-50 px-2 py-1 rounded">
-                {selectedMatch.countryCode || form.countries[0]}
-              </span>
             </div>
+            <span className="text-[#3686FF] text-[10px] md:text-xs font-black tracking-widest uppercase leading-none bg-blue-50 px-2.5 py-1.5 rounded w-fit sm:w-auto">
+              {selectedMatch.countryCode || form.countries[0]}
+            </span>
           </div>
           <button
             onClick={onGoToMatches}
-            className="flex items-center gap-1.5 text-[#3686FF] hover:text-blue-600 font-bold text-sm transition-colors whitespace-nowrap self-start sm:self-auto px-4 py-2 rounded-xl hover:bg-blue-50/50"
+            className="flex items-center justify-center gap-1.5 text-[#3686FF] hover:text-blue-600 font-bold text-sm transition-colors w-full sm:w-auto px-4 py-2.5 sm:py-2 rounded-xl bg-blue-50/50 hover:bg-blue-100/50"
           >
             <Edit3 className="w-4 h-4" /> Edit Selection
           </button>

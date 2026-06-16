@@ -214,7 +214,7 @@ export function VisaEligibility({
     status === "VERIFIED" ? "text-emerald-500" : "text-slate-400";
 
   return (
-    <div className="relative min-h-screen text-slate-900 pb-32 bg-gradient-to-br from-slate-50 via-indigo-50/20 to-slate-50 overflow-hidden">
+    <div className="relative min-h-screen text-slate-900 pb-24 md:pb-32 bg-gradient-to-br from-slate-50 via-indigo-50/20 to-slate-50 overflow-hidden">
       {/* Background Glowing Mesh Blobs */}
       <div className="absolute top-20 left-10 w-96 h-96 bg-blue-200/30 rounded-full blur-3xl pointer-events-none animate-pulse-ring" />
       <div className="absolute bottom-40 right-20 w-[450px] h-[450px] bg-indigo-100/40 rounded-full blur-3xl pointer-events-none animate-float" />
