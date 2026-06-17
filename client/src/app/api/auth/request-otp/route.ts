@@ -52,7 +52,7 @@ export async function POST(req: Request) {
 
     if (!sendResult.sent) {
       return NextResponse.json(
-        { error: "Unable to send OTP right now. Please try again." },
+        { error: sendResult.error || "Unable to send OTP right now. Please try again." },
         { status: 503 },
       );
     }

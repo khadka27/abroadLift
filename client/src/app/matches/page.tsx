@@ -2430,20 +2430,35 @@ export default function AbroadLiftMatchesPage() {
   useEffect(() => {
     const pendingStep = localStorage.getItem(RETURN_STEP_KEY);
     const saved = localStorage.getItem(MATCH_STORAGE_KEY);
+    let restoredStep = 1;
+    let restoredMatch = null;
+    let restoredMatches = [];
+
     if (saved) {
       try {
         const data = JSON.parse(saved);
         if (data.form) setForm(data.form);
-        if (pendingStep && data.selectedMatch)
-          setSelectedMatch(data.selectedMatch);
-        if (pendingStep && data.matches) setMatches(data.matches);
+        if (data.selectedMatch) restoredMatch = data.selectedMatch;
+        if (data.matches) restoredMatches = data.matches;
+        if (data.step) restoredStep = data.step;
       } catch (e) {
         console.error("Failed to load match data", e);
       }
     }
 
-    if (!pendingStep) {
-      setStep(1);
+    if (restoredMatch) {
+      setSelectedMatch(restoredMatch);
+      setMatches(restoredMatches);
+      setStep(8);
+    } else {
+      if (pendingStep) {
+        const fallbackStep = Number.parseInt(pendingStep, 10);
+        setStep(Number.isNaN(fallbackStep) ? 8 : fallbackStep);
+      } else {
+        setStep(restoredStep);
+      }
+      if (restoredMatch) setSelectedMatch(restoredMatch);
+      if (restoredMatches.length > 0) setMatches(restoredMatches);
     }
     setHasRestored(true);
   }, []);
@@ -2456,11 +2471,30 @@ export default function AbroadLiftMatchesPage() {
         return;
       }
 
-      const resumeToStep = (targetStep: number) => {
+      const resumeToStep = async (targetStep: number) => {
         if (targetStep === 8) {
           setTransitionType("finance");
         }
         setStep(targetStep);
+
+        // Auto-save the selected match if resuming to step 8
+        if (targetStep === 8) {
+          const saved = localStorage.getItem(MATCH_STORAGE_KEY);
+          if (saved) {
+            try {
+              const data = JSON.parse(saved);
+              if (data.form && data.selectedMatch) {
+                await fetch("/api/matches/save", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ formData: data.form, matchData: data.selectedMatch }),
+                });
+              }
+            } catch (e) {
+              console.error("Failed to auto-save match on resume", e);
+            }
+          }
+        }
       };
 
       localStorage.removeItem(RETURN_STEP_KEY);
@@ -2596,6 +2630,50 @@ export default function AbroadLiftMatchesPage() {
     };
   }, [form, selectedMatch, step]);
 
+  const isFormCompleteForSteps1To6 = (f: any) => {
+    if (!f.countries || f.countries.length === 0) return false;
+    if (!f.degree) return false;
+    if (!f.field || !f.program) return false;
+    if (!f.highestEducation || !f.gpa || !f.passingYear) return false;
+    const gpa = parseFloat(f.gpa);
+    if (isNaN(gpa) || gpa < 0 || gpa > 4.0) return false;
+    if (f.hasEnglishTest === null) return false;
+    if (f.hasEnglishTest === true) {
+      if (!f.testType || !f.testScore || f.testType === "NONE") return false;
+      const score = parseFloat(f.testScore);
+      if (isNaN(score)) return false;
+    }
+    if (!f.intake) return false;
+    return true;
+  };
+
+  const getFirstIncompleteStep = (f: any) => {
+    if (!f.countries || f.countries.length === 0) return 1;
+    if (!f.degree) return 2;
+    if (!f.field || !f.program) return 3;
+    if (!f.highestEducation || !f.gpa || !f.passingYear) return 4;
+    const gpa = parseFloat(f.gpa);
+    if (isNaN(gpa) || gpa < 0 || gpa > 4.0) return 4;
+    if (f.hasEnglishTest === null) return 5;
+    if (f.hasEnglishTest === true) {
+      if (!f.testType || !f.testScore || f.testType === "NONE") return 5;
+      const score = parseFloat(f.testScore);
+      if (isNaN(score)) return 5;
+    }
+    if (!f.intake) return 6;
+    return 1;
+  };
+
+  useEffect(() => {
+    if (step === 8 && !selectedMatch && hasRestored && status === "authenticated") {
+      if (isFormCompleteForSteps1To6(form)) {
+        setStep(7);
+      } else {
+        setStep(getFirstIncompleteStep(form));
+      }
+    }
+  }, [step, selectedMatch, form, hasRestored, status]);
+
   useEffect(() => {
     if (status === "authenticated") {
       const fetchProfileData = async () => {
@@ -2604,40 +2682,74 @@ export default function AbroadLiftMatchesPage() {
           if (res.ok) {
             const data = await res.json();
             const p = data.profile || {};
-            setForm((prev) => ({
-              ...prev,
-              name: data.name || prev.name,
-              email: data.email || prev.email,
-              nationality: p.nationality || prev.nationality,
-              currentCountry: p.currentCountry || prev.currentCountry,
-              highestEducation: p.highestEducation || prev.highestEducation,
-              passingYear: p.passingYear || prev.passingYear,
-              gpa: p.gpa?.toString() || prev.gpa,
-              backlogs: p.backlogs?.toString() || prev.backlogs,
-              studyGap: p.studyGap?.toString() || prev.studyGap,
-              testType: p.testType || prev.testType,
-              testScore: p.englishScore?.toString() || prev.testScore,
-              aptitudeTest: p.aptitudeTest || prev.aptitudeTest,
-              greVerbal: p.greVerbal?.toString() || prev.greVerbal,
-              greQuant: p.greQuant?.toString() || prev.greQuant,
-              greAwa: p.greAwa?.toString() || prev.greAwa,
-              gmatTotal: p.gmatTotal?.toString() || prev.gmatTotal,
-              degree: p.degreeLevel || prev.degree,
-              field: p.field || prev.field,
-              program: p.program || prev.program,
-              intake: p.intake || prev.intake,
-              budget: p.yearlyBudget?.toString() || prev.budget,
-              bankBalance: p.bankBalance?.toString() || prev.bankBalance,
-              sponsorType: p.sponsorType || prev.sponsorType,
-              sponsorIncome: p.sponsorIncome?.toString() || prev.sponsorIncome,
-              duration: p.duration?.toString() || prev.duration,
+
+            // Check matching records in database first
+            if (data.matchingRecords && data.matchingRecords.length > 0) {
+              const latestRecord = data.matchingRecords[0];
+              const dbForm = latestRecord.formData;
+              const dbMatch = latestRecord.matchData;
+              
+              if (dbForm) {
+                setForm((prev) => ({
+                  ...prev,
+                  name: data.name || prev.name,
+                  email: data.email || prev.email,
+                  ...dbForm,
+                }));
+              }
+              if (dbMatch) {
+                setSelectedMatch(dbMatch);
+                setStep(8);
+                return; // Direct display step 8
+              }
+            }
+
+            const loadedForm = {
+              name: data.name || "",
+              email: data.email || "",
+              nationality: p.nationality || "",
+              currentCountry: p.currentCountry || "",
+              highestEducation: p.highestEducation || "",
+              passingYear: p.passingYear || "",
+              gpa: p.gpa?.toString() || "",
+              backlogs: p.backlogs?.toString() || "0",
+              studyGap: p.studyGap?.toString() || "0",
+              testType: p.testType || "IELTS",
+              testScore: p.englishScore?.toString() || "",
+              aptitudeTest: p.aptitudeTest || "NONE",
+              greVerbal: p.greVerbal?.toString() || "",
+              greQuant: p.greQuant?.toString() || "",
+              greAwa: p.greAwa?.toString() || "",
+              gmatTotal: p.gmatTotal?.toString() || "",
+              degree: p.degreeLevel || "",
+              field: p.field || "",
+              program: p.program || "",
+              intake: p.intake || "",
+              budget: p.yearlyBudget?.toString() || "",
+              bankBalance: p.bankBalance?.toString() || "",
+              sponsorType: p.sponsorType || "Self",
+              sponsorIncome: p.sponsorIncome?.toString() || "",
+              duration: p.duration?.toString() || "3",
               scholarship: !!p.scholarshipNeeded,
               testDone: !!p.testDone,
               docsReady: !!p.docsReady,
-              countries: p.preferredCountry
-                ? [p.preferredCountry]
-                : prev.countries,
+              countries: p.preferredCountry ? [p.preferredCountry] : [],
+              hasEnglishTest: p.hasEnglishTest ?? null,
+            };
+
+            setForm((prev) => ({
+              ...prev,
+              ...loadedForm,
             }));
+
+            // Direct access step 7 or first incomplete step if already partially filled
+            if (isFormCompleteForSteps1To6(loadedForm)) {
+              setStep(7);
+              runMatch(loadedForm as any);
+            } else {
+              const resumeStep = getFirstIncompleteStep(loadedForm);
+              setStep(resumeStep);
+            }
           }
         } catch (e) {
           console.error("Failed to load profile", e);
@@ -2709,6 +2821,15 @@ export default function AbroadLiftMatchesPage() {
   };
 
   const handleNext = async () => {
+    // Save progress to profile database on every step transition if authenticated
+    if (status === "authenticated" && step < 7) {
+      fetch("/api/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      }).catch(console.error);
+    }
+
     if (step === 8) {
       setStep(9);
       return;
@@ -2765,17 +2886,18 @@ export default function AbroadLiftMatchesPage() {
     }
   };
 
-  const runMatch = async () => {
+  const runMatch = async (formParam?: Form) => {
+    const activeForm = formParam || form;
     setLoading(true);
     setError("");
     setMatches([]);
     try {
       const query = new URLSearchParams({
-        countries: form.countries.join(","),
-        budget: form.budget || "0",
-        englishScore: form.testScore || "0",
-        degreeLevel: form.degree,
-        field: form.field || "",
+        countries: activeForm.countries.join(","),
+        budget: activeForm.budget || "0",
+        englishScore: activeForm.testScore || "0",
+        degreeLevel: activeForm.degree,
+        field: activeForm.field || "",
       });
       const res = await fetch(`/api/matches?${query}`);
       if (!res.ok)
@@ -3540,7 +3662,7 @@ export default function AbroadLiftMatchesPage() {
             selectedMatch={selectedMatch}
             form={form}
             session={session}
-            onSelect={(m: Match) => {
+            onSelect={async (m: Match) => {
               if (!session) {
                 redirectToSignupForMatches(m);
                 return;
@@ -3548,6 +3670,17 @@ export default function AbroadLiftMatchesPage() {
               setSelectedMatch(m);
               setTransitionType("finance");
               setStep(8);
+
+              // Auto-save the selected match immediately to the database for authenticated users
+              try {
+                await fetch("/api/matches/save", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ formData: form, matchData: m }),
+                });
+              } catch (e) {
+                console.error("Failed to save selected match on selection", e);
+              }
             }}
             onAdjustPreferences={() => setStep(6)}
             onClearFilters={() => {
@@ -3672,19 +3805,14 @@ export default function AbroadLiftMatchesPage() {
       const livingCostUsd = Object.values(
         livingBreakdown as Record<string, number>,
       ).reduce((s: number, v: number) => s + v, 0);
-      const totalYear1Usd =
-        tuitionUsd +
-        300 +
-        400 +
-        (form.sponsorType === "Self" ? 450 : 0) +
-        620 +
-        livingCostUsd;
+      const beforeDepartureDefaultUsd = 75 + 300 + 110 + 425 + 685 + Math.round(tuitionUsd * 0.5) + 1200;
+      const first6MonthsDefaultUsd = Math.round(100000 / USD_TO_NPR) + 1500 + Math.round((livingBreakdown.rent + livingBreakdown.food) * 6) + 300 + Math.round(livingBreakdown.transport * 6) + 600 + 900 + 300;
+      const totalYear1Usd = beforeDepartureDefaultUsd + first6MonthsDefaultUsd;
       const totalYear1Npr = Math.round(totalYear1Usd * USD_TO_NPR);
       const costBand = getCostBand(totalYear1Usd, budgetUsd);
-      const nprRangeLakhs = (valueNpr: number, spread = 0.12) => {
-        const low = Math.max(0, Math.round(valueNpr * (1 - spread)));
-        const high = Math.round(valueNpr * (1 + spread));
-        return `NPR ${(low / 100000).toFixed(1)}L - NPR ${(high / 100000).toFixed(1)}L`;
+      const nprRangeLakhs = (valueNpr: number, _spread = 0.12) => {
+        const lakhs = valueNpr / 100000;
+        return `NPR ${lakhs % 1 === 0 ? lakhs.toFixed(0) : lakhs.toFixed(1)} Lakhs`;
       };
 
       const signalCards = [
@@ -4739,10 +4867,9 @@ export default function AbroadLiftMatchesPage() {
     }
 
     if (step === 14 && selectedMatch && financialMetrics && decisionSignals) {
-      const nprRangeLakhs = (valueNpr: number, spread = 0.12) => {
-        const low = Math.max(0, Math.round(valueNpr * (1 - spread)));
-        const high = Math.round(valueNpr * (1 + spread));
-        return `NPR ${(low / 100000).toFixed(1)}L - NPR ${(high / 100000).toFixed(1)}L`;
+      const nprRangeLakhs = (valueNpr: number, _spread = 0.12) => {
+        const lakhs = valueNpr / 100000;
+        return `NPR ${lakhs % 1 === 0 ? lakhs.toFixed(0) : lakhs.toFixed(1)} Lakhs`;
       };
 
       const riskFlags = [

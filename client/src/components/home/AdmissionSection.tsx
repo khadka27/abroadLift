@@ -65,15 +65,7 @@ const AdmissionSection = () => (
                   </linearGradient>
                 </defs>
                 <path
-                  d="M 0 0 
-                     H 260 
-                     A 50 50 0 0 1 310 50 
-                     V 160 
-                     C 310 220, 400 180, 400 250 
-                     V 430 
-                     A 50 50 0 0 1 350 480 
-                     H 0 
-                     V 0 Z"
+                  d="M 0 0 H 260 A 50 50 0 0 1 310 50 V 160 C 310 220, 400 180, 400 250 V 430 A 50 50 0 0 1 350 480 H 0 V 0 Z"
                   fill="url(#blobGrad)"
                 />
               </svg>

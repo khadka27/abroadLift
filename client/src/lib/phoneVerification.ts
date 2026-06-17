@@ -84,17 +84,37 @@ export async function trySendOtp({
         };
       } else {
         console.error(`[SMSPASAL] Failed to send OTP: ${responseText}`);
+        return {
+          sent: false,
+          error: responseText,
+          channel: "SMS" as OtpChannel,
+        };
       }
     } catch (error) {
       console.error(`[SMSPASAL] API Error:`, error);
+      return {
+        sent: false,
+        error: error instanceof Error ? error.message : String(error),
+        channel: "SMS" as OtpChannel,
+      };
     }
   } else {
+    // If credentials are missing in production, fail. Otherwise fall back to test mode.
+    if (process.env.NODE_ENV === "production") {
+      console.error("[OTP] SMS Pasal credentials missing in production!");
+      return {
+        sent: false,
+        error: "SMS credentials missing",
+        channel: "SMS" as OtpChannel,
+      };
+    }
+
     console.warn(
       "[OTP_TEST_MODE] SMS Pasal credentials missing. Falling back to test mode."
     );
   }
 
-  // Fallback / Test mode
+  // Fallback / Test mode in non-production environments when credentials are not configured
   console.log(`[OTP_TEST_MODE] OTP ${otpCode} prepared for ${phoneE164}`);
   return {
     sent: true,

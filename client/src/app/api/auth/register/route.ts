@@ -115,7 +115,7 @@ export async function POST(req: Request) {
           return NextResponse.json(
             {
               error:
-                "Unable to send OTP right now. Please try again in a moment.",
+                otpSendResult.error || "Unable to send OTP right now. Please try again in a moment.",
             },
             { status: 503 },
           );
@@ -229,7 +229,7 @@ export async function POST(req: Request) {
       await prisma.user.delete({ where: { id: user.id } });
       return NextResponse.json(
         {
-          error: "Unable to send OTP right now. Please try again in a moment.",
+          error: otpSendResult.error || "Unable to send OTP right now. Please try again in a moment.",
         },
         { status: 503 },
       );

@@ -61,10 +61,9 @@ export function StudyOverviewDashboard({
   onAdvanceToVisa,
   onGoToMatches,
 }: StudyOverviewDashboardProps) {
-  const formatNprLakhRange = (valueNpr: number, spread = 0.12) => {
-    const low = Math.max(0, Math.round(valueNpr * (1 - spread)));
-    const high = Math.round(valueNpr * (1 + spread));
-    return `NPR ${(low / 100000).toFixed(1)}L - NPR ${(high / 100000).toFixed(1)}L`;
+  const formatNprLakhRange = (valueNpr: number, _spread = 0.12) => {
+    const lakhs = valueNpr / 100000;
+    return `NPR ${lakhs % 1 === 0 ? lakhs.toFixed(0) : lakhs.toFixed(1)} Lakhs`;
   };
 
   const visaChanceValue = visaChance ?? 0;

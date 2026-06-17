@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/immutability */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -32,6 +33,7 @@ import {
   AlertCircle,
   Banknote,
   ClipboardCheck,
+  LayoutDashboard,
 } from "lucide-react";
 
 /* ─── Types ─────────────────────────────────────────────────── */
@@ -627,6 +629,17 @@ export default function ProfilePage() {
           {/* Nav */}
           <div className="rounded-3xl border border-white/80 bg-white/80 p-3 shadow-xl shadow-slate-200/60 backdrop-blur-md">
             <nav className="space-y-1">
+              <button
+                type="button"
+                onClick={() => {
+                  localStorage.setItem("abroadlift_return_step", "8");
+                  router.push("/matches");
+                }}
+                className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-bold bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md shadow-blue-200 mb-3 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
+              >
+                <LayoutDashboard className="h-4 w-4 text-white" />
+                Go to Dashboard
+              </button>
               {TABS.map(({ key, label, icon: Icon }) => (
                 <button
                   key={key}
@@ -733,6 +746,34 @@ export default function ProfilePage() {
               {/* ══ OVERVIEW — view mode ══ */}
               {activeTab === "overview" && !isEditing && (
                 <div className="space-y-8">
+                  {/* Dashboard Quick Access Banner */}
+                  <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-500 via-indigo-500 to-indigo-600 p-6 text-white shadow-xl shadow-indigo-200/50">
+                    <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div>
+                        <h3 className="text-lg font-extrabold flex items-center gap-2">
+                          <LayoutDashboard className="h-5 w-5 text-blue-200" />
+                          Matches Dashboard
+                        </h3>
+                        <p className="text-xs text-blue-100 mt-1.5 max-w-md">
+                          Directly access step 8 of your matches journey. View custom cost breakdown estimates, check admission probabilities, and see visa success rates.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          localStorage.setItem("abroadlift_return_step", "8");
+                          router.push("/matches");
+                        }}
+                        className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-extrabold text-indigo-600 shadow-lg shadow-indigo-950/10 hover:bg-slate-50 transition-all hover:scale-105 active:scale-95"
+                      >
+                        Go to Dashboard
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
+                    </div>
+                    {/* Decorative Background Shapes */}
+                    <div className="absolute right-0 top-0 -translate-y-6 translate-x-6 h-32 w-32 rounded-full bg-white/10 blur-xl" />
+                    <div className="absolute left-1/3 bottom-0 translate-y-6 h-24 w-24 rounded-full bg-white/5 blur-lg" />
+                  </div>
 
                   {/* ─ Personal Details ─ */}
                   <div>
