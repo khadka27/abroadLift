@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, useEffect, use } from "react";
@@ -22,6 +24,7 @@ import {
 import { format } from "date-fns";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
 export default function StudentDetails({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -32,10 +35,10 @@ export default function StudentDetails({ params }: { params: Promise<{ id: strin
   const [loading, setLoading] = useState(true);
   const [noteContent, setNoteContent] = useState("");
   const [updating, setUpdating] = useState(false);
-
-  useEffect(() => {
-    fetchStudent();
-  }, [id]);
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    type: "SUSPEND" | "DELETE" | null;
+  }>({ isOpen: false, type: null });
 
   const fetchStudent = async () => {
     try {
@@ -51,9 +54,13 @@ export default function StudentDetails({ params }: { params: Promise<{ id: strin
     }
   };
 
-  const toggleStatus = async () => {
-    if (!confirm(`Are you sure you want to ${student.isActive ? 'suspend' : 'reactivate'} this account?`)) return;
-    
+  useEffect(() => {
+    fetchStudent();
+  }, [id]);
+
+  const triggerToggleStatus = () => setConfirmModal({ isOpen: true, type: "SUSPEND" });
+
+  const executeToggleStatus = async () => {
     setUpdating(true);
     try {
       const res = await fetch(`/api/admin/students/${id}`, {
@@ -63,6 +70,7 @@ export default function StudentDetails({ params }: { params: Promise<{ id: strin
       });
       if (res.ok) {
         setStudent({ ...student, isActive: !student.isActive });
+        setConfirmModal({ isOpen: false, type: null });
       }
     } catch (error) {
       console.error(error);
@@ -95,15 +103,16 @@ export default function StudentDetails({ params }: { params: Promise<{ id: strin
     }
   };
 
-  const deleteAccount = async () => {
-    if (!confirm("CRITICAL WARNING: Are you absolutely sure you want to permanently delete this student account? This action cannot be undone and will erase all applications, profiles, and associated data.")) return;
-    
+  const triggerDeleteAccount = () => setConfirmModal({ isOpen: true, type: "DELETE" });
+
+  const executeDeleteAccount = async () => {
     setUpdating(true);
     try {
       const res = await fetch(`/api/admin/students/${id}`, {
         method: "DELETE",
       });
       if (res.ok) {
+        setConfirmModal({ isOpen: false, type: null });
         router.push("/admin/students");
       }
     } catch (error) {
@@ -147,7 +156,7 @@ export default function StudentDetails({ params }: { params: Promise<{ id: strin
 
         <div className="flex items-center gap-3">
           <button
-            onClick={toggleStatus}
+            onClick={triggerToggleStatus}
             disabled={updating}
             className={`px-6 py-3 rounded-2xl font-bold flex items-center gap-2 transition-all ${
               student.isActive 
@@ -160,7 +169,7 @@ export default function StudentDetails({ params }: { params: Promise<{ id: strin
           </button>
           
           <button
-            onClick={deleteAccount}
+            onClick={triggerDeleteAccount}
             disabled={updating}
             className="w-12 h-12 flex items-center justify-center rounded-2xl bg-red-50 text-red-600 hover:bg-red-500 hover:text-white transition-colors"
           >
@@ -356,6 +365,25 @@ export default function StudentDetails({ params }: { params: Promise<{ id: strin
         </div>
 
       </div>
+
+      {/* Custom Confirmation Modal */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.type === "DELETE" ? "Permanently Delete Student?" : `${student?.isActive ? "Suspend" : "Reactivate"} Account?`}
+        description={
+          confirmModal.type === "DELETE"
+            ? "CRITICAL WARNING: Are you absolutely sure you want to permanently delete this student account? This action cannot be undone and will erase all applications, profiles, and associated data."
+            : `Are you sure you want to ${student?.isActive ? "suspend" : "reactivate"} this student's account? ${student?.isActive ? "They will lose access to the platform." : "They will regain access to the platform."}`
+        }
+        confirmText={confirmModal.type === "DELETE" ? "Delete Permanently" : student?.isActive ? "Suspend Account" : "Reactivate"}
+        isDestructive={confirmModal.type === "DELETE" || (confirmModal.type === "SUSPEND" && student?.isActive)}
+        onConfirm={() => {
+          if (confirmModal.type === "DELETE") executeDeleteAccount();
+          if (confirmModal.type === "SUSPEND") executeToggleStatus();
+        }}
+        onCancel={() => setConfirmModal({ isOpen: false, type: null })}
+        isLoading={updating}
+      />
     </div>
   );
 }
