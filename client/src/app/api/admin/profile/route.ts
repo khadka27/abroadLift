@@ -7,7 +7,7 @@ import bcrypt from "bcrypt";
 
 export async function PUT(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const session: any = await getServerSession(authOptions);
 
     if (!session || session.user.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

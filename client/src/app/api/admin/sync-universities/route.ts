@@ -7,7 +7,7 @@ import prisma from "@/lib/db";
 // API to sync universities from external sources (e.g. WorqNow)
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const session: any = await getServerSession(authOptions);
 
     // Ensure this route is strictly for ADMIN users
     if (!session || session.user.role !== "ADMIN") {

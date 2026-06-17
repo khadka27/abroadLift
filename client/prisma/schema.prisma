@@ -33,6 +33,8 @@ model User {
     otpLastChannel  String?
     password        String?
     role            Role      @default(STUDENT)
+    isActive        Boolean   @default(true)
+    lastLoginAt     DateTime?
     createdAt       DateTime  @default(now())
     updatedAt       DateTime  @updatedAt
 
@@ -40,6 +42,7 @@ model User {
     applications    Application[]
     visaChecks      VisaRateCheck[]
     matchingRecords MatchingRecord[]
+    adminNotes      AdminNote[]
 }
 
 model StudentProfile {
@@ -150,6 +153,7 @@ model Application {
     studentId    String
     universityId String
     status       ApplicationStatus @default(SAVED)
+    reviewerComments String?
     createdAt    DateTime          @default(now())
 
     user       User       @relation(fields: [studentId], references: [id], onDelete: Cascade)
@@ -193,4 +197,40 @@ model VisaRateCheck {
     successRate Int // Percentage
     createdAt   DateTime @default(now())
     updatedAt   DateTime @updatedAt
+}
+
+model AdminNote {
+    id        String   @id @default(uuid())
+    studentId String
+    adminId   String
+    content   String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    student   User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+    id         String   @id @default(uuid())
+    adminId    String
+    action     String
+    entityType String
+    entityId   String?
+    details    Json?
+    createdAt  DateTime @default(now())
+}
+
+model SystemNotification {
+    id        String   @id @default(uuid())
+    title     String
+    message   String
+    type      String   @default("INFO")
+    isRead    Boolean  @default(false)
+    createdAt DateTime @default(now())
+}
+
+model SystemSetting {
+    key       String   @id
+    value     Json
+    updatedAt DateTime @updatedAt
 }

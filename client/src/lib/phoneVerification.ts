@@ -57,36 +57,69 @@ export async function trySendOtp({
   const routeId = process.env.SMSPASAL_ROUTE_ID;
   const senderId = process.env.SMSPASAL_SENDER_ID;
 
-  if (apiKey && campaign && routeId && senderId) {
+  if (apiKey && senderId) {
     try {
       // Strip out the '+' from E.164 to pass directly as digits.
       const contacts = phoneE164.replace("+", "");
       const msg = `Your AbroadLift verification code is: ${otpCode}. It expires in 10 minutes.`;
 
-      const url = new URL("https://sms.smspasal.com/smsapi/index.php");
+      const url = new URL("https://sms.smspasal.com/smsapi/index");
       url.searchParams.append("key", apiKey);
-      url.searchParams.append("campaign", campaign);
-      url.searchParams.append("routeid", routeId);
+      if (campaign) url.searchParams.append("campaign", campaign);
+      if (routeId) url.searchParams.append("routeid", routeId);
       url.searchParams.append("type", "text");
       url.searchParams.append("contacts", contacts);
       url.searchParams.append("senderid", senderId);
       url.searchParams.append("msg", msg);
+      url.searchParams.append("responsetype", "json");
 
       const response = await fetch(url.toString(), { method: "GET" });
-      const responseText = await response.text();
+      
+      let isSuccess = false;
+      let errorMsg = "";
 
-      console.log(`[SMSPASAL] OTP request for ${contacts}. Response:`, responseText);
+      // Try to parse the response as JSON
+      try {
+        const responseData = await response.json();
+        console.log(`[SMSPASAL] OTP request for ${contacts}. Response (JSON):`, responseData);
 
-      if (responseText.startsWith("SMS-SHOOT-ID/")) {
+        if (
+          responseData &&
+          responseData.response_message !== "error" &&
+          (responseData.status === "success" ||
+            responseData.response_message === "success" ||
+            (typeof responseData.sms_shootid === "string" && responseData.sms_shootid.length > 0) ||
+            (typeof responseData.remarks === "string" && responseData.remarks.startsWith("SMS-SHOOT-ID/")))
+        ) {
+          isSuccess = true;
+        } else {
+          errorMsg =
+            responseData.message ||
+            responseData.error ||
+            responseData.remarks ||
+            JSON.stringify(responseData);
+        }
+      } catch {
+        // Fallback to text parsing if response is not JSON
+        const responseText = await response.text();
+        console.log(`[SMSPASAL] OTP request for ${contacts}. Response (Text):`, responseText);
+        if (responseText.startsWith("SMS-SHOOT-ID/")) {
+          isSuccess = true;
+        } else {
+          errorMsg = responseText;
+        }
+      }
+
+      if (isSuccess) {
         return {
           sent: true,
           channel: "SMS" as OtpChannel,
         };
       } else {
-        console.error(`[SMSPASAL] Failed to send OTP: ${responseText}`);
+        console.error(`[SMSPASAL] Failed to send OTP: ${errorMsg}`);
         return {
           sent: false,
-          error: responseText,
+          error: errorMsg,
           channel: "SMS" as OtpChannel,
         };
       }

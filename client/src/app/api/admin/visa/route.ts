@@ -14,45 +14,35 @@ export async function GET(request: Request) {
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
     const search = searchParams.get("search") || "";
-    const status = searchParams.get("status") || "ALL";
 
     const skip = (page - 1) * limit;
 
-    const whereClause: any = {
-      role: "STUDENT",
-    };
+    const whereClause: any = {};
 
     if (search) {
       whereClause.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { email: { contains: search, mode: "insensitive" } },
-        { username: { contains: search, mode: "insensitive" } },
+        { user: { name: { contains: search, mode: "insensitive" } } },
+        { destination: { contains: search, mode: "insensitive" } },
       ];
     }
 
-    if (status === "ACTIVE") whereClause.isActive = true;
-    if (status === "SUSPENDED") whereClause.isActive = false;
-
-    const [students, total] = await Promise.all([
-      prisma.user.findMany({
+    const [visaChecks, total] = await Promise.all([
+      prisma.visaRateCheck.findMany({
         where: whereClause,
         skip,
         take: limit,
         orderBy: { createdAt: "desc" },
         include: {
-          profile: {
-            select: { nationality: true, currentCountry: true, gpa: true },
-          },
-          _count: {
-            select: { applications: true, visaChecks: true },
+          user: {
+            select: { id: true, name: true, email: true },
           },
         },
       }),
-      prisma.user.count({ where: whereClause }),
+      prisma.visaRateCheck.count({ where: whereClause }),
     ]);
 
     return NextResponse.json({
-      students,
+      visaChecks,
       pagination: {
         total,
         pages: Math.ceil(total / limit),
@@ -61,7 +51,7 @@ export async function GET(request: Request) {
       },
     });
   } catch (error) {
-    console.error("Error fetching students:", error);
+    console.error("Error fetching visa checks:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
