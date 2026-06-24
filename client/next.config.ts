@@ -11,6 +11,8 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "i.pravatar.cc" },
       { protocol: "https", hostname: "flagcdn.com" },
+      { protocol: "https", hostname: "photos.applyboard.com" },
+      { protocol: "https", hostname: "logo.clearbit.com" },
     ],
   },
 };

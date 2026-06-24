@@ -54,11 +54,45 @@ export default function SearchPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [availableCountries, setAvailableCountries] = useState<{ code: string; name: string }[]>([]);
+  const [loadingCountries, setLoadingCountries] = useState(false);
+
+  // Fetch unique countries dynamically from API to populate the country filter
+  useEffect(() => {
+    const loadCountries = async () => {
+      setLoadingCountries(true);
+      try {
+        const res = await fetch("/api/schools?allCountries=true");
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && Array.isArray(json.data)) {
+            setAvailableCountries(json.data);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load countries:", err);
+      } finally {
+        setLoadingCountries(false);
+      }
+    };
+    loadCountries();
+  }, []);
+
   const fetchUniversities = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const countryCode = COUNTRY_CODES[selectedCountry] || "US";
+      let countryCode = "";
+      if (selectedCountry !== "All Countries") {
+        const found = availableCountries.find(
+          (c) => c.name.toLowerCase() === selectedCountry.toLowerCase()
+        );
+        countryCode = found ? found.code : "US";
+      } else {
+        // Fetch all campuses in the API by combining all represented country codes
+        countryCode = availableCountries.map((c) => c.code).join(",");
+      }
+
       const response = await fetch(`/api/universities/search?q=${encodeURIComponent(searchQuery)}&countries=${countryCode}`);
       const data = await response.json();
       
@@ -73,11 +107,14 @@ export default function SearchPage() {
     } finally {
       setLoading(false);
     }
-  }, [searchQuery, selectedCountry]);
+  }, [searchQuery, selectedCountry, availableCountries]);
 
   useEffect(() => {
-    fetchUniversities();
-  }, [selectedCountry, fetchUniversities]);
+    // Wait until countries are loaded (or check fails) before fetching universities
+    if (availableCountries.length > 0 || !loadingCountries) {
+      fetchUniversities();
+    }
+  }, [selectedCountry, availableCountries, loadingCountries, fetchUniversities]);
 
   const handleApplyFilters = () => {
     fetchUniversities();
@@ -155,7 +192,13 @@ export default function SearchPage() {
         <div className="bg-white rounded-[32px] shadow-[0_20px_80px_rgba(0,0,0,0.06)] p-6 flex flex-col lg:flex-row items-center gap-4 border border-slate-100">
           <FilterSelect icon={BookOpen} label="Major" value={selectedMajor} setValue={setSelectedMajor} options={["Computer Science", "Business Admin", "Data Science", "Engineering"]} />
           <div className="w-full lg:w-px h-px lg:h-12 bg-slate-100 shrink-0" />
-          <FilterSelect icon={Globe2} label="Country" value={selectedCountry} setValue={setSelectedCountry} options={["All Countries", "United States", "Canada", "United Kingdom", "Australia", "Germany"]} />
+          <FilterSelect 
+            icon={Globe2} 
+            label="Country" 
+            value={selectedCountry} 
+            setValue={setSelectedCountry} 
+            options={["All Countries", ...availableCountries.map((c) => c.name)]} 
+          />
           <div className="w-full lg:w-px h-px lg:h-12 bg-slate-100 shrink-0" />
           <FilterSelect icon={Building2} label="City" value={selectedCity} setValue={setSelectedCity} options={["New York", "Toronto", "London", "Sydney", "Berlin"]} />
           <div className="w-full lg:w-px h-px lg:h-12 bg-slate-100 shrink-0" />
@@ -223,7 +266,7 @@ export default function SearchPage() {
                     <div className="absolute top-5 left-5 right-5 flex justify-between items-start z-10">
                       <div className="bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm">
                         <Trophy className="w-3.5 h-3.5 text-[#3686FF]" />
-                        <span className="text-[11px] font-black text-[#3686FF] tracking-widest uppercase">#4 Global</span>
+                        <span className="text-[11px] font-black text-[#3686FF] tracking-widest uppercase">#{uni.rankingWorld || "500"} Global</span>
                       </div>
                       <div className="bg-emerald-500 text-white px-3 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest shadow-lg shadow-emerald-500/30">
                         Scholarship
@@ -235,14 +278,20 @@ export default function SearchPage() {
                   <div className="p-8 flex flex-col flex-1 relative bg-white">
                     {/* Logo Overlay */}
                     <div className="absolute -top-12 left-8 w-20 h-20 rounded-[24px] border-[4px] border-white bg-white shadow-xl flex items-center justify-center p-2 z-20">
-                      <Image 
-                        src={uni.logo || `https://logo.clearbit.com/${new URL(uni.website).hostname}`} 
-                        alt={`${uni.name} Logo`} 
-                        width={48} 
-                        height={48} 
-                        className="object-contain"
-                        unoptimized
-                      />
+                      {uni.logo ? (
+                        <Image 
+                          src={uni.logo} 
+                          alt={`${uni.name} Logo`} 
+                          width={48} 
+                          height={48} 
+                          className="object-contain"
+                          unoptimized
+                        />
+                      ) : (
+                        <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 font-black text-lg uppercase">
+                          {uni.name ? uni.name.slice(0, 2) : "UN"}
+                        </div>
+                      )}
                     </div>
 
                     <div className="pt-8 mb-4">
@@ -292,7 +341,7 @@ export default function SearchPage() {
                           <span className="text-[12px] font-bold uppercase tracking-widest">Diverse Campus</span>
                         </div>
                         <Link 
-                          href={session ? `/universities/${uni.id}` : `/register?callbackUrl=${encodeURIComponent(`/universities/${uni.id}`)}`} 
+                          href={session ? `/schools/${uni.id}` : `/register?callbackUrl=${encodeURIComponent(`/schools/${uni.id}`)}`} 
                           className="bg-[#3686FF] text-white h-12 px-6 rounded-full font-bold text-[13px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#2970E6] transition-all group active:scale-95 shadow-[0_8px_20px_rgba(54,134,255,0.3)] hover:shadow-[0_12px_24px_rgba(54,134,255,0.4)]"
                         >
                           View

@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
     // Using a public free API for demonstration, normally would use a pair from Ninja or Fixer
     let usdToNpr = 133.5; // Default fallback
     try {
-      const exRes = await fetch("https://open.er-api.com/v6/latest/USD");
+      const exRes = await fetch("https://open.er-api.com/v6/latest/USD", { signal: AbortSignal.timeout(2000) });
       const exData = await exRes.json();
       if (exData && exData.rates && exData.rates.NPR) {
         usdToNpr = exData.rates.NPR;
@@ -63,6 +63,7 @@ export async function GET(req: NextRequest) {
         const ninjaUrl = `https://api.api-ninjas.com/v1/costofliving?city=${city}`;
         const ninjaRes = await fetch(ninjaUrl, {
           headers: { "X-Api-Key": API_NINJAS_KEY },
+          signal: AbortSignal.timeout(2000),
         });
         if (ninjaRes.ok) {
           livingData = await ninjaRes.json();

@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { fetchWorqnowUniversities } from "@/lib/api/worqnow";
-import {
-  REAL_ACCEPTANCE_RATES,
-  estimateAcceptanceRate,
-} from "@/lib/data/universityMetaData";
-import { fetchHipolabsUniversities } from "@/lib/api/hipolabs";
+import { abroadliftApi } from "@/lib/api/abroadlift";
 
 const COUNTRY_ALIAS_TO_CODE: Record<string, string> = {
   US: "USA",
@@ -23,30 +18,11 @@ const COUNTRY_ALIAS_TO_CODE: Record<string, string> = {
   JAPAN: "JP",
   KR: "KR",
   KOREA: "KR",
-  KOREAN: "KR",
   "SOUTH KOREA": "KR",
-  "REPUBLIC OF KOREA": "KR",
   IE: "IE",
   IRELAND: "IE",
   NL: "NL",
   NETHERLANDS: "NL",
-  FR: "FR",
-  FRANCE: "FR",
-  IT: "IT",
-  ITALY: "IT",
-  ES: "ES",
-  SPAIN: "ES",
-  SE: "SE",
-  SWEDEN: "SE",
-  CH: "CH",
-  SWITZERLAND: "CH",
-  NZ: "NZ",
-  "NEW ZEALAND": "NZ",
-  SG: "SG",
-  SINGAPORE: "SG",
-  AE: "AE",
-  UAE: "AE",
-  "UNITED ARAB EMIRATES": "AE",
 };
 
 function normalizeCountryCode(country: string): string {
@@ -57,89 +33,66 @@ function normalizeCountryCode(country: string): string {
 
 const DEFAULT_COUNTRIES = process.env.POPULAR_STUDY_COUNTRIES || "DE,JP,KR";
 
-interface SearchResult {
-  id: string | number;
-  name: string;
-  location: string;
-  tuition: string | number;
-  acceptanceRate: number;
-  website: string;
-  country: string;
-}
-
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const q = (searchParams.get("q") || "").trim();
+  const q = (searchParams.get("q") || "").trim().toLowerCase();
   const countriesParam = searchParams.get("countries") || DEFAULT_COUNTRIES;
+  
   const selectedCountries = countriesParam
     .split(",")
     .map((c) => normalizeCountryCode(c))
     .filter(Boolean);
 
   try {
-    const resultsMap = new Map<string | number, SearchResult>();
+    const schoolsResponse = await abroadliftApi.getSchools(1, 100);
+    const schools = schoolsResponse.data || [];
 
-    // We use Promise.all to fetch from all selected countries in parallel
-    await Promise.all(
-      selectedCountries.map(async (country) => {
-        try {
-          const [worqAll, hipolabsAll] = await Promise.all([
-            fetchWorqnowUniversities(country),
-            fetchHipolabsUniversities(country),
-          ]);
-
-          const worqFiltered = worqAll
-            .filter((u) => u.name?.toLowerCase().includes(q.toLowerCase()))
-            .slice(0, 15)
-            .map((u) => {
-              let rate = REAL_ACCEPTANCE_RATES[u.name];
-              if (!rate) {
-                rate = estimateAcceptanceRate(u.ranking_world);
-              }
-
-              return {
-                id: u.code || u.name,
-                name: u.name,
-                location: u.city || country,
-                tuition: u.estimatedFeeUSD || "Check Website",
-                acceptanceRate: rate,
-                website: u.website || "",
-                country: country,
-              };
-            });
-
-          const hipolabsFiltered = hipolabsAll
-            .filter((u) => u.name?.toLowerCase().includes(q.toLowerCase()))
-            .slice(0, 12)
-            .map((u) => {
-              const rate = estimateAcceptanceRate();
-              return {
-                id: `hipolabs-${country}-${u.name}`,
-                name: u.name,
-                location: u["state-province"] || u.country || country,
-                tuition: "Check Website",
-                acceptanceRate: rate,
-                website: Array.isArray(u.web_pages) ? u.web_pages[0] : "",
-                country: country,
-              };
-            });
-
-          [...worqFiltered, ...hipolabsFiltered].forEach((res) =>
-            resultsMap.set(`${res.country}-${res.name}`, res),
-          );
-        } catch (err) {
-          console.error(`Error fetching results for ${country}:`, err);
+    // Filter by name/city search query and selected countries
+    const filteredSchools = schools.filter((school) => {
+      if (q) {
+        const matchesName = school.name?.toLowerCase().includes(q);
+        const matchesCity = school.city?.toLowerCase().includes(q);
+        const matchesAbout = school.about?.toLowerCase().includes(q);
+        if (!matchesName && !matchesCity && !matchesAbout) {
+          return false;
         }
-      }),
-    );
+      }
 
-    const results = Array.from(resultsMap.values());
+      if (selectedCountries.length > 0) {
+        const schoolCountryCode = normalizeCountryCode(school.country_code || school.country || "");
+        if (!selectedCountries.includes(schoolCountryCode)) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+
+    const results = filteredSchools.map((school) => {
+      const rank = school.school_rank || 500;
+      const acceptanceRate = Math.min(95, Math.max(25, 98 - Math.round(Math.log10(rank + 1) * 15)));
+
+      return {
+        id: school.school_id,
+        name: school.name,
+        location: school.city ? `${school.city}, ${school.province || ""}` : (school.country || "Canada"),
+        tuition: "Varies by Course",
+        acceptanceRate,
+        website: school.website || "",
+        country: school.country || "Canada",
+        logo: school.logo?.url || school.logo?.url_thumbnail || "",
+        image: school.banner?.url || (school.photos && school.photos[0]?.url) || "/uni-default.webp",
+        rankingWorld: rank
+      };
+    });
+
     return NextResponse.json({ results });
-  } catch (err: unknown) {
-    console.error("Search API Error:", err);
+  } catch (error: any) {
+    console.error("Search API Error:", error);
     return NextResponse.json(
-      { error: "Failed to search universities" },
-      { status: 500 },
+      { error: "Failed to search universities", detail: error.message },
+      { status: 500 }
     );
   }
 }
+

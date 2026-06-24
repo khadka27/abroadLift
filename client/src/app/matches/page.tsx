@@ -87,18 +87,8 @@ const COUNTRIES = [
   { code: "CA", name: "Canada" },
   { code: "AU", name: "Australia" },
   { code: "DE", name: "Germany" },
-  { code: "JP", name: "Japan" },
-  { code: "KR", name: "South Korea" },
   { code: "IE", name: "Ireland" },
-  { code: "NL", name: "Netherlands" },
-  { code: "FR", name: "France" },
-  { code: "IT", name: "Italy" },
-  { code: "ES", name: "Spain" },
-  { code: "SE", name: "Sweden" },
-  { code: "CH", name: "Switzerland" },
-  { code: "NZ", name: "New Zealand" },
-  { code: "SG", name: "Singapore" },
-  { code: "AE", name: "UAE" },
+  { code: "MT", name: "Malta" },
 ];
 
 const DEGREES = [
@@ -824,6 +814,18 @@ const COUNTRY_INTAKE_GUIDE: Record<
       },
       { label: "January", months: "Jan", applyWindow: "Oct-Dec" },
       { label: "May", months: "May", applyWindow: "Varies" },
+    ],
+  },
+  MT: {
+    countryName: "Malta",
+    intakes: [
+      {
+        label: "October",
+        months: "Oct",
+        applyWindow: "Jun-Aug",
+        isMain: true,
+      },
+      { label: "February", months: "Feb", applyWindow: "Oct-Nov" },
     ],
   },
 };
@@ -2105,6 +2107,14 @@ export default function AbroadLiftMatchesPage() {
   const [admissionAnalysis, setAdmissionAnalysis] = useState<any>(null);
   const [visaAnalysis, setVisaAnalysis] = useState<any>(null);
 
+  const [availableCountries, setAvailableCountries] = useState<{ code: string; name: string }[]>([]);
+  const [loadingCountries, setLoadingCountries] = useState<boolean>(true);
+  const [availableLevels, setAvailableLevels] = useState<{ v: string; l: string }[]>([]);
+  const [loadingLevels, setLoadingLevels] = useState<boolean>(true);
+  const [availableFields, setAvailableFields] = useState<string[]>([]);
+  const [availableProgramsByField, setAvailableProgramsByField] = useState<Record<string, string[]>>({});
+  const [loadingFields, setLoadingFields] = useState<boolean>(true);
+
   const [hasRestored, setHasRestored] = useState(false);
 
   const saveSelectionState = (match?: Match | null) => {
@@ -2461,6 +2471,77 @@ export default function AbroadLiftMatchesPage() {
       if (restoredMatches.length > 0) setMatches(restoredMatches);
     }
     setHasRestored(true);
+  }, []);
+
+  // Fetch unique countries dynamically from /api/schools for Step 1
+  useEffect(() => {
+    const fetchCountries = async () => {
+      setLoadingCountries(true);
+      try {
+        const res = await fetch("/api/schools?allCountries=true");
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+            setAvailableCountries(json.data);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load countries from /api/schools:", err);
+      } finally {
+        setLoadingCountries(false);
+      }
+    };
+
+    fetchCountries();
+  }, []);
+
+  // Fetch unique study levels dynamically from /api/programs for Step 2
+  useEffect(() => {
+    const fetchLevels = async () => {
+      setLoadingLevels(true);
+      try {
+        const res = await fetch("/api/programs?allLevels=true");
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+            setAvailableLevels(json.data);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load levels from /api/programs:", err);
+      } finally {
+        setLoadingLevels(false);
+      }
+    };
+
+    fetchLevels();
+  }, []);
+
+  // Fetch unique study fields & programs dynamically from /api/programs for Step 3
+  useEffect(() => {
+    const fetchFieldsAndPrograms = async () => {
+      setLoadingFields(true);
+      try {
+        const res = await fetch("/api/programs?allFieldsAndPrograms=true");
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && json.data) {
+            if (Array.isArray(json.data.fields) && json.data.fields.length > 0) {
+              setAvailableFields(json.data.fields);
+            }
+            if (json.data.programsByField) {
+              setAvailableProgramsByField(json.data.programsByField);
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load fields and programs from /api/programs:", err);
+      } finally {
+        setLoadingFields(false);
+      }
+    };
+
+    fetchFieldsAndPrograms();
   }, []);
 
   // Resume saved step after login/signup if flag is set
@@ -3071,42 +3152,53 @@ export default function AbroadLiftMatchesPage() {
           </div>
 
           <div className="w-full px-2 sm:px-4 overflow-visible">
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-y-6 gap-x-2 sm:gap-x-4 w-full">
-              {COUNTRIES.map((c: any) => {
-                const isSel = form.countries.includes(c.code);
-                return (
-                  <button
-                    key={c.code}
-                    onClick={() => {
-                      setForm((prev) => ({ ...prev, countries: [c.code] }));
-                    }}
-                    className="group flex flex-col items-center gap-1 cursor-pointer transition-all active:scale-95 w-full"
-                  >
-                    <div
-                      className={`relative w-[58px] h-[42px] sm:w-[80px] sm:h-[58px] rounded-[14px] sm:rounded-[20px] overflow-hidden bg-white flex items-center justify-center p-[2px] transition-all ${
-                        isSel
-                          ? "ring-[2.5px] ring-blue-500 shadow-lg transform scale-[1.05]"
-                          : "shadow-[0_4px_12px_-4px_rgba(0,0,0,0.08)] border border-slate-50 hover:border-blue-200"
-                      }`}
+            {loadingCountries && availableCountries.length === 0 ? (
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-y-6 gap-x-2 sm:gap-x-4 w-full">
+                {[1, 2, 3].map((n) => (
+                  <div key={n} className="flex flex-col items-center gap-2 animate-pulse w-full">
+                    <div className="w-[58px] h-[42px] sm:w-[80px] sm:h-[58px] rounded-[14px] sm:rounded-[20px] bg-slate-100 border border-slate-50" />
+                    <div className="h-3 w-12 bg-slate-100 rounded" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-y-6 gap-x-2 sm:gap-x-4 w-full">
+                {(availableCountries.length > 0 ? availableCountries : COUNTRIES).map((c: any) => {
+                  const isSel = form.countries.includes(c.code);
+                  return (
+                    <button
+                      key={c.code}
+                      onClick={() => {
+                        setForm((prev) => ({ ...prev, countries: [c.code] }));
+                      }}
+                      className="group flex flex-col items-center gap-1 cursor-pointer transition-all active:scale-95 w-full"
                     >
-                      <div className="w-full h-full rounded-[12px] sm:rounded-[18px] overflow-hidden">
-                        <FlagIcon
-                          countryCode={c.code}
-                          className="w-full h-full object-cover"
-                        />
+                      <div
+                        className={`relative w-[58px] h-[42px] sm:w-[80px] sm:h-[58px] rounded-[14px] sm:rounded-[20px] overflow-hidden bg-white flex items-center justify-center p-[2px] transition-all ${
+                          isSel
+                            ? "ring-[2.5px] ring-blue-500 shadow-lg transform scale-[1.05]"
+                            : "shadow-[0_4px_12px_-4px_rgba(0,0,0,0.08)] border border-slate-50 hover:border-blue-200"
+                        }`}
+                      >
+                        <div className="w-full h-full rounded-[12px] sm:rounded-[18px] overflow-hidden">
+                          <FlagIcon
+                            countryCode={c.code}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
                       </div>
-                    </div>
-                    <span
-                      className={`text-[11px] sm:text-[13px] font-[600] text-center tracking-tight transition-colors ${
-                        isSel ? "text-blue-600" : "text-[#475569]"
-                      }`}
-                    >
-                      {c.name}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
+                      <span
+                        className={`text-[11px] sm:text-[13px] font-[600] text-center tracking-tight transition-colors ${
+                          isSel ? "text-blue-600" : "text-[#475569]"
+                        }`}
+                      >
+                        {c.name}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       );
@@ -3124,6 +3216,55 @@ export default function AbroadLiftMatchesPage() {
         { v: "doctorate", l: "PHD Degree", icon: BookOpen },
         { v: "undergrad-dip-2", l: "Diploma", icon: Award },
       ];
+
+      const getDegreeIcon = (value: string) => {
+        const v = value.toLowerCase();
+        if (v.includes("master")) return BookOpen;
+        if (v.includes("bachelor")) return GraduationCap;
+        if (v.includes("doctor") || v.includes("phd")) return Microscope;
+        if (v.includes("diploma")) return Award;
+        if (v.includes("cert")) return FileCheck;
+        if (v.includes("english") || v.includes("esl")) return Globe;
+        if (v.includes("grade")) return AlignLeft;
+        return Award;
+      };
+
+      const getLevelCategory = (value: string) => {
+        const v = value.toLowerCase();
+        if (v.includes("master") || v.includes("doctor") || v.includes("phd") || v.includes("pg") || v.includes("post_graduate")) {
+          return "Postgraduate & Higher Education";
+        }
+        if (v.includes("bachelor") || v.includes("diploma") || v.includes("undergrad") || v.includes("certificate") || v.includes("associate")) {
+          return "Undergraduate & Diplomas";
+        }
+        if (v.includes("english") || v.includes("esl")) {
+          return "Language & Preparation";
+        }
+        if (v.includes("grade")) {
+          return "Schooling & Secondary Education";
+        }
+        return "Other Programs";
+      };
+
+      const levelsToDisplay = availableLevels.length > 0 ? availableLevels : DISPLAY_DEGREES;
+
+      const categoryOrder = [
+        "Postgraduate & Higher Education",
+        "Undergraduate & Diplomas",
+        "Language & Preparation",
+        "Schooling & Secondary Education",
+        "Other Programs"
+      ];
+
+      // Group levels by category
+      const groups: Record<string, any[]> = {};
+      levelsToDisplay.forEach((d: any) => {
+        const cat = d.cat || getLevelCategory(d.v);
+        if (!groups[cat]) groups[cat] = [];
+        groups[cat].push(d);
+      });
+
+      const activeCategories = categoryOrder.filter((cat) => groups[cat] && groups[cat].length > 0);
 
       return (
         <div className="animate-in fade-in zoom-in-95 duration-700 w-full max-w-5xl mx-auto pb-2 px-4">
@@ -3144,56 +3285,85 @@ export default function AbroadLiftMatchesPage() {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 md:gap-4 lg:gap-5 w-full">
-            {DISPLAY_DEGREES.map((d) => {
-              const isSel = form.degree === d.v;
-              const Icon = d.icon;
-              return (
-                <button
-                  key={d.v}
-                  onClick={() => updateForm("degree", d.v)}
-                  className={`group relative flex items-center gap-4 md:gap-6 px-5 md:px-8 py-3.5 md:py-5 rounded-[18px] md:rounded-[22px] border transition-all duration-300 ${
-                    isSel
-                      ? "border-blue-500 bg-white shadow-lg shadow-blue-500/5 -translate-y-0.5"
-                      : "border-slate-100 bg-white shadow-sm hover:border-blue-200"
-                  }`}
+          {loadingLevels && availableLevels.length === 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 md:gap-4 lg:gap-5 w-full">
+              {[1, 2, 3, 4].map((n) => (
+                <div
+                  key={n}
+                  className="flex items-center gap-4 md:gap-6 px-5 md:px-8 py-3.5 md:py-5 rounded-[18px] md:rounded-[22px] bg-slate-50 border border-slate-100 animate-pulse h-[76px] md:h-[94px] w-full"
                 >
-                  <div
-                    className={`shrink-0 w-[40px] h-[40px] md:w-[52px] md:h-[52px] rounded-xl flex items-center justify-center transition-all border ${
-                      isSel
-                        ? "bg-white text-slate-900 border-blue-500 shadow-sm"
-                        : "bg-slate-50 text-slate-400 border-slate-100"
-                    }`}
-                  >
-                    <Icon className="w-5 h-5 md:w-6 md:h-6" strokeWidth={1.5} />
+                  <div className="shrink-0 w-[40px] h-[40px] md:w-[52px] md:h-[52px] rounded-xl bg-slate-100 border border-slate-100" />
+                  <div className="h-4 bg-slate-100 rounded w-1/2" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-8 w-full">
+              {activeCategories.map((categoryName) => (
+                <div key={categoryName} className="space-y-4">
+                  <div className="flex items-center gap-3 pt-2">
+                    <h3 className="text-xs md:text-sm font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">
+                      {categoryName}
+                    </h3>
+                    <div className="h-px bg-slate-100 flex-grow" />
                   </div>
-                  <span
-                    className={`text-[15px] md:text-[17px] font-semibold ${
-                      isSel ? "text-slate-900" : "text-slate-700"
-                    }`}
-                  >
-                    {d.l}
-                  </span>
-                  {isSel && (
-                    <div className="ml-auto w-5 h-5 md:w-6 md:h-6 bg-blue-500 rounded-full flex items-center justify-center shadow-sm">
-                      <CheckCircle2 className="w-3.5 h-3.5 md:w-4 md:h-4 text-white" />
-                    </div>
-                  )}
-                </button>
-              );
-            })}
-          </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 md:gap-4 lg:gap-5 w-full animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    {groups[categoryName].map((d: any) => {
+                      const isSel = form.degree === d.v;
+                      const Icon = d.icon || getDegreeIcon(d.v);
+                      return (
+                        <button
+                          key={d.v}
+                          onClick={() => updateForm("degree", d.v)}
+                          className={`group relative flex items-center gap-4 md:gap-6 px-5 md:px-8 py-3.5 md:py-5 rounded-[18px] md:rounded-[22px] border transition-all duration-300 ${
+                            isSel
+                              ? "border-blue-500 bg-white shadow-lg shadow-blue-500/5 -translate-y-0.5"
+                              : "border-slate-100 bg-white shadow-sm hover:border-blue-200"
+                          }`}
+                        >
+                          <div
+                            className={`shrink-0 w-[40px] h-[40px] md:w-[52px] md:h-[52px] rounded-xl flex items-center justify-center transition-all border ${
+                              isSel
+                                ? "bg-white text-slate-900 border-blue-500 shadow-sm"
+                                : "bg-slate-50 text-slate-400 border-slate-100"
+                            }`}
+                          >
+                            <Icon className="w-5 h-5 md:w-6 md:h-6" strokeWidth={1.5} />
+                          </div>
+                          <span
+                            className={`text-[15px] md:text-[17px] font-semibold text-left ${
+                              isSel ? "text-slate-900" : "text-slate-700"
+                            }`}
+                          >
+                            {d.l}
+                          </span>
+                          {isSel && (
+                            <div className="ml-auto w-5 h-5 md:w-6 md:h-6 bg-blue-500 rounded-full flex items-center justify-center shadow-sm">
+                              <CheckCircle2 className="w-3.5 h-3.5 md:w-4 md:h-4 text-white" />
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       );
     }
 
     if (step === 3) {
-      const allFields = FIELDS.map((f) => f.v);
-      const programsByLevel = LEVEL_PROGRAMS[form.degree] || PROGRAMS;
+      const fieldsToDisplay = availableFields.length > 0 ? availableFields : FIELDS.map((f) => f.v);
+      const programsMapToUse = Object.keys(availableProgramsByField).length > 0 ? availableProgramsByField : PROGRAMS;
 
-      const filteredFields = allFields.filter((f) =>
-        f.toLowerCase().includes(searchQuery.toLowerCase()),
-      );
+      const filteredFields = fieldsToDisplay.filter((f) => {
+        const matchesField = f.toLowerCase().includes(searchQuery.toLowerCase());
+        const programs = programsMapToUse[f] || [];
+        const matchesProgram = programs.some((p) => p.toLowerCase().includes(searchQuery.toLowerCase()));
+        return matchesField || matchesProgram;
+      });
 
       return (
         <div className="flex flex-col animate-in fade-in zoom-in-95 duration-700 w-full max-w-5xl mx-auto pb-2 px-4">
@@ -3221,65 +3391,80 @@ export default function AbroadLiftMatchesPage() {
               </div>
               <input
                 type="text"
-                placeholder={"\u201CSearch study courses\u201D"}
+                placeholder={"“Search study courses”"}
                 className="w-full h-[48px] md:h-[60px] pl-11 md:pl-14 pr-4 bg-[#f8fafc] border border-slate-200 rounded-[16px] md:rounded-[20px] text-[14px] md:text-[16px] font-medium text-slate-900 placeholder:text-slate-400 placeholder:italic focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all shadow-sm"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 md:gap-4 w-full">
-            {filteredFields.map((f) => {
-              const isSel = form.field === f;
-              return (
-                <div
-                  key={f}
-                  className={`transition-all duration-500 ${isSel ? "md:col-span-2" : ""}`}
-                >
-                  <button
-                    onClick={() => {
-                      updateForm("field", isSel ? "" : f);
-                      updateForm("program", "");
-                    }}
-                    className={`w-full h-[50px] md:h-[64px] px-5 md:px-8 flex items-center justify-between rounded-[16px] md:rounded-[22px] border transition-all duration-300 ${
-                      isSel
-                        ? "border-blue-500 bg-white shadow-lg shadow-blue-500/5 -translate-y-0.5"
-                        : "border-slate-100 bg-white shadow-sm hover:border-blue-200"
-                    }`}
-                  >
-                    <span
-                      className={`text-[14px] md:text-[16px] font-semibold ${isSel ? "text-slate-900" : "text-slate-700"}`}
-                    >
-                      {f}
-                    </span>
-                    <ChevronDown
-                      className={`w-4 h-4 md:w-5 md:h-5 text-slate-400 transition-transform duration-300 ${isSel ? "rotate-180 text-blue-500" : ""}`}
-                    />
-                  </button>
 
-                  {isSel && (
-                    <div className="mt-2 md:mt-3 p-2 md:p-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1.5 md:gap-2 animate-in fade-in slide-in-from-top-2 duration-300 bg-slate-50/50 rounded-[18px] md:rounded-[24px] border border-slate-100">
-                      {(
-                        (programsByLevel[f] || PROGRAMS[f] || []) as string[]
-                      ).map((p) => (
-                        <button
-                          key={p}
-                          onClick={() => updateForm("program", p)}
-                          className={`w-full text-left px-4 md:px-5 py-2.5 md:py-3.5 rounded-[12px] md:rounded-[16px] text-[13px] md:text-[14px] font-semibold transition-all ${
-                            form.program === p
-                              ? "bg-blue-600 text-white shadow-md"
-                              : "text-slate-600 hover:bg-white hover:shadow-sm"
-                          }`}
-                        >
-                          {p}
-                        </button>
-                      ))}
-                    </div>
-                  )}
+          {loadingFields && availableFields.length === 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 md:gap-4 w-full animate-in fade-in duration-300">
+              {[1, 2, 3, 4, 5, 6].map((n) => (
+                <div
+                  key={n}
+                  className="w-full h-[50px] md:h-[64px] px-5 md:px-8 flex items-center justify-between rounded-[16px] md:rounded-[22px] bg-slate-50 border border-slate-100 animate-pulse"
+                >
+                  <div className="h-4 bg-slate-100 rounded w-1/3" />
+                  <div className="w-4 h-4 md:w-5 md:h-5 bg-slate-100 rounded-full" />
                 </div>
-              );
-            })}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 md:gap-4 w-full">
+              {filteredFields.map((f) => {
+                const isSel = form.field === f;
+                return (
+                  <div
+                    key={f}
+                    className={`transition-all duration-500 ${isSel ? "md:col-span-2" : ""}`}
+                  >
+                    <button
+                      onClick={() => {
+                        updateForm("field", isSel ? "" : f);
+                        updateForm("program", "");
+                      }}
+                      className={`w-full h-[50px] md:h-[64px] px-5 md:px-8 flex items-center justify-between rounded-[16px] md:rounded-[22px] border transition-all duration-300 ${
+                        isSel
+                          ? "border-blue-500 bg-white shadow-lg shadow-blue-500/5 -translate-y-0.5"
+                          : "border-slate-100 bg-white shadow-sm hover:border-blue-200"
+                      }`}
+                    >
+                      <span
+                        className={`text-[14px] md:text-[16px] font-semibold ${isSel ? "text-slate-900" : "text-slate-700"}`}
+                      >
+                        {f}
+                      </span>
+                      <ChevronDown
+                        className={`w-4 h-4 md:w-5 md:h-5 text-slate-400 transition-transform duration-300 ${isSel ? "rotate-180 text-blue-500" : ""}`}
+                      />
+                    </button>
+
+                    {isSel && (
+                      <div className="mt-2 md:mt-3 p-2 md:p-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1.5 md:gap-2 animate-in fade-in slide-in-from-top-2 duration-300 bg-slate-50/50 rounded-[18px] md:rounded-[24px] border border-slate-100">
+                        {(
+                          (programsMapToUse[f] || []) as string[]
+                        ).map((p) => (
+                          <button
+                            key={p}
+                            onClick={() => updateForm("program", p)}
+                            className={`w-full text-left px-4 md:px-5 py-2.5 md:py-3.5 rounded-[12px] md:rounded-[16px] text-[13px] md:text-[14px] font-semibold transition-all ${
+                              form.program === p
+                                ? "bg-blue-600 text-white shadow-md"
+                                : "text-slate-600 hover:bg-white hover:shadow-sm"
+                            }`}
+                          >
+                            {p}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       );
     }

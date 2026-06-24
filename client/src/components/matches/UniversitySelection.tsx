@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import {
   Search,
   ArrowUpDown,
@@ -748,7 +749,13 @@ function UniversityDetailsModal({
         </div>
 
         {/* Footer */}
-        <div className="shrink-0 border-t border-slate-100 p-6 md:p-8 bg-white flex justify-end">
+        <div className="shrink-0 border-t border-slate-100 p-6 md:p-8 bg-white flex justify-end gap-3">
+          <Link
+            href={`/schools/${m.id}`}
+            className="w-full md:w-auto px-8 h-14 md:h-16 rounded-[20px] border border-slate-200 hover:bg-slate-50 text-slate-700 font-extrabold text-[14px] md:text-[16px] uppercase tracking-widest transition-all flex items-center justify-center"
+          >
+            Visit Campus Page
+          </Link>
           <button
             type="button"
             onClick={onShortlist}

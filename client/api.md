@@ -107,6 +107,306 @@ All paths below are relative to that base (example: `/api/profile`).
   - If countries omitted, uses `POPULAR_STUDY_COUNTRIES` env.
 - Source: `client/src/app/api/universities/search/route.ts`
 
+## Schools & Programs (AbroadLift API Proxies)
+
+These endpoints route requests to the live AbroadLift API (`api.abroadlift.com`) using server-side proxies to protect the API credentials and optimize performance through a shared caching layer.
+
+### `/api/schools`
+
+- Method: `GET`
+- Purpose: Retrieve list of campuses/schools, or extract all represented countries.
+- Query params:
+  - `page` (optional): Page number (default: `1`).
+  - `limit` (optional): Items per page (default: `20` or `100` on page 1).
+  - `allCountries` (optional): If set to `true`, extracts unique countries represented across all campuses.
+- Response for `allCountries=true`:
+  ```json
+  {
+    "success": true,
+    "data": [
+      { "code": "CA", "name": "Canada" },
+      { "code": "USA", "name": "USA" },
+      { "code": "UK", "name": "UK" }
+    ]
+  }
+  ```
+- Response for standard listing (contains the complete school profile schema):
+  ```json
+  {
+    "success": true,
+    "data": [
+      {
+        "_id": "6a298c9c8271bee035d32d01",
+        "school_id": 1,
+        "_scraped_at": "2026-06-19T07:21:51.206980+00:00",
+        "name": "Conestoga College - Doon",
+        "about": "<p>Conestoga College is a leader in polytechnic education...</p>",
+        "address": "299 Doon Valley Drive",
+        "city": "Kitchener",
+        "province": "Ontario",
+        "country": "Canada",
+        "country_code": "CA",
+        "postal_code": "N2G 4M4",
+        "phone": "1 (519) 748-5220",
+        "email": "InternationalAdmissions@conestogac.on.ca",
+        "website": "http://www.conestogac.on.ca/international/",
+        "institution_type": "Public",
+        "founded_in": 1967,
+        "school_rank": 6013,
+        "total_number_of_students": 26000,
+        "number_of_international_students": 8000,
+        "cost_of_living": "22895.0",
+        "currency": "CAD",
+        "conditional_acceptance": true,
+        "conditional_acceptance_text": "Even if students do NOT meet Conestoga's minimum English requirement...",
+        "coop_participating": true,
+        "pgwp_participating": false,
+        "video_link": "https://www.youtube.com/embed/5ixP1XfgN-0",
+        "logo": {
+          "file_name": "Conestoga-College-Logo-Aug2020.png",
+          "url": "https://photos.applyboard.com/schools/...Logo.png",
+          "url_thumbnail": "https://photos.applyboard.com/schools/...Logo_thumb.png"
+        },
+        "banner": {
+          "file_name": "Conestoga-College-Banner-Oct2020.png",
+          "url": "https://photos.applyboard.com/schools/...Banner.png",
+          "url_thumbnail": "https://photos.applyboard.com/schools/...Banner_thumb.png"
+        },
+        "photos": [
+          {
+            "id": 8093,
+            "url": "https://photos.applyboard.com/school_photos/...original.png",
+            "url_thumbnail": "https://photos.applyboard.com/school_photos/...thumbnail.png",
+            "url_optimized": "https://photos.applyboard.com/school_photos/...optimized.webp",
+            "url_optimized_small": "https://photos.applyboard.com/school_photos/...small.webp"
+          }
+        ]
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "limit": 100,
+      "total": 54,
+      "totalPages": 1
+    }
+  }
+  ```
+- Source: `client/src/app/api/schools/route.ts`
+
+### `/api/schools/[id]`
+
+- Method: `GET`
+- Purpose: Retrieve the details of a single school using its ID (either Mongo `_id` or numerical `school_id`).
+- Response:
+  ```json
+  {
+    "success": true,
+    "data": {
+      "_id": "6a298c9c8271bee035d32d01",
+      "school_id": 1,
+      "name": "Conestoga College - Doon",
+      "about": "<p>Conestoga College is a leader in polytechnic education...</p>",
+      "address": "299 Doon Valley Drive",
+      "city": "Kitchener",
+      "province": "Ontario",
+      "country": "Canada",
+      "country_code": "CA",
+      "phone": "1 (519) 748-5220",
+      "email": "InternationalAdmissions@conestogac.on.ca",
+      "website": "http://www.conestogac.on.ca/international/",
+      "institution_type": "Public",
+      "founded_in": 1967,
+      "school_rank": 6013,
+      "total_number_of_students": 26000,
+      "number_of_international_students": 8000,
+      "cost_of_living": "22895.0",
+      "currency": "CAD",
+      "conditional_acceptance": true,
+      "conditional_acceptance_text": "Even if students do NOT meet Conestoga's minimum English requirement (IELTS or TOEFL), they can still get conditionally accepted...",
+      "coop_participating": true,
+      "pgwp_participating": false,
+      "video_link": "https://www.youtube.com/embed/5ixP1XfgN-0",
+      "logo": {
+        "file_name": "Conestoga-College-Logo-Aug2020.png",
+        "url": "https://photos.applyboard.com/schools/000/000/001/logos/original/Conestoga-College-Logo-Aug2020.png",
+        "url_thumbnail": "https://photos.applyboard.com/schools/000/000/001/logos/small/Conestoga-College-Logo-Aug2020.png"
+      },
+      "banner": {
+        "file_name": "Conestoga-College-Banner-Oct2020.png",
+        "url": "https://photos.applyboard.com/schools/000/000/001/banners/original/Conestoga-College-Banner-Oct2020.png",
+        "url_thumbnail": "https://photos.applyboard.com/schools/000/000/001/banners/small/Conestoga-College-Banner-Oct2020.png"
+      },
+      "photos": [
+        {
+          "id": 8093,
+          "url": "https://photos.applyboard.com/school_photos/000/008/093/photos/original/Conestoga-College-Building-June2020.png",
+          "url_thumbnail": "https://photos.applyboard.com/school_photos/000/008/093/photos/small/Conestoga-College-Building-June2020.png",
+          "url_optimized": "https://photos.applyboard.com/school_photos/000/008/093/photos/optimized/Conestoga-College-Building-June2020.webp",
+          "url_optimized_small": "https://photos.applyboard.com/school_photos/000/008/093/photos/optimized_small/Conestoga-College-Building-June2020.webp"
+        }
+      ]
+    }
+  }
+  ```
+- Source: `client/src/app/api/schools/[id]/route.ts`
+
+### `/api/programs`
+
+- Method: `GET`
+- Purpose: Fetch paginated list of all academic programs, extract unique study levels, or group programs by field.
+- Query params:
+  - `page` (optional): Page number (default: `1`).
+  - `limit` (optional): Items per page (default: `20`).
+  - `allLevels` (optional): If set to `true`, returns a complete, beautifully organized list of all study levels in the database.
+  - `allFieldsAndPrograms` (optional): If set to `true`, returns all unique academic fields with up to 15 matching program names for each field.
+- Response for `allLevels=true`:
+  ```json
+  {
+    "success": true,
+    "data": [
+      { "v": "masters_degree", "l": "Master's Degree" },
+      { "v": "doctoral_phd", "l": "Doctoral / PhD" },
+      { "v": "bachelors", "l": "4-Year Bachelor's Degree" },
+      { "v": "3_year_bachelors", "l": "3-Year Bachelor's Degree" },
+      { "v": "post_graduate_diploma", "l": "Postgraduate Diploma" },
+      { "v": "english", "l": "English as Second Language (ESL)" }
+    ]
+  }
+  ```
+- Response for `allFieldsAndPrograms=true`:
+  ```json
+  {
+    "success": true,
+    "data": {
+      "fields": [
+        "Business & Management",
+        "Computer Science & IT",
+        "Engineering"
+      ],
+      "programsByField": {
+        "Computer Science & IT": [
+          "Computer Science",
+          "Software Engineering Technology"
+        ],
+        "Engineering": [
+          "Mechanical Engineering",
+          "Civil Engineering Technology"
+        ]
+      }
+    }
+  }
+  ```
+- Source: `client/src/app/api/programs/route.ts`
+
+### `/api/programs/school/[id]`
+
+- Method: `GET`
+- Purpose: Retrieve all academic programs offered by a specific school.
+- Response:
+  ```json
+  {
+    "success": true,
+    "data": [
+      {
+        "_id": "6a298c9c8271bee035d32cf7",
+        "program_id": 1,
+        "_scraped_at": "2026-06-19T06:18:29.549519+00:00",
+        "school_id": 1,
+        "name": "Bachelor of Applied Health Information Science (Honours) (1131C) (Co-op)",
+        "short_name": "Applied Health Information Science",
+        "description": "<p>The Bachelor of Applied Health Information Science (Honours) degree is an innovative four-year...</p>",
+        "level": "bachelors",
+        "level_text": "4-Year Bachelor's Degree",
+        "length_breakdown": "4 year bachelor's degree including 8 months of co-op and a field placement",
+        "delivery_method": "in_class",
+        "coop_length": 8,
+        "tuition": "15961.0",
+        "application_fee": "100.0",
+        "pgwp_participating": true,
+        "other_fees": [
+          "Leased Device Fees: $1049 per year",
+          "ISR Fees: $750 per year",
+          "CSI International Health Fees: $530 per year",
+          "CSI Health Plan Fees: $300 per year"
+        ],
+        "requirements": {
+          "id": 27909,
+          "min_gpa": "70.0",
+          "level_text": "Grade 12 / High School",
+          "min_ielts_average": "6.5",
+          "min_ielts_reading": "6.0",
+          "min_ielts_writing": "6.0",
+          "min_ielts_listening": "6.0",
+          "min_ielts_speaking": "6.0",
+          "min_toefl_total": "88.0",
+          "min_toefl_reading": "22.0",
+          "min_toefl_writing": "22.0",
+          "min_toefl_listening": "22.0",
+          "min_toefl_speaking": "22.0",
+          "min_duolingo_score": 120,
+          "min_pte_overall": 58,
+          "other_requirements": [
+            "Grade 12 English; One Grade 12 Mathematics course with a minimum average of 65%...",
+            "Grade 12 Biology with a minimum average of 70%; and Three other Grade 12 courses."
+          ]
+        }
+      }
+    ]
+  }
+  ```
+- Source: `client/src/app/api/programs/school/[id]/route.ts`
+
+### `/api/scholarships`
+
+- Method: `GET`
+- Purpose: Retrieve a paginated list of scholarship opportunities.
+- Query params:
+  - `page` (optional): Page number (default: `1`).
+  - `limit` (optional): Items per page (default: `20`).
+- Response:
+  ```json
+  {
+    "success": true,
+    "data": [
+      {
+        "_id": "6a298c9c8271bee035d32dcd",
+        "scholarship_id": 178,
+        "_scraped_at": "2026-06-19T06:19:08.526097+00:00",
+        "title": "Degree Entrance Scholarship",
+        "description": "Conestoga College offers the Degree Entrance Scholarship, providing **$3,000** to students starting their studies in the Fall, Winter, or Spring terms. This scholarship recognizes academic excellence...\n\n# Eligibility Criteria  \n- Must be enrolled as a **full-time student** at Conestoga College.\n- Must have **paid their deposit and fees in full by the due dates**...",
+        "automatically_applied": true,
+        "award_amount_currency_code": "CAD",
+        "award_amount_currency_symbol": "$",
+        "award_amount_from": "3000.0",
+        "award_amount_to": null,
+        "award_amount_type": "fixed_amount",
+        "eligible_levels": [
+          "1-Year Post-Secondary Certificate",
+          "2-Year Undergraduate Diploma",
+          "3-Year Bachelor's Degree",
+          "3-Year Undergraduate Advanced Diploma",
+          "4-Year Bachelor's Degree",
+          "Doctoral / PhD",
+          "Master's Degree",
+          "Postgraduate Certificate",
+          "Postgraduate Diploma"
+        ],
+        "eligible_nationalities": [],
+        "school_group_name": "Conestoga College - All Campuses",
+        "slug": "degree-entrance-scholarship",
+        "source_url": "https://www.conestogac.on.ca/international/apply-to-conestoga/awards-and-scholarships"
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "limit": 20,
+      "total": 178,
+      "totalPages": 9
+    }
+  }
+  ```
+- Source: `client/src/app/api/scholarships/route.ts`
+
 ## Visa
 
 ### `/api/visa`

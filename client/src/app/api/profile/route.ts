@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getUserIdFromRequest } from "@/lib/api-auth";
 import prisma from "@/lib/db";
+import { abroadliftApi } from "@/lib/api/abroadlift";
+
 
 async function ensureUniqueFields(params: {
   userId: string;
@@ -283,6 +285,26 @@ export async function PUT(req: Request) {
       profile: true,
     },
   });
+
+  // Sync profile to external AbroadLift API database
+  try {
+    const gpaRaw = toFloat(gpa) ?? 3.0;
+    const gpaPercent = gpaRaw <= 4.0 ? gpaRaw * 25 : gpaRaw;
+    const engScore = toFloat(finalEnglishScore) ?? 6.5;
+
+    await abroadliftApi.saveStudentProfile({
+      name: user.name || name || "Student",
+      gpa: gpaPercent,
+      english_score: engScore,
+      gap_years: toInt(studyGap, 0),
+      backlogs: toInt(backlogs, 0),
+      work_experience: toInt(studyGap, 0) > 0 ? toInt(studyGap, 0) : 1,
+      available_funds: toFloat(bankBalance) ?? toFloat(finalYearlyBudget) ?? 45000,
+      sponsor_type: sponsorType || "parents",
+    });
+  } catch (error) {
+    console.error("Failed to sync profile to AbroadLift API:", error);
+  }
 
   return NextResponse.json(user);
 }

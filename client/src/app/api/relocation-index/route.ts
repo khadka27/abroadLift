@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const url = process.env.WHERENEXT_RELOCATION_URL || "https://getwherenext.com/api/data/relocation-index";
-    const res = await fetch(url);
+    const res = await fetch(url, { signal: AbortSignal.timeout(2000) });
     if (!res.ok) throw new Error("Failed to fetch from WhereNext Relocation API");
     
     const json = await res.json();

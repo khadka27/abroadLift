@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const url = process.env.WHERENEXT_API_URL || "https://getwherenext.com/api/data/cost-of-living";
-    const res = await fetch(url);
+    const res = await fetch(url, { signal: AbortSignal.timeout(2000) });
     if (!res.ok) throw new Error("Failed to fetch from WhereNext API");
     
     const json = await res.json();

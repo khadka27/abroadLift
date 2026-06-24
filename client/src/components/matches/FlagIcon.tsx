@@ -19,6 +19,7 @@ import {
   NZ,
   SG,
   AE,
+  MT,
 } from "country-flag-icons/react/3x2";
 
 const map: Record<string, any> = {
@@ -41,6 +42,7 @@ const map: Record<string, any> = {
   NZ,
   SG,
   AE,
+  MT,
 };
 
 interface FlagIconProps {
