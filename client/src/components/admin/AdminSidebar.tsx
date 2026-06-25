@@ -117,6 +117,21 @@ export default function AdminSidebar() {
             </Link>
 
             <Link
+              href="/admin/dashboard"
+              className={`w-full h-12 flex items-center gap-4 px-5 rounded-2xl font-bold text-[13px] transition-all group overflow-hidden relative ${
+                pathname === "/admin/dashboard"
+                  ? "bg-violet-500/10 text-white"
+                  : "hover:bg-slate-900 hover:text-slate-200"
+              }`}
+            >
+              {pathname === "/admin/dashboard" && (
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-violet-500 rounded-r-full shadow-[0_0_10px_rgb(139,92,246)]" />
+              )}
+              <LayoutDashboard className={`w-4 h-4 ${pathname === "/admin/dashboard" ? "text-violet-400" : "text-slate-500 group-hover:text-violet-400"}`} />
+              User Management
+            </Link>
+
+            <Link
               href="/admin/students"
               className={`w-full h-12 flex items-center gap-4 px-5 rounded-2xl font-bold text-[13px] transition-all group overflow-hidden relative ${
                 pathname.startsWith("/admin/students")
