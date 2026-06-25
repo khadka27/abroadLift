@@ -187,6 +187,17 @@ export async function PUT(req: Request) {
     postalZipCode,
     countryOfEducation,
     graduatedInstitution,
+    // New fields
+    workStatus,
+    companyName,
+    jobTitle,
+    workExperience,
+    emergencyName,
+    emergencyRelation,
+    emergencyPhone,
+    emergencyEmail,
+    prefersEmail,
+    prefersSMS,
   } = body;
 
   const finalDegreeLevel = degreeLevel || degree;
@@ -259,6 +270,17 @@ export async function PUT(req: Request) {
     postalZipCode: postalZipCode || null,
     countryOfEducation: countryOfEducation || null,
     graduatedInstitution: graduatedInstitution ?? false,
+    // New fields
+    workStatus: workStatus || null,
+    companyName: companyName || null,
+    jobTitle: jobTitle || null,
+    workExperience: toInt(workExperience, 0),
+    emergencyName: emergencyName || null,
+    emergencyRelation: emergencyRelation || null,
+    emergencyPhone: emergencyPhone || null,
+    emergencyEmail: emergencyEmail || null,
+    prefersEmail: prefersEmail ?? true,
+    prefersSMS: prefersSMS ?? false,
     admissionProb: scoreBundle.admissionProb,
     visaSuccessProb: scoreBundle.visaSuccessProb,
     estimatedAnnualCost: scoreBundle.estimatedAnnualCost,

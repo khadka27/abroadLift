@@ -4,7 +4,6 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import AdminSidebar from "@/components/admin/AdminSidebar";
 import { useEffect, useState } from "react";
 import {
   Users,
@@ -181,12 +180,8 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
-      <AdminSidebar />
-
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">
-        {/* Header */}
+    <div className="min-h-screen bg-slate-50">
+      {/* Header */}
         <header className="h-[90px] bg-white/80 backdrop-blur-xl border-b border-slate-200/60 flex items-center justify-between px-10 sticky top-0 z-10 shadow-sm">
           <div className="flex items-center gap-4 bg-slate-50 rounded-2xl px-5 h-[50px] border border-slate-200/50 w-full max-w-md focus-within:border-indigo-400 focus-within:bg-white transition-all shadow-sm">
             <Search className="w-5 h-5 text-slate-400" />
@@ -446,7 +441,7 @@ export default function AdminDashboard() {
             </div>
           </motion.div>
         </div>
-      </main>
+
 
       {/* Modals using AnimatePresence for smooth mounting/unmounting */}
       <AnimatePresence>

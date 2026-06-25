@@ -1133,6 +1133,10 @@
 // }
 
 "use client";
+import { useEffect, Suspense } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Loader2 } from "lucide-react";
 import HeroSection from "@/components/home/HeroSection";
 import StatsBar from "@/components/home/StatsBar";
 import EverythingSection from "@/components/home/EverythingSection";
@@ -1140,31 +1144,69 @@ import SolutionsSection from "@/components/home/SolutionsSection";
 import TrustedPartnersSection from "@/components/home/TrustedPartnersSection";
 import AdmissionSection from "@/components/home/AdmissionSection";
 import ConfidenceSection from "@/components/home/ConfidenceSection";
-
+ 
 import HowItWorksSection from "@/components/home/HowItWorksSection";
 import CTABanner from "@/components/home/CTABanner";
-
+ 
 import EstimateSection from "@/components/home/EstimateSection";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
 import VisaReadinessSection from "@/components/home/VisaReadinessSection";
-
+ 
+function HomePageComponent() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const bypassRedirect = searchParams.get("home") === "true" || searchParams.get("public") === "true";
+ 
+  useEffect(() => {
+    if (status === "authenticated" && !bypassRedirect) {
+      if (session?.user?.role === "ADMIN") {
+        router.replace("/admin/dashboard");
+      } else {
+        router.replace("/dashboard");
+      }
+    }
+  }, [status, session, bypassRedirect, router]);
+ 
+  if (status === "authenticated" && !bypassRedirect) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-12 w-12 text-blue-600 animate-spin" />
+          <p className="text-sm font-bold text-slate-500 animate-pulse">Redirecting to your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+ 
+  return (
+    <div className="min-h-screen">
+      <HeroSection />
+      <StatsBar />
+      <EverythingSection />
+      <SolutionsSection />
+      <EstimateSection />
+      <TestimonialsSection />
+      <TrustedPartnersSection />
+      <AdmissionSection />
+      <ConfidenceSection />
+      <VisaReadinessSection />
+      <HowItWorksSection />
+      <CTABanner />
+    </div>
+  );
+}
+ 
 const HomePage = () => (
-  <div className="min-h-screen">
-    <HeroSection />
-    <StatsBar />
-    <EverythingSection />
-    <SolutionsSection />
-    <EstimateSection />
-    <TestimonialsSection/>
-    <TrustedPartnersSection />
-    <AdmissionSection />
-    <ConfidenceSection />
-    <VisaReadinessSection />
-  
-    <HowItWorksSection />
-    <CTABanner />
-
-  </div>
+  <Suspense
+    fallback={
+      <div className="flex min-h-screen items-center justify-center bg-[#F8FAFC]">
+        <div className="w-12 h-12 border-[4px] border-[#3686FF]/20 border-t-[#3686FF] rounded-full animate-spin" />
+      </div>
+    }
+  >
+    <HomePageComponent />
+  </Suspense>
 );
-
+ 
 export default HomePage;

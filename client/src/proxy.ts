@@ -30,6 +30,7 @@ export const proxy = withAuth(
 
     const studentRoutes = [
       "/profile",
+      "/dashboard",
       "/matches",
       "/applications",
       "/eligibility",
@@ -70,6 +71,7 @@ export const config = {
     "/register",
     "/signup",
     "/profile/:path*",
+    "/dashboard/:path*",
     "/applications/:path*",
     "/eligibility/:path*",
     "/costing/:path*",

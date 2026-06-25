@@ -128,3 +128,77 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
+
+export async function GET(req: Request) {
+  try {
+    const userIdSource = await getUserIdFromRequest(req);
+    if (!userIdSource) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      const records = await prisma.matchingRecord.findMany({
+        where: { userId: userIdSource },
+        orderBy: { createdAt: "desc" },
+      });
+      return NextResponse.json(records);
+    }
+
+    const record = await prisma.matchingRecord.findFirst({
+      where: {
+        id: id,
+        userId: userIdSource,
+      },
+    });
+
+    if (!record) {
+      return NextResponse.json({ error: "Matching record not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(record);
+  } catch (error: unknown) {
+    console.error("[MATCH_GET_ERROR]", error);
+    const message = error instanceof Error ? error.message : "Internal server error";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: Request) {
+  try {
+    const userIdSource = await getUserIdFromRequest(req);
+    if (!userIdSource) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json({ error: "Missing ID" }, { status: 400 });
+    }
+
+    const record = await prisma.matchingRecord.findFirst({
+      where: {
+        id: id,
+        userId: userIdSource,
+      },
+    });
+
+    if (!record) {
+      return NextResponse.json({ error: "Matching record not found or unauthorized" }, { status: 404 });
+    }
+
+    await prisma.matchingRecord.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error: unknown) {
+    console.error("[MATCH_DELETE_ERROR]", error);
+    const message = error instanceof Error ? error.message : "Internal server error";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}

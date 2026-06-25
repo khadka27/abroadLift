@@ -112,6 +112,22 @@ model StudentProfile {
     countryOfEducation   String?
     graduatedInstitution Boolean? @default(false)
 
+    // Work Experience
+    workStatus     String?
+    companyName    String?
+    jobTitle       String?
+    workExperience Int?    @default(0)
+
+    // Emergency Contact
+    emergencyName     String?
+    emergencyRelation String?
+    emergencyPhone    String?
+    emergencyEmail    String?
+
+    // Communication Preferences
+    prefersEmail Boolean? @default(true)
+    prefersSMS   Boolean? @default(false)
+
     // Calculated Scores
     admissionProb       Float?
     visaSuccessProb     Float?

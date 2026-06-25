@@ -9,6 +9,7 @@ import {
   Circle,
   ArrowRight,
   TrendingUp,
+  XCircle,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Match, Form } from "@/types/matches";
@@ -55,6 +56,7 @@ interface AdmissionDetailsProps {
   admissionBand: { label: string; colorName?: string; badgeClass?: string };
   onBack: () => void;
   onAdvanceToVisa: () => void;
+  admissionAnalysis?: any;
 }
 
 function scoreTierValue(
@@ -84,6 +86,7 @@ export function AdmissionDetails({
   admissionBand,
   onBack,
   onAdvanceToVisa,
+  admissionAnalysis,
 }: AdmissionDetailsProps) {
   const gpa = Number.parseFloat(form.gpa) || 0;
   const testScore = Number.parseFloat(form.testScore) || 0;
@@ -129,7 +132,9 @@ export function AdmissionDetails({
     low: "Low",
   });
 
-  const profileScore = Math.max(
+  const isEligible = admissionAnalysis?.factors ? admissionAnalysis.factors.isEligible : true;
+
+  const rawProfileScore = Math.max(
     30,
     Math.min(
       95,
@@ -138,18 +143,41 @@ export function AdmissionDetails({
       ),
     ),
   );
+  const profileScore = isEligible ? rawProfileScore : 0;
 
-  const lowerBand = Math.max(5, Math.min(95, Math.round(admissionPct - 7)));
-  const upperBand = Math.max(
+  const lowerBand = isEligible ? Math.max(5, Math.min(95, Math.round(admissionPct - 7))) : 0;
+  const upperBand = isEligible ? Math.max(
     lowerBand + 5,
     Math.min(98, Math.round(admissionPct + 8)),
-  );
+  ) : 0;
 
   const gpaFactor = Math.max(
     25,
     Math.min(95, Math.round((gpa / (gpa <= 4 ? 4 : 10)) * 100)),
   );
   const testFactor = Math.max(20, Math.min(95, Math.round(testFactorBase)));
+
+  const finalAcademicScore = admissionAnalysis?.factors
+    ? admissionAnalysis.factors.academicScore
+    : gpaFactor;
+  const finalEnglishScore = admissionAnalysis?.factors
+    ? admissionAnalysis.factors.englishScore
+    : testFactor;
+
+  let academicStatus = gpaStatus;
+  let englishStatus = testStatus;
+
+  if (admissionAnalysis?.factors) {
+    academicStatus = `${finalAcademicScore}%`;
+    englishStatus = `${finalEnglishScore}%`;
+    if (admissionAnalysis.factors.actualGpa < admissionAnalysis.factors.requiredGpa) {
+      academicStatus = "Ineligible (Below Minimum)";
+    }
+    if (admissionAnalysis.factors.actualIelts < admissionAnalysis.factors.requiredIelts) {
+      englishStatus = "Ineligible (Below Minimum)";
+    }
+  }
+
   const recommendationFactor = Math.max(
     35,
     Math.min(95, Math.round(70 - backlogs * 4 + (studyGap === 0 ? 10 : 0))),
@@ -162,9 +190,9 @@ export function AdmissionDetails({
   const strengths: string[] = [];
   const risks: string[] = [];
 
-  if (isGpaStrong)
+  if (isGpaStrong && isEligible)
     strengths.push("Strong academic performance aligns with target programs.");
-  if (isTestStrong)
+  if (isTestStrong && isEligible)
     strengths.push(
       `${form.testType || "English test"} score is competitive for this intake.`,
     );
@@ -175,9 +203,9 @@ export function AdmissionDetails({
       "Study timeline appears stable for visa and admission review.",
     );
 
-  if (!isTestStrong)
+  if (!isTestStrong || !isEligible)
     risks.push("Language score can be improved to raise acceptance odds.");
-  if (!isGpaStrong)
+  if (!isGpaStrong || !isEligible)
     risks.push(
       "Academic score is slightly below top-tier preference benchmarks.",
     );
@@ -238,16 +266,16 @@ export function AdmissionDetails({
 
   const factorRows = [
     {
-      label: "Academic Score",
-      value: gpaFactor,
-      status: gpaStatus,
+      label: "Academic Fit Score (60% Weight)",
+      value: finalAcademicScore,
+      status: academicStatus,
       bar: "bg-emerald-500",
       textColor: "text-emerald-600",
     },
     {
-      label: "Test Score",
-      value: testFactor,
-      status: testStatus,
+      label: "Language Fit Score (40% Weight)",
+      value: finalEnglishScore,
+      status: englishStatus,
       bar: "bg-amber-500",
       textColor: "text-amber-600",
     },
@@ -313,66 +341,145 @@ export function AdmissionDetails({
           transition={{ duration: 0.6, delay: 0.1 }}
           className="rounded-[36px] border border-white/60 bg-white/70 backdrop-blur-xl shadow-[0_12px_40px_rgba(31,41,55,0.04)] relative overflow-hidden p-6 md:p-10"
         >
-          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50/50 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none" />
+          {isEligible ? (
+            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50/50 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none" />
+          ) : (
+            <div className="absolute top-0 right-0 w-64 h-64 bg-rose-50/50 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none" />
+          )}
           
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 relative z-10">
-            <div className="flex-1">
-              <p className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 mb-3">
-                Estimated Acceptance Probability
-              </p>
-              <h2 className="text-[40px] md:text-[56px] font-black text-[#3686FF] tracking-tight leading-none mb-3 drop-shadow-sm">
-                <AnimatedPercentRange lower={lowerBand} upper={upperBand} />
-              </h2>
-              <p className="text-slate-500 text-[15px] md:text-[16px] max-w-2xl font-semibold leading-relaxed">
-                <span className="text-slate-800 font-bold">{admissionBand.label}</span> range projected for your current profile. 
-                Improving language score and supporting documents can move this band upward.
-              </p>
-            </div>
+          {!isEligible && admissionAnalysis?.factors ? (
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 relative z-10">
+              <div className="flex-1">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-xs font-black uppercase tracking-wider mb-4 shadow-sm">
+                  <AlertTriangle className="w-4 h-4 text-rose-500 animate-pulse" />
+                  Ineligible - Below Minimum Requirement
+                </div>
+                <h2 className="text-[32px] sm:text-[38px] md:text-[44px] font-black text-rose-600 tracking-tight leading-none mb-4 drop-shadow-sm">
+                  Below Minimums
+                </h2>
+                <div className="text-slate-600 text-[15px] md:text-[16px] max-w-2xl font-semibold leading-relaxed space-y-4">
+                  <p>
+                    Your profile credentials do not meet the minimum entry requirements set by{" "}
+                    <span className="text-slate-900 font-bold">{selectedMatch.name}</span>. Under our academic evaluation model, this results in an ineligible status.
+                  </p>
+                  <div className="p-5 rounded-2xl bg-rose-50/50 border border-rose-100/50 space-y-3 text-sm text-rose-950">
+                    <h4 className="font-bold text-rose-900 flex items-center gap-2">
+                      <XCircle className="w-4.5 h-4.5 text-rose-500" />
+                      Required vs. Actual Credentials:
+                    </h4>
+                    <ul className="list-disc list-inside space-y-2 pl-1">
+                      {admissionAnalysis.factors.actualIelts < admissionAnalysis.factors.requiredIelts && (
+                        <li>
+                          <strong>Language Requirement:</strong> College requires a minimum IELTS equivalent of{" "}
+                          <span className="font-extrabold text-rose-700">{admissionAnalysis.factors.requiredIelts}</span>. Your converted score is{" "}
+                          <span className="font-extrabold text-rose-700">{admissionAnalysis.factors.actualIelts}</span>.
+                        </li>
+                      )}
+                      {admissionAnalysis.factors.actualGpa < admissionAnalysis.factors.requiredGpa && (
+                        <li>
+                          <strong>Academic GPA:</strong> College requires a minimum GPA equivalent of{" "}
+                          <span className="font-extrabold text-rose-700">{admissionAnalysis.factors.requiredGpa}</span> (on a{" "}
+                          {admissionAnalysis.factors.fullGpa}.0 scale). Your GPA is{" "}
+                          <span className="font-extrabold text-rose-700">{admissionAnalysis.factors.actualGpa.toFixed(2)}</span>.
+                        </li>
+                      )}
+                    </ul>
+                  </div>
+                </div>
+              </div>
 
-            <div className="relative h-[130px] w-[130px] md:h-[170px] md:w-[170px] shrink-0 mx-auto md:mx-0 flex items-center justify-center">
-              {/* Outer pulsing ring */}
-              <div className="absolute inset-0 rounded-full bg-blue-500/5 animate-pulse-ring pointer-events-none animate-float" />
-              <svg
-                viewBox="0 0 36 36"
-                className="h-full w-full -rotate-90 transform filter drop-shadow-[0_4px_12px_rgba(54,134,255,0.15)]"
-              >
-                <defs>
-                  <linearGradient id="circleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#60a5fa" />
-                    <stop offset="100%" stopColor="#2563eb" />
-                  </linearGradient>
-                </defs>
-                <circle
-                  cx="18"
-                  cy="18"
-                  r="16"
-                  fill="transparent"
-                  stroke="#f1f5f9"
-                  strokeWidth="3"
-                />
-                <motion.circle
-                  cx="18"
-                  cy="18"
-                  r="16"
-                  fill="transparent"
-                  stroke="url(#circleGrad)"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  strokeDasharray={profileScoreCircumference}
-                  initial={{ strokeDashoffset: profileScoreCircumference }}
-                  whileInView={{ strokeDashoffset: profileScoreOffset }}
-                  transition={{ duration: 1.5, ease: "easeOut" }}
-                  viewport={{ once: true }}
-                />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-[26px] md:text-[34px] font-black text-slate-900 leading-none">
-                  <AnimatedPercent val={profileScore} />
-                </span>
-                <span className="text-[10px] md:text-[11px] font-black text-slate-400 uppercase tracking-widest mt-1">Match</span>
+              <div className="relative h-[130px] w-[130px] md:h-[170px] md:w-[170px] shrink-0 mx-auto md:mx-0 flex items-center justify-center">
+                <div className="absolute inset-0 rounded-full bg-rose-500/5 animate-pulse pointer-events-none" />
+                <svg
+                  viewBox="0 0 36 36"
+                  className="h-full w-full -rotate-90 transform filter drop-shadow-[0_4px_12px_rgba(239,68,68,0.15)]"
+                >
+                  <circle
+                    cx="18"
+                    cy="18"
+                    r="16"
+                    fill="transparent"
+                    stroke="#f1f5f9"
+                    strokeWidth="3"
+                  />
+                  <circle
+                    cx="18"
+                    cy="18"
+                    r="16"
+                    fill="transparent"
+                    stroke="#ef4444"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeDasharray={profileScoreCircumference}
+                    strokeDashoffset={profileScoreCircumference}
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <XCircle className="w-9 h-9 text-rose-500" />
+                  <span className="text-[10px] md:text-[11px] font-black text-rose-400 uppercase tracking-widest mt-1">Ineligible</span>
+                </div>
               </div>
             </div>
-          </div>
+          ) : (
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 relative z-10">
+              <div className="flex-1">
+                <p className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 mb-3">
+                  Estimated Acceptance Probability
+                </p>
+                <h2 className="text-[40px] md:text-[56px] font-black text-[#3686FF] tracking-tight leading-none mb-3 drop-shadow-sm">
+                  <AnimatedPercentRange lower={lowerBand} upper={upperBand} />
+                </h2>
+                <p className="text-slate-500 text-[15px] md:text-[16px] max-w-2xl font-semibold leading-relaxed">
+                  <span className="text-slate-800 font-bold">{admissionBand.label}</span> range projected for your current profile. 
+                  Improving language score and supporting documents can move this band upward.
+                </p>
+              </div>
+
+              <div className="relative h-[130px] w-[130px] md:h-[170px] md:w-[170px] shrink-0 mx-auto md:mx-0 flex items-center justify-center">
+                {/* Outer pulsing ring */}
+                <div className="absolute inset-0 rounded-full bg-blue-500/5 animate-pulse-ring pointer-events-none animate-float" />
+                <svg
+                  viewBox="0 0 36 36"
+                  className="h-full w-full -rotate-90 transform filter drop-shadow-[0_4px_12px_rgba(54,134,255,0.15)]"
+                >
+                  <defs>
+                    <linearGradient id="circleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#60a5fa" />
+                      <stop offset="100%" stopColor="#2563eb" />
+                    </linearGradient>
+                  </defs>
+                  <circle
+                    cx="18"
+                    cy="18"
+                    r="16"
+                    fill="transparent"
+                    stroke="#f1f5f9"
+                    strokeWidth="3"
+                  />
+                  <motion.circle
+                    cx="18"
+                    cy="18"
+                    r="16"
+                    fill="transparent"
+                    stroke="url(#circleGrad)"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeDasharray={profileScoreCircumference}
+                    initial={{ strokeDashoffset: profileScoreCircumference }}
+                    whileInView={{ strokeDashoffset: profileScoreOffset }}
+                    transition={{ duration: 1.5, ease: "easeOut" }}
+                    viewport={{ once: true }}
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-[26px] md:text-[34px] font-black text-slate-900 leading-none">
+                    <AnimatedPercent val={profileScore} />
+                  </span>
+                  <span className="text-[10px] md:text-[11px] font-black text-slate-400 uppercase tracking-widest mt-1">Match</span>
+                </div>
+              </div>
+            </div>
+          )}
         </motion.div>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
@@ -616,42 +723,77 @@ export function AdmissionDetails({
               </div>
             </Card>
 
-            <Card className="rounded-[36px] border-none bg-gradient-to-br from-[#3686FF] to-[#1e40af] p-8 text-white shadow-xl shadow-blue-900/20 relative overflow-hidden mt-auto">
+            <Card className={`rounded-[36px] border-none ${isEligible ? "bg-gradient-to-br from-[#3686FF] to-[#1e40af]" : "bg-gradient-to-br from-rose-600 to-rose-950"} p-8 text-white shadow-xl shadow-blue-900/20 relative overflow-hidden mt-auto`}>
               <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.2),transparent_50%)] pointer-events-none" />
               <h3 className="mb-6 text-[13px] font-black uppercase tracking-[0.2em] text-blue-100/90 relative z-10">
-                Action Plan to 90%+
+                {isEligible ? "Action Plan to 90%+" : "Eligibility Action Plan"}
               </h3>
               <div className="space-y-4 text-[14px] font-medium text-blue-50 relative z-10 mb-8">
-                <div className="flex gap-3 items-start">
-                  <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center shrink-0 mt-0.5">
-                    <Circle className="h-2 w-2 fill-white text-white" />
-                  </div>
-                  <span className="leading-relaxed">
-                    Raise <strong className="text-white">{form.testType || "English"}</strong> score by one benchmark band.
-                  </span>
-                </div>
-                <div className="flex gap-3 items-start">
-                  <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center shrink-0 mt-0.5">
-                    <Circle className="h-2 w-2 fill-white text-white" />
-                  </div>
-                  <span className="leading-relaxed">
-                    Add two <strong className="text-white">safe-shortlist programs</strong> with higher acceptance rates.
-                  </span>
-                </div>
-                <div className="flex gap-3 items-start">
-                  <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center shrink-0 mt-0.5">
-                    <Circle className="h-2 w-2 fill-white text-white" />
-                  </div>
-                  <span className="leading-relaxed">
-                    Apply within <strong className="text-white">first deadline window</strong> for stronger conversion.
-                  </span>
-                </div>
+                {!isEligible && admissionAnalysis?.factors ? (
+                  <>
+                    {admissionAnalysis.factors.actualIelts < admissionAnalysis.factors.requiredIelts && (
+                      <div className="flex gap-3 items-start">
+                        <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center shrink-0 mt-0.5">
+                          <Circle className="h-2 w-2 fill-white text-white" />
+                        </div>
+                        <span className="leading-relaxed text-white">
+                          Achieve a score of at least <strong className="text-white">{admissionAnalysis.factors.requiredIelts}</strong> IELTS equivalent (or equivalent PTE/TOEFL).
+                        </span>
+                      </div>
+                    )}
+                    {admissionAnalysis.factors.actualGpa < admissionAnalysis.factors.requiredGpa && (
+                      <div className="flex gap-3 items-start">
+                        <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center shrink-0 mt-0.5">
+                          <Circle className="h-2 w-2 fill-white text-white" />
+                        </div>
+                        <span className="leading-relaxed text-white">
+                          Target other universities/programs accepting a GPA of <strong className="text-white">{form.gpa}</strong> or below.
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex gap-3 items-start">
+                      <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center shrink-0 mt-0.5">
+                        <Circle className="h-2 w-2 fill-white text-white" />
+                      </div>
+                      <span className="leading-relaxed text-white">
+                        Consider academic bridging courses or pre-sessional English pathways.
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex gap-3 items-start">
+                      <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center shrink-0 mt-0.5">
+                        <Circle className="h-2 w-2 fill-white text-white" />
+                      </div>
+                      <span className="leading-relaxed">
+                        Raise <strong className="text-white">{form.testType || "English"}</strong> score by one benchmark band.
+                      </span>
+                    </div>
+                    <div className="flex gap-3 items-start">
+                      <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center shrink-0 mt-0.5">
+                        <Circle className="h-2 w-2 fill-white text-white" />
+                      </div>
+                      <span className="leading-relaxed">
+                        Add two <strong className="text-white">safe-shortlist programs</strong> with higher acceptance rates.
+                      </span>
+                    </div>
+                    <div className="flex gap-3 items-start">
+                      <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center shrink-0 mt-0.5">
+                        <Circle className="h-2 w-2 fill-white text-white" />
+                      </div>
+                      <span className="leading-relaxed">
+                        Apply within <strong className="text-white">first deadline window</strong> for stronger conversion.
+                      </span>
+                    </div>
+                  </>
+                )}
               </div>
               <button
-                onClick={onAdvanceToVisa}
-                className="relative z-10 flex w-full h-[60px] items-center justify-center gap-2 rounded-[20px] bg-white text-[15px] font-bold text-blue-700 shadow-lg shadow-black/10 transition-transform hover:scale-[1.02] active:scale-95 cursor-pointer"
+                onClick={isEligible ? onAdvanceToVisa : onBack}
+                className={`relative z-10 flex w-full h-[60px] items-center justify-center gap-2 rounded-[20px] bg-white text-[15px] font-bold ${isEligible ? "text-blue-700" : "text-rose-700"} shadow-lg shadow-black/10 transition-transform hover:scale-[1.02] active:scale-95 cursor-pointer`}
               >
-                Start Application Now
+                {isEligible ? "Start Application Now" : "Find Other Colleges"}
                 <ArrowRight className="h-5 w-5" />
               </button>
             </Card>

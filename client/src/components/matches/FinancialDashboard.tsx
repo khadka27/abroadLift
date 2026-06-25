@@ -267,7 +267,7 @@ export function FinancialDashboard({
         id: "shopping",
         label: "Shopping",
         desc: "One-time shopping for clothing, adapters, bags, luggage, and electronics",
-        group: "First 6 Months" as const,
+        group: "Before Departure" as const,
         usd: costs["shopping"] || Math.round(100000 / usdToNpr),
         editable: true,
         icon: <ShoppingBag className="w-5 h-5" />,

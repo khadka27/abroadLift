@@ -2084,7 +2084,7 @@ function AnalyzingScreen({ onFinish }: { onFinish?: () => void }) {
 export default function AbroadLiftMatchesPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const USD_TO_NPR = 138;
+  const USD_TO_NPR = 134.5;
   const MATCH_STORAGE_KEY = "abroadlift_match_data";
   const MATCH_PENDING_KEY = "abroadlift_match_pending";
   const RETURN_STEP_KEY = "abroadlift_return_step";
@@ -2103,6 +2103,7 @@ export default function AbroadLiftMatchesPage() {
   const [dynamicLivingCost, setDynamicLivingCost] = useState<any>(null);
   const [relocationStats, setRelocationStats] = useState<any>(null);
   const [apiCostEstimate, setApiCostEstimate] = useState<any>(null);
+  const liveUsdToNpr = apiCostEstimate?.exchange_rate || USD_TO_NPR;
   const [destinationInsight, setDestinationInsight] = useState<any>(null);
   const [admissionAnalysis, setAdmissionAnalysis] = useState<any>(null);
   const [visaAnalysis, setVisaAnalysis] = useState<any>(null);
@@ -2144,7 +2145,7 @@ export default function AbroadLiftMatchesPage() {
   const financialMetrics = useMemo(() => {
     if (!selectedMatch) return null;
 
-    const usdToNpr = USD_TO_NPR;
+    const usdToNpr = liveUsdToNpr;
     const tuitionUsd = Math.round(
       selectedMatch.currency === "NPR"
         ? (selectedMatch.tuitionFee || 22000) / usdToNpr
@@ -2423,8 +2424,8 @@ export default function AbroadLiftMatchesPage() {
         body: JSON.stringify({ formData: form, matchData: selectedMatch }),
       });
       if (response.ok) {
-        // Redirect to profile or show success
-        window.location.href = "/profile";
+        // Redirect to dashboard or show success
+        window.location.href = "/dashboard";
       } else {
         const data = await response.json();
         setError(data.error || "Failed to save plan");
@@ -2438,6 +2439,20 @@ export default function AbroadLiftMatchesPage() {
 
   // Persistence logic
   useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const isNewSearch = searchParams.get("new") === "true";
+
+    if (isNewSearch) {
+      localStorage.removeItem(MATCH_STORAGE_KEY);
+      localStorage.removeItem(RETURN_STEP_KEY);
+      localStorage.removeItem(MATCH_PENDING_KEY);
+      setForm(DEF);
+      setSelectedMatch(null);
+      setStep(1);
+      setHasRestored(true);
+      return;
+    }
+
     const pendingStep = localStorage.getItem(RETURN_STEP_KEY);
     const saved = localStorage.getItem(MATCH_STORAGE_KEY);
     let restoredStep = 1;
@@ -2653,7 +2668,7 @@ export default function AbroadLiftMatchesPage() {
       // Full Cost Estimate API call
       const tuitionUsdRaw =
         selectedMatch.currency === "NPR"
-          ? (selectedMatch.tuitionFee || 22000) / USD_TO_NPR
+          ? (selectedMatch.tuitionFee || 22000) / liveUsdToNpr
           : selectedMatch.tuitionFee || 22000;
       fetch(
         `/api/cost-estimate?country=${code}&city=${encodeURIComponent(city)}&tuition_usd=${Math.round(tuitionUsdRaw)}`,
@@ -2764,7 +2779,77 @@ export default function AbroadLiftMatchesPage() {
             const data = await res.json();
             const p = data.profile || {};
 
-            // Check matching records in database first
+            // Check if starting a new search
+            const searchParams = new URLSearchParams(window.location.search);
+            const isNewSearch = searchParams.get("new") === "true";
+
+            if (isNewSearch) {
+              setForm({
+                ...DEF,
+                name: data.name || "",
+                email: data.email || "",
+              });
+              setSelectedMatch(null);
+              setStep(1);
+              return; // Bypass DB restoration completely
+            }
+
+            // Check if there is an explicit profileId in the URL
+            const urlProfileId = searchParams.get("profileId");
+
+            if (urlProfileId) {
+              let matchedRecord = data.matchingRecords?.find((r: any) => r.id === urlProfileId);
+
+              if (!matchedRecord) {
+                try {
+                  const recordRes = await fetch(`/api/matches/save?id=${urlProfileId}`);
+                  if (recordRes.ok) {
+                    matchedRecord = await recordRes.json();
+                  }
+                } catch (e) {
+                  console.error("Failed to fetch specific profile from DB", e);
+                }
+              }
+
+              if (matchedRecord) {
+                const dbForm = matchedRecord.formData;
+                const dbMatch = matchedRecord.matchData;
+                if (dbForm) {
+                  setForm((prev) => ({
+                    ...prev,
+                    name: data.name || prev.name,
+                    email: data.email || prev.email,
+                    ...dbForm,
+                  }));
+                }
+                if (dbMatch) {
+                  setSelectedMatch(dbMatch);
+                  setStep(8);
+                  if (dbForm) {
+                    void runMatch(dbForm as any);
+                  }
+                  return; // Loaded specific saved profile, skip default loading
+                }
+              }
+            }
+
+            // Check if there is an active session in local storage first
+            const saved = localStorage.getItem(MATCH_STORAGE_KEY);
+            let hasRestoredMatch = false;
+            if (saved) {
+              try {
+                const parsed = JSON.parse(saved);
+                if (parsed.selectedMatch) {
+                  hasRestoredMatch = true;
+                }
+              } catch (e) {}
+            }
+
+            if (hasRestoredMatch) {
+              return; // Keep existing localStorage state, skip database sync
+            }
+
+            // Fall back to original behavior: check matching records in database first (latest record)
             if (data.matchingRecords && data.matchingRecords.length > 0) {
               const latestRecord = data.matchingRecords[0];
               const dbForm = latestRecord.formData;
@@ -2781,6 +2866,9 @@ export default function AbroadLiftMatchesPage() {
               if (dbMatch) {
                 setSelectedMatch(dbMatch);
                 setStep(8);
+                if (dbForm) {
+                  void runMatch(dbForm as any);
+                }
                 return; // Direct display step 8
               }
             }
@@ -3686,14 +3774,43 @@ export default function AbroadLiftMatchesPage() {
             )}
 
             {form.hasEnglishTest === false && (
-              <div className="text-center p-5 bg-blue-50/30 rounded-[24px] border border-blue-100/50 w-full animate-in zoom-in-95 duration-500">
-                <p className="text-blue-800 font-semibold mb-1 text-[15px]">
-                  No problem!
-                </p>
-                <p className="text-blue-600/80 text-[13px]">
-                  You can continue with your matches, but we recommend taking a
-                  test later.
-                </p>
+              <div className="text-center p-5 bg-blue-50/30 rounded-[24px] border border-blue-100/50 w-full animate-in zoom-in-95 duration-500 space-y-4">
+                <div>
+                  <p className="text-blue-800 font-semibold mb-1 text-[15px]">
+                    No problem!
+                  </p>
+                  <p className="text-blue-600/80 text-[13px]">
+                    You can continue with your matches, but we recommend taking a
+                    test later.
+                  </p>
+                </div>
+                <div className="pt-4 border-t border-blue-100/50">
+                  <p className="text-[11px] font-black text-blue-800 uppercase tracking-widest mb-3 text-center">
+                    Typical Expected Scores for University Admission:
+                  </p>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-left">
+                    <div className="bg-white p-3.5 rounded-xl border border-blue-100/30 shadow-xs">
+                      <span className="text-[9px] font-black text-slate-400 uppercase block tracking-wider leading-none mb-1">IELTS</span>
+                      <span className="text-sm font-bold text-slate-800 block">6.0 - 6.5+</span>
+                      <span className="text-[9px] text-slate-400 block mt-1">Overall band</span>
+                    </div>
+                    <div className="bg-white p-3.5 rounded-xl border border-blue-100/30 shadow-xs">
+                      <span className="text-[9px] font-black text-slate-400 uppercase block tracking-wider leading-none mb-1">PTE Academic</span>
+                      <span className="text-sm font-bold text-slate-800 block">58 - 65+</span>
+                      <span className="text-[9px] text-slate-400 block mt-1">Global score</span>
+                    </div>
+                    <div className="bg-white p-3.5 rounded-xl border border-blue-100/30 shadow-xs">
+                      <span className="text-[9px] font-black text-slate-400 uppercase block tracking-wider leading-none mb-1">TOEFL iBT</span>
+                      <span className="text-sm font-bold text-slate-800 block">79 - 92+</span>
+                      <span className="text-[9px] text-slate-400 block mt-1">Internet test</span>
+                    </div>
+                    <div className="bg-white p-3.5 rounded-xl border border-blue-100/30 shadow-xs">
+                      <span className="text-[9px] font-black text-slate-400 uppercase block tracking-wider leading-none mb-1">Duolingo (DET)</span>
+                      <span className="text-sm font-bold text-slate-800 block">105 - 120+</span>
+                      <span className="text-[9px] text-slate-400 block mt-1">DET score</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </div>
@@ -3960,24 +4077,28 @@ export default function AbroadLiftMatchesPage() {
     if (step >= 8 && selectedMatch) {
       const profileScore = getEligibilityScore(form);
       const admissionPct =
-        admissionAnalysis?.admissionPct ||
-        decisionSignals?.admissionConfidence ||
-        Math.max(
-          35,
-          Math.min(
-            95,
-            Math.round(
-              (selectedMatch.admissionRate || 60) * 0.5 + profileScore * 0.5,
-            ),
-          ),
-        );
-      const admissionBand = getRateBand(admissionPct);
+        admissionAnalysis !== null
+          ? admissionAnalysis.admissionPct
+          : (decisionSignals?.admissionConfidence ||
+            Math.max(
+              35,
+              Math.min(
+                95,
+                Math.round(
+                  (selectedMatch.admissionRate || 60) * 0.5 + profileScore * 0.5,
+                ),
+              ),
+            ));
+      const admissionBand =
+        admissionAnalysis !== null
+          ? admissionAnalysis.band
+          : getRateBand(admissionPct);
       const budgetRaw = Number.parseFloat(form.budget) || 0;
       const budgetUsd =
-        form.currency === "NPR" ? budgetRaw / USD_TO_NPR : budgetRaw;
+        form.currency === "NPR" ? budgetRaw / liveUsdToNpr : budgetRaw;
       const tuitionUsd = Math.round(
         selectedMatch.currency === "NPR"
-          ? (selectedMatch.tuitionFee || 22000) / USD_TO_NPR
+          ? (selectedMatch.tuitionFee || 22000) / liveUsdToNpr
           : selectedMatch.tuitionFee || 22000,
       );
       const livingBreakdown = dynamicLivingCost || {
@@ -3991,9 +4112,9 @@ export default function AbroadLiftMatchesPage() {
         livingBreakdown as Record<string, number>,
       ).reduce((s: number, v: number) => s + v, 0);
       const beforeDepartureDefaultUsd = 75 + 300 + 110 + 425 + 685 + Math.round(tuitionUsd * 0.5) + 1200;
-      const first6MonthsDefaultUsd = Math.round(100000 / USD_TO_NPR) + 1500 + Math.round((livingBreakdown.rent + livingBreakdown.food) * 6) + 300 + Math.round(livingBreakdown.transport * 6) + 600 + 900 + 300;
+      const first6MonthsDefaultUsd = Math.round(100000 / liveUsdToNpr) + 1500 + Math.round((livingBreakdown.rent + livingBreakdown.food) * 6) + 300 + Math.round(livingBreakdown.transport * 6) + 600 + 900 + 300;
       const totalYear1Usd = beforeDepartureDefaultUsd + first6MonthsDefaultUsd;
-      const totalYear1Npr = Math.round(totalYear1Usd * USD_TO_NPR);
+      const totalYear1Npr = Math.round(totalYear1Usd * liveUsdToNpr);
       const costBand = getCostBand(totalYear1Usd, budgetUsd);
       const nprRangeLakhs = (valueNpr: number, _spread = 0.12) => {
         const lakhs = valueNpr / 100000;
@@ -4069,7 +4190,7 @@ export default function AbroadLiftMatchesPage() {
               selectedMatch={selectedMatch}
               matches={matches}
               session={session}
-              USD_TO_NPR={USD_TO_NPR}
+              USD_TO_NPR={liveUsdToNpr}
               totalYear1Npr={totalYear1Npr}
               admissionPct={admissionPct}
               visaChance={visaAnalysis?.successChance}
@@ -4116,6 +4237,7 @@ export default function AbroadLiftMatchesPage() {
               selectedMatch={selectedMatch}
               admissionPct={admissionPct}
               admissionBand={admissionBand}
+              admissionAnalysis={admissionAnalysis}
               onBack={() => setStep(8)}
               onAdvanceToVisa={() => {
                 setTransitionType("visa");
@@ -4494,7 +4616,7 @@ export default function AbroadLiftMatchesPage() {
           style: "currency",
           currency: "USD",
           maximumFractionDigits: 0,
-        }).format(npr / USD_TO_NPR);
+        }).format(npr / liveUsdToNpr);
 
       return (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 max-w-full px-4 md:px-8 lg:px-16 pb-20">

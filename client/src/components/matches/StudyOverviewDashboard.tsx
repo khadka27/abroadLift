@@ -170,18 +170,31 @@ export function StudyOverviewDashboard({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="flex flex-col items-start px-2"
+          className="flex flex-col items-start px-2 w-full"
         >
-          {/* Back Button */}
-          <button
-            onClick={onGoToMatches}
-            className="flex items-center gap-2 text-slate-500 hover:text-blue-600 font-semibold text-sm transition-all mb-4 group"
-          >
-            <div className="w-8 h-8 rounded-full border border-slate-200 bg-white flex items-center justify-center shadow-sm group-hover:border-blue-200 group-hover:bg-blue-50 transition-all">
-              <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-            </div>
-            Back to matches
-          </button>
+          {/* Back Button and Start New Search */}
+          <div className="flex w-full items-center justify-between mb-4">
+            <button
+              onClick={onGoToMatches}
+              className="flex items-center gap-2 text-slate-500 hover:text-blue-600 font-semibold text-sm transition-all group"
+            >
+              <div className="w-8 h-8 rounded-full border border-slate-200 bg-white flex items-center justify-center shadow-sm group-hover:border-blue-200 group-hover:bg-blue-50 transition-all">
+                <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+              </div>
+              Back to matches
+            </button>
+
+            <button
+              onClick={() => {
+                if (confirm("Are you sure you want to discard this analysis and start a fresh matching search from step one?")) {
+                  window.location.href = "/matches?new=true";
+                }
+              }}
+              className="flex items-center gap-1.5 bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-650 text-slate-650 font-bold px-4 py-2.5 rounded-2xl text-xs shadow-sm transition-all active:scale-95 cursor-pointer"
+            >
+              Start New Search
+            </button>
+          </div>
 
           <div className="flex items-center gap-1.5 bg-blue-50/80 border border-blue-100/50 text-[#3686FF] text-[12px] font-semibold px-3.5 py-1.5 rounded-full mb-3 md:mb-4 shadow-sm w-fit">
             <Target className="w-4 h-4" />

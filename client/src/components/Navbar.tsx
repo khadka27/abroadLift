@@ -104,7 +104,7 @@ export default function Navbar() {
           <div className="hidden lg:flex items-center gap-4 sm:gap-5">
             {isAuthenticated ? (
               <Link
-                href="/profile"
+                href="/dashboard?tab=profile"
                 className="flex items-center gap-3 bg-white border border-gray-100 text-gray-800 font-bold px-[20px] py-[10px] rounded-full text-[14px] shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 active:scale-95 group hover:border-blue-100"
               >
                 {session?.user?.image ? (
@@ -177,7 +177,7 @@ export default function Navbar() {
             
             {isAuthenticated ? (
               <Link
-                href="/profile"
+                href="/dashboard?tab=profile"
                 onClick={() => setMobileOpen(false)}
                 className="flex items-center justify-center gap-3 bg-gray-50 border border-gray-100 text-gray-900 font-bold px-6 py-4 rounded-full"
               >

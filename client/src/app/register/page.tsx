@@ -102,7 +102,7 @@ function RegisterForm() {
       return;
     }
 
-    router.replace("/matches");
+    router.replace("/dashboard");
   }, [status, session, callbackUrl, router]);
 
   useEffect(() => {
