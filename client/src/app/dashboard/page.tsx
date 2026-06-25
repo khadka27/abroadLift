@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useState, useRef, Suspense } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -231,7 +231,7 @@ const DEFAULT_PROFILE: ProfileState = {
   scholarshipNeeded: false,
 };
 
-export default function StudentDashboard() {
+function DashboardInner() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -3548,5 +3548,20 @@ export default function StudentDashboard() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function StudentDashboard() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-screen w-full items-center justify-center bg-slate-50">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 rounded-full border-4 border-blue-500 border-t-transparent animate-spin" />
+          <p className="text-sm font-bold text-slate-400">Loading dashboard…</p>
+        </div>
+      </div>
+    }>
+      <DashboardInner />
+    </Suspense>
   );
 }
