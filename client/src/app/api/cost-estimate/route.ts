@@ -87,13 +87,13 @@ function toNepaliWords(value: number): string {
   const num = Math.round(value);
   if (num === 0) return "० रुपैयाँ";
   
-  let crore = Math.floor(num / 10000000);
-  let lakh = Math.floor((num % 10000000) / 100000);
-  let thousand = Math.floor((num % 100000) / 1000);
-  let hundred = Math.floor((num % 1000) / 100);
-  let remaining = num % 100;
+  const crore = Math.floor(num / 10000000);
+  const lakh = Math.floor((num % 10000000) / 100000);
+  const thousand = Math.floor((num % 100000) / 1000);
+  const hundred = Math.floor((num % 1000) / 100);
+  const remaining = num % 100;
   
-  let parts = [];
+  const parts = [];
   if (crore > 0) parts.push(`${toDevanagariDigits(crore.toString())} करोड`);
   if (lakh > 0) parts.push(`${toDevanagariDigits(lakh.toString())} लाख`);
   if (thousand > 0) parts.push(`${toDevanagariDigits(thousand.toString())} हजार`);
@@ -108,13 +108,13 @@ function toNepaliEnglishWords(value: number): string {
   const num = Math.round(value);
   if (num === 0) return "0 Rupees";
   
-  let crore = Math.floor(num / 10000000);
-  let lakh = Math.floor((num % 10000000) / 100000);
-  let thousand = Math.floor((num % 100000) / 1000);
-  let hundred = Math.floor((num % 1000) / 100);
-  let remaining = num % 100;
+  const crore = Math.floor(num / 10000000);
+  const lakh = Math.floor((num % 10000000) / 100000);
+  const thousand = Math.floor((num % 100000) / 1000);
+  const hundred = Math.floor((num % 1000) / 100);
+  const remaining = num % 100;
   
-  let parts = [];
+  const parts = [];
   if (crore > 0) parts.push(`${crore} Crore`);
   if (lakh > 0) parts.push(`${lakh} Lakh`);
   if (thousand > 0) parts.push(`${thousand} Thousand`);

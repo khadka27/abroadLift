@@ -3785,31 +3785,73 @@ export default function AbroadLiftMatchesPage() {
                   </p>
                 </div>
                 <div className="pt-4 border-t border-blue-100/50">
-                  <p className="text-[11px] font-black text-blue-800 uppercase tracking-widest mb-3 text-center">
+                  <p className="text-[11px] font-black text-blue-800 uppercase tracking-widest mb-1 text-center">
                     Typical Expected Scores for University Admission:
                   </p>
+                  <p className="text-[10px] text-blue-600/70 font-semibold mb-3 text-center">
+                    👆 Click a test card to auto-fill your score and calculate admission chances
+                  </p>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-left">
-                    <div className="bg-white p-3.5 rounded-xl border border-blue-100/30 shadow-xs">
-                      <span className="text-[9px] font-black text-slate-400 uppercase block tracking-wider leading-none mb-1">IELTS</span>
-                      <span className="text-sm font-bold text-slate-800 block">6.0 - 6.5+</span>
-                      <span className="text-[9px] text-slate-400 block mt-1">Overall band</span>
-                    </div>
-                    <div className="bg-white p-3.5 rounded-xl border border-blue-100/30 shadow-xs">
-                      <span className="text-[9px] font-black text-slate-400 uppercase block tracking-wider leading-none mb-1">PTE Academic</span>
-                      <span className="text-sm font-bold text-slate-800 block">58 - 65+</span>
-                      <span className="text-[9px] text-slate-400 block mt-1">Global score</span>
-                    </div>
-                    <div className="bg-white p-3.5 rounded-xl border border-blue-100/30 shadow-xs">
-                      <span className="text-[9px] font-black text-slate-400 uppercase block tracking-wider leading-none mb-1">TOEFL iBT</span>
-                      <span className="text-sm font-bold text-slate-800 block">79 - 92+</span>
-                      <span className="text-[9px] text-slate-400 block mt-1">Internet test</span>
-                    </div>
-                    <div className="bg-white p-3.5 rounded-xl border border-blue-100/30 shadow-xs">
-                      <span className="text-[9px] font-black text-slate-400 uppercase block tracking-wider leading-none mb-1">Duolingo (DET)</span>
-                      <span className="text-sm font-bold text-slate-800 block">105 - 120+</span>
-                      <span className="text-[9px] text-slate-400 block mt-1">DET score</span>
-                    </div>
+                    {[
+                      { type: "IELTS",         range: "6.0 – 6.5+",   default: "6.5", sub: "Overall band",  emoji: "🎓", color: "from-blue-500 to-indigo-600", border: "border-blue-200", bg: "bg-blue-50" },
+                      { type: "PTE Academic",   range: "58 – 65+",     default: "65",  sub: "Global score",  emoji: "📝", color: "from-violet-500 to-purple-600", border: "border-violet-200", bg: "bg-violet-50" },
+                      { type: "TOEFL iBT",      range: "79 – 92+",     default: "90",  sub: "Internet test", emoji: "🌐", color: "from-emerald-500 to-teal-600", border: "border-emerald-200", bg: "bg-emerald-50" },
+                      { type: "Duolingo",       range: "105 – 120+",   default: "115", sub: "DET score",     emoji: "🦉", color: "from-amber-500 to-orange-500", border: "border-amber-200", bg: "bg-amber-50" },
+                    ].map((test) => {
+                      const isSelected = form.testType === test.type && form.hasEnglishTest === true;
+                      return (
+                        <button
+                          key={test.type}
+                          type="button"
+                          onClick={() => {
+                            updateForm("hasEnglishTest", true);
+                            updateForm("testType", test.type);
+                            updateForm("testScore", test.default);
+                          }}
+                          className={`group relative text-left p-3.5 rounded-xl border-2 transition-all duration-200 cursor-pointer hover:shadow-md hover:-translate-y-0.5 active:scale-95 ${
+                            isSelected
+                              ? `${test.border} ${test.bg} shadow-md`
+                              : "border-blue-100/30 bg-white hover:border-blue-200"
+                          }`}
+                        >
+                          {/* Selected checkmark */}
+                          {isSelected && (
+                            <span className={`absolute top-2 right-2 w-4 h-4 rounded-full bg-gradient-to-br ${test.color} flex items-center justify-center text-white text-[8px] font-black`}>
+                              ✓
+                            </span>
+                          )}
+                          <span className="text-lg mb-1 block">{test.emoji}</span>
+                          <span className={`text-[9px] font-black uppercase block tracking-wider leading-none mb-1 ${isSelected ? "text-slate-600" : "text-slate-400"}`}>
+                            {test.type}
+                          </span>
+                          <span className={`text-sm font-black block ${isSelected ? "text-slate-900" : "text-slate-800"}`}>
+                            {test.range}
+                          </span>
+                          <span className="text-[9px] text-slate-400 block mt-1">{test.sub}</span>
+                          {!isSelected && (
+                            <span className="text-[8px] font-bold text-blue-500 block mt-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                              Click to select →
+                            </span>
+                          )}
+                          {isSelected && (
+                            <span className={`text-[8px] font-black block mt-1.5 bg-gradient-to-r ${test.color} bg-clip-text text-transparent`}>
+                              Score set to {test.default} ✓
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      updateForm("testType", "NONE");
+                      updateForm("testScore", "0");
+                    }}
+                    className="mt-3 text-[10px] font-bold text-slate-400 hover:text-slate-600 transition-colors underline underline-offset-2"
+                  >
+                    ✕ Continue without a test score instead
+                  </button>
                 </div>
               </div>
             )}

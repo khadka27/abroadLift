@@ -898,112 +898,235 @@ export default function StudentDashboard() {
                 
                 {/* 1. DASHBOARD OVERVIEW TAB */}
                 {activeTab === "dashboard" && (
-                  <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                    
+                  <div className="space-y-6">
+
+                    {/* ── KPI Stats Row ── */}
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                      {[
+                        {
+                          label: "Profile Complete",
+                          value: `${profileCompleteness}%`,
+                          sub: profileCompleteness >= 80 ? "Strong profile" : "Needs attention",
+                          color: "from-blue-500 to-indigo-600",
+                          bg: "bg-blue-50",
+                          textColor: "text-blue-600",
+                          icon: User,
+                        },
+                        {
+                          label: "Admission Odds",
+                          value: profile.admissionProb ? `${profile.admissionProb}%` : "—",
+                          sub: "Based on your GPA & score",
+                          color: "from-emerald-500 to-teal-600",
+                          bg: "bg-emerald-50",
+                          textColor: "text-emerald-600",
+                          icon: GraduationCap,
+                        },
+                        {
+                          label: "Visa Success",
+                          value: profile.visaSuccessProb ? `${profile.visaSuccessProb}%` : "—",
+                          sub: "Financial strength score",
+                          color: "from-violet-500 to-purple-600",
+                          bg: "bg-violet-50",
+                          textColor: "text-violet-600",
+                          icon: Shield,
+                        },
+                        {
+                          label: "Tasks Done",
+                          value: `${tasks.filter(t => t.completed).length}/${tasks.length}`,
+                          sub: `${taskCompletion}% complete`,
+                          color: "from-amber-500 to-orange-500",
+                          bg: "bg-amber-50",
+                          textColor: "text-amber-600",
+                          icon: CheckSquare,
+                        },
+                      ].map((stat, i) => {
+                        const Icon = stat.icon;
+                        return (
+                          <motion.div
+                            key={i}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: i * 0.08 }}
+                            className="rounded-2xl bg-white border border-slate-100 shadow-md shadow-slate-200/40 p-4 flex items-center gap-3 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
+                          >
+                            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center shrink-0 shadow-sm`}>
+                              <Icon className="w-4.5 h-4.5 text-white" />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider truncate">{stat.label}</p>
+                              <p className={`text-xl font-black leading-none mt-0.5 ${stat.textColor}`}>{stat.value}</p>
+                              <p className="text-[10px] text-slate-400 font-semibold mt-0.5 truncate">{stat.sub}</p>
+                            </div>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+
+                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
                     <div className="xl:col-span-2 space-y-6">
                       
+                      {/* Enhanced Hero Banner */}
                       <div className="rounded-[32px] bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white p-6 md:p-8 relative overflow-hidden shadow-[0_20px_50px_rgba(30,41,59,0.15)] group">
                         <div className="absolute right-0 top-0 w-80 h-80 bg-blue-500/10 rounded-full blur-[80px] pointer-events-none transition-transform duration-1000 group-hover:scale-110" />
                         <div className="absolute left-1/3 bottom-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-[70px] pointer-events-none" />
+                        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMC4yIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-5 pointer-events-none" />
                         
                         <div className="relative z-10">
-                          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white/10 backdrop-blur-md text-sky-200 text-[11px] font-black tracking-wider uppercase rounded-full border border-white/10 mb-4 shadow-sm shrink-0">
-                            <Sparkles className="w-3.5 h-3.5 text-sky-300" />
-                            Goal: {profile.preferredCountry || "Canada"}
+                          <div className="flex flex-wrap items-start justify-between gap-4 mb-5">
+                            <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white/10 backdrop-blur-md text-sky-200 text-[11px] font-black tracking-wider uppercase rounded-full border border-white/10 shadow-sm">
+                              <Sparkles className="w-3.5 h-3.5 text-sky-300" />
+                              Goal: {profile.preferredCountry || "Canada"} · {profile.intake || "Fall 2026"}
+                            </div>
+                            <div className="flex gap-2">
+                              {profile.gpa && (
+                                <span className="px-2.5 py-1 rounded-xl bg-white/10 text-[10px] font-black text-white border border-white/10">GPA {profile.gpa}</span>
+                              )}
+                              {profile.englishScore && (
+                                <span className="px-2.5 py-1 rounded-xl bg-emerald-500/20 text-[10px] font-black text-emerald-300 border border-emerald-400/20">{profile.testType || "IELTS"} {profile.englishScore}</span>
+                              )}
+                            </div>
                           </div>
 
                           <h2 className="text-2xl md:text-3xl font-black tracking-tight leading-snug">Welcome back, {firstName}! 👋</h2>
                           <p className="text-slate-300 text-xs sm:text-sm mt-3 max-w-xl font-semibold leading-relaxed">
-                            Your academic credentials match <strong>{matches.length || "12"} global institutions</strong>. Your estimated visa success probability is strong based on your financials. Let's finish your statement of purpose this week!
+                            Your academic credentials match <strong className="text-white">{matches.length || "12"} global institutions</strong>. {profileCompleteness < 80 ? "Complete your profile to unlock personalized recommendations." : "Your visa success probability is strong. Let's finish your SOP this week!"}
                           </p>
                           
                           <div className="flex flex-wrap gap-3 mt-6">
                             <button
                               onClick={() => setActiveTab("matches")}
-                              className="bg-[#3686FF] hover:bg-blue-600 text-white font-black px-5 py-3 rounded-2xl text-xs shadow-lg shadow-blue-500/25 transition-all active:scale-95 cursor-pointer"
+                              className="bg-[#3686FF] hover:bg-blue-500 text-white font-black px-5 py-3 rounded-2xl text-xs shadow-lg shadow-blue-500/30 transition-all active:scale-95 hover:shadow-blue-500/40 hover:-translate-y-0.5"
                             >
-                              Explore Matches
+                              🎓 Explore Matches
                             </button>
                             <button
                               onClick={() => setActiveTab("profile")}
-                              className="bg-white/10 hover:bg-white/20 text-white font-black px-5 py-3 rounded-2xl text-xs backdrop-blur-sm border border-white/10 transition-all active:scale-95 cursor-pointer"
+                              className="bg-white/10 hover:bg-white/20 text-white font-black px-5 py-3 rounded-2xl text-xs backdrop-blur-sm border border-white/10 transition-all active:scale-95"
                             >
-                              Refine Profile Credentials
+                              ✏️ Refine Profile
+                            </button>
+                            <button
+                              onClick={() => router.push("/costing")}
+                              className="bg-amber-500/20 hover:bg-amber-400/30 text-amber-200 font-black px-5 py-3 rounded-2xl text-xs border border-amber-400/20 transition-all active:scale-95"
+                            >
+                              💰 Cost Estimator
                             </button>
                           </div>
                         </div>
                       </div>
 
-                      {/* Connected progress tracker */}
+                      {/* Enhanced Application Progress Roadmap */}
                       <Card className="rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 bg-white relative overflow-hidden">
-                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6">Application Progress Roadmap</h3>
+                        <div className="flex items-center justify-between mb-6">
+                          <div>
+                            <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Application Progress Roadmap</h3>
+                            <p className="text-[11px] text-slate-400 font-semibold mt-1">Your study-abroad journey at a glance</p>
+                          </div>
+                          <span className="text-xs font-black text-blue-600 bg-blue-50 px-2.5 py-1 rounded-xl">
+                            {[
+                              profileCompleteness >= 65,
+                              documents.filter(d => d.status === "Uploaded").length >= 3,
+                              savedMatches.length > 0,
+                              applications.some(a => a.stage === "Submitted" || a.stage === "Under Review"),
+                              applications.some(a => a.stage === "Offer Received" || a.stage === "Accepted"),
+                              false
+                            ].filter(Boolean).length} / 6 Steps
+                          </span>
+                        </div>
                         
                         <div className="relative">
+                          {/* Track line */}
                           <div className="absolute top-[20px] left-[8%] right-[8%] h-[3px] bg-slate-100 rounded-full z-0 hidden md:block" />
+                          {/* Filled progress */}
+                          <div
+                            className="absolute top-[20px] left-[8%] h-[3px] bg-gradient-to-r from-emerald-500 to-blue-500 rounded-full z-0 hidden md:block transition-all duration-1000"
+                            style={{
+                              width: `${([
+                                profileCompleteness >= 65,
+                                documents.filter(d => d.status === "Uploaded").length >= 3,
+                                savedMatches.length > 0,
+                                applications.some(a => a.stage === "Submitted" || a.stage === "Under Review"),
+                                applications.some(a => a.stage === "Offer Received" || a.stage === "Accepted"),
+                                false
+                              ].filter(Boolean).length / 6) * 84}%`
+                            }}
+                          />
                           
-                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6 relative z-10">
+                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 relative z-10">
                             {[
-                              { label: "Profile Completed", done: profileCompleteness >= 65 },
-                              { label: "Documents Scanned", done: documents.filter(d => d.status === "Uploaded").length >= 3 },
-                              { label: "Colleges Shortlisted", done: savedMatches.length > 0 },
-                              { label: "App Submitted", done: applications.some(a => a.stage === "Submitted" || a.stage === "Under Review") },
-                              { label: "Offer Issued", done: applications.some(a => a.stage === "Offer Received" || a.stage === "Accepted") },
-                              { label: "Visa Approved", done: false },
+                              { label: "Profile", emoji: "👤", done: profileCompleteness >= 65, tab: "profile" as TabKey },
+                              { label: "Documents", emoji: "📂", done: documents.filter(d => d.status === "Uploaded").length >= 3, tab: "documents" as TabKey },
+                              { label: "Shortlisted", emoji: "🎯", done: savedMatches.length > 0, tab: "saved-universities" as TabKey },
+                              { label: "Applied", emoji: "📨", done: applications.some(a => a.stage === "Submitted" || a.stage === "Under Review"), tab: "applications" as TabKey },
+                              { label: "Offer", emoji: "🎉", done: applications.some(a => a.stage === "Offer Received" || a.stage === "Accepted"), tab: "applications" as TabKey },
+                              { label: "Visa", emoji: "✈️", done: false, tab: "visa-assistance" as TabKey },
                             ].map((stepItem, idx) => {
-                              const isActiveStep = !stepItem.done && (idx === 0 || (idx > 0 && [
+                              const prevsDone = [
                                 profileCompleteness >= 65,
                                 documents.filter(d => d.status === "Uploaded").length >= 3,
                                 savedMatches.length > 0,
                                 applications.some(a => a.stage === "Submitted" || a.stage === "Under Review"),
                                 applications.some(a => a.stage === "Offer Received" || a.stage === "Accepted")
-                              ].slice(0, idx).every(Boolean)));
+                              ];
+                              const isActiveStep = !stepItem.done && (idx === 0 || prevsDone.slice(0, idx).every(Boolean));
 
                               return (
-                                <div key={idx} className="flex flex-col items-center text-center group">
-                                  <div className="relative mb-3">
+                                <button
+                                  key={idx}
+                                  onClick={() => setActiveTab(stepItem.tab)}
+                                  className="flex flex-col items-center text-center group cursor-pointer"
+                                >
+                                  <div className="relative mb-2.5">
                                     {isActiveStep && (
-                                      <div className="absolute -inset-1.5 rounded-full bg-blue-500/25 animate-ping" />
+                                      <div className="absolute -inset-2 rounded-full bg-blue-500/20 animate-ping" />
                                     )}
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center border-4 border-white shadow-md relative z-10 transition-all ${
-                                      stepItem.done 
-                                        ? "bg-emerald-500 text-white" 
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center border-[3px] border-white shadow-md relative z-10 transition-all text-lg ${
+                                      stepItem.done
+                                        ? "bg-emerald-500 shadow-emerald-500/25"
                                         : isActiveStep
-                                        ? "bg-blue-600 text-white shadow-blue-500/25"
-                                        : "bg-slate-100 text-slate-400"
+                                        ? "bg-[#3686FF] shadow-blue-500/25"
+                                        : "bg-slate-100"
                                     }`}>
                                       {stepItem.done ? (
-                                        <Check className="w-4.5 h-4.5 stroke-[3]" />
+                                        <Check className="w-4 h-4 stroke-[3] text-white" />
                                       ) : (
-                                        <span className="text-xs font-black">{idx + 1}</span>
+                                        <span className={isActiveStep ? "text-white" : ""}>{stepItem.emoji}</span>
                                       )}
                                     </div>
+                                    {isActiveStep && (
+                                      <span className="absolute -top-5 left-1/2 -translate-x-1/2 text-[8px] font-black text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-full whitespace-nowrap">NEXT</span>
+                                    )}
                                   </div>
-                                  
-                                  <span className={`text-xs font-bold leading-tight ${stepItem.done ? "text-slate-800 font-extrabold" : isActiveStep ? "text-[#3686FF] font-black" : "text-slate-400"}`}>
+                                  <span className={`text-[10px] font-bold leading-tight ${
+                                    stepItem.done ? "text-emerald-600" : isActiveStep ? "text-[#3686FF]" : "text-slate-400"
+                                  }`}>
                                     {stepItem.label}
                                   </span>
-                                </div>
+                                </button>
                               );
                             })}
                           </div>
                         </div>
                       </Card>
 
+                      {/* Quick Action Buttons - Enhanced */}
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                         {[
-                          { label: "Complete Profile", tab: "profile" as TabKey, color: "bg-blue-50/70 text-blue-700 border-blue-100/50 hover:bg-blue-100/80 hover:border-blue-200" },
-                          { label: "Upload Documents", tab: "documents" as TabKey, color: "bg-indigo-50/70 text-indigo-700 border-indigo-100/50 hover:bg-indigo-100/80 hover:border-indigo-200" },
-                          { label: "Browse Universities", tab: "matches" as TabKey, color: "bg-emerald-50/70 text-emerald-700 border-emerald-100/50 hover:bg-emerald-100/80 hover:border-emerald-200" },
-                          { label: "Apply Now", tab: "applications" as TabKey, color: "bg-amber-50/70 text-amber-700 border-amber-100/50 hover:bg-amber-100/80 hover:border-amber-200" },
+                          { label: "Complete Profile", tab: "profile" as TabKey, emoji: "👤", gradient: "from-blue-500 to-indigo-600", shadow: "shadow-blue-500/20" },
+                          { label: "Upload Documents", tab: "documents" as TabKey, emoji: "📎", gradient: "from-violet-500 to-purple-600", shadow: "shadow-violet-500/20" },
+                          { label: "Find Universities", tab: "matches" as TabKey, emoji: "🏛️", gradient: "from-emerald-500 to-teal-600", shadow: "shadow-emerald-500/20" },
+                          { label: "Apply Now", tab: "applications" as TabKey, emoji: "🚀", gradient: "from-amber-500 to-orange-500", shadow: "shadow-amber-500/20" },
                         ].map((act, i) => (
-                          <button
+                          <motion.button
                             key={i}
+                            whileHover={{ y: -4, scale: 1.02 }}
+                            whileTap={{ scale: 0.97 }}
                             onClick={() => setActiveTab(act.tab)}
-                            className={`p-4 rounded-2xl border flex flex-col items-center justify-center text-center font-black text-xs transition-all hover:-translate-y-1 shadow-sm ${act.color} cursor-pointer`}
+                            className={`p-4 rounded-2xl bg-gradient-to-br ${act.gradient} text-white flex flex-col items-center justify-center text-center font-black text-xs shadow-lg ${act.shadow} transition-shadow cursor-pointer`}
                           >
-                            <Plus className="w-5 h-5 mb-2 shrink-0" />
+                            <span className="text-2xl mb-2">{act.emoji}</span>
                             {act.label}
-                          </button>
+                          </motion.button>
                         ))}
                       </div>
 
@@ -1115,91 +1238,118 @@ export default function StudentDashboard() {
 
                     </div>
 
+                    {/* Enhanced right-column sidebar widgets */}
                     <div className="space-y-6">
-                      
-                      {/* Task Tracker Widget */}
+
+                      {/* Task Tracker Widget with mini progress ring */}
                       <Card className="rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 bg-white">
-                        <div className="flex justify-between items-center mb-4">
-                          <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Tasks Overview</h3>
-                          <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-xl">{taskCompletion}% Done</span>
+                        <div className="flex justify-between items-center mb-5">
+                          <div>
+                            <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Tasks</h3>
+                            <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Visa & admission roadmap</p>
+                          </div>
+                          {/* Mini SVG progress ring */}
+                          <div className="relative w-12 h-12 shrink-0">
+                            <svg className="w-full h-full -rotate-90">
+                              <circle cx="24" cy="24" r="18" fill="none" stroke="#f1f5f9" strokeWidth="4" />
+                              <circle
+                                cx="24" cy="24" r="18" fill="none"
+                                stroke="#3686FF" strokeWidth="4"
+                                strokeDasharray={2 * Math.PI * 18}
+                                strokeDashoffset={2 * Math.PI * 18 * (1 - taskCompletion / 100)}
+                                strokeLinecap="round"
+                                className="transition-all duration-700"
+                              />
+                            </svg>
+                            <span className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-blue-600">{taskCompletion}%</span>
+                          </div>
                         </div>
-                        <div className="space-y-3">
-                          {tasks.slice(0, 3).map((task) => (
-                            <div
-                              key={task.id}
-                              onClick={() => handleToggleTask(task.id)}
-                              className="flex gap-3 items-start p-3 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer"
-                            >
-                              <div className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 mt-0.5 transition-all ${
-                                task.completed ? "bg-blue-500 border-blue-500 text-white" : "border-slate-300 bg-white hover:border-blue-400"
-                              }`}>
-                                {task.completed && <Check className="w-3.5 h-3.5" />}
+                        <div className="space-y-2">
+                          {tasks.slice(0, 4).map((task) => {
+                            const daysUntilDue = Math.ceil((new Date(task.dueDate).getTime() - Date.now()) / 86400000);
+                            const isUrgent = !task.completed && daysUntilDue <= 5;
+                            return (
+                              <div
+                                key={task.id}
+                                onClick={() => handleToggleTask(task.id)}
+                                className={`flex gap-3 items-start p-3 rounded-xl transition-all cursor-pointer ${
+                                  task.completed ? "opacity-50" : isUrgent ? "bg-rose-50 hover:bg-rose-100/80" : "hover:bg-slate-50"
+                                }`}
+                              >
+                                <div className={`w-4.5 h-4.5 rounded-md border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all ${
+                                  task.completed ? "bg-blue-500 border-blue-500 text-white" : isUrgent ? "border-rose-400" : "border-slate-300 bg-white"
+                                }`}>
+                                  {task.completed && <Check className="w-2.5 h-2.5" />}
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <p className={`text-xs font-semibold leading-snug ${task.completed ? "line-through text-slate-400" : isUrgent ? "text-rose-700" : "text-slate-700"}`}>
+                                    {task.title}
+                                  </p>
+                                  <p className={`text-[10px] font-bold mt-0.5 ${isUrgent ? "text-rose-500" : "text-slate-400"}`}>
+                                    {task.completed ? "✓ Done" : isUrgent ? `⚠ Due in ${daysUntilDue}d` : `Due: ${task.dueDate}`}
+                                  </p>
+                                </div>
                               </div>
-                              <div className="min-w-0 flex-1">
-                                <p className={`text-xs font-semibold leading-relaxed ${task.completed ? "line-through text-slate-400" : "text-slate-707"}`}>
-                                  {task.title}
-                                </p>
-                                <p className="text-[10px] font-bold text-slate-400 mt-0.5">Due: {task.dueDate}</p>
-                              </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                         <button
                           onClick={() => setActiveTab("tasks")}
-                          className="w-full text-center text-xs font-bold text-[#3686FF] hover:underline mt-4 pt-3 border-t border-slate-100"
+                          className="w-full text-center text-xs font-bold text-[#3686FF] hover:text-blue-700 mt-4 pt-3 border-t border-slate-100 transition-colors"
                         >
-                          View All Tasks ({tasks.length})
+                          View All {tasks.length} Tasks →
                         </button>
                       </Card>
 
                       {/* Counselor Chat Widget */}
-                      <Card className="rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 bg-white flex flex-col justify-between h-[340px] overflow-hidden">
-                        <div>
-                          <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
-                            <div className="relative">
-                              <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center font-black text-blue-600 text-sm">
-                                AC
-                              </div>
-                              <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 border-[3px] border-white rounded-full">
-                                <div className="absolute inset-0 bg-emerald-500 rounded-full animate-ping opacity-75" />
-                              </div>
+                      <Card className="rounded-[32px] border-none shadow-xl shadow-slate-200/50 bg-white flex flex-col overflow-hidden" style={{ height: 360 }}>
+                        <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white shrink-0">
+                          <div className="relative">
+                            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center font-black text-white text-xs shadow-md">
+                              AC
                             </div>
-                            <div>
-                              <h4 className="text-xs font-black text-slate-800">Abby Carter</h4>
-                              <p className="text-[10px] font-bold text-slate-400">Dedicated Study-Abroad Counselor</p>
+                            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full">
+                              <div className="absolute inset-0 bg-emerald-500 rounded-full animate-ping opacity-75" />
                             </div>
                           </div>
-
-                          <div className="space-y-3 py-4 max-h-[160px] overflow-y-auto scrollbar-hide text-xs" ref={chatContainerRef}>
-                            {messages.map((m) => (
-                              <div key={m.id} className={`flex flex-col ${m.sender === "student" ? "items-end" : "items-start"}`}>
-                                <span className={`p-2.5 rounded-2xl max-w-[85%] leading-relaxed font-semibold ${
-                                  m.sender === "student" ? "bg-blue-500 text-white rounded-tr-none" : "bg-slate-100 text-slate-700 rounded-tl-none"
-                                }`}>
-                                  {m.text}
-                                </span>
-                              </div>
-                            ))}
+                          <div>
+                            <h4 className="text-xs font-black text-slate-800">Abby Carter</h4>
+                            <p className="text-[9px] font-bold text-emerald-600 uppercase tracking-wider">● Online · Counselor</p>
                           </div>
+                          <button onClick={() => setActiveTab("messages")} className="ml-auto text-[10px] font-bold text-blue-500 hover:text-blue-700">
+                            Open Chat →
+                          </button>
                         </div>
 
-                        <form onSubmit={handleSendMessage} className="pt-2 border-t border-slate-100 flex gap-2">
+                        <div className="flex-1 px-4 py-3 overflow-y-auto space-y-3 scrollbar-hide" ref={chatContainerRef}>
+                          {messages.slice(-4).map((m) => (
+                            <div key={m.id} className={`flex ${m.sender === "student" ? "justify-end" : "justify-start"}`}>
+                              <div className={`p-2.5 rounded-2xl max-w-[85%] text-xs leading-relaxed font-semibold shadow-sm ${
+                                m.sender === "student"
+                                  ? "bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-tr-none"
+                                  : "bg-slate-100 text-slate-700 rounded-tl-none"
+                              }`}>
+                                {m.text}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        <form onSubmit={handleSendMessage} className="px-4 py-3 border-t border-slate-100 flex gap-2 shrink-0">
                           <input
                             type="text"
                             value={typedMessage}
                             onChange={(e) => setTypedMessage(e.target.value)}
-                            placeholder="Type message to Abby..."
-                            className="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 placeholder-slate-400 outline-none focus:border-blue-400"
+                            placeholder="Message Abby..."
+                            className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-800 placeholder-slate-400 outline-none focus:border-blue-400 focus:bg-white transition-colors"
                           />
-                          <button
-                            type="submit"
-                            className="bg-[#3686FF] hover:bg-blue-600 text-white p-2.5 rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center cursor-pointer"
-                          >
+                          <button type="submit" className="bg-[#3686FF] hover:bg-blue-600 text-white p-2.5 rounded-xl shadow-md transition-all active:scale-95">
                             <Send className="w-3.5 h-3.5" />
                           </button>
                         </form>
                       </Card>
 
+                    </div>
                     </div>
                   </div>
                 )}
@@ -1480,114 +1630,193 @@ export default function StudentDashboard() {
                   </div>
                 )}
 
-                {/* 3. APPLICATIONS TAB */}
+                {/* 3. APPLICATIONS TAB - Enhanced with Kanban pipeline */}
                 {activeTab === "applications" && (
                   <div className="space-y-6">
-                    <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4">
-                      {["Draft", "Submitted", "Under Review", "Offer Received", "Rejected", "Accepted"].map((stage) => {
-                        const count = applications.filter((app) => app.stage === stage).length;
+                    {/* Pipeline stage bar */}
+                    <div className="grid grid-cols-3 lg:grid-cols-6 gap-3">
+                      {([
+                        { stage: "Draft", color: "bg-slate-100 text-slate-600", dot: "bg-slate-400" },
+                        { stage: "Submitted", color: "bg-blue-50 text-blue-700", dot: "bg-blue-500" },
+                        { stage: "Under Review", color: "bg-amber-50 text-amber-700", dot: "bg-amber-500" },
+                        { stage: "Offer Received", color: "bg-emerald-50 text-emerald-700", dot: "bg-emerald-500" },
+                        { stage: "Rejected", color: "bg-rose-50 text-rose-700", dot: "bg-rose-500" },
+                        { stage: "Accepted", color: "bg-violet-50 text-violet-700", dot: "bg-violet-500" },
+                      ] as { stage: ApplicationStage; color: string; dot: string }[]).map(({ stage, color, dot }) => {
+                        const count = applications.filter((a) => a.stage === stage).length;
                         return (
-                          <Card key={stage} className="p-4 rounded-2xl border-none shadow-md bg-white text-center">
-                            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-wider">{stage}</h4>
-                            <p className="text-2xl font-black text-slate-800 mt-1">{count}</p>
-                          </Card>
+                          <div key={stage} className={`rounded-2xl p-3.5 ${color} flex flex-col gap-1`}>
+                            <div className="flex items-center gap-1.5">
+                              <span className={`w-2 h-2 rounded-full ${dot} shrink-0`} />
+                              <span className="text-[9px] font-black uppercase tracking-wider truncate">{stage}</span>
+                            </div>
+                            <p className="text-2xl font-black leading-none">{count}</p>
+                          </div>
                         );
                       })}
                     </div>
 
                     {/* Applications List */}
                     <div className="space-y-4">
-                      {applications.map((app) => (
-                        <Card key={app.id} className="rounded-3xl p-5 md:p-6 border-none shadow-xl shadow-slate-200/50 bg-white flex flex-col md:flex-row md:items-center justify-between gap-6 hover:shadow-2xl transition-all">
-                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center font-black text-blue-600 text-lg shrink-0">
-                              {app.universityName[0]}
+                      {applications.map((app) => {
+                        const stageConfig: Record<ApplicationStage, { border: string; badge: string; dot: string }> = {
+                          Draft:          { border: "border-l-slate-400",  badge: "bg-slate-100 text-slate-600",  dot: "bg-slate-400" },
+                          Submitted:      { border: "border-l-blue-500",   badge: "bg-blue-50 text-blue-700",    dot: "bg-blue-500" },
+                          "Under Review": { border: "border-l-amber-500",  badge: "bg-amber-50 text-amber-700",  dot: "bg-amber-500" },
+                          "Offer Received":{ border: "border-l-emerald-500",badge: "bg-emerald-50 text-emerald-700",dot: "bg-emerald-500" },
+                          Rejected:       { border: "border-l-rose-500",   badge: "bg-rose-50 text-rose-700",    dot: "bg-rose-500" },
+                          Accepted:       { border: "border-l-violet-500", badge: "bg-violet-50 text-violet-700",dot: "bg-violet-500" },
+                        };
+                        const cfg = stageConfig[app.stage];
+                        return (
+                          <Card key={app.id} className={`rounded-3xl p-5 border-l-4 ${cfg.border} shadow-lg shadow-slate-200/40 bg-white flex flex-col md:flex-row md:items-center justify-between gap-5 hover:shadow-xl transition-all`}>
+                            <div className="flex items-center gap-4">
+                              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500/10 to-indigo-500/10 flex items-center justify-center font-black text-blue-700 text-xl shrink-0 border border-blue-100">
+                                {app.universityName[0]}
+                              </div>
+                              <div>
+                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[9px] font-black tracking-widest uppercase ${cfg.badge} rounded-full mb-1.5`}>
+                                  <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot} ${app.stage === "Under Review" ? "animate-pulse" : ""}`} />
+                                  {app.stage}
+                                </span>
+                                <h3 className="font-extrabold text-slate-800 text-base leading-snug">{app.universityName}</h3>
+                                <p className="text-xs font-semibold text-slate-500 mt-0.5">{app.programName} · {app.country}</p>
+                              </div>
                             </div>
-                            <div>
-                              <span className="inline-flex px-2.5 py-0.5 text-[9px] font-black tracking-widest uppercase bg-slate-100 text-slate-650 rounded-full mb-1">
-                                {app.stage}
-                              </span>
-                              <h3 className="font-extrabold text-slate-800 text-base leading-snug">{app.universityName}</h3>
-                              <p className="text-xs font-semibold text-slate-500 mt-0.5">{app.programName} · {app.country}</p>
-                            </div>
-                          </div>
 
-                          <div className="flex flex-wrap items-center gap-4 md:gap-8 justify-between md:justify-end">
-                            <div className="text-left md:text-right">
-                              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Date Initiated</p>
-                              <p className="text-xs font-bold text-slate-700 mt-0.5">{app.appliedDate}</p>
-                            </div>
-
-                            <div className="flex items-center gap-3">
-                              {app.stage === "Draft" && (
+                            <div className="flex flex-wrap items-center gap-3 md:gap-6 justify-between md:justify-end">
+                              <div className="text-left md:text-right">
+                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Initiated</p>
+                                <p className="text-xs font-bold text-slate-700 mt-0.5">{app.appliedDate}</p>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {app.stage === "Draft" && (
+                                  <button
+                                    onClick={() => {
+                                      setApplications(applications.map(a => a.id === app.id ? { ...a, stage: "Submitted" as ApplicationStage } : a));
+                                      setTasks(tasks.map(t => t.id === "task-4" ? { ...t, completed: true } : t));
+                                    }}
+                                    className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow-md transition-all active:scale-95"
+                                  >
+                                    Submit Now
+                                  </button>
+                                )}
                                 <button
-                                  onClick={() => {
-                                    setApplications(applications.map(a => a.id === app.id ? { ...a, stage: "Submitted" as ApplicationStage } : a));
-                                    setTasks(tasks.map(t => t.id === "task-4" ? { ...t, completed: true } : t));
-                                  }}
-                                  className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow-md transition-all active:scale-95"
+                                  onClick={() => setActiveTab("documents")}
+                                  className="border border-slate-200 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 bg-white text-slate-600 font-bold px-4 py-2.5 rounded-xl text-xs transition-all"
                                 >
-                                  Submit Application
+                                  📎 Documents
                                 </button>
-                              )}
-                              <button
-                                onClick={() => setActiveTab("documents")}
-                                className="border border-slate-200 hover:border-blue-100 hover:text-[#3686FF] bg-white text-slate-650 font-bold px-4 py-2.5 rounded-xl text-xs shadow-sm transition-all"
-                              >
-                                Documents
-                              </button>
+                              </div>
                             </div>
-                          </div>
-                        </Card>
-                      ))}
+                          </Card>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
 
-                {/* 4. DOCUMENTS TAB */}
+                {/* 4. DOCUMENTS TAB - Enhanced with progress ring & category groups */}
                 {activeTab === "documents" && (
-                  <Card className="rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 bg-white">
-                    <div className="flex justify-between items-center mb-6">
-                      <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Document Locker</h3>
-                      <span className="text-xs font-bold text-slate-500 bg-slate-50 px-2.5 py-1 rounded-xl">
-                        {documents.filter((d) => d.status === "Uploaded").length} / {documents.length} Uploaded
-                      </span>
-                    </div>
-                    <div className="divide-y divide-slate-50">
-                      {documents.map((doc) => (
-                        <div key={doc.id} className="flex flex-col sm:flex-row sm:items-center justify-between py-4 gap-4 first:pt-0 last:pb-0">
-                          <div className="flex items-start gap-3">
-                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${doc.status === "Uploaded" ? "bg-emerald-50 text-emerald-600" : doc.status === "Draft" ? "bg-amber-50 text-amber-600" : "bg-slate-50 text-slate-400"}`}>
-                              <FileText className="w-5 h-5" />
-                            </div>
-                            <div>
-                              <h4 className="font-bold text-slate-800 text-sm">{doc.name}</h4>
-                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">{doc.category}</p>
-                              {doc.fileName && (
-                                <p className="text-xs text-slate-500 font-semibold mt-1 flex items-center gap-1">
-                                  <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                                  {doc.fileName}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-3 justify-between sm:justify-end">
-                            <span className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-black tracking-widest uppercase ${doc.status === "Uploaded" ? "bg-emerald-50 text-emerald-600" : doc.status === "Draft" ? "bg-amber-50 text-amber-755" : "bg-slate-100 text-slate-500"}`}>
-                              {doc.status}
+                  <div className="space-y-6">
+                    {/* Progress Overview */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                      <Card className="rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/20 rounded-full blur-[40px] pointer-events-none" />
+                        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4 relative z-10">Document Progress</h3>
+                        <div className="flex items-center gap-4 relative z-10">
+                          <div className="relative w-16 h-16 shrink-0">
+                            <svg className="w-full h-full -rotate-90">
+                              <circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="5" />
+                              <circle
+                                cx="32" cy="32" r="26" fill="none"
+                                stroke="#10b981"
+                                strokeWidth="5"
+                                strokeDasharray={2 * Math.PI * 26}
+                                strokeDashoffset={2 * Math.PI * 26 * (1 - documents.filter(d => d.status === "Uploaded").length / documents.length)}
+                                strokeLinecap="round"
+                                className="transition-all duration-1000"
+                              />
+                            </svg>
+                            <span className="absolute inset-0 flex items-center justify-center text-sm font-black text-white">
+                              {documents.filter(d => d.status === "Uploaded").length}/{documents.length}
                             </span>
-                            <button
-                              onClick={() => handleMockUpload(doc.id)}
-                              className="bg-slate-100 hover:bg-blue-50 hover:text-[#3686FF] text-slate-600 font-bold px-3.5 py-2 rounded-xl text-xs transition-colors flex items-center gap-1.5"
-                            >
-                              <Upload className="w-3.5 h-3.5" />
-                              {doc.status === "Uploaded" ? "Re-upload" : "Upload"}
-                            </button>
+                          </div>
+                          <div>
+                            <p className="text-2xl font-black text-emerald-400">{Math.round(documents.filter(d => d.status === "Uploaded").length / documents.length * 100)}%</p>
+                            <p className="text-xs font-bold text-slate-400 mt-1">Documents uploaded</p>
                           </div>
                         </div>
+                      </Card>
+                      {[
+                        { label: "Uploaded", count: documents.filter(d => d.status === "Uploaded").length, color: "from-emerald-500 to-teal-600", bg: "bg-emerald-50", text: "text-emerald-700" },
+                        { label: "Pending / Draft", count: documents.filter(d => d.status !== "Uploaded").length, color: "from-amber-500 to-orange-500", bg: "bg-amber-50", text: "text-amber-700" },
+                      ].map((s) => (
+                        <Card key={s.label} className={`rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 ${s.bg}`}>
+                          <h3 className={`text-[10px] font-black uppercase tracking-[0.2em] ${s.text} mb-4`}>{s.label}</h3>
+                          <p className={`text-5xl font-black ${s.text}`}>{s.count}</p>
+                          <p className={`text-xs font-bold ${s.text} opacity-60 mt-1`}>documents</p>
+                        </Card>
                       ))}
                     </div>
-                  </Card>
+
+                    {/* Grouped Document List */}
+                    {Array.from(new Set(documents.map(d => d.category))).map((category) => {
+                      const categoryDocs = documents.filter(d => d.category === category);
+                      const allDone = categoryDocs.every(d => d.status === "Uploaded");
+                      return (
+                        <Card key={category} className="rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 bg-white">
+                          <div className="flex items-center justify-between mb-5">
+                            <div className="flex items-center gap-2">
+                              <span className={`w-2.5 h-2.5 rounded-full ${allDone ? "bg-emerald-500" : "bg-amber-400"}`} />
+                              <h3 className="text-xs font-black text-slate-700 uppercase tracking-[0.15em]">{category}</h3>
+                            </div>
+                            <span className="text-[10px] font-black text-slate-400">
+                              {categoryDocs.filter(d => d.status === "Uploaded").length}/{categoryDocs.length} uploaded
+                            </span>
+                          </div>
+                          <div className="divide-y divide-slate-50">
+                            {categoryDocs.map((doc) => (
+                              <div key={doc.id} className="flex flex-col sm:flex-row sm:items-center justify-between py-3.5 gap-3 first:pt-0 last:pb-0">
+                                <div className="flex items-start gap-3">
+                                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                                    doc.status === "Uploaded" ? "bg-emerald-50 text-emerald-600" :
+                                    doc.status === "Draft" ? "bg-amber-50 text-amber-600" : "bg-slate-100 text-slate-400"
+                                  }`}>
+                                    <FileText className="w-4 h-4" />
+                                  </div>
+                                  <div>
+                                    <h4 className="font-bold text-slate-800 text-sm">{doc.name}</h4>
+                                    {doc.fileName && (
+                                      <p className="text-[10px] text-slate-500 font-semibold mt-0.5 flex items-center gap-1">
+                                        <CheckCircle className="w-3 h-3 text-emerald-500 shrink-0" />
+                                        {doc.fileName}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2.5 justify-between sm:justify-end">
+                                  <span className={`inline-flex px-2.5 py-1 rounded-full text-[9px] font-black tracking-widest uppercase ${
+                                    doc.status === "Uploaded" ? "bg-emerald-50 text-emerald-600" :
+                                    doc.status === "Draft" ? "bg-amber-50 text-amber-700" : "bg-slate-100 text-slate-500"
+                                  }`}>
+                                    {doc.status}
+                                  </span>
+                                  <button
+                                    onClick={() => handleMockUpload(doc.id)}
+                                    className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold px-3.5 py-2 rounded-xl text-[10px] shadow-sm transition-all active:scale-95 hover:shadow-md flex items-center gap-1.5"
+                                  >
+                                    <Upload className="w-3 h-3" />
+                                    {doc.status === "Uploaded" ? "Replace" : "Upload"}
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </Card>
+                      );
+                    })}
+                  </div>
                 )}
 
                 {/* 5. MESSAGES TAB */}
@@ -1664,84 +1893,158 @@ export default function StudentDashboard() {
                   </div>
                 )}
 
-                {/* 6. TASKS TAB */}
+                {/* 6. TASKS TAB - Enhanced with urgency colors & two sections */}
                 {activeTab === "tasks" && (
-                  <Card className="rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 bg-white">
-                    <div className="flex justify-between items-center mb-6">
-                      <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Visa & Admission Tasks</h3>
-                      <span className="text-xs font-bold text-[#3686FF] bg-blue-50 px-2.5 py-1 rounded-xl">{taskCompletion}% Completed</span>
-                    </div>
-                    <div className="space-y-4">
-                      {tasks.map((task) => (
-                        <div
-                          key={task.id}
-                          onClick={() => handleToggleTask(task.id)}
-                          className="flex gap-4 items-start p-4 rounded-2xl border border-slate-50 bg-slate-50/50 hover:bg-slate-50 transition-all cursor-pointer"
-                        >
-                          <div className={`w-6 h-6 rounded-lg border flex items-center justify-center shrink-0 mt-0.5 transition-all ${
-                            task.completed ? "bg-blue-500 border-blue-500 text-white" : "border-slate-300 bg-white"
-                          }`}>
-                            {task.completed && <Check className="w-4 h-4" />}
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <p className={`text-sm font-bold leading-relaxed ${task.completed ? "line-through text-slate-400" : "text-slate-705"}`}>
-                              {task.title}
-                            </p>
-                            <div className="flex gap-4 mt-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                              <span>Due: {task.dueDate}</span>
-                              <span className={task.completed ? "text-emerald-600" : "text-amber-600"}>
-                                {task.completed ? "Completed" : "Pending Action"}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
+                  <div className="space-y-6">
+                    {/* Header stats */}
+                    <div className="grid grid-cols-3 gap-4">
+                      {[
+                        { label: "Total", value: tasks.length, color: "text-slate-800", bg: "bg-white" },
+                        { label: "Completed", value: tasks.filter(t => t.completed).length, color: "text-emerald-600", bg: "bg-emerald-50" },
+                        { label: "Pending", value: tasks.filter(t => !t.completed).length, color: "text-amber-600", bg: "bg-amber-50" },
+                      ].map((s) => (
+                        <Card key={s.label} className={`rounded-2xl p-4 border-none shadow-md ${s.bg} text-center`}>
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">{s.label}</p>
+                          <p className={`text-3xl font-black ${s.color} mt-1`}>{s.value}</p>
+                        </Card>
                       ))}
                     </div>
-                  </Card>
+
+                    {/* Pending Tasks */}
+                    {tasks.filter(t => !t.completed).length > 0 && (
+                      <Card className="rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 bg-white">
+                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-5">Pending Actions</h3>
+                        <div className="space-y-3">
+                          {tasks.filter(t => !t.completed).map((task) => {
+                            const daysLeft = Math.ceil((new Date(task.dueDate).getTime() - Date.now()) / 86400000);
+                            const urgency = daysLeft <= 3 ? "high" : daysLeft <= 7 ? "medium" : "low";
+                            return (
+                              <motion.div
+                                key={task.id}
+                                layout
+                                onClick={() => handleToggleTask(task.id)}
+                                className={`flex gap-4 items-start p-4 rounded-2xl border cursor-pointer transition-all hover:-translate-y-0.5 ${
+                                  urgency === "high" ? "border-rose-200 bg-rose-50/60 hover:bg-rose-50" :
+                                  urgency === "medium" ? "border-amber-200 bg-amber-50/40 hover:bg-amber-50" :
+                                  "border-slate-100 bg-slate-50/40 hover:bg-slate-50"
+                                }`}
+                              >
+                                <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 mt-0.5 ${
+                                  urgency === "high" ? "border-rose-400" : urgency === "medium" ? "border-amber-400" : "border-slate-300"
+                                }`} />
+                                <div className="min-w-0 flex-1">
+                                  <p className="text-sm font-bold text-slate-800 leading-relaxed">{task.title}</p>
+                                  <div className="flex gap-3 mt-1.5 items-center">
+                                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                                      urgency === "high" ? "bg-rose-100 text-rose-600" :
+                                      urgency === "medium" ? "bg-amber-100 text-amber-600" :
+                                      "bg-slate-100 text-slate-500"
+                                    }`}>
+                                      {daysLeft <= 0 ? "OVERDUE" : `${daysLeft}d left`}
+                                    </span>
+                                    <span className="text-[10px] font-semibold text-slate-400">Due: {task.dueDate}</span>
+                                  </div>
+                                </div>
+                              </motion.div>
+                            );
+                          })}
+                        </div>
+                      </Card>
+                    )}
+
+                    {/* Completed Tasks */}
+                    {tasks.filter(t => t.completed).length > 0 && (
+                      <Card className="rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 bg-white">
+                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-5">Completed ✓</h3>
+                        <div className="space-y-2">
+                          {tasks.filter(t => t.completed).map((task) => (
+                            <div
+                              key={task.id}
+                              onClick={() => handleToggleTask(task.id)}
+                              className="flex gap-4 items-center p-3.5 rounded-xl bg-slate-50 opacity-60 cursor-pointer hover:opacity-80 transition-opacity"
+                            >
+                              <div className="w-5 h-5 rounded-md bg-emerald-500 border-emerald-500 flex items-center justify-center shrink-0">
+                                <Check className="w-3 h-3 text-white" />
+                              </div>
+                              <p className="text-sm font-semibold text-slate-500 line-through flex-1">{task.title}</p>
+                              <span className="text-[9px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">DONE</span>
+                            </div>
+                          ))}
+                        </div>
+                      </Card>
+                    )}
+                  </div>
                 )}
 
-                {/* 7. SCHOLARSHIPS TAB */}
+                {/* 7. SCHOLARSHIPS TAB - Enhanced with deadline countdown & match badges */}
                 {activeTab === "scholarships" && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                    {scholarships.map((s) => (
-                      <motion.div
-                        key={s.id}
-                        whileHover={{ y: -6 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <Card className="rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 bg-white flex flex-col justify-between h-full group hover:shadow-2xl hover:shadow-emerald-500/5 transition-all relative overflow-hidden">
-                          <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
-                          <div>
-                            <div className="flex justify-between items-center mb-4">
-                              <span className="inline-flex px-2.5 py-1 rounded-full text-[10px] font-black tracking-widest uppercase bg-emerald-50 text-emerald-705 border border-emerald-100">
-                                {s.awardAmount} Award
-                              </span>
-                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{s.country}</span>
-                            </div>
+                  <div className="space-y-6">
+                    {/* Tip banner */}
+                    <div className="rounded-2xl bg-gradient-to-r from-emerald-500/10 via-teal-500/5 to-white border border-emerald-100 p-4 flex items-center gap-3">
+                      <span className="text-2xl">💡</span>
+                      <div>
+                        <p className="text-xs font-black text-emerald-800">Scholarship Tips</p>
+                        <p className="text-xs font-semibold text-emerald-700/80 mt-0.5">Your GPA of <strong>{profile.gpa || "3.5+"}</strong> makes you eligible for merit-based awards. Apply before deadlines!</p>
+                      </div>
+                    </div>
 
-                            <h3 className="font-black text-slate-850 text-base leading-snug mb-3 group-hover:text-emerald-600 transition-colors">{s.name}</h3>
-                            
-                            <div className="space-y-2 mb-6 text-xs font-semibold">
-                              <div className="flex justify-between">
-                                <span className="text-slate-400">Eligibility:</span>
-                                <span className="text-slate-700 font-black">{s.eligibility}</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-slate-400">Deadline:</span>
-                                <span className="text-slate-700 font-black">{s.deadline}</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          <button
-                            onClick={() => alert("Scholarship application initiated. Your counselor will coordinate document submissions.")}
-                            className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 rounded-2xl text-xs shadow-md transition-all active:scale-95 cursor-pointer"
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                      {scholarships.map((s) => {
+                        const deadlineDate = new Date(s.deadline);
+                        const daysLeft = Math.ceil((deadlineDate.getTime() - Date.now()) / 86400000);
+                        const urgencyColor = daysLeft <= 14 ? "text-rose-600 bg-rose-50 border-rose-200" : daysLeft <= 30 ? "text-amber-600 bg-amber-50 border-amber-200" : "text-emerald-600 bg-emerald-50 border-emerald-200";
+                        const isEligible = !profile.gpa || parseFloat(profile.gpa) >= 3.5;
+                        return (
+                          <motion.div
+                            key={s.id}
+                            whileHover={{ y: -6 }}
+                            transition={{ duration: 0.2 }}
                           >
-                            Apply For Scholarship
-                          </button>
-                        </Card>
-                      </motion.div>
-                    ))}
+                            <Card className="rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 bg-white flex flex-col justify-between h-full group hover:shadow-2xl hover:shadow-emerald-500/10 transition-all relative overflow-hidden">
+                              <div className="absolute top-0 right-0 w-28 h-28 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
+                              <div>
+                                <div className="flex justify-between items-start mb-4">
+                                  <div>
+                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black tracking-widest uppercase bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                      🏆 {s.awardAmount}
+                                    </span>
+                                  </div>
+                                  {isEligible && (
+                                    <span className="text-[9px] font-black bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full border border-blue-100">✓ ELIGIBLE</span>
+                                  )}
+                                </div>
+
+                                <h3 className="font-black text-slate-800 text-base leading-snug mb-4 group-hover:text-emerald-600 transition-colors">{s.name}</h3>
+
+                                <div className="space-y-2.5 text-xs font-semibold">
+                                  <div className="flex justify-between items-center">
+                                    <span className="text-slate-400">Eligibility:</span>
+                                    <span className="text-slate-700 font-black text-right ml-2">{s.eligibility}</span>
+                                  </div>
+                                  <div className="flex justify-between items-center">
+                                    <span className="text-slate-400">Country:</span>
+                                    <span className="text-slate-700 font-black">{s.country}</span>
+                                  </div>
+                                  <div className="flex justify-between items-center pt-2 border-t border-slate-50">
+                                    <span className="text-slate-400">Deadline:</span>
+                                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black border ${urgencyColor}`}>
+                                      {daysLeft <= 0 ? "CLOSED" : `${daysLeft}d left`}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <button
+                                onClick={() => alert("Scholarship application initiated. Your counselor will coordinate document submissions.")}
+                                className="mt-5 w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold py-3.5 rounded-2xl text-xs shadow-md shadow-emerald-500/20 transition-all active:scale-95 cursor-pointer hover:shadow-lg hover:-translate-y-0.5"
+                              >
+                                Apply For Scholarship →
+                              </button>
+                            </Card>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
 
@@ -1913,52 +2216,90 @@ export default function StudentDashboard() {
                   </div>
                 )}
 
-                {/* 9. VISA ASSISTANCE TAB */}
+                {/* 9. VISA ASSISTANCE TAB - Enhanced with animated steps */}
                 {activeTab === "visa-assistance" && (
                   <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                    <Card className="rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 bg-slate-900 text-white xl:col-span-1 relative overflow-hidden">
+                    {/* Visa success odds card */}
+                    <Card className="rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white xl:col-span-1 relative overflow-hidden">
                       <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/20 rounded-full blur-[50px] pointer-events-none" />
-                      <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 mb-6 relative z-10">Visa Success Odds</h3>
-                      <div className="text-center py-6 relative z-10">
-                        <p className="text-5xl font-black text-emerald-400">{profile.visaSuccessProb || "92"}%</p>
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-2">Estimated Success Rate</p>
+                      <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-500/10 rounded-full blur-[40px] pointer-events-none" />
+                      <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-5 relative z-10">Visa Success Odds</h3>
+                      {/* Big animated ring */}
+                      <div className="flex justify-center my-4 relative z-10">
+                        <div className="relative w-32 h-32">
+                          <svg className="w-full h-full -rotate-90">
+                            <circle cx="64" cy="64" r="52" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="8" />
+                            <circle
+                              cx="64" cy="64" r="52" fill="none"
+                              stroke="#10b981" strokeWidth="8"
+                              strokeDasharray={2 * Math.PI * 52}
+                              strokeDashoffset={2 * Math.PI * 52 * (1 - (profile.visaSuccessProb || 92) / 100)}
+                              strokeLinecap="round"
+                              className="transition-all duration-1000"
+                            />
+                          </svg>
+                          <div className="absolute inset-0 flex flex-col items-center justify-center">
+                            <span className="text-3xl font-black text-emerald-400">{profile.visaSuccessProb || "92"}%</span>
+                            <span className="text-[9px] font-bold text-slate-400 uppercase">Success</span>
+                          </div>
+                        </div>
                       </div>
-                      <div className="mt-4 pt-4 border-t border-white/10 text-xs text-slate-300 font-semibold leading-relaxed space-y-2">
-                        <div className="flex justify-between">
-                          <span>Sponsor Income:</span>
-                          <span className="text-white font-bold">Sufficient</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Study Gap:</span>
-                          <span className="text-white font-bold">Clean Timeline</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Financial Liquidity:</span>
-                          <span className="text-emerald-400 font-bold">Strong Match</span>
-                        </div>
+                      <div className="mt-4 pt-4 border-t border-white/10 text-xs text-slate-300 font-semibold space-y-3 relative z-10">
+                        {[
+                          { label: "Sponsor Income", value: "Sufficient", ok: true },
+                          { label: "Study Gap", value: profile.studyGap ? `${profile.studyGap}yr gap` : "Clean Timeline", ok: true },
+                          { label: "Financial Liquidity", value: "Strong Match", ok: true },
+                          { label: "English Score", value: profile.englishScore ? `${profile.testType} ${profile.englishScore}` : "Pending", ok: !!profile.englishScore },
+                        ].map((item) => (
+                          <div key={item.label} className="flex justify-between items-center">
+                            <span className="text-slate-400">{item.label}:</span>
+                            <span className={`font-bold flex items-center gap-1 ${item.ok ? "text-emerald-400" : "text-amber-400"}`}>
+                              {item.ok ? "✓" : "!"} {item.value}
+                            </span>
+                          </div>
+                        ))}
                       </div>
                     </Card>
 
-                    {/* Step by step visa process */}
+                    {/* Enhanced step-by-step visa process */}
                     <Card className="rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 bg-white xl:col-span-2">
-                      <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6">Visa Process Roadmap</h3>
+                      <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Visa Process Roadmap</h3>
+                        <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-xl">1 / 5 Complete</span>
+                      </div>
                       <div className="space-y-4">
                         {[
-                          { title: "Receive Offer Letter (LOA/CAS/CoE)", desc: "Receive official acceptance certificate from Seneca or Conestoga.", done: true },
-                          { title: "Pay First-Semester Tuition Deposit", desc: "Pay deposit to secure your seat and receive confirmation receipt.", done: false },
-                          { title: "Open GIC account / Financial Escrow", desc: "Transfer necessary funds for cost-of-living proof.", done: false },
-                          { title: "Undergo Medical Examination", desc: "Visit approved panel clinic for visa-compliant physical exams.", done: false },
-                          { title: "Complete Online Visa Application (IRCC/VFS)", desc: "Fill out official forms, upload transcripts, SOP, and passports.", done: false },
+                          { title: "Receive Offer Letter (LOA/CAS/CoE)", desc: "Receive official acceptance certificate from your chosen institution.", done: applications.some(a => a.stage === "Offer Received" || a.stage === "Accepted"), emoji: "📄" },
+                          { title: "Pay First-Semester Tuition Deposit", desc: "Pay deposit to secure your seat and receive confirmation receipt.", done: false, emoji: "💳" },
+                          { title: "Open GIC Account / Financial Escrow", desc: "Transfer necessary funds for cost-of-living proof to the consulate.", done: false, emoji: "🏦" },
+                          { title: "Undergo Medical Examination", desc: "Visit an approved panel clinic for visa-compliant physical exams.", done: false, emoji: "🏥" },
+                          { title: "Complete Online Visa Application (IRCC/VFS)", desc: "Fill out official forms, upload transcripts, SOP, and passport scans.", done: false, emoji: "🌐" },
                         ].map((stepItem, idx) => (
-                          <div key={idx} className="flex gap-4 items-start">
-                            <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${stepItem.done ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-400"}`}>
-                              {stepItem.done ? <Check className="w-3.5 h-3.5" /> : <span className="text-xs font-extrabold">{idx + 1}</span>}
+                          <motion.div
+                            key={idx}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: idx * 0.06 }}
+                            className={`flex gap-4 items-start p-4 rounded-2xl border transition-all ${
+                              stepItem.done
+                                ? "bg-emerald-50/60 border-emerald-200"
+                                : "bg-slate-50/40 border-slate-100 hover:bg-slate-50"
+                            }`}
+                          >
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-lg border-2 ${
+                              stepItem.done ? "bg-emerald-500 border-emerald-500" : "bg-white border-slate-200"
+                            }`}>
+                              {stepItem.done ? <Check className="w-5 h-5 text-white" /> : stepItem.emoji}
                             </div>
-                            <div>
-                              <h4 className={`text-sm font-bold ${stepItem.done ? "text-slate-805" : "text-slate-600"}`}>{stepItem.title}</h4>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <h4 className={`text-sm font-bold ${stepItem.done ? "text-emerald-700" : "text-slate-800"}`}>{stepItem.title}</h4>
+                                {stepItem.done && <span className="text-[9px] font-black text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">DONE</span>}
+                                {!stepItem.done && idx === 1 && <span className="text-[9px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full animate-pulse">NEXT STEP</span>}
+                              </div>
                               <p className="text-xs text-slate-400 mt-1 font-semibold leading-relaxed">{stepItem.desc}</p>
                             </div>
-                          </div>
+                          </motion.div>
                         ))}
                       </div>
                     </Card>
