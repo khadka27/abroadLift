@@ -498,7 +498,7 @@ export default function AdminDashboard() {
                     <input
                       type="text"
                       required
-                      placeholder="John Doe"
+                      placeholder="Your Name"
                       className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm font-semibold outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 transition-all"
                       value={formData.name}
                       onChange={(e) =>
@@ -513,7 +513,7 @@ export default function AdminDashboard() {
                     <input
                       type="text"
                       required
-                      placeholder="johndoe"
+                      placeholder="Your Username"
                       className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm font-semibold outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 transition-all"
                       value={formData.username}
                       onChange={(e) =>
@@ -530,7 +530,7 @@ export default function AdminDashboard() {
                   <input
                     type="email"
                     required
-                    placeholder="john@example.com"
+                    placeholder="Your Email"
                     className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm font-semibold outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 transition-all"
                     value={formData.email}
                     onChange={(e) =>

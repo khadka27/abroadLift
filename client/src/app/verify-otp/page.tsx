@@ -35,9 +35,8 @@ function VerifyOtpForm() {
     }
   }, [phoneE164, router]);
 
-  const handleVerify = async (e: { preventDefault: () => void }) => {
-    e.preventDefault();
-    if (!phoneE164 || !otp) {
+  const performVerification = async (otpValue: string) => {
+    if (!phoneE164 || !otpValue) {
       setError("Enter the OTP sent to your phone.");
       return;
     }
@@ -49,7 +48,7 @@ function VerifyOtpForm() {
     try {
       const result = await signIn("credentials", {
         phone: phoneE164,
-        otp: otp.trim(),
+        otp: otpValue.trim(),
         redirect: false,
       });
 
@@ -73,6 +72,17 @@ function VerifyOtpForm() {
       setLoading(false);
     }
   };
+
+  const handleVerify = async (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    await performVerification(otp);
+  };
+
+  useEffect(() => {
+    if (otp.trim().length === 6) {
+      performVerification(otp);
+    }
+  }, [otp]);
 
   const handleResend = async () => {
     if (!phoneE164) return;

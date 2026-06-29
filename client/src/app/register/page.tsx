@@ -74,7 +74,7 @@ function RegisterForm() {
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [agreed, setAgreed] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
   const [countryCodes, setCountryCodes] = useState<CountryCodeOption[]>(
     FALLBACK_COUNTRY_CODES,
   );
@@ -155,15 +155,18 @@ function RegisterForm() {
     if (!/^\d{6,15}$/.test(form.phone.replaceAll(/\D/g, ""))) {
       e.phone = "Enter a valid phone number.";
     }
-    if (!agreed) e.agreed = "Required.";
 
     setErrors(e);
     return Object.keys(e).length === 0;
   };
 
-  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
+  const handleProceedToTerms = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
+    setShowTerms(true);
+  };
+
+  const handleRegisterSubmit = async () => {
     setSubmitting(true);
     setServerError("");
 
@@ -195,6 +198,7 @@ function RegisterForm() {
 
       if (!res.ok) {
         setServerError(data.error || "Registration failed.");
+        setShowTerms(false);
         return;
       }
 
@@ -217,6 +221,7 @@ function RegisterForm() {
         setServerError(
           "Signup succeeded, but we could not start OTP verification.",
         );
+        setShowTerms(false);
         return;
       }
 
@@ -228,6 +233,7 @@ function RegisterForm() {
       );
     } catch {
       setServerError("Something went wrong.");
+      setShowTerms(false);
     } finally {
       setSubmitting(false);
     }
@@ -335,11 +341,12 @@ function RegisterForm() {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="w-full space-y-4">
+            {!showTerms ? (
+            <form onSubmit={handleProceedToTerms} className="w-full space-y-4">
               <div className="space-y-1.5">
                 <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest pl-2">Full Name</label>
                 <InputField
-                  placeholder="John Doe"
+                  placeholder="Your Name"
                   value={form.fullName}
                   error={errors.fullName}
                   onChange={(v) => handleChange("fullName", v)}
@@ -349,7 +356,7 @@ function RegisterForm() {
               <div className="space-y-1.5">
                 <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest pl-2">Email Address</label>
                 <InputField
-                  placeholder="john@example.com"
+                  placeholder="Your Email"
                   type="email"
                   value={form.email}
                   error={errors.email}
@@ -417,41 +424,73 @@ function RegisterForm() {
                 No password needed. We&apos;ll send an SMS OTP to verify your account when you login.
               </div>
 
-              {/* Terms & Conditions */}
-              <div className="pt-1">
-                <label className="flex items-start gap-3 cursor-pointer group">
-                  <div className="relative flex items-center mt-0.5">
-                    <input
-                      type="checkbox"
-                      checked={agreed}
-                      onChange={() => setAgreed(!agreed)}
-                      className="peer appearance-none w-5 h-5 border-2 border-slate-300 rounded-[6px] checked:bg-[#3686FF] checked:border-[#3686FF] cursor-pointer transition-all hover:border-[#3686FF]"
-                    />
-                    <svg className="absolute left-[2.5px] w-4 h-4 text-white scale-0 peer-checked:scale-100 transition-transform pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <span className="text-[13px] font-bold text-slate-600 select-none">
-                    I agree to the{" "}
-                    <Link href="/terms" className="text-[#3686FF] hover:underline font-black">
-                      Terms & Conditions
-                    </Link>
-                  </span>
-                </label>
-                {errors.agreed && (
-                  <p className="mt-2 text-[11px] text-rose-500 font-bold px-4">{errors.agreed}</p>
-                )}
-              </div>
-
               {/* Register Button */}
               <button
                 type="submit"
                 disabled={submitting}
                 className="w-full h-[60px] bg-[#3686FF] text-white font-extrabold rounded-[20px] text-[14px] shadow-[0_8px_20px_rgba(54,134,255,0.2)] hover:shadow-[0_12px_25px_rgba(54,134,255,0.3)] hover:-translate-y-0.5 hover:bg-[#2970E6] transition-all disabled:opacity-50 disabled:hover:translate-y-0 active:translate-y-0 uppercase tracking-widest mt-4"
               >
-                {submitting ? "Processing..." : "Create Account"}
+                Create Account
               </button>
             </form>
+            ) : (
+            <div className="w-full space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="text-center">
+                <h2 className="text-[22px] font-black text-slate-900 tracking-tight">Terms & Conditions</h2>
+                <p className="text-[13px] font-medium text-slate-500 mt-1">Please read and accept our terms to complete your registration.</p>
+              </div>
+
+              <div className="max-h-[340px] overflow-y-auto border border-slate-200 rounded-[20px] p-5 bg-slate-50 text-[12px] text-slate-600 leading-relaxed space-y-5 shadow-inner">
+                <div>
+                  <h3 className="font-extrabold text-slate-800 mb-1 text-[13px]">1. Acceptance of Terms</h3>
+                  <p>By creating an account, clicking &ldquo;I Agree,&rdquo; submitting information, or otherwise using the Platform, you confirm that you have read, understood, and agreed to these Terms, our Privacy Policy, and any other notices displayed on the Platform.</p>
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-slate-800 mb-1 text-[13px]">2. About AbroadLift</h3>
+                  <p>AbroadLift is an information and self-application support platform for students exploring overseas education opportunities. AbroadLift is not an education consultancy, immigration consultancy, migration agent, legal advisor, or financial advisor.</p>
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-slate-800 mb-1 text-[13px]">3. Eligibility</h3>
+                  <p>The Platform is intended for users who are 18 years of age or older and legally capable of entering into a binding agreement. By creating an account, you represent and warrant that you are at least 18 years old.</p>
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-slate-800 mb-1 text-[13px]">4. Consent to Contact</h3>
+                  <p>By registering, you consent to receive communications from AbroadLift regarding your account, updates, alerts, and service-related messages via email, phone, SMS, WhatsApp, or in-app notifications.</p>
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-slate-800 mb-1 text-[13px]">5. Data Usage & Sharing</h3>
+                  <p>Your personal data may be used for account creation, personalized dashboards, cost estimations, documentation checklists, and may be shared with relevant third-party educational entities where you have requested or consented to sharing.</p>
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-slate-800 mb-1 text-[13px]">6. No Guaranteed Outcome</h3>
+                  <p>AbroadLift does not guarantee admission, visa approval, scholarship approval, or any other outcome. All estimates, scores, and checklists are indicative only. Final responsibility remains with the user.</p>
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-slate-800 mb-1 text-[13px]">7. Governing Law</h3>
+                  <p>These Terms shall be governed by the laws of Nepal. Any disputes shall first be attempted to be resolved amicably, and if unresolved, shall be subject to the jurisdiction of the competent courts of Pokhara or Kathmandu, Nepal.</p>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <button
+                  type="button"
+                  onClick={handleRegisterSubmit}
+                  disabled={submitting}
+                  className="w-full h-[60px] bg-[#3686FF] text-white font-extrabold rounded-[20px] text-[14px] shadow-[0_8px_20px_rgba(54,134,255,0.2)] hover:shadow-[0_12px_25px_rgba(54,134,255,0.3)] hover:-translate-y-0.5 hover:bg-[#2970E6] transition-all disabled:opacity-50 active:translate-y-0 uppercase tracking-widest"
+                >
+                  {submitting ? "Creating Account..." : "Accept & Create Account"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowTerms(false)}
+                  disabled={submitting}
+                  className="w-full h-[60px] bg-white border border-slate-200 text-slate-600 font-bold rounded-[20px] text-[13px] hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 transition-all shadow-sm disabled:opacity-50"
+                >
+                  Go Back
+                </button>
+              </div>
+            </div>
+            )}
 
             {/* Divider */}
             <div className="w-full mt-6 mb-4 flex items-center justify-center">

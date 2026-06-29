@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
-import { Suspense, useEffect, useState, useRef } from "react";
+import { Suspense, useCallback, useEffect, useState, useRef } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -78,6 +78,43 @@ function LoginForm() {
     }
   }, [searchParams]);
 
+  const performLogin = useCallback(async (otpValue: string) => {
+    const normalizedPhoneNumber = normalizePhoneNumber(phoneNumber);
+    const normalizedDialCode = normalizeDialCode(countryDialCode);
+    const phoneE164 = toE164(normalizedDialCode, normalizedPhoneNumber);
+
+    if (!phoneE164 || !otpValue.trim()) {
+      setError("Please enter your phone number and OTP.");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const result = await signIn("credentials", {
+        phone: phoneE164,
+        otp: otpValue.trim(),
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setError(result.error);
+        return;
+      }
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }, [phoneNumber, countryDialCode]);
+
+  useEffect(() => {
+    if (otp.trim().length === 6) {
+      performLogin(otp);
+    }
+  }, [otp, performLogin]);
+
   if (status === "loading" || status === "authenticated") {
     return null;
   }
@@ -122,37 +159,7 @@ function LoginForm() {
 
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
-    const normalizedPhoneNumber = normalizePhoneNumber(phoneNumber);
-    const normalizedDialCode = normalizeDialCode(countryDialCode);
-    const phoneE164 = toE164(normalizedDialCode, normalizedPhoneNumber);
-
-    if (!phoneE164 || !otp.trim()) {
-      setError("Please enter your phone number and OTP.");
-      return;
-    }
-
-    setLoading(true);
-    setError("");
-
-    try {
-      const result = await signIn("credentials", {
-        phone: phoneE164,
-        otp: otp.trim(),
-        redirect: false,
-      });
-
-      if (result?.error) {
-        setError(result.error);
-        return;
-      }
-
-      // Don't redirect here - let useEffect handle it when session updates
-      // This ensures the session is fully established before redirecting
-    } catch {
-      setError("Something went wrong. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+    await performLogin(otp);
   };
 
   return (

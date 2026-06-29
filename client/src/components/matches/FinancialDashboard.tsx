@@ -128,6 +128,7 @@ export function FinancialDashboard({
     "Before Departure" | "First 6 Months" | "Combined Total"
   >("Before Departure");
   const [currency, setCurrency] = useState<"NPR" | "USD">("NPR");
+  const [generatingPdf, setGeneratingPdf] = useState(false);
 
   const {
     tuitionUsd,
@@ -152,22 +153,30 @@ export function FinancialDashboard({
   const [editValue, setEditValue] = useState<string>("");
 
   useEffect(() => {
+    // living.rent, living.food, living.transport are ANNUAL USD values from the API
+    // 6-month window = annual * 0.5
+    const rentMonthly    = Math.round(living.rent    / 12);
+    const foodMonthly    = Math.round(living.food    / 12);
+    const transportMonthly = Math.round(living.transport / 12);
+
     const defaultCosts: Record<string, number> = {
-      "identity-docs": 75,
-      "language-classes": 300,
-      "counsellor-fee": 110,
+      "identity-docs":      75,
+      "language-classes":   300,
+      "counsellor-fee":     110,
       "admissions-testing": 425,
-      "visa-compliance": 685,
-      "tuition-fee": Math.round(tuitionUsd * 0.5),
-      "flight-tickets": 1200,
-      "shopping": Math.round(100000 / usdToNpr),
-      "cash-in-hand": 1500,
-      "cost-of-living": Math.round((living.rent + living.food) * 6),
-      "internet-phone": 300,
-      "transportation": Math.round(living.transport * 6),
+      "visa-compliance":    685,
+      "tuition-fee":        Math.round(tuitionUsd * 0.5),
+      "flight-tickets":     1200,
+      "shopping":           Math.round(100000 / usdToNpr),
+      "cash-in-hand":       1500,
+      // Rent + Food × 6 months (transport is a separate line)
+      "cost-of-living":     (rentMonthly + foodMonthly) * 6,
+      "internet-phone":     300,
+      // Transport × 6 months
+      "transportation":     transportMonthly * 6,
       "academic-recurring": 600,
-      "buffer": 900,
-      "local-compliance": 300,
+      "buffer":             900,
+      "local-compliance":   300,
     };
     setCosts(defaultCosts);
   }, [tuitionUsd, living.rent, living.food, living.transport, usdToNpr]);
@@ -182,6 +191,225 @@ export function FinancialDashboard({
       }));
     }
     setEditingId(null);
+  };
+
+  const generatePDF = async () => {
+    setGeneratingPdf(true);
+    try {
+      const { jsPDF } = await import("jspdf");
+      const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+
+      const allCats = getCategories();
+      const beforeDep = allCats.filter((c) => c.group === "Before Departure");
+      const first6 = allCats.filter((c) => c.group === "First 6 Months");
+
+      const totalBefore = beforeDep.reduce((s, c) => s + c.usd, 0);
+      const total6m = first6.reduce((s, c) => s + c.usd, 0);
+      const grandTotal = totalBefore + total6m;
+
+      const fmtUsd = (v: number) =>
+        "$" + Math.round(v).toLocaleString("en-US");
+      const fmtNpr = (v: number) => {
+        const npr = v * usdToNpr;
+        if (npr >= 100000) return `NPR ${(npr / 100000).toFixed(1)}L`;
+        return `NPR ${Math.round(npr).toLocaleString()}`;
+      };
+
+      const PW = 210; // A4 width mm
+      const ML = 14;  // margin left
+      const MR = 14;  // margin right
+      const CW = PW - ML - MR; // content width
+      let y = 0;
+
+      const checkPage = (needed: number) => {
+        if (y + needed > 275) {
+          doc.addPage();
+          y = 16;
+        }
+      };
+
+      // ── Header band ────────────────────────────────────────────
+      doc.setFillColor(54, 134, 255);
+      doc.rect(0, 0, PW, 28, "F");
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(18);
+      doc.setFont("helvetica", "bold");
+      doc.text("AbroadLift  Cost Report", ML, 11);
+
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "normal");
+      const universityName = selectedMatch.name || "University";
+      const location = selectedMatch.location || "";
+      const dateStr = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+      doc.text(`${universityName}  ·  ${location}  ·  ${dateStr}`, ML, 18);
+
+      // Grand total top-right
+      doc.setFontSize(8);
+      doc.text("GRAND TOTAL", PW - MR - 32, 9, { align: "right" });
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text(fmtUsd(grandTotal), PW - MR, 17, { align: "right" });
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "normal");
+      doc.text(fmtNpr(grandTotal), PW - MR, 23, { align: "right" });
+
+      y = 36;
+
+      // ── Summary cards ───────────────────────────────────────────
+      const cards = [
+        { label: "Before Departure", usd: totalBefore },
+        { label: "First 6 Months", usd: total6m },
+        { label: "Monthly (avg)", usd: Math.round(total6m / 6) },
+      ];
+      const cardW = CW / 3 - 3;
+      cards.forEach((card, i) => {
+        const cx = ML + i * (cardW + 4.5);
+        doc.setFillColor(248, 250, 252);
+        doc.setDrawColor(226, 232, 240);
+        doc.roundedRect(cx, y, cardW, 20, 3, 3, "FD");
+        doc.setTextColor(148, 163, 184);
+        doc.setFontSize(7);
+        doc.setFont("helvetica", "bold");
+        doc.text(card.label.toUpperCase(), cx + 4, y + 6);
+        doc.setTextColor(30, 41, 59);
+        doc.setFontSize(11);
+        doc.text(fmtUsd(card.usd), cx + 4, y + 13);
+        doc.setFontSize(7);
+        doc.setTextColor(99, 102, 241);
+        doc.text(fmtNpr(card.usd), cx + 4, y + 18);
+      });
+      y += 28;
+
+      // ── Table renderer ──────────────────────────────────────────
+      const drawTable = (
+        title: string,
+        cats: typeof allCats,
+        subtotal: number,
+        accentHex: [number, number, number],
+      ) => {
+        checkPage(18);
+
+        // Section title bar
+        doc.setFillColor(...accentHex);
+        doc.rect(ML, y, 4, 7, "F");
+        doc.setTextColor(30, 41, 59);
+        doc.setFontSize(11);
+        doc.setFont("helvetica", "bold");
+        doc.text(title, ML + 7, y + 5.5);
+        y += 12;
+
+        // Column widths
+        const colItem = 42;
+        const colDesc = CW - colItem - 28 - 28;
+        const colUsd = 28;
+        const colNpr = 28;
+
+        // Header row
+        doc.setFillColor(241, 245, 249);
+        doc.rect(ML, y, CW, 7, "F");
+        doc.setTextColor(148, 163, 184);
+        doc.setFontSize(7);
+        doc.setFont("helvetica", "bold");
+        doc.text("ITEM", ML + 2, y + 4.8);
+        doc.text("DESCRIPTION", ML + colItem + 2, y + 4.8);
+        doc.text("USD", ML + colItem + colDesc + colUsd - 2, y + 4.8, { align: "right" });
+        doc.text("NPR", ML + CW - 2, y + 4.8, { align: "right" });
+        y += 8;
+
+        // Rows
+        cats.forEach((cat, i) => {
+          checkPage(10);
+          if (i % 2 === 0) {
+            doc.setFillColor(252, 252, 253);
+            doc.rect(ML, y - 1, CW, 8, "F");
+          }
+          doc.setTextColor(30, 41, 59);
+          doc.setFontSize(8);
+          doc.setFont("helvetica", "bold");
+          doc.text(cat.label, ML + 2, y + 4);
+
+          doc.setFont("helvetica", "normal");
+          doc.setTextColor(100, 116, 139);
+          doc.setFontSize(7);
+          const descLines = doc.splitTextToSize(cat.desc, colDesc - 4);
+          doc.text(descLines[0], ML + colItem + 2, y + 4);
+
+          doc.setTextColor(30, 41, 59);
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(8);
+          doc.text(fmtUsd(cat.usd), ML + colItem + colDesc + colUsd - 2, y + 4, { align: "right" });
+          doc.setTextColor(99, 102, 241);
+          doc.text(fmtNpr(cat.usd), ML + CW - 2, y + 4, { align: "right" });
+
+          // separator line
+          doc.setDrawColor(241, 245, 249);
+          doc.line(ML, y + 7, ML + CW, y + 7);
+          y += 8;
+        });
+
+        // Subtotal row
+        checkPage(10);
+        doc.setFillColor(...accentHex, 18);
+        doc.setFillColor(accentHex[0], accentHex[1], accentHex[2]);
+        doc.setFillColor(241, 245, 249);
+        doc.rect(ML, y, CW, 9, "F");
+        doc.setDrawColor(...accentHex);
+        doc.setLineWidth(0.5);
+        doc.line(ML, y, ML + CW, y);
+        doc.setLineWidth(0.2);
+        doc.setTextColor(30, 41, 59);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(9);
+        doc.text(`${title} Subtotal`, ML + 2, y + 6);
+        doc.setTextColor(54, 134, 255);
+        doc.text(fmtUsd(subtotal), ML + colItem + colDesc + colUsd - 2, y + 6, { align: "right" });
+        doc.setTextColor(99, 102, 241);
+        doc.text(fmtNpr(subtotal), ML + CW - 2, y + 6, { align: "right" });
+        y += 14;
+      };
+
+      drawTable("Before Departure Costs", beforeDep, totalBefore, [54, 134, 255]);
+      drawTable("First 6 Months After Arrival", first6, total6m, [16, 185, 129]);
+
+      // ── Grand Total row ─────────────────────────────────────────
+      checkPage(14);
+      doc.setFillColor(30, 41, 59);
+      doc.roundedRect(ML, y, CW, 13, 2, 2, "F");
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.text("Grand Total  (Before Departure + First 6 Months)", ML + 4, y + 8.5);
+      doc.text(fmtUsd(grandTotal), ML + CW - 32, y + 8.5, { align: "right" });
+      doc.setTextColor(147, 197, 253);
+      doc.setFontSize(8);
+      doc.text(fmtNpr(grandTotal), ML + CW - 2, y + 8.5, { align: "right" });
+      y += 20;
+
+      // ── Footer ──────────────────────────────────────────────────
+      checkPage(14);
+      doc.setDrawColor(226, 232, 240);
+      doc.setLineWidth(0.3);
+      doc.line(ML, y, ML + CW, y);
+      y += 5;
+      doc.setTextColor(148, 163, 184);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(7);
+      doc.text(
+        `This report is an estimate by AbroadLift. Actual costs may vary. Exchange rate: 1 USD = ${usdToNpr.toFixed(2)} NPR. Always verify with official sources.`,
+        ML,
+        y,
+        { maxWidth: CW },
+      );
+
+      // ── Save ────────────────────────────────────────────────────
+      const filename = `AbroadLift_CostReport_${(universityName).replace(/\s+/g, "_")}.pdf`;
+      doc.save(filename);
+    } catch (err) {
+      console.error("PDF generation failed", err);
+    } finally {
+      setGeneratingPdf(false);
+    }
   };
 
   const getCategories = () => {
@@ -288,9 +516,9 @@ export function FinancialDashboard({
       {
         id: "cost-of-living",
         label: "Cost Of Living",
-        desc: "6 months on-campus housing and food included (or first few weeks living cost)",
+        desc: "6 months rent + food (housing & groceries only — transport is listed separately)",
         group: "First 6 Months" as const,
-        usd: costs["cost-of-living"] || Math.round((living.rent + living.food) * 6),
+        usd: costs["cost-of-living"] || Math.round(((living.rent + living.food) / 12) * 6),
         editable: false,
         icon: <Home className="w-5 h-5" />,
         color: "bg-emerald-500",
@@ -310,9 +538,9 @@ export function FinancialDashboard({
       {
         id: "transportation",
         label: "Transportation",
-        desc: "Monthly public transit pass and regular commute price",
+        desc: "6 months public transit pass & daily commute (country-accurate, separate from living costs)",
         group: "First 6 Months" as const,
-        usd: costs["transportation"] || Math.round(living.transport * 6),
+        usd: costs["transportation"] || Math.round((living.transport / 12) * 6),
         editable: true,
         icon: <Bus className="w-5 h-5" />,
         color: "bg-purple-500",
@@ -638,10 +866,24 @@ export function FinancialDashboard({
 
             <motion.button
               whileTap={{ scale: 0.98 }}
-              className="w-full h-[60px] rounded-2xl bg-white border border-slate-200/60 text-slate-800 font-bold text-sm shadow-[0_4px_12px_rgba(0,0,0,0.02)] flex items-center justify-center gap-2.5 hover:bg-slate-50 hover:-translate-y-0.5 hover:shadow-md transition-all duration-300 active:scale-95 group cursor-pointer"
+              onClick={generatePDF}
+              disabled={generatingPdf}
+              className="w-full h-[60px] rounded-2xl bg-white border border-slate-200/60 text-slate-800 font-bold text-sm shadow-[0_4px_12px_rgba(0,0,0,0.02)] flex items-center justify-center gap-2.5 hover:bg-slate-50 hover:-translate-y-0.5 hover:shadow-md transition-all duration-300 active:scale-95 group cursor-pointer disabled:opacity-60"
             >
-              <Download className="w-5 h-5 text-slate-400 group-hover:text-[#3686FF] transition-colors" />
-              Download Full PDF Report
+              {generatingPdf ? (
+                <>
+                  <svg className="w-5 h-5 animate-spin text-[#3686FF]" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                  </svg>
+                  Generating PDF...
+                </>
+              ) : (
+                <>
+                  <Download className="w-5 h-5 text-slate-400 group-hover:text-[#3686FF] transition-colors" />
+                  Download Full PDF Report
+                </>
+              )}
             </motion.button>
           </div>
 

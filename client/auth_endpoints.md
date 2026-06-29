@@ -11,8 +11,8 @@ This document lists and explains all authentication, signup, login, and OTP endp
 ### Request Body
 ```json
 {
-  "name": "Jane Doe",
-  "email": "jane@example.com",
+  "name": "Your Name",
+  "email": "your.email@example.com",
   "countryDialCode": "+977",
   "phoneNumber": "9812345678",
   "prefersWhatsApp": true,
@@ -27,9 +27,9 @@ This document lists and explains all authentication, signup, login, and OTP endp
 {
   "user": {
     "id": "abc-123-xyz",
-    "name": "Jane Doe",
-    "username": "janedoe5678",
-    "email": "jane@example.com",
+    "name": "Your Name",
+    "username": "yourusername",
+    "email": "your.email@example.com",
     "countryDialCode": "+977",
     "phoneNumber": "9812345678",
     "phoneE164": "+9779812345678",
@@ -126,9 +126,9 @@ This document lists and explains all authentication, signup, login, and OTP endp
 {
   "user": {
     "id": "user-uuid",
-    "name": "Jane Doe",
-    "email": "jane@example.com",
-    "username": "janedoe5678",
+    "name": "Your Name",
+    "email": "your.email@example.com",
+    "username": "yourusername",
     "role": "STUDENT",
     "profile": {
       "nationality": "Nepalese",
