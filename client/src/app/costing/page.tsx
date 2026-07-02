@@ -16,6 +16,7 @@ import {
   Heart,
 } from "lucide-react";
 import Link from "next/link";
+import { formatNPRDevanagari, formatLakhCrore, toDevanagariDigits } from "@/lib/currency";
 
 interface StudyCostResponse {
   city: string;
@@ -184,34 +185,6 @@ export default function CostingPage() {
   }, [fetchEstimate, fetchRecommendations]);
 
   // Client-side formatting helpers for fallback or manual calculations
-  const toDevanagariDigits = (numStr: string): string => {
-    const devanagariMap: Record<string, string> = {
-      '0': '०', '1': '१', '2': '२', '3': '३', '4': '४',
-      '5': '५', '6': '६', '7': '७', '8': '८', '9': '९'
-    };
-    return numStr.split('').map(char => devanagariMap[char] || char).join('');
-  };
-
-  const formatLakhCrore = (value: number): string => {
-    const num = Math.round(value);
-    const numStr = num.toString();
-    if (numStr.length <= 3) return numStr;
-    const lastThree = numStr.substring(numStr.length - 3);
-    const remaining = numStr.substring(0, numStr.length - 3);
-    const groups = [];
-    let i = remaining.length;
-    while (i > 0) {
-      if (i >= 2) {
-        groups.unshift(remaining.substring(i - 2, i));
-        i -= 2;
-      } else {
-        groups.unshift(remaining.substring(0, i));
-        i = 0;
-      }
-    }
-    return groups.join(',') + ',' + lastThree;
-  };
-
   const formatUSD = (val: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -510,29 +483,14 @@ export default function CostingPage() {
                     </div>
 
                     <div className="space-y-3.5">
-                      {/* English Lakh/Crore Wording (User Request Primary) */}
                       <div>
                         <p className="text-2xl font-black text-slate-950 leading-none">
-                          NPR {period === "Month on Month" ? (data.npr_formatted?.monthly_en ?? formatLakhCrore(data.monthly_npr)) : (data.npr_formatted?.total_en ?? formatLakhCrore(data.total_npr))}
+                          {formatNPRDevanagari(period === "Month on Month" ? data.monthly_npr : data.total_npr)}
                         </p>
                         <p className="text-[11px] font-bold text-slate-500 mt-1 leading-snug">
-                          ({period === "Month on Month" ? data.npr_formatted?.monthly_words_en : data.npr_formatted?.total_words_en})
-                        </p>
-                      </div>
-
-                      <hr className="border-slate-100" />
-
-                      {/* Devanagari Wording (Traditional Layout) */}
-                      <div>
-                        <p className="text-xl font-extrabold text-slate-700 leading-none">
-                          रु {period === "Month on Month" ? (data.npr_formatted?.monthly_dev ?? toDevanagariDigits(formatLakhCrore(data.monthly_npr))) : (data.npr_formatted?.total_dev ?? toDevanagariDigits(formatLakhCrore(data.total_npr)))}
-                        </p>
-                        <p className="text-[10px] font-semibold text-slate-400 mt-1 leading-snug">
                           ({period === "Month on Month" ? data.npr_formatted?.monthly_words : data.npr_formatted?.total_words})
                         </p>
                       </div>
-
-                      <hr className="border-slate-100" />
 
                       {/* Local Currency equivalent */}
                       {data.local_currency && (
@@ -611,7 +569,7 @@ export default function CostingPage() {
 
                       <div className="rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 text-[11px] text-slate-600">
                         <span className="font-semibold text-slate-900 block mb-0.5">Tuition budget in NPR:</span>
-                        NPR {formatLakhCrore(Number(tuition) * data.exchange_rate)}
+                        {formatNPRDevanagari(Number(tuition) * data.exchange_rate)}
                       </div>
                     </div>
                   </div>
@@ -679,13 +637,8 @@ export default function CostingPage() {
                             
                             {/* NPR Wording */}
                             <div className="flex flex-wrap items-center gap-1.5 sm:justify-end">
-                              {/* English digits Lakh/Crore */}
                               <span className="text-sm font-black text-slate-900">
-                                NPR {formatLakhCrore(item.nprValue)}
-                              </span>
-                              {/* Devanagari digits Lakh/Crore */}
-                              <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-md">
-                                रु {toDevanagariDigits(formatLakhCrore(item.nprValue))}
+                                {formatNPRDevanagari(item.nprValue)}
                               </span>
                             </div>
 
@@ -810,7 +763,7 @@ export default function CostingPage() {
                                 </span>
                                 {tuitionKnown && (
                                   <span className="text-slate-500 mt-1 block">
-                                    NPR {formatLakhCrore(uniTuitionNpr)} / year
+                                    {formatNPRDevanagari(uniTuitionNpr)} / year
                                   </span>
                                 )}
                               </div>

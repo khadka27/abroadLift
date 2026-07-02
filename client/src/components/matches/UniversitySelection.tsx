@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { Match, Form } from "@/types/matches";
 import { User } from "next-auth";
+import { formatNPRDevanagariRange } from "@/lib/currency";
 
 interface Session {
   user: User;
@@ -35,6 +36,7 @@ interface UniversitySelectionProps {
   selectedMatch: Match | null;
   form: Form;
   session: Session | null;
+  usdToNpr?: number;
   onSelect: (match: Match) => void;
   onAdjustPreferences: () => void;
   onClearFilters: () => void;
@@ -126,10 +128,11 @@ function formatCurrency(value: number, currency: string) {
   }).format(value);
 }
 
-function formatCurrencyRange(value: number, currency: string, spread = 0.12) {
-  const low = Math.max(0, Math.round(value * (1 - spread)));
-  const high = Math.round(value * (1 + spread));
-  return `${formatCurrency(low, currency)} - ${formatCurrency(high, currency)}`;
+function formatCurrencyRange(value: number, currency: string, spread = 0.12, usdToNpr = 134.5) {
+  const valueNpr = value * usdToNpr;
+  const low = Math.max(0, Math.round(valueNpr * (1 - spread)));
+  const high = Math.round(valueNpr * (1 + spread));
+  return formatNPRDevanagariRange(low, high);
 }
 
 export function UniversitySelection({
@@ -139,6 +142,7 @@ export function UniversitySelection({
   selectedMatch,
   form,
   session,
+  usdToNpr = 134.5,
   onSelect,
   onAdjustPreferences,
   onClearFilters,
@@ -252,6 +256,7 @@ export function UniversitySelection({
                 match={m}
                 currency={form.currency}
                 selected={selectedMatch?.id === m.id}
+                usdToNpr={usdToNpr}
                 onSelect={() => onSelect(m)}
                 onOpenDetails={() => {
                   setDetailsMatch(m);
@@ -273,6 +278,7 @@ export function UniversitySelection({
           currency={form.currency}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
+          usdToNpr={usdToNpr}
           onClose={closeDetails}
           onShortlist={() => {
             onSelect(detailsMatch);
@@ -288,12 +294,14 @@ function MatchCard({
   match: m,
   currency: c,
   selected,
+  usdToNpr = 134.5,
   onSelect,
   onOpenDetails,
 }: {
   match: Match;
   currency: string;
   selected?: boolean;
+  usdToNpr?: number;
   onSelect?: () => void;
   onOpenDetails?: () => void;
 }) {
@@ -381,7 +389,7 @@ function MatchCard({
             </div>
             <span className="text-[11px] md:text-[12px] font-semibold text-[#111827]">
               {m.tuitionFee
-                ? `${formatCurrencyRange(m.tuitionFee, c, 0.1)} / yr`
+                ? `${formatCurrencyRange(m.tuitionFee, c, 0.1, usdToNpr)} / yr`
                 : "TBD"}
             </span>
           </div>
@@ -454,6 +462,7 @@ function UniversityDetailsModal({
   currency: c,
   activeTab,
   setActiveTab,
+  usdToNpr = 134.5,
   onClose,
   onShortlist,
 }: {
@@ -461,6 +470,7 @@ function UniversityDetailsModal({
   currency: string;
   activeTab: DetailsTab;
   setActiveTab: React.Dispatch<React.SetStateAction<DetailsTab>>;
+  usdToNpr?: number;
   onClose: () => void;
   onShortlist: () => void;
 }) {
@@ -543,7 +553,7 @@ function UniversityDetailsModal({
                   Estimated Total Cost / Yr
                 </p>
                 <p className="text-[40px] md:text-[48px] font-black text-slate-900 leading-none tracking-tight">
-                  {formatCurrencyRange((m.tuitionFee || 0) + yearlyLiving, c)}
+                  {formatCurrencyRange((m.tuitionFee || 0) + yearlyLiving, c, 0.12, usdToNpr)}
                 </p>
                 <div className="mt-8 h-2.5 rounded-full bg-slate-100 overflow-hidden flex shadow-inner">
                   <div className="h-full bg-blue-500 rounded-full" style={{ width: "60%" }} />
@@ -672,7 +682,7 @@ function UniversityDetailsModal({
                       <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Tuition Fee</p>
                       <p className="text-[16px] font-black text-slate-900">
                         {m.tuitionFee
-                          ? `${formatCurrencyRange(m.tuitionFee, c, 0.1)}`
+                          ? `${formatCurrencyRange(m.tuitionFee, c, 0.1, usdToNpr)}`
                           : "TBD"}
                       </p>
                     </div>

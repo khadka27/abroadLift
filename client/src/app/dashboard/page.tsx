@@ -57,6 +57,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
+import { formatNPRDevanagari } from "@/lib/currency";
 
 /* ─── Types ─────────────────────────────────────────────────── */
 
@@ -245,6 +246,7 @@ function DashboardInner() {
     }
   }, [tabParam]);
   const [expandedProfileId, setExpandedProfileId] = useState<string | null>(null);
+  const [deleteProfileId, setDeleteProfileId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [savedNotify, setSavedNotify] = useState(false);
@@ -1378,7 +1380,7 @@ function DashboardInner() {
                             <span>•</span>
                             <span>Test: <strong className="text-slate-700">{profile.testType || "IELTS"}: {profile.englishScore || "7.0"}</strong></span>
                             <span>•</span>
-                            <span>Budget: <strong className="text-slate-700">${parseInt(profile.yearlyBudget || "30000").toLocaleString()} USD/yr</strong></span>
+                            <span>Budget: <strong className="text-slate-700">{formatNPRDevanagari((profile.currency === "USD" || !profile.currency) ? parseInt(profile.yearlyBudget || "30000") * 134.5 : parseInt(profile.yearlyBudget || "0"))}/yr</strong></span>
                             <span>•</span>
                             <span>Intake: <strong className="text-slate-700">{profile.intake || "Fall 2026"}</strong></span>
                           </div>
@@ -1426,9 +1428,7 @@ function DashboardInner() {
                                       <button
                                         onClick={(e) => {
                                           e.stopPropagation();
-                                          if (confirm("Are you sure you want to remove this saved match profile?")) {
-                                            handleDeleteSavedProfile(item.id);
-                                          }
+                                          setDeleteProfileId(item.id);
                                         }}
                                         className="text-slate-300 hover:text-red-500 transition-colors p-1 rounded-md hover:bg-red-50 cursor-pointer"
                                         title="Delete saved profile"
@@ -2157,9 +2157,7 @@ function DashboardInner() {
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    if (confirm("Are you sure you want to remove this saved match profile?")) {
-                                      handleDeleteSavedProfile(item.id);
-                                    }
+                                    setDeleteProfileId(item.id);
                                   }}
                                   className="text-slate-300 hover:text-red-500 transition-colors p-1 rounded-md hover:bg-red-50 cursor-pointer flex items-center gap-1 text-[10px] font-semibold"
                                 >
@@ -3373,13 +3371,13 @@ function DashboardInner() {
                                   <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors">
                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Annual Budget</span>
                                     <span className="text-sm font-bold text-slate-800 mt-1">
-                                      {profile.yearlyBudget ? `${parseFloat(profile.yearlyBudget).toLocaleString()} ${profile.currency}` : "Not set"}
+                                      {profile.yearlyBudget ? formatNPRDevanagari((profile.currency === "USD" || !profile.currency) ? parseFloat(profile.yearlyBudget) * 134.5 : parseFloat(profile.yearlyBudget)) : "Not set"}
                                     </span>
                                   </div>
                                   <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors">
                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Available Bank Balance</span>
                                     <span className="text-sm font-bold text-slate-800 mt-1">
-                                      {profile.bankBalance ? `${parseFloat(profile.bankBalance).toLocaleString()} ${profile.currency}` : "Not set"}
+                                      {profile.bankBalance ? formatNPRDevanagari((profile.currency === "USD" || !profile.currency) ? parseFloat(profile.bankBalance) * 134.5 : parseFloat(profile.bankBalance)) : "Not set"}
                                     </span>
                                   </div>
                                   <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors">
@@ -3389,7 +3387,7 @@ function DashboardInner() {
                                   <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors">
                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Sponsor's Annual Income</span>
                                     <span className="text-sm font-bold text-slate-800 mt-1">
-                                      {profile.sponsorIncome ? `${parseFloat(profile.sponsorIncome).toLocaleString()} ${profile.currency}` : "Not set"}
+                                      {profile.sponsorIncome ? formatNPRDevanagari((profile.currency === "USD" || !profile.currency) ? parseFloat(profile.sponsorIncome) * 134.5 : parseFloat(profile.sponsorIncome)) : "Not set"}
                                     </span>
                                   </div>
                                   <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors">
@@ -3547,6 +3545,41 @@ function DashboardInner() {
 
         </div>
       </div>
+
+      {deleteProfileId !== null && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4 animate-in fade-in duration-300">
+          <div className="bg-white border border-slate-100 rounded-[32px] p-8 max-w-md w-full shadow-[0_30px_70px_rgba(15,23,42,0.15)] space-y-6 text-center transform scale-100 transition-transform duration-300 animate-in zoom-in-95">
+            <div className="w-16 h-16 rounded-full bg-rose-50 border border-rose-100/50 flex items-center justify-center text-rose-500 mx-auto shadow-sm">
+              <AlertTriangle className="w-8 h-8" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-xl font-black text-slate-900">
+                Remove Saved Shortlist?
+              </h3>
+              <p className="text-slate-500 font-semibold text-sm leading-relaxed">
+                Are you sure you want to remove this saved match profile from your shortlist?
+              </p>
+            </div>
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={() => setDeleteProfileId(null)}
+                className="flex-1 py-4 bg-slate-100 hover:bg-slate-200 text-slate-800 font-black text-sm rounded-2xl transition-all shadow-xs"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  handleDeleteSavedProfile(deleteProfileId);
+                  setDeleteProfileId(null);
+                }}
+                className="flex-1 py-4 bg-rose-500 hover:bg-rose-600 text-white font-black text-sm rounded-2xl transition-all shadow-md shadow-rose-500/10"
+              >
+                Yes, Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

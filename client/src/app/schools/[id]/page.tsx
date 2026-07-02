@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { formatNPRDevanagari, getRateToNpr } from "@/lib/currency";
 
 interface School {
   _id: string;
@@ -250,7 +251,7 @@ export default function SchoolDetailPage() {
               <Coins className="w-6 h-6 text-[#3686FF] mb-2" />
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Living Cost/Yr</span>
               <span className="text-[16px] font-black text-slate-800">
-                {school.cost_of_living ? `$${parseFloat(String(school.cost_of_living)).toLocaleString()} CAD` : "N/A"}
+                {school.cost_of_living ? formatNPRDevanagari(parseFloat(String(school.cost_of_living)) * getRateToNpr(school.country || "")) : "N/A"}
               </span>
             </div>
           </div>
@@ -308,7 +309,7 @@ export default function SchoolDetailPage() {
             ) : (
               <div className="space-y-4">
                 {filteredPrograms.map((p) => {
-                  const tuition = p.tuition ? `$${parseFloat(String(p.tuition)).toLocaleString()} CAD` : "Varies";
+                  const tuition = p.tuition ? formatNPRDevanagari(parseFloat(String(p.tuition)) * getRateToNpr(school.country || "")) : "Varies";
                   const gpaVal = p.requirements?.min_gpa;
                   const gpaDisplay = gpaVal
                     ? parseFloat(String(gpaVal)) > 4.0

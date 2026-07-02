@@ -2,6 +2,76 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSchoolsCached, getProgramsCached } from "@/lib/api/cache";
 
+function getProgramField(prog: any): string {
+  const n = (prog.name || "").trim().toLowerCase();
+  const cip = (prog.cip_code || "").trim();
+  const cipPrefix = cip.split(".")[0];
+
+  if (cipPrefix === "11") {
+    return "Computer Science & IT";
+  } else if (cip.startsWith("30.30") || cip.startsWith("30.70") || cip.startsWith("30.71") || n.includes("data science") || n.includes("artificial intelligence")) {
+    return "Data Science & AI";
+  } else if (cipPrefix === "52") {
+    if (cip.startsWith("52.09") || n.includes("hospitality") || n.includes("tourism") || n.includes("hotel")) {
+      return "Hospitality & Tourism";
+    } else {
+      return "Business & Management";
+    }
+  } else if (cipPrefix === "14") {
+    return "Engineering";
+  } else if (cipPrefix === "51" || cipPrefix === "26") {
+    return "Medicine & Health";
+  } else if (cipPrefix === "22") {
+    return "Law";
+  } else if (cipPrefix === "42" || cipPrefix === "45") {
+    return "Social Sciences";
+  } else if (cipPrefix === "04") {
+    return "Architecture & Design";
+  } else if (cipPrefix === "01" || cipPrefix === "03") {
+    return "Agriculture & Forestry";
+  } else if (cipPrefix === "13") {
+    return "Education & Teaching";
+  } else if (cipPrefix === "09") {
+    return "Media & Journalism";
+  } else if (cipPrefix === "40") {
+    return "Natural Sciences";
+  } else if (cipPrefix === "50" || cipPrefix === "54" || cipPrefix === "16" || cipPrefix === "23" || cipPrefix === "38") {
+    return "Arts & Humanities";
+  } else {
+    // Fallback keyword check if CIP code is missing or unclassified
+    if (n.includes("computer") || n.includes("software") || n.includes("information technology") || n.includes("cybersecurity") || n.includes("networking") || n.includes("systems") || n.includes("developer")) {
+      return "Computer Science & IT";
+    } else if (n.includes("data science") || n.includes("artificial intelligence") || n.includes("machine learning") || n.includes("deep learning")) {
+      return "Data Science & AI";
+    } else if (n.includes("business") || n.includes("management") || n.includes("mba") || n.includes("finance") || n.includes("marketing") || n.includes("accounting") || n.includes("commerce") || n.includes("economics") || n.includes("administration")) {
+      return "Business & Management";
+    } else if (n.includes("mechanical") || n.includes("civil") || n.includes("electrical") || n.includes("chemical") || n.includes("aerospace") || n.includes("mechatronics") || n.includes("engineering")) {
+      return "Engineering";
+    } else if (n.includes("nurs") || n.includes("medicine") || n.includes("health") || n.includes("pharmacy") || n.includes("medical") || n.includes("dental") || n.includes("clinical")) {
+      return "Medicine & Health";
+    } else if (n.includes("law") || n.includes("legal") || n.includes("justice") || n.includes("criminology")) {
+      return "Law";
+    } else if (n.includes("sociology") || n.includes("psychology") || n.includes("political") || n.includes("social science") || n.includes("global studies") || n.includes("international relations")) {
+      return "Social Sciences";
+    } else if (n.includes("hospitality") || n.includes("tourism") || n.includes("hotel") || n.includes("culinary") || n.includes("event management")) {
+      return "Hospitality & Tourism";
+    } else if (n.includes("architecture") || n.includes("interior design") || n.includes("urban planning") || n.includes("graphic design")) {
+      return "Architecture & Design";
+    } else if (n.includes("agriculture") || n.includes("forestry") || n.includes("horticulture") || n.includes("environmental science")) {
+      return "Agriculture & Forestry";
+    } else if (n.includes("education") || n.includes("teaching") || n.includes("curriculum") || n.includes("pedagogy")) {
+      return "Education & Teaching";
+    } else if (n.includes("media") || n.includes("journalism") || n.includes("communication") || n.includes("broadcasting") || n.includes("film")) {
+      return "Media & Journalism";
+    } else if (n.includes("biology") || n.includes("chemistry") || n.includes("physics") || n.includes("mathematics") || n.includes("math") || n.includes("science")) {
+      return "Natural Sciences";
+    } else if (n.includes("art") || n.includes("humanities") || n.includes("music") || n.includes("history") || n.includes("philosophy") || n.includes("english literature") || n.includes("language") || n.includes("literature")) {
+      return "Arts & Humanities";
+    }
+  }
+  return "Liberal Arts & General";
+}
+
 
 const COUNTRY_ALIAS_TO_CODE: Record<string, string> = {
   US: "USA",
@@ -64,8 +134,9 @@ export async function GET(req: NextRequest) {
   const budget = Number.parseFloat(searchParams.get("budget") || "0");
   const degreeLevel = searchParams.get("degreeLevel") || "";
   const field = searchParams.get("field") || "";
+  const program = searchParams.get("program") || "";
 
-  const hasCriteria = !!(degreeLevel || field || budget > 0);
+  const hasCriteria = !!(degreeLevel || field || program || budget > 0);
 
   try {
     // Use shared globalThis cache — survives Next.js hot reloads, prevents 429
@@ -151,28 +222,18 @@ export async function GET(req: NextRequest) {
         }
 
         if (field) {
-          const fLower = field.toLowerCase();
-          const pNameLower = prog.name?.toLowerCase() || "";
-          const pDescLower = prog.description?.toLowerCase() || "";
-
-          let matchesField = false;
-          if (fLower.includes("computer") && (pNameLower.includes("computer") || pNameLower.includes("software") || pNameLower.includes("it") || pNameLower.includes("information technology") || pNameLower.includes("cybersecurity"))) {
-            matchesField = true;
-          } else if (fLower.includes("business") && (pNameLower.includes("business") || pNameLower.includes("management") || pNameLower.includes("mba") || pNameLower.includes("finance") || pNameLower.includes("marketing") || pNameLower.includes("commerce"))) {
-            matchesField = true;
-          } else if (fLower.includes("health") && (pNameLower.includes("health") || pNameLower.includes("nursing") || pNameLower.includes("medicine") || pNameLower.includes("pharmacy") || pNameLower.includes("medical"))) {
-            matchesField = true;
-          } else if (fLower.includes("liberal") && (pNameLower.includes("liberal") || pNameLower.includes("general") || pNameLower.includes("arts") || pNameLower.includes("humanities"))) {
-            matchesField = true;
-          } else if (fLower.includes("engineering") && (pNameLower.includes("engineer") || pNameLower.includes("mechanical") || pNameLower.includes("civil") || pNameLower.includes("electrical"))) {
-            matchesField = true;
-          } else if (fLower.includes("data") && (pNameLower.includes("data") || pNameLower.includes("analytics") || pNameLower.includes("artificial intelligence") || pNameLower.includes("machine learning"))) {
-            matchesField = true;
-          } else if (pNameLower.includes(fLower) || pDescLower.includes(fLower)) {
-            matchesField = true;
+          const progField = getProgramField(prog);
+          if (progField.toLowerCase() !== field.toLowerCase()) {
+            return false;
           }
+        }
 
-          if (!matchesField) return false;
+        if (program) {
+          const pNameLower = prog.name?.toLowerCase() || "";
+          const targetProgLower = program.toLowerCase();
+          if (!pNameLower.includes(targetProgLower) && !targetProgLower.includes(pNameLower)) {
+            return false;
+          }
         }
 
         if (budget > 0) {

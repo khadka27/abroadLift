@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { formatNPRDevanagari, getRateToNpr } from "@/lib/currency";
 import { ArrowRight, MapPin, Calendar, Award } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -171,7 +172,7 @@ const TrustedPartnersSection = () => {
               name: school.name,
               location: `${school.city || ""}, ${school.country || ""}`,
               rank: school.school_rank ? `#${school.school_rank} Global` : "Featured",
-              tuition: school.tuitionFee ? `$${parseInt(school.tuitionFee).toLocaleString()}` : "Varies",
+              tuition: school.tuitionFee ? formatNPRDevanagari(parseInt(school.tuitionFee) * getRateToNpr(school.country || "")) : "Varies",
               intake: "Sep 2026",
               scholarship: true,
               img: school.banner || school.logo || "/assets/university-melbourne.jpg",
@@ -209,7 +210,17 @@ const TrustedPartnersSection = () => {
     }
 
     // Return at most 3 top universities for the selected country
-    return matched.slice(0, 3);
+    return matched.slice(0, 3).map((u) => {
+      if (typeof u.tuition === "string" && u.tuition.startsWith("$")) {
+        const usdVal = parseInt(u.tuition.replace(/[^0-9]/g, "")) || 0;
+        const rate = getRateToNpr(u.country);
+        return {
+          ...u,
+          tuition: formatNPRDevanagari(usdVal * rate),
+        };
+      }
+      return u;
+    });
   }, [liveUnis, activeCountry]);
 
   return (

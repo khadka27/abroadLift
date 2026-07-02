@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { FlagIcon } from "./FlagIcon";
 import { motion } from "framer-motion";
+import { formatNPRDevanagari } from "@/lib/currency";
 
 interface StudyOverviewDashboardProps {
   form: Form;
@@ -61,9 +62,9 @@ export function StudyOverviewDashboard({
   onAdvanceToVisa,
   onGoToMatches,
 }: StudyOverviewDashboardProps) {
+  const [showConfirmModal, setShowConfirmModal] = React.useState(false);
   const formatNprLakhRange = (valueNpr: number, _spread = 0.12) => {
-    const lakhs = valueNpr / 100000;
-    return `NPR ${lakhs % 1 === 0 ? lakhs.toFixed(0) : lakhs.toFixed(1)} Lakhs`;
+    return formatNPRDevanagari(valueNpr);
   };
 
   const visaChanceValue = visaChance ?? 0;
@@ -186,9 +187,7 @@ export function StudyOverviewDashboard({
 
             <button
               onClick={() => {
-                if (confirm("Are you sure you want to discard this analysis and start a fresh matching search from step one?")) {
-                  window.location.href = "/matches?new=true";
-                }
+                setShowConfirmModal(true);
               }}
               className="flex items-center gap-1.5 bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-650 text-slate-650 font-bold px-4 py-2.5 rounded-2xl text-xs shadow-sm transition-all active:scale-95 cursor-pointer"
             >
@@ -269,10 +268,13 @@ export function StudyOverviewDashboard({
               </div>
               <div className="mt-4">
                 <span
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm`}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-full shadow-sm border border-current/10 ${costBand.badgeClass || "bg-emerald-50 text-emerald-700"}`}
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  {costBand.label} Cost
+                  <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${
+                    costBand.colorName === "Red" ? "bg-rose-500" :
+                    costBand.colorName === "Yellow" ? "bg-amber-500" : "bg-emerald-500"
+                  }`} />
+                  {costBand.label}
                 </span>
               </div>
               <p className="text-sm font-semibold text-slate-500 mt-4 leading-relaxed">
@@ -581,6 +583,40 @@ export function StudyOverviewDashboard({
           </div>
         </div>
       </div>
+
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4 animate-in fade-in duration-300">
+          <div className="bg-white border border-slate-100 rounded-[32px] p-8 max-w-md w-full shadow-[0_30px_70px_rgba(15,23,42,0.15)] space-y-6 text-center transform scale-100 transition-transform duration-300 animate-in zoom-in-95">
+            <div className="w-16 h-16 rounded-full bg-rose-50 border border-rose-100/50 flex items-center justify-center text-rose-500 mx-auto shadow-sm">
+              <AlertTriangle className="w-8 h-8" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-xl font-black text-slate-900">
+                Discard Analysis?
+              </h3>
+              <p className="text-slate-500 font-semibold text-sm leading-relaxed">
+                Are you sure you want to discard this analysis and start a fresh matching search from step one?
+              </p>
+            </div>
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                className="flex-1 py-4 bg-slate-100 hover:bg-slate-200 text-slate-800 font-black text-sm rounded-2xl transition-all shadow-xs"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  window.location.href = "/matches?new=true";
+                }}
+                className="flex-1 py-4 bg-rose-500 hover:bg-rose-600 text-white font-black text-sm rounded-2xl transition-all shadow-md shadow-rose-500/10"
+              >
+                Yes, Discard
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

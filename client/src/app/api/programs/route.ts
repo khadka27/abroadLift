@@ -10,8 +10,13 @@ export async function GET(req: NextRequest) {
   // ─── allFieldsAndPrograms=true: categorise programs into academic fields ──
   if (allFieldsAndPrograms) {
     try {
+      const levelFilter = searchParams.get("level");
       // Fetch programs from multi-page cache (up to 5 pages = 500 programs max)
       const programs = await getProgramsMultiPageCached(5);
+
+      const filteredPrograms = levelFilter
+        ? programs.filter((p: any) => p.level === levelFilter)
+        : programs;
 
       const fields = [
         "Business & Management",
@@ -36,40 +41,76 @@ export async function GET(req: NextRequest) {
         programsByField[f] = new Set<string>();
       });
 
-      programs.forEach((prog: any) => {
+      filteredPrograms.forEach((prog: any) => {
         const name = (prog.name || "").trim();
         if (!name) return;
         const n = name.toLowerCase();
 
+        const cip = (prog.cip_code || "").trim();
+        const cipPrefix = cip.split(".")[0];
         let field = "Liberal Arts & General";
-        if (n.includes("computer") || n.includes("software") || n.includes("information technology") || n.includes("cybersecurity") || n.includes("networking") || n.includes("systems") || n.includes("developer")) {
+
+        if (cipPrefix === "11") {
           field = "Computer Science & IT";
-        } else if (n.includes("data science") || n.includes("artificial intelligence") || n.includes("machine learning") || n.includes("deep learning")) {
+        } else if (cip.startsWith("30.30") || cip.startsWith("30.70") || cip.startsWith("30.71") || n.includes("data science") || n.includes("artificial intelligence")) {
           field = "Data Science & AI";
-        } else if (n.includes("business") || n.includes("management") || n.includes("mba") || n.includes("finance") || n.includes("marketing") || n.includes("accounting") || n.includes("commerce") || n.includes("economics") || n.includes("administration")) {
-          field = "Business & Management";
-        } else if (n.includes("mechanical") || n.includes("civil") || n.includes("electrical") || n.includes("chemical") || n.includes("aerospace") || n.includes("mechatronics") || n.includes("engineering")) {
+        } else if (cipPrefix === "52") {
+          if (cip.startsWith("52.09") || n.includes("hospitality") || n.includes("tourism") || n.includes("hotel")) {
+            field = "Hospitality & Tourism";
+          } else {
+            field = "Business & Management";
+          }
+        } else if (cipPrefix === "14") {
           field = "Engineering";
-        } else if (n.includes("nurs") || n.includes("medicine") || n.includes("health") || n.includes("pharmacy") || n.includes("medical") || n.includes("dental") || n.includes("clinical")) {
+        } else if (cipPrefix === "51" || cipPrefix === "26") {
           field = "Medicine & Health";
-        } else if (n.includes("law") || n.includes("legal") || n.includes("justice") || n.includes("criminology")) {
+        } else if (cipPrefix === "22") {
           field = "Law";
-        } else if (n.includes("sociology") || n.includes("psychology") || n.includes("political") || n.includes("social science") || n.includes("global studies") || n.includes("international relations")) {
+        } else if (cipPrefix === "42" || cipPrefix === "45") {
           field = "Social Sciences";
-        } else if (n.includes("hospitality") || n.includes("tourism") || n.includes("hotel") || n.includes("culinary") || n.includes("event management")) {
-          field = "Hospitality & Tourism";
-        } else if (n.includes("architecture") || n.includes("interior design") || n.includes("urban planning") || n.includes("graphic design")) {
+        } else if (cipPrefix === "04") {
           field = "Architecture & Design";
-        } else if (n.includes("agriculture") || n.includes("forestry") || n.includes("horticulture") || n.includes("environmental science")) {
+        } else if (cipPrefix === "01" || cipPrefix === "03") {
           field = "Agriculture & Forestry";
-        } else if (n.includes("education") || n.includes("teaching") || n.includes("curriculum") || n.includes("pedagogy")) {
+        } else if (cipPrefix === "13") {
           field = "Education & Teaching";
-        } else if (n.includes("media") || n.includes("journalism") || n.includes("communication") || n.includes("broadcasting") || n.includes("film")) {
+        } else if (cipPrefix === "09") {
           field = "Media & Journalism";
-        } else if (n.includes("biology") || n.includes("chemistry") || n.includes("physics") || n.includes("mathematics") || n.includes("math") || n.includes("science")) {
+        } else if (cipPrefix === "40") {
           field = "Natural Sciences";
-        } else if (n.includes("art") || n.includes("humanities") || n.includes("music") || n.includes("history") || n.includes("philosophy") || n.includes("english literature") || n.includes("language") || n.includes("literature")) {
+        } else if (cipPrefix === "50" || cipPrefix === "54" || cipPrefix === "16" || cipPrefix === "23" || cipPrefix === "38") {
           field = "Arts & Humanities";
+        } else {
+          // Fallback keyword check if CIP code is missing or unclassified
+          if (n.includes("computer") || n.includes("software") || n.includes("information technology") || n.includes("cybersecurity") || n.includes("networking") || n.includes("systems") || n.includes("developer")) {
+            field = "Computer Science & IT";
+          } else if (n.includes("data science") || n.includes("artificial intelligence") || n.includes("machine learning") || n.includes("deep learning")) {
+            field = "Data Science & AI";
+          } else if (n.includes("business") || n.includes("management") || n.includes("mba") || n.includes("finance") || n.includes("marketing") || n.includes("accounting") || n.includes("commerce") || n.includes("economics") || n.includes("administration")) {
+            field = "Business & Management";
+          } else if (n.includes("mechanical") || n.includes("civil") || n.includes("electrical") || n.includes("chemical") || n.includes("aerospace") || n.includes("mechatronics") || n.includes("engineering")) {
+            field = "Engineering";
+          } else if (n.includes("nurs") || n.includes("medicine") || n.includes("health") || n.includes("pharmacy") || n.includes("medical") || n.includes("dental") || n.includes("clinical")) {
+            field = "Medicine & Health";
+          } else if (n.includes("law") || n.includes("legal") || n.includes("justice") || n.includes("criminology")) {
+            field = "Law";
+          } else if (n.includes("sociology") || n.includes("psychology") || n.includes("political") || n.includes("social science") || n.includes("global studies") || n.includes("international relations")) {
+            field = "Social Sciences";
+          } else if (n.includes("hospitality") || n.includes("tourism") || n.includes("hotel") || n.includes("culinary") || n.includes("event management")) {
+            field = "Hospitality & Tourism";
+          } else if (n.includes("architecture") || n.includes("interior design") || n.includes("urban planning") || n.includes("graphic design")) {
+            field = "Architecture & Design";
+          } else if (n.includes("agriculture") || n.includes("forestry") || n.includes("horticulture") || n.includes("environmental science")) {
+            field = "Agriculture & Forestry";
+          } else if (n.includes("education") || n.includes("teaching") || n.includes("curriculum") || n.includes("pedagogy")) {
+            field = "Education & Teaching";
+          } else if (n.includes("media") || n.includes("journalism") || n.includes("communication") || n.includes("broadcasting") || n.includes("film")) {
+            field = "Media & Journalism";
+          } else if (n.includes("biology") || n.includes("chemistry") || n.includes("physics") || n.includes("mathematics") || n.includes("math") || n.includes("science")) {
+            field = "Natural Sciences";
+          } else if (n.includes("art") || n.includes("humanities") || n.includes("music") || n.includes("history") || n.includes("philosophy") || n.includes("english literature") || n.includes("language") || n.includes("literature")) {
+            field = "Arts & Humanities";
+          }
         }
 
         programsByField[field].add(name);
@@ -127,8 +168,8 @@ export async function GET(req: NextRequest) {
         { v: "grade_1", l: "Grade 1" }
       ];
 
-      // Dynamically fetch from the 3-page cache to catch any new additions
-      const programs = await getProgramsMultiPageCached(3).catch(() => []);
+      // Dynamically fetch from the 5-page cache to catch any new additions
+      const programs = await getProgramsMultiPageCached(5).catch(() => []);
       const levelsMap = new Map<string, string>();
 
       // Initialize with our base levels

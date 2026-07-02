@@ -78,6 +78,7 @@ import { UniversitySelection } from "@/components/matches/UniversitySelection";
 import { FinancialDashboard } from "@/components/matches/FinancialDashboard";
 import { AdmissionDetails } from "@/components/matches/AdmissionDetails";
 import { VisaEligibility } from "@/components/matches/VisaEligibility";
+import { formatNPRDevanagari, formatNPRDevanagariRange } from "@/lib/currency";
 import { StudyOverviewDashboard } from "@/components/matches/StudyOverviewDashboard";
 
 /* ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ Static data ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
@@ -937,7 +938,7 @@ const DEF: Form = {
   cityType: "Tier 1",
   duration: "3",
   budget: "",
-  currency: "USD",
+  currency: "NPR",
   scholarship: false,
   name: "",
   email: "",
@@ -2537,15 +2538,22 @@ export default function AbroadLiftMatchesPage() {
     const fetchFieldsAndPrograms = async () => {
       setLoadingFields(true);
       try {
-        const res = await fetch("/api/programs?allFieldsAndPrograms=true");
+        const url = form.degree
+          ? `/api/programs?allFieldsAndPrograms=true&level=${form.degree}`
+          : "/api/programs?allFieldsAndPrograms=true";
+        const res = await fetch(url);
         if (res.ok) {
           const json = await res.json();
           if (json.success && json.data) {
-            if (Array.isArray(json.data.fields) && json.data.fields.length > 0) {
+            if (Array.isArray(json.data.fields)) {
               setAvailableFields(json.data.fields);
+            } else {
+              setAvailableFields([]);
             }
             if (json.data.programsByField) {
               setAvailableProgramsByField(json.data.programsByField);
+            } else {
+              setAvailableProgramsByField({});
             }
           }
         }
@@ -2557,7 +2565,7 @@ export default function AbroadLiftMatchesPage() {
     };
 
     fetchFieldsAndPrograms();
-  }, []);
+  }, [form.degree]);
 
   // Resume saved step after login/signup if flag is set
   useEffect(() => {
@@ -3067,6 +3075,7 @@ export default function AbroadLiftMatchesPage() {
         englishScore: activeForm.testScore || "0",
         degreeLevel: activeForm.degree,
         field: activeForm.field || "",
+        program: activeForm.program || "",
       });
       const res = await fetch(`/api/matches?${query}`);
       if (!res.ok)
@@ -3334,13 +3343,13 @@ export default function AbroadLiftMatchesPage() {
         return "Other Programs";
       };
 
-      const levelsToDisplay = availableLevels.length > 0 ? availableLevels : DISPLAY_DEGREES;
+      const levelsToDisplay = (availableLevels.length > 0 ? availableLevels : DISPLAY_DEGREES)
+        .filter((d: any) => getLevelCategory(d.v) !== "Schooling & Secondary Education");
 
       const categoryOrder = [
         "Postgraduate & Higher Education",
         "Undergraduate & Diplomas",
         "Language & Preparation",
-        "Schooling & Secondary Education",
         "Other Programs"
       ];
 
@@ -3557,14 +3566,22 @@ export default function AbroadLiftMatchesPage() {
       );
     }
     if (step === 4) {
-      const EDUCATION_LEVELS = [
-        "10th Grade / SLC",
-        "12th Grade / +2 / HSEB",
-        "3-Year Diploma",
-        "Bachelor's Degree",
-        "Master's Degree",
-        "Integrated Master's",
-      ];
+      const isPostGrad = [
+        "masters_degree",
+        "doctoral_phd",
+        "post_graduate_diploma",
+        "post_graduate_certificate",
+        "integrated_masters",
+      ].includes(form.degree);
+
+      const EDUCATION_LEVELS = isPostGrad
+        ? ["Bachelor's Degree", "Master's Degree", "Integrated Master's"]
+        : [
+            "10th Grade / SLC",
+            "12th Grade / +2 / HSEB",
+            "3-Year Diploma",
+            "Bachelor's Degree",
+          ];
 
       const YEARS = Array.from({ length: 15 }, (_, i) => (2026 - i).toString());
 
@@ -4006,6 +4023,7 @@ export default function AbroadLiftMatchesPage() {
             selectedMatch={selectedMatch}
             form={form}
             session={session}
+            usdToNpr={liveUsdToNpr}
             onSelect={async (m: Match) => {
               if (!session) {
                 redirectToSignupForMatches(m);
@@ -4159,8 +4177,7 @@ export default function AbroadLiftMatchesPage() {
       const totalYear1Npr = Math.round(totalYear1Usd * liveUsdToNpr);
       const costBand = getCostBand(totalYear1Usd, budgetUsd);
       const nprRangeLakhs = (valueNpr: number, _spread = 0.12) => {
-        const lakhs = valueNpr / 100000;
-        return `NPR ${lakhs % 1 === 0 ? lakhs.toFixed(0) : lakhs.toFixed(1)} Lakhs`;
+        return formatNPRDevanagari(valueNpr);
       };
 
       const signalCards = [
@@ -4672,22 +4689,6 @@ export default function AbroadLiftMatchesPage() {
                 Budget Summary
               </h2>
 
-              {/* Currency Switching Tabs */}
-              <div className="flex items-center gap-1.5 p-1.5 bg-slate-50 rounded-2xl w-fit mt-8 border border-slate-100">
-                <button
-                  onClick={() => setForm({ ...form, currency: "NPR" })}
-                  className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${!toggleUSD ? "bg-white text-blue-600 shadow-sm ring-1 ring-slate-200/50" : "text-slate-400 hover:text-slate-600"}`}
-                >
-                  NPR (Home)
-                </button>
-                <button
-                  onClick={() => setForm({ ...form, currency: "USD" })}
-                  className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${toggleUSD ? "bg-white text-blue-600 shadow-sm ring-1 ring-slate-200/50" : "text-slate-400 hover:text-slate-600"}`}
-                >
-                  USD (Intl)
-                </button>
-              </div>
-
               <p className="text-slate-500 font-medium mt-6 italic text-lg max-w-2xl">
                 Complete fiscal roadmap for your full {duration}-year tenure at{" "}
                 {selectedMatch.name}.
@@ -4703,19 +4704,13 @@ export default function AbroadLiftMatchesPage() {
                     ? "Scholarship Applied"
                     : "Total Net Investment"}
                 </p>
-                <h3 className="text-5xl font-black italic">
-                  <span className="opacity-60 text-2xl mr-1 non-italic font-medium">
-                    {symbol}
-                  </span>
-                  {displayVal(totalInvestmentNpr)}
-                  <span className="opacity-60 text-3xl ml-1">{unit}</span>
+                <h3 className="text-4xl md:text-5xl font-black italic">
+                  {formatNPRDevanagariRange(Math.max(0, Math.round(totalInvestmentNpr * 0.88)), Math.round(totalInvestmentNpr * 1.12))}
                 </h3>
                 {scholPercent > 0 && (
                   <div className="mt-4 px-4 py-1.5 rounded-full bg-white/20 text-[9px] font-black uppercase tracking-widest inline-flex items-center gap-2">
                     <Sparkles className="w-3 h-3" />
-                    Saved {symbol}
-                    {displayVal(totalScholSavingsNpr)}
-                    {unit} via Merit
+                    Saved {formatNPRDevanagari(totalScholSavingsNpr)} via Merit
                   </div>
                 )}
                 <p className="text-[9px] font-bold opacity-60 mt-4 uppercase tracking-widest">
@@ -4846,8 +4841,7 @@ export default function AbroadLiftMatchesPage() {
                             >
                               <div className="absolute -top-8 left-0 w-full text-center">
                                 <span className="text-[9px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
-                                  ~{symbol}
-                                  {displayVal(annualTotal)}
+                                  ~{formatNPRDevanagariRange(Math.max(0, Math.round(annualTotal * 0.88)), Math.round(annualTotal * 1.12))}
                                 </span>
                               </div>
                             </div>
@@ -5217,8 +5211,7 @@ export default function AbroadLiftMatchesPage() {
 
     if (step === 14 && selectedMatch && financialMetrics && decisionSignals) {
       const nprRangeLakhs = (valueNpr: number, _spread = 0.12) => {
-        const lakhs = valueNpr / 100000;
-        return `NPR ${lakhs % 1 === 0 ? lakhs.toFixed(0) : lakhs.toFixed(1)} Lakhs`;
+        return formatNPRDevanagari(valueNpr);
       };
 
       const riskFlags = [

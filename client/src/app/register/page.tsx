@@ -188,7 +188,7 @@ function RegisterForm() {
           englishTestType: "None",
           englishScore: "0",
           yearlyBudget: "0",
-          currency: "USD",
+          currency: "NPR",
           scholarshipNeeded: false,
           intake: "",
         }),

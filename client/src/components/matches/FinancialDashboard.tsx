@@ -32,6 +32,7 @@ import {
 import { Card } from "@/components/ui/card";
 import { Match, Form } from "@/types/matches";
 import { motion, animate } from "framer-motion";
+import { formatNPRDevanagari } from "@/lib/currency";
 
 // Unified component to animate currency numbers as single, clean, rounded values
 function AnimatedCurrency({
@@ -64,17 +65,7 @@ function AnimatedCurrency({
     };
 
     const formatNPR = (v: number) => {
-      if (v >= 100000) {
-        const lakhs = v / 100000;
-        return `NPR ${lakhs % 1 === 0 ? lakhs.toFixed(0) : lakhs.toFixed(1)} Lakhs`;
-      }
-      // Round to nearest 100 for small amounts
-      const rounded = Math.round(v / 100) * 100;
-      return new Intl.NumberFormat("en-NP", {
-        style: "currency",
-        currency: "NPR",
-        maximumFractionDigits: 0,
-      }).format(rounded);
+      return formatNPRDevanagari(v);
     };
 
     const controls = animate(0, val, {
@@ -210,9 +201,16 @@ export function FinancialDashboard({
       const fmtUsd = (v: number) =>
         "$" + Math.round(v).toLocaleString("en-US");
       const fmtNpr = (v: number) => {
-        const npr = v * usdToNpr;
-        if (npr >= 100000) return `NPR ${(npr / 100000).toFixed(1)}L`;
-        return `NPR ${Math.round(npr).toLocaleString()}`;
+        const npr = Math.round(v * usdToNpr);
+        if (npr >= 10000000) {
+          const crore = npr / 10000000;
+          return `Rs ${crore % 1 === 0 ? crore.toFixed(0) : crore.toFixed(1)} Crore`;
+        }
+        if (npr >= 100000) {
+          const lakh = npr / 100000;
+          return `Rs ${lakh % 1 === 0 ? lakh.toFixed(0) : lakh.toFixed(1)} Lakh`;
+        }
+        return `Rs ${npr.toLocaleString()}`;
       };
 
       const PW = 210; // A4 width mm
