@@ -384,7 +384,8 @@ export async function GET(req: NextRequest) {
     const seenNames = new Set<string>();
     const matches: any[] = [];
 
-    for (const match of [...matchedSchoolsList.filter(Boolean), ...matchedLocalList.filter(Boolean)]) {
+    for (const match of [...matchedSchoolsList, ...matchedLocalList]) {
+      if (!match) continue;
       const normName = match.name.toLowerCase().trim();
       if (!seenNames.has(normName)) {
         seenNames.add(normName);
