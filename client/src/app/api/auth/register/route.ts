@@ -9,6 +9,7 @@ import {
   toE164,
   trySendOtp,
 } from "@/lib/phoneVerification";
+import { isValidEmail } from "@/lib/email";
 
 async function generateUniqueUsername(name: string, phoneNumber: string) {
   const baseUsername =
@@ -61,6 +62,15 @@ export async function POST(req: Request) {
     if (!normalizedName || !normalizedEmail) {
       return NextResponse.json(
         { error: "Full name and email are required." },
+        { status: 400 },
+      );
+    }
+
+    // Check email validity (syntax and DNS MX records)
+    const emailCheck = await isValidEmail(normalizedEmail);
+    if (!emailCheck.valid) {
+      return NextResponse.json(
+        { error: emailCheck.error || "The email address is invalid or its domain does not exist." },
         { status: 400 },
       );
     }

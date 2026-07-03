@@ -6,6 +6,7 @@ import {
   normalizePhoneNumber,
   toE164,
 } from "@/lib/phoneVerification";
+import { sendWelcomeEmail } from "@/lib/email";
 
 export async function POST(req: Request) {
   try {
@@ -50,14 +51,27 @@ export async function POST(req: Request) {
       );
     }
 
+    const isFirstVerification = !user.phoneVerified;
+
     await prisma.user.update({
       where: { id: user.id },
       data: {
         phoneVerified: true,
         otpCodeHash: null,
         otpExpiresAt: null,
+        lastLoginAt: new Date(),
       },
     });
+
+    if (isFirstVerification && user.email) {
+      sendWelcomeEmail({
+        to: user.email,
+        name: user.name,
+        username: user.username,
+      }).catch((err) => {
+        console.error("[VERIFY_SIGNUP_OTP] Welcome email error:", err);
+      });
+    }
 
     return NextResponse.json({ verified: true });
   } catch (error) {

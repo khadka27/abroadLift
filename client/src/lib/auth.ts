@@ -3,6 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import prisma from "./db";
 import { hashOtpCode } from "./phoneVerification";
 import bcrypt from "bcrypt";
+import { sendWelcomeEmail, sendWelcomeBackEmail } from "./email";
 
 const AUTH_SECRET = process.env.NEXTAUTH_SECRET;
 
@@ -46,14 +47,38 @@ export const authOptions: NextAuthOptions = {
           );
         }
 
+        const isFirstVerification = !user.phoneVerified;
+
         await prisma.user.update({
           where: { id: user.id },
           data: {
             phoneVerified: true,
             otpCodeHash: null,
             otpExpiresAt: null,
+            lastLoginAt: new Date(),
           },
         });
+
+        if (user.email) {
+          if (isFirstVerification) {
+            sendWelcomeEmail({
+              to: user.email,
+              name: user.name,
+              username: user.username,
+            }).catch((err) => {
+              console.error("[AUTH] Welcome email error:", err);
+            });
+          } else {
+            sendWelcomeBackEmail({
+              to: user.email,
+              name: user.name,
+              role: user.role,
+              userId: user.id,
+            }).catch((err) => {
+              console.error("[AUTH] Welcome back email error:", err);
+            });
+          }
+        }
 
         return {
           id: user.id,
@@ -100,6 +125,24 @@ export const authOptions: NextAuthOptions = {
 
         if (!isPasswordValid) {
           throw new Error("Invalid credentials or unauthorized access.");
+        }
+
+        await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            lastLoginAt: new Date(),
+          },
+        });
+
+        if (user.email) {
+          sendWelcomeBackEmail({
+            to: user.email,
+            name: user.name,
+            role: user.role,
+            userId: user.id,
+          }).catch((err) => {
+            console.error("[AUTH_ADMIN] Welcome back email error:", err);
+          });
         }
 
         return {

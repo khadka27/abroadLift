@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { encode } from "next-auth/jwt";
 import prisma from "@/lib/db";
 import { hashOtpCode } from "@/lib/phoneVerification";
+import { sendWelcomeEmail, sendWelcomeBackEmail } from "@/lib/email";
 
 export async function POST(req: Request) {
   try {
@@ -42,14 +43,38 @@ export async function POST(req: Request) {
       );
     }
 
+    const isFirstVerification = !user.phoneVerified;
+
     await prisma.user.update({
       where: { id: user.id },
       data: {
         phoneVerified: true,
         otpCodeHash: null,
         otpExpiresAt: null,
+        lastLoginAt: new Date(),
       },
     });
+
+    if (user.email) {
+      if (isFirstVerification) {
+        sendWelcomeEmail({
+          to: user.email,
+          name: user.name,
+          username: user.username,
+        }).catch((err) => {
+          console.error("[MOBILE_LOGIN] Welcome email error:", err);
+        });
+      } else {
+        sendWelcomeBackEmail({
+          to: user.email,
+          name: user.name,
+          role: user.role,
+          userId: user.id,
+        }).catch((err) => {
+          console.error("[MOBILE_LOGIN] Welcome back email error:", err);
+        });
+      }
+    }
 
     const secret = process.env.NEXTAUTH_SECRET;
     if (!secret) {

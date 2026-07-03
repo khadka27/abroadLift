@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/db";
+import { sendApplicationStatusEmail } from "@/lib/email";
 
 export async function GET(request: Request) {
   try {
@@ -97,6 +98,32 @@ export async function PUT(request: Request) {
         entityId: applicationId,
       }
     });
+
+    // Send email notification to the student
+    try {
+      const appDetails = await prisma.application.findUnique({
+        where: { id: applicationId },
+        include: {
+          user: true,
+          university: true,
+        },
+      });
+
+      if (appDetails && appDetails.user?.email) {
+        sendApplicationStatusEmail({
+          to: appDetails.user.email,
+          studentName: appDetails.user.name,
+          universityName: appDetails.university.name,
+          country: appDetails.university.country,
+          status: status,
+          reviewerComments: reviewerComments !== undefined ? reviewerComments : appDetails.reviewerComments,
+        }).catch((err) => {
+          console.error("[APPLICATION_UPDATE_NOTIFICATION] Email error:", err);
+        });
+      }
+    } catch (emailErr) {
+      console.error("[APPLICATION_UPDATE_NOTIFICATION] Lookup error:", emailErr);
+    }
 
     return NextResponse.json({ success: true, application: updatedApp });
   } catch (error) {

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/db";
+import { sendAdvisorNoteEmail } from "@/lib/email";
 
 export async function GET(
   request: Request,
@@ -104,6 +105,26 @@ export async function PUT(
           content: data.content,
         }
       });
+
+      // Send advisor note email notification to student
+      try {
+        const student = await prisma.user.findUnique({
+          where: { id: studentId },
+        });
+
+        if (student && student.email) {
+          sendAdvisorNoteEmail({
+            to: student.email,
+            studentName: student.name,
+            noteContent: data.content,
+          }).catch((err) => {
+            console.error("[ADD_NOTE_NOTIFICATION] Email error:", err);
+          });
+        }
+      } catch (emailErr) {
+        console.error("[ADD_NOTE_NOTIFICATION] Lookup error:", emailErr);
+      }
+
       return NextResponse.json({ success: true, note });
     }
 
