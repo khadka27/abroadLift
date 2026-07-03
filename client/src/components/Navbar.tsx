@@ -122,10 +122,10 @@ export default function Navbar() {
               </Link>
             ) : (
               <Link
-                href={`/login?callbackUrl=${encodeURIComponent(pathname)}`}
+                href={`/register?callbackUrl=${encodeURIComponent(pathname)}`}
                 className="flex items-center gap-2 bg-[#3366FF] text-white font-bold px-[30px] py-[12px] rounded-full text-[15px] shadow-[0_8px_20px_rgb(51,102,255,0.3)] hover:-translate-y-0.5 transition-all duration-300 active:scale-95 hover:bg-[#254bdb]"
               >
-                Login
+                Sign Up
               </Link>
             )}
           </div>
@@ -194,11 +194,11 @@ export default function Navbar() {
               </Link>
             ) : (
               <Link
-                href={`/login?callbackUrl=${encodeURIComponent(pathname)}`}
+                href={`/register?callbackUrl=${encodeURIComponent(pathname)}`}
                 onClick={() => setMobileOpen(false)}
                 className="flex items-center justify-center gap-2 bg-[#3366FF] text-white font-bold px-6 py-4 rounded-full shadow-[0_10px_30px_rgb(51,102,255,0.3)]"
               >
-                Login
+                Sign Up
               </Link>
             )}
           </div>

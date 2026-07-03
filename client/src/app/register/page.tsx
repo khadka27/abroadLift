@@ -227,7 +227,7 @@ function RegisterForm() {
 
       const callbackParam = callbackUrl
         ? `&callbackUrl=${encodeURIComponent(callbackUrl)}`
-        : "";
+        : `&callbackUrl=${encodeURIComponent("/matches")}`;
       router.push(
         `/verify-otp?phoneE164=${encodeURIComponent(phoneE164)}${callbackParam}`,
       );

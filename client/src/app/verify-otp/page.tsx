@@ -57,14 +57,14 @@ function VerifyOtpForm() {
         return;
       }
 
-      setSuccess("Phone verified. Redirecting to home...");
+      setSuccess("Phone verified. Redirecting to matching portal...");
       setTimeout(() => {
         if (callbackUrl) {
           router.replace(callbackUrl);
           return;
         }
 
-        router.replace("/");
+        router.replace("/matches");
       }, 700);
     } catch {
       setError("Something went wrong. Please try again.");

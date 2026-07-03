@@ -311,12 +311,22 @@ export async function PUT(req: Request) {
   // Sync profile to external AbroadLift API database
   try {
     const gpaRaw = toFloat(gpa) ?? 3.0;
-    const gpaPercent = gpaRaw <= 4.0 ? gpaRaw * 25 : gpaRaw;
+    let gpaGrade = gpaRaw;
+    if (gpaRaw > 10.0) {
+      // Percentage scale -> 4.0 scale
+      gpaGrade = (gpaRaw / 100) * 4.0;
+    } else if (gpaRaw > 4.0) {
+      // 10.0 scale -> 4.0 scale
+      gpaGrade = (gpaRaw / 10) * 4.0;
+    }
+    // Round to 2 decimal places
+    gpaGrade = Math.round(gpaGrade * 100) / 100;
+
     const engScore = toFloat(finalEnglishScore) ?? 6.5;
 
     await abroadliftApi.saveStudentProfile({
       name: user.name || name || "Student",
-      gpa: gpaPercent,
+      gpa: gpaGrade,
       english_score: engScore,
       gap_years: toInt(studyGap, 0),
       backlogs: toInt(backlogs, 0),

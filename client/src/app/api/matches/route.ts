@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { getSchoolsCached, getProgramsCached } from "@/lib/api/cache";
+import prisma from "@/lib/db";
 
 function getProgramField(prog: any): string {
   const n = (prog.name || "").trim().toLowerCase();
@@ -139,10 +140,9 @@ export async function GET(req: NextRequest) {
   const hasCriteria = !!(degreeLevel || field || program || budget > 0);
 
   try {
-    // Use shared globalThis cache — survives Next.js hot reloads, prevents 429
+    // 1. Fetch remote cached schools/programs
     const schools = await getSchoolsCached();
     const programs = hasCriteria ? await getProgramsCached() : [];
-
 
     const programsBySchool = new Map<number, any[]>();
     for (const prog of programs) {
@@ -166,7 +166,7 @@ export async function GET(req: NextRequest) {
         const rank = school.school_rank || 500;
         const admissionRate = Math.min(95, Math.max(25, 98 - Math.round(Math.log10(rank + 1) * 15)));
         return {
-          id: school.school_id,
+          id: String(school.school_id),
           name: school.name,
           location: school.city ? `${school.city}, ${school.province || ""}` : (school.country || ""),
           countryCode: schoolCountry,
@@ -260,7 +260,7 @@ export async function GET(req: NextRequest) {
         : 3.0;
 
       return {
-        id: school.school_id,
+        id: String(school.school_id),
         name: school.name,
         location: school.city ? `${school.city}, ${school.province || ""}` : (school.country || ""),
         countryCode: schoolCountry,
@@ -300,7 +300,98 @@ export async function GET(req: NextRequest) {
       };
     });
 
-    const matches = matchedSchoolsList.filter(Boolean);
+    // 2. Fetch local database universities for fallback/additional matches
+    let localUniversities: any[] = [];
+    try {
+      localUniversities = await prisma.university.findMany();
+    } catch (e) {
+      console.error("Failed to fetch local universities:", e);
+    }
+
+    const matchedLocalList = localUniversities.map((uni: any) => {
+      const schoolCountry = normalizeCountryCode(uni.country);
+      if (selectedCountries.length > 0 && !selectedCountries.includes(schoolCountry)) {
+        return null;
+      }
+
+      // Check criteria match for local universities
+      let matchesCriteria = true;
+      
+      if (degreeLevel) {
+        const dlLower = degreeLevel.toLowerCase();
+        const uniDegreeLower = (uni.degreeLevel || "").toLowerCase();
+        if (!uniDegreeLower.includes(dlLower) && !dlLower.includes(uniDegreeLower)) {
+          matchesCriteria = false;
+        }
+      }
+
+      if (field) {
+        const fLower = field.toLowerCase();
+        const uniFieldLower = (uni.fieldCategory || "").toLowerCase();
+        if (!uniFieldLower.includes(fLower) && !fLower.includes(uniFieldLower)) {
+          matchesCriteria = false;
+        }
+      }
+
+      if (program) {
+        const pLower = program.toLowerCase();
+        const uniFieldLower = (uni.fieldCategory || "").toLowerCase();
+        if (!uniFieldLower.includes("computer") && pLower.includes("computer")) {
+          matchesCriteria = false;
+        }
+      }
+
+      if (budget > 0 && uni.tuitionFee > budget) {
+        matchesCriteria = false;
+      }
+
+      const rank = uni.ranking || 500;
+      const admissionRate = Math.min(95, Math.max(25, 98 - Math.round(Math.log10(rank + 1) * 15)));
+
+      return {
+        id: uni.id,
+        name: uni.name,
+        location: `${uni.city}, ${uni.country}`,
+        countryCode: schoolCountry,
+        tuitionFee: uni.tuitionFee,
+        feeBand: uni.tuitionFee > 30000 ? "high" : uni.tuitionFee > 15000 ? "medium" : "low",
+        englishReq: uni.ieltsRequirement || 6.5,
+        admissionRate,
+        gpaRequirement: 3.0,
+        internationalPercentage: 24,
+        salaryMedian: rank < 100 ? 75000 : rank < 300 ? 60000 : 48000,
+        durationYears: uni.degreeLevel?.toLowerCase().includes("master") ? 2 : 4,
+        applicationDeadline: "30 June 2026",
+        rankingWorld: rank,
+        rankingNational: rank > 100 ? Math.round(rank / 10) : 5,
+        founded: 1900 + (rank % 100),
+        studentPopulation: 25000,
+        type: "Public Research",
+        logo: "",
+        banner: "/uni-default.webp",
+        website: uni.website || "",
+        popularPrograms: [
+          uni.degreeLevel?.toLowerCase().includes("master") 
+            ? `Master of Science in ${uni.fieldCategory || "Computer Science"}` 
+            : `Bachelor of Science in ${uni.fieldCategory || "Computer Science"}`
+        ],
+        matchType: matchesCriteria ? "exact" : "recommended",
+        description: `${uni.name} is a prestigious global institution located in ${uni.city}, ${uni.country}, offering leading programs in ${uni.fieldCategory || "academics"}.`,
+      };
+    });
+
+    // 3. Combine and Deduplicate
+    const seenNames = new Set<string>();
+    const matches: any[] = [];
+
+    for (const match of [...matchedSchoolsList.filter(Boolean), ...matchedLocalList.filter(Boolean)]) {
+      const normName = match.name.toLowerCase().trim();
+      if (!seenNames.has(normName)) {
+        seenNames.add(normName);
+        matches.push(match);
+      }
+    }
+
     return NextResponse.json({ matches });
   } catch (error: any) {
     console.error("Match Search Error:", error);

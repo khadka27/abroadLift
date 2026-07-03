@@ -3660,219 +3660,161 @@ export default function AbroadLiftMatchesPage() {
     }
 
     if (step === 5) {
-      const TESTS = [
-        "IELTS",
-        "TOEFL",
-        "PTE Academic",
-        "Duolingo",
-        "SAT",
-        "GRE",
-        "GMAT",
+      const TEST_OPTIONS = [
+        { id: "IELTS", name: "IELTS", min: 0, max: 9, min50: 4.5, placeholder: "e.g., 6.5", step: "0.5", emoji: "🎓", desc: "Overall Band Score (0-9)" },
+        { id: "PTE Academic", name: "PTE Academic", min: 10, max: 90, min50: 50, placeholder: "e.g., 65", step: "1", emoji: "📝", desc: "Global Score (10-90)" },
+        { id: "TOEFL", name: "TOEFL iBT", min: 0, max: 120, min50: 60, placeholder: "e.g., 90", step: "1", emoji: "🌐", desc: "Internet test (0-120)" },
+        { id: "Duolingo", name: "Duolingo", min: 10, max: 160, min50: 85, placeholder: "e.g., 115", step: "5", emoji: "🦉", desc: "DET English Test (10-160)" },
+        { id: "SAT", name: "SAT", min: 400, max: 1600, min50: 1000, placeholder: "e.g., 1200", step: "10", emoji: "🧠", desc: "SAT General (400-1600)" },
+        { id: "GRE", name: "GRE", min: 260, max: 340, min50: 300, placeholder: "e.g., 310", step: "1", emoji: "🔬", desc: "GRE Graduate (260-340)" },
+        { id: "GMAT", name: "GMAT", min: 200, max: 800, min50: 500, placeholder: "e.g., 600", step: "10", emoji: "📊", desc: "GMAT Management (200-800)" },
+        { id: "NONE", name: "No Test / None", min: 0, max: 0, min50: 0, placeholder: "", step: "1", emoji: "❌", desc: "No test taken yet" }
       ];
+
+      const handleTestSelect = (testId: string) => {
+        if (testId === "NONE") {
+          updateForm("hasEnglishTest", false);
+          updateForm("testType", "NONE");
+          updateForm("testScore", "0");
+        } else {
+          updateForm("hasEnglishTest", true);
+          updateForm("testType", testId);
+          // Auto-fill recommended default score above 50% threshold if not set
+          const score = parseFloat(form.testScore);
+          const defaultScores: Record<string, string> = {
+            IELTS: "6.5",
+            "PTE Academic": "65",
+            TOEFL: "90",
+            Duolingo: "115",
+            SAT: "1100",
+            GRE: "310",
+            GMAT: "580"
+          };
+          const test = TEST_OPTIONS.find(t => t.id === testId);
+          if (test && (isNaN(score) || score === 0 || score < test.min || score > test.max)) {
+            updateForm("testScore", defaultScores[testId]);
+          }
+        }
+      };
+
+      const selectedTest = TEST_OPTIONS.find(t => t.id === form.testType && form.hasEnglishTest === true);
+      const scoreVal = parseFloat(form.testScore);
+      const isAbove50 = selectedTest && !isNaN(scoreVal) && scoreVal >= selectedTest.min50;
+      const percentOfMax = selectedTest && !isNaN(scoreVal) && selectedTest.max > 0
+        ? Math.round(((scoreVal - selectedTest.min) / (selectedTest.max - selectedTest.min)) * 100)
+        : 0;
 
       return (
         <div className="flex flex-col animate-in fade-in zoom-in-95 duration-700 w-full max-w-5xl mx-auto pb-2 px-4">
-          <div className="mb-1.5 md:mb-2 text-center">
+          <div className="mb-3 text-center">
             <h2 className="text-[18px] md:text-[20px] lg:text-[24px] font-bold text-[#111827] tracking-tight">
-              Do you have an English test score?
+              Select Your English Proficiency Test
             </h2>
             <p className="text-[13px] md:text-[14px] text-slate-500 font-medium mt-1">
-              This helps us estimate your admission chances
+              Choose the test you have taken or select "No Test / None"
             </p>
           </div>
 
-          <div className="w-full mb-8 overflow-hidden rounded-[24px] shadow-sm border border-slate-50 lg:hidden">
-            <Image
-              src="/ielts.png"
-              alt="English Test"
-              width={800}
-              height={400}
-              className="w-full h-[85px] md:h-[160px] lg:h-[200px] object-cover"
-              priority
-            />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 w-full mb-8">
+            {TEST_OPTIONS.map((test) => {
+              const isSelected = (test.id === "NONE" && form.hasEnglishTest === false) ||
+                                 (test.id !== "NONE" && form.hasEnglishTest === true && form.testType === test.id);
+              return (
+                <button
+                  key={test.id}
+                  type="button"
+                  onClick={() => handleTestSelect(test.id)}
+                  className={`group relative text-left p-4 rounded-2xl border-2 transition-all duration-300 ${
+                    isSelected
+                      ? "border-blue-500 bg-blue-50/20 shadow-md scale-[1.02]"
+                      : "border-slate-100 bg-white shadow-sm hover:border-blue-200"
+                  }`}
+                >
+                  {isSelected && (
+                    <span className="absolute top-3 right-3 w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center text-white text-[10px] font-black">
+                      ✓
+                    </span>
+                  )}
+                  <span className="text-2xl mb-1.5 block">{test.emoji}</span>
+                  <span className={`text-[11px] font-black uppercase block tracking-wider leading-none mb-1 ${isSelected ? "text-blue-600" : "text-slate-400"}`}>
+                    {test.name}
+                  </span>
+                  <span className="text-[11px] font-medium text-slate-500 block leading-tight">
+                    {test.desc}
+                  </span>
+                </button>
+              );
+            })}
           </div>
 
-          <div className="flex flex-col items-center w-full max-w-2xl mx-auto">
-            <div className="grid grid-cols-2 gap-3 w-full mb-5">
-              <button
-                onClick={() => updateForm("hasEnglishTest", true)}
-                className={`h-[48px] md:h-[54px] flex items-center justify-center rounded-[22px] font-bold text-[15px] transition-all border ${
-                  form.hasEnglishTest === true
-                    ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/20"
-                    : "bg-white text-slate-600 border-slate-100 shadow-sm hover:border-blue-200"
-                }`}
-              >
-                Yes, I have
-              </button>
-              <button
-                onClick={() => {
-                  updateForm("hasEnglishTest", false);
-                  updateForm("testType", "NONE");
-                  updateForm("testScore", "0");
-                }}
-                className={`h-[48px] md:h-[54px] flex items-center justify-center rounded-[22px] font-bold text-[15px] transition-all border ${
-                  form.hasEnglishTest === false
-                    ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/20"
-                    : "bg-white text-slate-600 border-slate-100 shadow-sm hover:border-blue-200"
-                }`}
-              >
-                No, I haven&apos;t
-              </button>
+          {selectedTest && (
+            <div className="w-full max-w-2xl mx-auto p-6 md:p-8 bg-slate-50/50 border border-slate-150 rounded-[28px] shadow-sm animate-in fade-in slide-in-from-top-4 duration-500 space-y-6">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
+                    <span>{selectedTest.emoji}</span>
+                    <span>{selectedTest.name} Score Details</span>
+                  </h3>
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    Score range: {selectedTest.min} – {selectedTest.max} (Threshold for 50%: {selectedTest.min50})
+                  </p>
+                </div>
+                <div className="w-full md:w-48 space-y-2">
+                  <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest pl-1">
+                    Your Score
+                  </label>
+                  <input
+                    type="number"
+                    min={selectedTest.min}
+                    max={selectedTest.max}
+                    step={selectedTest.step}
+                    placeholder={selectedTest.placeholder}
+                    className="w-full h-[50px] px-5 bg-white border border-slate-200 rounded-2xl text-[16px] font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all shadow-sm"
+                    value={form.testScore === "0" ? "" : form.testScore}
+                    onChange={(e) => updateForm("testScore", e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {!isNaN(scoreVal) && scoreVal > 0 && (
+                <div className={`p-4 rounded-2xl border flex items-start gap-3 transition-all duration-300 animate-in fade-in ${
+                  isAbove50 
+                    ? "bg-emerald-50/70 border-emerald-100 text-emerald-800" 
+                    : "bg-amber-50/70 border-amber-100 text-amber-800"
+                }`}>
+                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-extrabold shrink-0 mt-0.5 ${
+                    isAbove50 ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
+                  }`}>
+                    {isAbove50 ? "✓" : "⚠"}
+                  </span>
+                  <div className="space-y-1">
+                    <p className="font-extrabold text-[14px] leading-tight">
+                      Score represents {percentOfMax}% of maximum test value
+                    </p>
+                    <p className="text-[12px] opacity-90 leading-relaxed font-semibold">
+                      {isAbove50 
+                        ? `Great job! Your score is above the 50% threshold (${selectedTest.min50}+) and is competitive for standard university admissions.`
+                        : `Your score is below the 50% threshold (${selectedTest.min50}). Most universities require at least 50% to be eligible.`
+                      }
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
+          )}
 
-            {form.hasEnglishTest === true && (
-              <div className="w-full space-y-4 md:space-y-8 animate-in fade-in slide-in-from-top-4 duration-500">
-                <div className="text-center">
-                  <p className="text-[16px] font-bold text-slate-800">
-                    Describe your English level?
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
-                  <div className="space-y-3">
-                    <label className="text-[12px] font-bold text-slate-400 uppercase tracking-widest ml-1">
-                      Choose English Test
-                    </label>
-                    <SearchSelect
-                      placeholder="Select your English Test"
-                      options={TESTS}
-                      value={form.testType === "NONE" ? "" : form.testType}
-                      onChange={(v) => updateForm("testType", v)}
-                    />
-                  </div>
-
-                  <div className="space-y-3">
-                    <label className="text-[12px] font-bold text-slate-400 uppercase tracking-widest ml-1">
-                      Your Score
-                    </label>
-                    <input
-                      type="number"
-                      step={form.testType === "IELTS" ? "0.5" : "1"}
-                      placeholder="Enter your score"
-                      className="w-full h-[50px] md:h-[60px] px-6 bg-[#f8fafc] border border-slate-200 rounded-[22px] text-[16px] font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all shadow-sm"
-                      value={form.testScore === "0" ? "" : form.testScore}
-                      onChange={(e) => updateForm("testScore", e.target.value)}
-                    />
-                    {(() => {
-                      const score = parseFloat(form.testScore);
-                      if (!form.testScore || isNaN(score)) return null;
-                      let err = "";
-                      if (form.testType === "IELTS" && (score < 0 || score > 9))
-                        err = "IELTS must be between 0 and 9";
-                      if (
-                        form.testType === "SAT" &&
-                        (score < 400 || score > 1600)
-                      )
-                        err = "SAT must be between 400 and 1600";
-                      if (
-                        form.testType === "GRE" &&
-                        (score < 260 || score > 340)
-                      )
-                        err = "GRE must be between 260 and 340";
-                      if (
-                        form.testType === "Duolingo" &&
-                        (score < 10 || score > 160)
-                      )
-                        err = "Duolingo must be between 10 and 160";
-                      if (
-                        form.testType === "PTE Academic" &&
-                        (score < 10 || score > 90)
-                      )
-                        err = "PTE must be between 10 and 90";
-                      return err ? (
-                        <p className="text-red-500 text-[11px] font-bold ml-2">
-                          {err}
-                        </p>
-                      ) : null;
-                    })()}
-                  </div>
-                </div>
+          {form.hasEnglishTest === false && (
+            <div className="text-center p-6 bg-blue-50/40 rounded-[28px] border border-blue-100/50 w-full max-w-2xl mx-auto animate-in zoom-in-95 duration-500 space-y-4">
+              <div>
+                <p className="text-blue-800 font-extrabold mb-1 text-[16px]">
+                  No problem!
+                </p>
+                <p className="text-blue-600/80 text-[13px] font-semibold leading-relaxed">
+                  You can continue to search matches without a score. Many universities offer pathway programs or English waivers, though we recommend preparing for a test later.
+                </p>
               </div>
-            )}
-
-            {form.hasEnglishTest === false && (
-              <div className="text-center p-5 bg-blue-50/30 rounded-[24px] border border-blue-100/50 w-full animate-in zoom-in-95 duration-500 space-y-4">
-                <div>
-                  <p className="text-blue-800 font-semibold mb-1 text-[15px]">
-                    No problem!
-                  </p>
-                  <p className="text-blue-600/80 text-[13px]">
-                    You can continue with your matches, but we recommend taking a
-                    test later.
-                  </p>
-                </div>
-                <div className="pt-4 border-t border-blue-100/50">
-                  <p className="text-[11px] font-black text-blue-800 uppercase tracking-widest mb-1 text-center">
-                    Typical Expected Scores for University Admission:
-                  </p>
-                  <p className="text-[10px] text-blue-600/70 font-semibold mb-3 text-center">
-                    👆 Click a test card to auto-fill your score and calculate admission chances
-                  </p>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-left">
-                    {[
-                      { type: "IELTS",         range: "6.0 – 6.5+",   default: "6.5", sub: "Overall band",  emoji: "🎓", color: "from-blue-500 to-indigo-600", border: "border-blue-200", bg: "bg-blue-50" },
-                      { type: "PTE Academic",   range: "58 – 65+",     default: "65",  sub: "Global score",  emoji: "📝", color: "from-violet-500 to-purple-600", border: "border-violet-200", bg: "bg-violet-50" },
-                      { type: "TOEFL iBT",      range: "79 – 92+",     default: "90",  sub: "Internet test", emoji: "🌐", color: "from-emerald-500 to-teal-600", border: "border-emerald-200", bg: "bg-emerald-50" },
-                      { type: "Duolingo",       range: "105 – 120+",   default: "115", sub: "DET score",     emoji: "🦉", color: "from-amber-500 to-orange-500", border: "border-amber-200", bg: "bg-amber-50" },
-                    ].map((test) => {
-                      const isSelected = form.testType === test.type && form.hasEnglishTest === true;
-                      return (
-                        <button
-                          key={test.type}
-                          type="button"
-                          onClick={() => {
-                            updateForm("hasEnglishTest", true);
-                            updateForm("testType", test.type);
-                            updateForm("testScore", test.default);
-                          }}
-                          className={`group relative text-left p-3.5 rounded-xl border-2 transition-all duration-200 cursor-pointer hover:shadow-md hover:-translate-y-0.5 active:scale-95 ${
-                            isSelected
-                              ? `${test.border} ${test.bg} shadow-md`
-                              : "border-blue-100/30 bg-white hover:border-blue-200"
-                          }`}
-                        >
-                          {/* Selected checkmark */}
-                          {isSelected && (
-                            <span className={`absolute top-2 right-2 w-4 h-4 rounded-full bg-gradient-to-br ${test.color} flex items-center justify-center text-white text-[8px] font-black`}>
-                              ✓
-                            </span>
-                          )}
-                          <span className="text-lg mb-1 block">{test.emoji}</span>
-                          <span className={`text-[9px] font-black uppercase block tracking-wider leading-none mb-1 ${isSelected ? "text-slate-600" : "text-slate-400"}`}>
-                            {test.type}
-                          </span>
-                          <span className={`text-sm font-black block ${isSelected ? "text-slate-900" : "text-slate-800"}`}>
-                            {test.range}
-                          </span>
-                          <span className="text-[9px] text-slate-400 block mt-1">{test.sub}</span>
-                          {!isSelected && (
-                            <span className="text-[8px] font-bold text-blue-500 block mt-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                              Click to select →
-                            </span>
-                          )}
-                          {isSelected && (
-                            <span className={`text-[8px] font-black block mt-1.5 bg-gradient-to-r ${test.color} bg-clip-text text-transparent`}>
-                              Score set to {test.default} ✓
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      updateForm("testType", "NONE");
-                      updateForm("testScore", "0");
-                    }}
-                    className="mt-3 text-[10px] font-bold text-slate-400 hover:text-slate-600 transition-colors underline underline-offset-2"
-                  >
-                    ✕ Continue without a test score instead
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
 
           <div className="h-4 md:hidden" />
         </div>
