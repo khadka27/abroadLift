@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
@@ -56,6 +56,46 @@ export default function SearchPage() {
 
   const [availableCountries, setAvailableCountries] = useState<{ code: string; name: string }[]>([]);
   const [loadingCountries, setLoadingCountries] = useState(false);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 9;
+
+  const totalPages = Math.ceil(results.length / itemsPerPage);
+  const paginatedResults = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return results.slice(start, start + itemsPerPage);
+  }, [results, currentPage]);
+
+  const paginationRange = useMemo(() => {
+    const range: (number | string)[] = [];
+    const delta = 1; // Number of pages on either side of current page
+
+    range.push(1);
+
+    if (currentPage > delta + 3) {
+      range.push("...");
+    }
+
+    const start = Math.max(2, currentPage - delta);
+    const end = Math.min(totalPages - 1, currentPage + delta);
+    for (let i = start; i <= end; i++) {
+      range.push(i);
+    }
+
+    if (currentPage < totalPages - delta - 2) {
+      range.push("...");
+    }
+
+    if (totalPages > 1) {
+      range.push(totalPages);
+    }
+
+    return range;
+  }, [currentPage, totalPages]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [results]);
 
   // Fetch unique countries dynamically from API to populate the country filter
   useEffect(() => {
@@ -249,7 +289,7 @@ export default function SearchPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
-              {results.map((uni) => (
+              {paginatedResults.map((uni) => (
                 <div key={uni.id} className="bg-white rounded-[36px] border border-slate-100 shadow-[0_10px_40px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_80px_rgba(0,0,0,0.08)] overflow-hidden group hover:-translate-y-2 transition-all duration-500 flex flex-col h-full">
                   {/* Image Area */}
                   <div className="relative h-[260px] w-full overflow-hidden shrink-0">
@@ -356,21 +396,50 @@ export default function SearchPage() {
           )}
 
           {/* Pagination */}
-          <div className="flex justify-center items-center gap-3">
-            <button className="w-14 h-14 rounded-[20px] bg-white border border-slate-100 shadow-sm flex items-center justify-center text-slate-400 hover:text-slate-900 hover:shadow-md transition-all">
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <div className="flex items-center gap-2 bg-white p-2 rounded-[24px] border border-slate-100 shadow-sm">
-              <button className="w-10 h-10 rounded-[16px] bg-[#3686FF] text-white font-black text-[14px] shadow-md shadow-blue-500/20">1</button>
-              <button className="w-10 h-10 rounded-[16px] bg-transparent text-slate-500 font-bold text-[14px] hover:bg-slate-50 transition-all">2</button>
-              <button className="w-10 h-10 rounded-[16px] bg-transparent text-slate-500 font-bold text-[14px] hover:bg-slate-50 transition-all">3</button>
-              <span className="text-slate-300 px-2 font-black">...</span>
-              <button className="w-10 h-10 rounded-[16px] bg-transparent text-slate-500 font-bold text-[14px] hover:bg-slate-50 transition-all">31</button>
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-3">
+              <button 
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="w-14 h-14 rounded-[20px] bg-white border border-slate-100 shadow-sm flex items-center justify-center text-slate-400 hover:text-slate-900 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <div className="flex items-center gap-2 bg-white p-2 rounded-[24px] border border-slate-100 shadow-sm">
+                {paginationRange.map((p, idx) => {
+                  if (p === "...") {
+                    return (
+                      <span key={`ellipsis-${idx}`} className="text-slate-300 px-2 font-black select-none">
+                        ...
+                      </span>
+                    );
+                  }
+                  const pageNum = p as number;
+                  const isActive = pageNum === currentPage;
+                  return (
+                    <button
+                      key={`page-${pageNum}`}
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`w-10 h-10 rounded-[16px] text-[14px] font-black transition-all ${
+                        isActive
+                          ? "bg-[#3686FF] text-white shadow-md shadow-blue-500/20"
+                          : "bg-transparent text-slate-500 hover:bg-slate-50"
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+              </div>
+              <button 
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="w-14 h-14 rounded-[20px] bg-white border border-slate-100 shadow-sm flex items-center justify-center text-slate-400 hover:text-slate-900 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
             </div>
-            <button className="w-14 h-14 rounded-[20px] bg-white border border-slate-100 shadow-sm flex items-center justify-center text-slate-400 hover:text-slate-900 hover:shadow-md transition-all">
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </div>
+          )}
         </div>
       </section>
 

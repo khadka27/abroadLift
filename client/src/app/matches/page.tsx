@@ -3665,11 +3665,84 @@ export default function AbroadLiftMatchesPage() {
         { id: "PTE Academic", name: "PTE Academic", min: 10, max: 90, min50: 50, placeholder: "e.g., 65", step: "1", emoji: "📝", desc: "Global Score (10-90)" },
         { id: "TOEFL", name: "TOEFL iBT", min: 0, max: 120, min50: 60, placeholder: "e.g., 90", step: "1", emoji: "🌐", desc: "Internet test (0-120)" },
         { id: "Duolingo", name: "Duolingo", min: 10, max: 160, min50: 85, placeholder: "e.g., 115", step: "5", emoji: "🦉", desc: "DET English Test (10-160)" },
+        { id: "Cambridge", name: "Cambridge English", min: 120, max: 230, min50: 160, placeholder: "e.g., 180", step: "1", emoji: "🇬🇧", desc: "Cambridge English Scale (120-230)" },
         { id: "SAT", name: "SAT", min: 400, max: 1600, min50: 1000, placeholder: "e.g., 1200", step: "10", emoji: "🧠", desc: "SAT General (400-1600)" },
         { id: "GRE", name: "GRE", min: 260, max: 340, min50: 300, placeholder: "e.g., 310", step: "1", emoji: "🔬", desc: "GRE Graduate (260-340)" },
         { id: "GMAT", name: "GMAT", min: 200, max: 800, min50: 500, placeholder: "e.g., 600", step: "10", emoji: "📊", desc: "GMAT Management (200-800)" },
         { id: "NONE", name: "No Test / None", min: 0, max: 0, min50: 0, placeholder: "", step: "1", emoji: "❌", desc: "No test taken yet" }
       ];
+
+      const COUNTRY_CODE_TO_NAME: Record<string, string> = {
+        USA: "United States",
+        UK: "United Kingdom",
+        CA: "Canada",
+        AU: "Australia",
+        DE: "Germany",
+        IE: "Ireland",
+        MT: "Malta"
+      };
+
+      const TEST_SUPPORT_MATRIX: Record<string, Record<string, { status: "supported" | "limited" | "not_supported" | "some_unis" | "many_unis"; message: string }>> = {
+        "Canada": {
+          IELTS: { status: "supported", message: "✅ Fully accepted by all universities and SDS visa stream." },
+          "PTE Academic": { status: "supported", message: "✅ Fully accepted by all universities and SDS visa stream." },
+          TOEFL: { status: "supported", message: "✅ Fully accepted by all universities and SDS visa stream." },
+          Duolingo: { status: "many_unis", message: "✅ Accepted by many universities for admission." },
+          Cambridge: { status: "some_unis", message: "✅ Accepted by some universities for admission." }
+        },
+        "United States": {
+          IELTS: { status: "supported", message: "✅ Fully accepted by all universities." },
+          "PTE Academic": { status: "supported", message: "✅ Fully accepted by all universities." },
+          TOEFL: { status: "supported", message: "✅ Fully accepted by all universities." },
+          Duolingo: { status: "many_unis", message: "✅ Accepted by many universities for admission." },
+          Cambridge: { status: "some_unis", message: "✅ Accepted by some universities for admission." }
+        },
+        "Australia": {
+          IELTS: { status: "supported", message: "✅ Fully accepted for admission and student visa." },
+          "PTE Academic": { status: "supported", message: "✅ Fully accepted for admission and student visa." },
+          TOEFL: { status: "supported", message: "✅ Fully accepted for admission and student visa." },
+          Duolingo: { status: "not_supported", message: "This language is not supported in this country" },
+          Cambridge: { status: "supported", message: "✅ Accepted for admission and student visa." }
+        },
+        "United Kingdom": {
+          IELTS: { status: "supported", message: "✅ Fully accepted. IELTS Academic/UKVI is standard." },
+          "PTE Academic": { status: "supported", message: "✅ Fully accepted by all universities." },
+          TOEFL: { status: "supported", message: "✅ Fully accepted by all universities." },
+          Duolingo: { status: "some_unis", message: "⚠️ Accepted by some universities only. Check university specific requirements." },
+          Cambridge: { status: "supported", message: "✅ Fully accepted by all universities." }
+        },
+        "Ireland": {
+          IELTS: { status: "supported", message: "✅ Fully accepted by all universities." },
+          "PTE Academic": { status: "supported", message: "✅ Fully accepted by all universities." },
+          TOEFL: { status: "supported", message: "✅ Fully accepted by all universities." },
+          Duolingo: { status: "some_unis", message: "⚠️ Accepted by some universities. Check university specific requirements." },
+          Cambridge: { status: "supported", message: "✅ Fully accepted by all universities." }
+        },
+        "Germany": {
+          IELTS: { status: "supported", message: "✅ Fully accepted by all universities." },
+          "PTE Academic": { status: "supported", message: "✅ Fully accepted by all universities." },
+          TOEFL: { status: "supported", message: "✅ Fully accepted by all universities." },
+          Duolingo: { status: "some_unis", message: "⚠️ Accepted by some universities. Check university specific requirements." },
+          Cambridge: { status: "supported", message: "✅ Fully accepted by all universities." }
+        },
+        "Malta": {
+          IELTS: { status: "supported", message: "✅ Fully accepted by all universities." },
+          "PTE Academic": { status: "supported", message: "✅ Fully accepted by all universities." },
+          TOEFL: { status: "supported", message: "✅ Fully accepted by all universities." },
+          Duolingo: { status: "some_unis", message: "⚠️ Accepted by some universities. Check university specific requirements." },
+          Cambridge: { status: "supported", message: "✅ Fully accepted by all universities." }
+        }
+      };
+
+      const selectedCountryCode = form.countries[0] || "USA";
+      const countryName = COUNTRY_CODE_TO_NAME[selectedCountryCode] || "Canada";
+
+      const getTestSupportInfo = (testId: string, countryCode: string) => {
+        const name = COUNTRY_CODE_TO_NAME[countryCode] || "Canada";
+        const matrix = TEST_SUPPORT_MATRIX[name];
+        if (!matrix) return null;
+        return matrix[testId] || null;
+      };
 
       const handleTestSelect = (testId: string) => {
         if (testId === "NONE") {
@@ -3686,6 +3759,7 @@ export default function AbroadLiftMatchesPage() {
             "PTE Academic": "65",
             TOEFL: "90",
             Duolingo: "115",
+            Cambridge: "180",
             SAT: "1100",
             GRE: "310",
             GMAT: "580"
@@ -3708,10 +3782,10 @@ export default function AbroadLiftMatchesPage() {
         <div className="flex flex-col animate-in fade-in zoom-in-95 duration-700 w-full max-w-5xl mx-auto pb-2 px-4">
           <div className="mb-3 text-center">
             <h2 className="text-[18px] md:text-[20px] lg:text-[24px] font-bold text-[#111827] tracking-tight">
-              Select Your English Proficiency Test
+              Select Your Language Proficiency Test
             </h2>
             <p className="text-[13px] md:text-[14px] text-slate-500 font-medium mt-1">
-              Choose the test you have taken or select "No Test / None"
+              Choose the test you have taken or select &quot;No Test / None&quot;
             </p>
           </div>
 
@@ -3719,12 +3793,32 @@ export default function AbroadLiftMatchesPage() {
             {TEST_OPTIONS.map((test) => {
               const isSelected = (test.id === "NONE" && form.hasEnglishTest === false) ||
                                  (test.id !== "NONE" && form.hasEnglishTest === true && form.testType === test.id);
+              
+              const support = getTestSupportInfo(test.id, selectedCountryCode);
+              const supportBadge = support ? (
+                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black tracking-wide uppercase mt-2.5 ${
+                  support.status === "supported" || support.status === "many_unis"
+                    ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
+                    : support.status === "not_supported"
+                    ? "bg-rose-50 text-rose-700 border border-rose-100 animate-pulse"
+                    : "bg-amber-50 text-amber-700 border border-amber-100"
+                }`}>
+                  {support.status === "supported"
+                    ? "✅ Accepted"
+                    : support.status === "many_unis"
+                    ? "✅ Many Unis"
+                    : support.status === "not_supported"
+                    ? "❌ Not Accepted"
+                    : "⚠️ Some Unis"}
+                </span>
+              ) : null;
+
               return (
                 <button
                   key={test.id}
                   type="button"
                   onClick={() => handleTestSelect(test.id)}
-                  className={`group relative text-left p-4 rounded-2xl border-2 transition-all duration-300 ${
+                  className={`group relative text-left p-4 rounded-2xl border-2 transition-all duration-300 flex flex-col justify-between items-start h-full ${
                     isSelected
                       ? "border-blue-500 bg-blue-50/20 shadow-md scale-[1.02]"
                       : "border-slate-100 bg-white shadow-sm hover:border-blue-200"
@@ -3735,20 +3829,23 @@ export default function AbroadLiftMatchesPage() {
                       ✓
                     </span>
                   )}
-                  <span className="text-2xl mb-1.5 block">{test.emoji}</span>
-                  <span className={`text-[11px] font-black uppercase block tracking-wider leading-none mb-1 ${isSelected ? "text-blue-600" : "text-slate-400"}`}>
-                    {test.name}
-                  </span>
-                  <span className="text-[11px] font-medium text-slate-500 block leading-tight">
-                    {test.desc}
-                  </span>
+                  <div>
+                    <span className="text-2xl mb-1.5 block">{test.emoji}</span>
+                    <span className={`text-[11px] font-black uppercase block tracking-wider leading-none mb-1 ${isSelected ? "text-blue-600" : "text-slate-400"}`}>
+                      {test.name}
+                    </span>
+                    <span className="text-[11px] font-medium text-slate-500 block leading-tight">
+                      {test.desc}
+                    </span>
+                  </div>
+                  {supportBadge}
                 </button>
               );
             })}
           </div>
 
           {selectedTest && (
-            <div className="w-full max-w-2xl mx-auto p-6 md:p-8 bg-slate-50/50 border border-slate-150 rounded-[28px] shadow-sm animate-in fade-in slide-in-from-top-4 duration-500 space-y-6">
+            <div className="w-full max-w-2xl mx-auto p-6 md:p-8 bg-white border border-slate-100 rounded-[28px] shadow-[0_10px_40px_rgba(0,0,0,0.02)] animate-in fade-in slide-in-from-top-4 duration-500 space-y-6">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="space-y-1">
                   <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
@@ -3775,6 +3872,33 @@ export default function AbroadLiftMatchesPage() {
                   />
                 </div>
               </div>
+
+              {/* Country Specific English Test Acceptance Warning/Info */}
+              {(() => {
+                const supportInfo = getTestSupportInfo(selectedTest.id, selectedCountryCode);
+                if (!supportInfo) return null;
+                return (
+                  <div className={`p-4 rounded-2xl border flex items-start gap-3 transition-all duration-300 animate-in fade-in ${
+                    supportInfo.status === "supported" || supportInfo.status === "many_unis"
+                      ? "bg-emerald-50/50 border-emerald-100 text-emerald-800"
+                      : supportInfo.status === "not_supported"
+                      ? "bg-rose-50/70 border-rose-100 text-rose-800"
+                      : "bg-amber-50/70 border-amber-100 text-amber-800"
+                  }`}>
+                    <span className="text-lg shrink-0 mt-0.5">
+                      {supportInfo.status === "supported" || supportInfo.status === "many_unis" ? "✅" : supportInfo.status === "not_supported" ? "❌" : "⚠️"}
+                    </span>
+                    <div className="space-y-1">
+                      <p className="font-extrabold text-[14px] leading-tight">
+                        {countryName} Acceptance Status
+                      </p>
+                      <p className="text-[12px] opacity-90 leading-relaxed font-semibold">
+                        {supportInfo.message}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })()}
 
               {!isNaN(scoreVal) && scoreVal > 0 && (
                 <div className={`p-4 rounded-2xl border flex items-start gap-3 transition-all duration-300 animate-in fade-in ${

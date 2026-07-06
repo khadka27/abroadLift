@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { getAllSchoolsCached, getSchoolsCached } from "@/lib/api/cache";
+import { abroadliftApi } from "@/lib/api/abroadlift";
 
 // ─── Country code normalization ───────────────────────────────────────────────
 const CODE_NORMALIZE: Record<string, string> = {
@@ -67,8 +68,17 @@ export async function GET(req: NextRequest) {
 
   // ─── Default: page-based school list ────────────────────────────────────────
   const page = parseInt(searchParams.get("page") || "1", 10);
+  const limit = parseInt(searchParams.get("limit") || "20", 10);
+  const search = searchParams.get("search") || "";
+  const countryCode = searchParams.get("country_code") || "";
 
   try {
+    if (search || countryCode) {
+      // Fetch matching schools directly from the AbroadLift API
+      const data = await abroadliftApi.getSchools(page, limit, search, countryCode);
+      return NextResponse.json(data);
+    }
+
     if (page === 1) {
       // Serve page 1 from the fast single-page cache
       const data = await getSchoolsCached();
@@ -81,7 +91,6 @@ export async function GET(req: NextRequest) {
 
     // For other pages, use the all-schools cache (falls back to single-page if throttled)
     const allData = await getAllSchoolsCached();
-    const limit = parseInt(searchParams.get("limit") || "20", 10);
     const start = (page - 1) * limit;
     const pageData = allData.slice(start, start + limit);
     return NextResponse.json({

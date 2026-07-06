@@ -136,8 +136,15 @@ export const abroadliftApi = {
   /**
    * Schools / Campuses
    */
-  async getSchools(page = 1, limit = 20): Promise<PaginatedResponse<School>> {
-    return apiRequest<PaginatedResponse<School>>(`/api/schools?page=${page}&limit=${limit}`);
+  async getSchools(page = 1, limit = 20, search = "", countryCode = ""): Promise<PaginatedResponse<School>> {
+    let url = `/api/schools?page=${page}&limit=${limit}`;
+    if (search) {
+      url += `&search=${encodeURIComponent(search)}`;
+    }
+    if (countryCode) {
+      url += `&country_code=${encodeURIComponent(countryCode)}`;
+    }
+    return apiRequest<PaginatedResponse<School>>(url);
   },
 
   async getSchoolById(schoolId: string | number): Promise<{ success: boolean; data: School }> {

@@ -798,9 +798,15 @@ export default function StudentDetails({ params }: { params: Promise<{ id: strin
                   {student.lastLoginAt ? format(new Date(student.lastLoginAt), "MMM d, yyyy HH:mm") : "Never"}
                 </span>
               </div>
-              <div className="flex justify-between items-center py-2">
+              <div className="flex justify-between items-center py-2 border-b border-slate-50">
                 <span className="text-xs font-bold text-slate-400 uppercase">WhatsApp Ready</span>
                 <span className="text-xs font-bold text-slate-700">{student.prefersWhatsApp ? "Enabled" : "Disabled"}</span>
+              </div>
+              <div className="flex justify-between items-center py-2">
+                <span className="text-xs font-bold text-slate-400 uppercase">Terms Accepted</span>
+                <span className={`text-xs font-extrabold ${student.acceptedTerms ? "text-blue-600" : "text-slate-500"}`}>
+                  {student.acceptedTerms ? "Yes (Agreed)" : "No"}
+                </span>
               </div>
             </div>
           </Card>

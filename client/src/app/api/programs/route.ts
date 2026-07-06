@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { getProgramsCached, getProgramsMultiPageCached } from "@/lib/api/cache";
+import { abroadliftApi } from "@/lib/api/abroadlift";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -211,22 +212,11 @@ export async function GET(req: NextRequest) {
 
   // ─── Default: page-based program list ────────────────────────────────────
   const page = parseInt(searchParams.get("page") || "1", 10);
+  const limit = parseInt(searchParams.get("limit") || "20", 10);
 
   try {
-    const programs = await getProgramsCached();
-    const limit = parseInt(searchParams.get("limit") || "20", 10);
-    const start = (page - 1) * limit;
-    const pageData = programs.slice(start, start + limit);
-    return NextResponse.json({
-      success: true,
-      data: pageData,
-      pagination: {
-        page,
-        limit,
-        total: programs.length,
-        totalPages: Math.ceil(programs.length / limit),
-      },
-    });
+    const data = await abroadliftApi.getPrograms(page, limit);
+    return NextResponse.json(data);
   } catch (error: any) {
     console.error("Proxy Programs GET error:", error);
     return NextResponse.json(

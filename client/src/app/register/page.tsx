@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { AlertCircle } from "lucide-react";
+import { sections } from "@/lib/terms-data";
 
 type CountryCodeOption = {
   code: string;
@@ -179,6 +180,7 @@ function RegisterForm() {
           phoneNumber: form.phone,
           name: form.fullName,
           email: form.email.toLowerCase(),
+          acceptedTerms: true,
           nationality: "",
           currentCountry: "",
           gpa: "",
@@ -441,34 +443,14 @@ function RegisterForm() {
               </div>
 
               <div className="max-h-[340px] overflow-y-auto border border-slate-200 rounded-[20px] p-5 bg-slate-50 text-[12px] text-slate-600 leading-relaxed space-y-5 shadow-inner">
-                <div>
-                  <h3 className="font-extrabold text-slate-800 mb-1 text-[13px]">1. Acceptance of Terms</h3>
-                  <p>By creating an account, clicking &ldquo;I Agree,&rdquo; submitting information, or otherwise using the Platform, you confirm that you have read, understood, and agreed to these Terms, our Privacy Policy, and any other notices displayed on the Platform.</p>
-                </div>
-                <div>
-                  <h3 className="font-extrabold text-slate-800 mb-1 text-[13px]">2. About AbroadLift</h3>
-                  <p>AbroadLift is an information and self-application support platform for students exploring overseas education opportunities. AbroadLift is not an education consultancy, immigration consultancy, migration agent, legal advisor, or financial advisor.</p>
-                </div>
-                <div>
-                  <h3 className="font-extrabold text-slate-800 mb-1 text-[13px]">3. Eligibility</h3>
-                  <p>The Platform is intended for users who are 18 years of age or older and legally capable of entering into a binding agreement. By creating an account, you represent and warrant that you are at least 18 years old.</p>
-                </div>
-                <div>
-                  <h3 className="font-extrabold text-slate-800 mb-1 text-[13px]">4. Consent to Contact</h3>
-                  <p>By registering, you consent to receive communications from AbroadLift regarding your account, updates, alerts, and service-related messages via email, phone, SMS, WhatsApp, or in-app notifications.</p>
-                </div>
-                <div>
-                  <h3 className="font-extrabold text-slate-800 mb-1 text-[13px]">5. Data Usage & Sharing</h3>
-                  <p>Your personal data may be used for account creation, personalized dashboards, cost estimations, documentation checklists, and may be shared with relevant third-party educational entities where you have requested or consented to sharing.</p>
-                </div>
-                <div>
-                  <h3 className="font-extrabold text-slate-800 mb-1 text-[13px]">6. No Guaranteed Outcome</h3>
-                  <p>AbroadLift does not guarantee admission, visa approval, scholarship approval, or any other outcome. All estimates, scores, and checklists are indicative only. Final responsibility remains with the user.</p>
-                </div>
-                <div>
-                  <h3 className="font-extrabold text-slate-800 mb-1 text-[13px]">7. Governing Law</h3>
-                  <p>These Terms shall be governed by the laws of Nepal. Any disputes shall first be attempted to be resolved amicably, and if unresolved, shall be subject to the jurisdiction of the competent courts of Pokhara or Kathmandu, Nepal.</p>
-                </div>
+                {sections.map((sec) => (
+                  <div key={sec.heading} className="space-y-1.5">
+                    <h3 className="font-extrabold text-slate-800 text-[13px]">{sec.heading}</h3>
+                    {sec.body.map((para, pIdx) => (
+                      <p key={pIdx}>{para}</p>
+                    ))}
+                  </div>
+                ))}
               </div>
 
               <div className="space-y-3">
@@ -492,21 +474,7 @@ function RegisterForm() {
             </div>
             )}
 
-            {/* Divider */}
-            <div className="w-full mt-6 mb-4 flex items-center justify-center">
-              <div className="h-px flex-1 bg-slate-200" />
-              <span className="px-4 text-[10px] font-black text-slate-400 tracking-widest uppercase">
-                OR CONTINUE WITH
-              </span>
-              <div className="h-px flex-1 bg-slate-200" />
-            </div>
 
-            {/* Social Options */}
-            <div className="flex gap-4 justify-center mb-6">
-              <SocialButton icon={<GoogleIcon />} />
-              <SocialButton icon={<AppleIcon />} />
-              <SocialButton icon={<FacebookLogo />} />
-            </div>
 
             {/* Footer */}
             <p className="text-[13px] font-semibold text-slate-500 text-center">

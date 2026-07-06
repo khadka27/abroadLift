@@ -175,7 +175,7 @@ const TrustedPartnersSection = () => {
               tuition: school.tuitionFee ? formatNPRDevanagari(parseInt(school.tuitionFee) * getRateToNpr(school.country || "")) : "Varies",
               intake: "Sep 2026",
               scholarship: true,
-              img: school.banner || school.logo || "/assets/university-melbourne.jpg",
+              img: (school.banner && school.banner.trim() !== "") ? school.banner : ((school.logo && school.logo.trim() !== "") ? school.logo : "/assets/university-melbourne.jpg"),
               country: school.country || "",
             }));
             setLiveUnis(mapped);
@@ -266,7 +266,7 @@ const TrustedPartnersSection = () => {
               <div>
                 <div className="relative h-48 bg-slate-50">
                   <Image
-                    src={u.img}
+                    src={u.img && u.img.trim() !== "" ? u.img : "/assets/university-melbourne.jpg"}
                     alt={u.name}
                     fill
                     className="object-cover"

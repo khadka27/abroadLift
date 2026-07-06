@@ -686,6 +686,156 @@ export function AdmissionDetails({
                   </p>
                 </div>
               </div>
+
+              {/* Side-by-Side Profile vs University Requirements Table */}
+              <div className="mt-8 pt-8 border-t border-slate-100/60 relative">
+                <h3 className="text-[18px] md:text-[20px] font-extrabold text-slate-900 mb-6 tracking-tight">
+                  Admission Comparison: Profile vs. University Requirements
+                </h3>
+                
+                <div className="overflow-x-auto rounded-[28px] border border-slate-100 bg-slate-50/30">
+                  <table className="w-full text-left border-collapse min-w-[500px]">
+                    <thead>
+                      <tr className="bg-slate-100/80 text-slate-400 text-[11px] font-black uppercase tracking-widest border-b border-slate-200">
+                        <th className="p-4 md:p-5">Evaluation Criterion</th>
+                        <th className="p-4 md:p-5">Your Profile Credentials</th>
+                        <th className="p-4 md:p-5">University Minimum Criteria</th>
+                        <th className="p-4 md:p-5 text-center">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-[14px]">
+                      {/* GPA / Academic Row */}
+                      <tr className="hover:bg-white transition-colors">
+                        <td className="p-4 md:p-5 font-bold text-slate-800">
+                          🎓 Academic GPA (CGPA)
+                        </td>
+                        <td className="p-4 md:p-5 font-extrabold text-slate-700">
+                          {gpa.toFixed(2)} / 4.0
+                        </td>
+                        <td className="p-4 md:p-5 font-semibold text-slate-500">
+                          {selectedMatch.gpaRequirement ? `${selectedMatch.gpaRequirement.toFixed(1)} / 4.0` : "3.0 / 4.0"}
+                        </td>
+                        <td className="p-4 md:p-5 text-center">
+                          {gpa >= (selectedMatch.gpaRequirement || 3.0) ? (
+                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm">
+                              Meets / Exceeds
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-100 shadow-sm">
+                              Below Target
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+
+                      {/* Language Score Row */}
+                      <tr className="hover:bg-white transition-colors">
+                        <td className="p-4 md:p-5 font-bold text-slate-800">
+                          💬 Language Score ({form.testType || "None"})
+                        </td>
+                        <td className="p-4 md:p-5 font-extrabold text-slate-700">
+                          {form.hasEnglishTest ? `${form.testType} ${form.testScore}` : "No Test Specified"}
+                        </td>
+                        <td className="p-4 md:p-5 font-semibold text-slate-500">
+                          {selectedMatch.englishReq ? `IELTS Equivalent: ${selectedMatch.englishReq.toFixed(1)}` : "IELTS Equivalent: 6.5"}
+                        </td>
+                        <td className="p-4 md:p-5 text-center">
+                          {(() => {
+                            const meetsLanguage = (form.testType === "IELTS" && testScore >= (selectedMatch.englishReq || 6.5)) ||
+                              (form.testType === "PTE Academic" && testScore >= 60) ||
+                              (form.testType === "TOEFL" && testScore >= 80) ||
+                              (form.testType === "Duolingo" && testScore >= 110) ||
+                              (form.testType === "Cambridge" && testScore >= 170) ||
+                              (!form.hasEnglishTest);
+                            
+                            return meetsLanguage ? (
+                              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm">
+                                Meets / Exceeds
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-100 shadow-sm">
+                                Below Target
+                              </span>
+                            );
+                          })()}
+                        </td>
+                      </tr>
+
+                      {/* Backlog Row */}
+                      <tr className="hover:bg-white transition-colors">
+                        <td className="p-4 md:p-5 font-bold text-slate-800">
+                          ⚠️ Active Backlogs
+                        </td>
+                        <td className="p-4 md:p-5 font-extrabold text-slate-700">
+                          {backlogs} Backlogs
+                        </td>
+                        <td className="p-4 md:p-5 font-semibold text-slate-500">
+                          Maximum recommended: ≤ 2 backlogs
+                        </td>
+                        <td className="p-4 md:p-5 text-center">
+                          {backlogs <= 2 ? (
+                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm">
+                              Meets / Exceeds
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-100 shadow-sm">
+                              Warning
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+
+                      {/* Study Gap Row */}
+                      <tr className="hover:bg-white transition-colors">
+                        <td className="p-4 md:p-5 font-bold text-slate-800">
+                          ⏳ Study Gap / Timeline
+                        </td>
+                        <td className="p-4 md:p-5 font-extrabold text-slate-700">
+                          {studyGap} Year(s) Gap
+                        </td>
+                        <td className="p-4 md:p-5 font-semibold text-slate-500">
+                          Maximum recommended: ≤ 2 years
+                        </td>
+                        <td className="p-4 md:p-5 text-center">
+                          {studyGap <= 2 ? (
+                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm">
+                              Meets / Exceeds
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-100 shadow-sm">
+                              Warning
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+
+                      {/* Budget vs Tuition Row */}
+                      <tr className="hover:bg-white transition-colors">
+                        <td className="p-4 md:p-5 font-bold text-slate-800">
+                          💰 Annual Tuition Fee
+                        </td>
+                        <td className="p-4 md:p-5 font-extrabold text-slate-700">
+                          Budget Limit: {form.budget ? `$${Number(form.budget).toLocaleString()}` : "Not Specified"}
+                        </td>
+                        <td className="p-4 md:p-5 font-semibold text-rose-600 font-extrabold">
+                          ${selectedMatch.tuitionFee ? selectedMatch.tuitionFee.toLocaleString() : "18,000"} / yr
+                        </td>
+                        <td className="p-4 md:p-5 text-center">
+                          {!form.budget || Number(form.budget) >= (selectedMatch.tuitionFee || 18000) ? (
+                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm">
+                              Meets / Exceeds
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-100 shadow-sm">
+                              Over Budget
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </Card>
           </div>
 

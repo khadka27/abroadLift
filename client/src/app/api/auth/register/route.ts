@@ -44,6 +44,7 @@ export async function POST(req: Request) {
       countryDialCode,
       phoneNumber,
       prefersWhatsApp,
+      acceptedTerms,
       // Student profile fields
       nationality,
       currentCountry,
@@ -209,6 +210,7 @@ export async function POST(req: Request) {
         otpCodeHash: otpHash,
         otpExpiresAt,
         role: "STUDENT",
+        acceptedTerms: acceptedTerms === true,
         profile: {
           create: {
             nationality: nationality || null,
@@ -227,6 +229,7 @@ export async function POST(req: Request) {
         phoneE164: true,
         phoneVerified: true,
         role: true,
+        acceptedTerms: true,
       },
     });
 

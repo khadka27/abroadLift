@@ -188,16 +188,6 @@ export default function SchoolDetailPage() {
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          {school.website && (
-            <a 
-              href={school.website}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-6 h-12 rounded-full bg-[#3686FF] hover:bg-[#2970E6] text-white font-extrabold text-[12px] uppercase tracking-wider flex items-center gap-2 transition-all shadow-[0_8px_20px_rgba(54,134,255,0.3)]"
-            >
-              Visit Website <ExternalLink className="w-4 h-4" />
-            </a>
-          )}
         </div>
 
         {/* School Name & Rank Title */}
@@ -212,9 +202,21 @@ export default function SchoolDetailPage() {
               {school.institution_type || "Public Institution"}
             </span>
           </div>
-          <h1 className="text-[32px] md:text-[56px] font-black leading-tight tracking-tight drop-shadow-md max-w-4xl text-white">
-            {school.name}
-          </h1>
+          <div className="flex flex-col md:flex-row md:items-center gap-4 max-w-5xl">
+            <h1 className="text-[32px] md:text-[56px] font-black leading-tight tracking-tight drop-shadow-md text-white">
+              {school.name}
+            </h1>
+            {school.website && (
+              <a 
+                href={school.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#3686FF] hover:bg-[#2970E6] text-white font-extrabold text-[12px] uppercase tracking-wider transition-all shadow-lg shadow-blue-500/20 hover:-translate-y-0.5 active:translate-y-0 shrink-0 md:mt-2"
+              >
+                Visit Website <ExternalLink className="w-4 h-4" />
+              </a>
+            )}
+          </div>
           <p className="text-[14px] md:text-[18px] font-medium opacity-90 mt-2 flex items-center gap-2">
             <MapPin className="w-4 h-4 text-rose-500" />
             {school.address ? `${school.address}, ` : ""}{school.city}, {school.province}, {school.country}

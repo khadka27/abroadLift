@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { abroadliftApi } from "@/lib/api/abroadlift";
+import { getAllSchoolsCached } from "@/lib/api/cache";
 
 const COUNTRY_ALIAS_TO_CODE: Record<string, string> = {
   US: "USA",
@@ -31,7 +31,7 @@ function normalizeCountryCode(country: string): string {
   return COUNTRY_ALIAS_TO_CODE[key] || key;
 }
 
-const DEFAULT_COUNTRIES = process.env.POPULAR_STUDY_COUNTRIES || "DE,JP,KR";
+const DEFAULT_COUNTRIES = process.env.POPULAR_STUDY_COUNTRIES || "CA,US";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -44,23 +44,23 @@ export async function GET(req: NextRequest) {
     .filter(Boolean);
 
   try {
-    const schoolsResponse = await abroadliftApi.getSchools(1, 100);
-    const schools = schoolsResponse.data || [];
+    // Fetch all schools from the cached multipage data
+    const schools = await getAllSchoolsCached();
 
-    // Filter by name/city search query and selected countries
+    // Filter by selected countries and search query q in memory
     const filteredSchools = schools.filter((school) => {
-      if (q) {
-        const matchesName = school.name?.toLowerCase().includes(q);
-        const matchesCity = school.city?.toLowerCase().includes(q);
-        const matchesAbout = school.about?.toLowerCase().includes(q);
-        if (!matchesName && !matchesCity && !matchesAbout) {
-          return false;
-        }
-      }
-
+      // 1. Filter by country code
       if (selectedCountries.length > 0) {
         const schoolCountryCode = normalizeCountryCode(school.country_code || school.country || "");
         if (!selectedCountries.includes(schoolCountryCode)) {
+          return false;
+        }
+      }
+      
+      // 2. Filter by search query q
+      if (q) {
+        const name = (school.name || "").toLowerCase();
+        if (!name.includes(q)) {
           return false;
         }
       }

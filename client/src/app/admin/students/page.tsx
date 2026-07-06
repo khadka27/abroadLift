@@ -23,6 +23,7 @@ interface Student {
   email: string;
   username: string;
   isActive: boolean;
+  acceptedTerms: boolean;
   createdAt: string;
   profile: {
     nationality: string | null;
@@ -157,6 +158,7 @@ export default function StudentsManagement() {
                   <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Student</th>
                   <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Contact</th>
                   <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Origin</th>
+                  <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Terms</th>
                   <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Activity</th>
                   <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Status</th>
                   <th className="px-8 py-5"></th>
@@ -186,6 +188,18 @@ export default function StudentsManagement() {
                       <span className="font-bold text-slate-700 text-sm">
                         {student.profile?.nationality || "Not set"}
                       </span>
+                    </td>
+                    <td className="px-8 py-4">
+                      {student.acceptedTerms ? (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black tracking-widest uppercase bg-blue-50 text-blue-600">
+                          <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                          Accepted
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black tracking-widest uppercase bg-slate-100 text-slate-500">
+                          ✗ Pending
+                        </span>
+                      )}
                     </td>
                     <td className="px-8 py-4">
                       <div className="flex gap-2">

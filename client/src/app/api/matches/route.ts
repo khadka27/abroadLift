@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
-import { getSchoolsCached, getProgramsCached } from "@/lib/api/cache";
-import prisma from "@/lib/db";
+import { getAllSchoolsCached, getSchoolsCached, getProgramsCached } from "@/lib/api/cache";
 
 function getProgramField(prog: any): string {
   const n = (prog.name || "").trim().toLowerCase();
@@ -123,7 +122,7 @@ function normalizeCountryCode(country: string): string {
   return COUNTRY_ALIAS_TO_CODE[key] || key;
 }
 
-const DEFAULT_COUNTRIES = process.env.POPULAR_STUDY_COUNTRIES || "DE,JP,KR";
+const DEFAULT_COUNTRIES = process.env.POPULAR_STUDY_COUNTRIES || "CA,US";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -141,7 +140,7 @@ export async function GET(req: NextRequest) {
 
   try {
     // 1. Fetch remote cached schools/programs
-    const schools = await getSchoolsCached();
+    const schools = await getAllSchoolsCached();
     const programs = hasCriteria ? await getProgramsCached() : [];
 
     const programsBySchool = new Map<number, any[]>();
@@ -300,91 +299,11 @@ export async function GET(req: NextRequest) {
       };
     });
 
-    // 2. Fetch local database universities for fallback/additional matches
-    let localUniversities: any[] = [];
-    try {
-      localUniversities = await prisma.university.findMany();
-    } catch (e) {
-      console.error("Failed to fetch local universities:", e);
-    }
-
-    const matchedLocalList = localUniversities.map((uni: any) => {
-      const schoolCountry = normalizeCountryCode(uni.country);
-      if (selectedCountries.length > 0 && !selectedCountries.includes(schoolCountry)) {
-        return null;
-      }
-
-      // Check criteria match for local universities
-      let matchesCriteria = true;
-      
-      if (degreeLevel) {
-        const dlLower = degreeLevel.toLowerCase();
-        const uniDegreeLower = (uni.degreeLevel || "").toLowerCase();
-        if (!uniDegreeLower.includes(dlLower) && !dlLower.includes(uniDegreeLower)) {
-          matchesCriteria = false;
-        }
-      }
-
-      if (field) {
-        const fLower = field.toLowerCase();
-        const uniFieldLower = (uni.fieldCategory || "").toLowerCase();
-        if (!uniFieldLower.includes(fLower) && !fLower.includes(uniFieldLower)) {
-          matchesCriteria = false;
-        }
-      }
-
-      if (program) {
-        const pLower = program.toLowerCase();
-        const uniFieldLower = (uni.fieldCategory || "").toLowerCase();
-        if (!uniFieldLower.includes("computer") && pLower.includes("computer")) {
-          matchesCriteria = false;
-        }
-      }
-
-      if (budget > 0 && uni.tuitionFee > budget) {
-        matchesCriteria = false;
-      }
-
-      const rank = uni.ranking || 500;
-      const admissionRate = Math.min(95, Math.max(25, 98 - Math.round(Math.log10(rank + 1) * 15)));
-
-      return {
-        id: uni.id,
-        name: uni.name,
-        location: `${uni.city}, ${uni.country}`,
-        countryCode: schoolCountry,
-        tuitionFee: uni.tuitionFee,
-        feeBand: uni.tuitionFee > 30000 ? "high" : uni.tuitionFee > 15000 ? "medium" : "low",
-        englishReq: uni.ieltsRequirement || 6.5,
-        admissionRate,
-        gpaRequirement: 3.0,
-        internationalPercentage: 24,
-        salaryMedian: rank < 100 ? 75000 : rank < 300 ? 60000 : 48000,
-        durationYears: uni.degreeLevel?.toLowerCase().includes("master") ? 2 : 4,
-        applicationDeadline: "30 June 2026",
-        rankingWorld: rank,
-        rankingNational: rank > 100 ? Math.round(rank / 10) : 5,
-        founded: 1900 + (rank % 100),
-        studentPopulation: 25000,
-        type: "Public Research",
-        logo: "",
-        banner: "/uni-default.webp",
-        website: uni.website || "",
-        popularPrograms: [
-          uni.degreeLevel?.toLowerCase().includes("master") 
-            ? `Master of Science in ${uni.fieldCategory || "Computer Science"}` 
-            : `Bachelor of Science in ${uni.fieldCategory || "Computer Science"}`
-        ],
-        matchType: matchesCriteria ? "exact" : "recommended",
-        description: `${uni.name} is a prestigious global institution located in ${uni.city}, ${uni.country}, offering leading programs in ${uni.fieldCategory || "academics"}.`,
-      };
-    });
-
-    // 3. Combine and Deduplicate
+    // 2. Combine and Deduplicate
     const seenNames = new Set<string>();
     const matches: any[] = [];
 
-    for (const match of [...matchedSchoolsList, ...matchedLocalList]) {
+    for (const match of matchedSchoolsList) {
       if (!match) continue;
       const normName = match.name.toLowerCase().trim();
       if (!seenNames.has(normName)) {
