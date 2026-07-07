@@ -3863,7 +3863,7 @@ export default function AbroadLiftMatchesPage() {
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="space-y-1">
                   <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
-                    <span>{selectedTest.emoji}</span>
+                    <selectedTest.icon className="w-5 h-5 text-[#3686FF]" />
                     <span>{selectedTest.name} Score Details</span>
                   </h3>
                   <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
@@ -4795,7 +4795,7 @@ export default function AbroadLiftMatchesPage() {
                 </h3>
                 {scholPercent > 0 && (
                   <div className="mt-4 px-4 py-1.5 rounded-full bg-white/20 text-[9px] font-black uppercase tracking-widest inline-flex items-center gap-2">
-                    <Sparkles className="w-3 h-3" />
+                    <Award className="w-3 h-3" />
                     Saved {formatNPRDevanagari(totalScholSavingsNpr)} via Merit
                   </div>
                 )}
@@ -5144,26 +5144,26 @@ export default function AbroadLiftMatchesPage() {
                 </div>
               </Card>
 
-              <Card className="p-12 rounded-[56px] border border-none bg-slate-900 text-white shadow-2xl relative overflow-hidden group">
+              <Card className="p-12 rounded-[56px] border border-blue-100 bg-[#3686FF]/5 text-slate-900 shadow-md relative overflow-hidden group">
                 <div className="flex flex-col md:flex-row items-center gap-12 relative z-10">
-                  <div className="w-28 h-28 rounded-full bg-white/10 flex items-center justify-center border border-white/5 backdrop-blur-3xl shrink-0 group-hover:scale-110 transition-transform">
-                    <Sparkles className="w-12 h-12 text-blue-400" />
+                  <div className="w-28 h-28 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                    <Trophy className="w-12 h-12 text-[#3686FF]" />
                   </div>
                   <div className="space-y-6">
-                    <h4 className="text-2xl font-black italic tracking-tight">
+                    <h4 className="text-2xl font-black italic tracking-tight text-slate-950">
                       Financial Strategy Protocol
                     </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-slate-300">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-slate-600">
                       <div className="space-y-4">
                         <div className="flex items-start gap-4">
-                          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-1" />
+                          <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-1" />
                           <p className="text-sm font-medium italic">
                             Your liquidity covers 85% of Year 1 commitment
                             upfront.
                           </p>
                         </div>
                         <div className="flex items-start gap-4">
-                          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-1" />
+                          <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-1" />
                           <p className="text-sm font-medium italic">
                             Sponsor verified for full {selectedMatch.name}{" "}
                             degree support.
@@ -5172,14 +5172,14 @@ export default function AbroadLiftMatchesPage() {
                       </div>
                       <div className="space-y-4">
                         <div className="flex items-start gap-4">
-                          <ShieldAlert className="w-5 h-5 text-amber-400 shrink-0 mt-1" />
+                          <ShieldAlert className="w-5 h-5 text-amber-500 shrink-0 mt-1" />
                           <p className="text-sm font-medium italic">
                             Projections account for standard inflation and cost
                             spikes.
                           </p>
                         </div>
                         <div className="flex items-start gap-4">
-                          <ShieldAlert className="w-5 h-5 text-amber-400 shrink-0 mt-1" />
+                          <ShieldAlert className="w-5 h-5 text-amber-500 shrink-0 mt-1" />
                           <p className="text-sm font-medium italic">
                             Recommended visa proof: {symbol}
                             {displayVal(totalInvestmentNpr * 1.05)}

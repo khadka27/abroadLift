@@ -199,7 +199,7 @@ export function StudyOverviewDashboard({
             <Target className="w-4 h-4" />
             Generated from your profile
           </div>
-          <h2 className="text-[28px] sm:text-[36px] md:text-[46px] font-extrabold text-[#111827] tracking-tight leading-[1.1] bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 bg-clip-text text-transparent">
+          <h2 className="text-[28px] sm:text-[36px] md:text-[46px] font-extrabold text-[#111827] tracking-tight leading-[1.1]">
             Your Preliminary Estimate
           </h2>
           <p className="text-[15px] md:text-[18px] text-slate-500 mt-2 font-medium">
@@ -259,7 +259,7 @@ export function StudyOverviewDashboard({
                 </h3>
               </div>
               <div className="mt-5">
-                <span className="text-[28px] font-black tracking-tight text-slate-900 bg-gradient-to-r from-slate-900 to-emerald-950 bg-clip-text text-transparent">
+                <span className="text-[28px] font-black tracking-tight text-slate-900">
                   {formatNprLakhRange(totalYear1Npr)}
                 </span>
                 <span className="text-slate-400 font-bold text-sm ml-1.5">
@@ -309,7 +309,7 @@ export function StudyOverviewDashboard({
                 </h3>
               </div>
               <div className="mt-5 flex items-baseline gap-2">
-                <span className="text-[28px] font-black tracking-tight text-slate-900 bg-gradient-to-r from-slate-900 to-amber-950 bg-clip-text text-transparent">
+                <span className="text-[28px] font-black tracking-tight text-slate-900">
                   {admissionPct}%
                 </span>
                 <span
@@ -368,7 +368,7 @@ export function StudyOverviewDashboard({
                 </h3>
               </div>
               <div className="mt-5 flex items-baseline gap-2">
-                <span className="text-[28px] font-black tracking-tight text-slate-900 bg-gradient-to-r from-slate-900 to-blue-950 bg-clip-text text-transparent">
+                <span className="text-[28px] font-black tracking-tight text-slate-900">
                   {visaChanceValue}%
                 </span>
                 <span className="font-bold text-sm text-blue-600">
@@ -412,21 +412,17 @@ export function StudyOverviewDashboard({
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="relative overflow-hidden rounded-[36px] border border-slate-950/20 bg-gradient-to-br from-slate-900 via-slate-950 to-indigo-950 p-6 md:p-10 shadow-[0_24px_70px_rgba(15,23,42,0.3)]"
+          className="relative overflow-hidden rounded-[36px] border border-blue-100 bg-[#3686FF]/5 p-6 md:p-10 shadow-[0_20px_50px_rgba(54,134,255,0.02)]"
         >
-          {/* Radial glow background details */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(56,134,255,0.25),transparent_40%),radial-gradient(circle_at_bottom_left,rgba(16,185,129,0.18),transparent_35%)]" />
-          <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-
           <div className="relative z-10 flex flex-col lg:flex-row lg:items-center gap-8">
             <div className="flex-1 space-y-4">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[11px] font-black uppercase tracking-[0.24em] text-sky-200">
-                <Sparkles className="w-4 h-4 text-sky-300" /> Final Roadmap
+              <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-4 py-1.5 text-[11px] font-black uppercase tracking-[0.24em] text-[#3686FF]">
+                Final Roadmap
               </div>
-              <h3 className="text-[28px] md:text-[36px] font-extrabold text-white tracking-tight leading-[1.15] max-w-2xl">
+              <h3 className="text-[28px] md:text-[36px] font-extrabold text-slate-900 tracking-tight leading-[1.15] max-w-2xl">
                 A focused plan to raise admission chances and control your budget.
               </h3>
-              <p className="max-w-2xl text-[15px] md:text-[16px] leading-relaxed text-slate-300 font-medium">
+              <p className="max-w-2xl text-[15px] md:text-[16px] leading-relaxed text-slate-500 font-medium">
                 Use the roadmap below to move from estimate to action in three
                 essential steps: cost optimization, profile improvement, and visa readiness.
               </p>
@@ -437,11 +433,10 @@ export function StudyOverviewDashboard({
                 <motion.button
                   key={step.title}
                   onClick={step.action}
-                  whileHover={{ y: -4, backgroundColor: "rgba(255, 255, 255, 0.08)" }}
+                  whileHover={{ y: -4 }}
                   whileTap={{ scale: 0.98 }}
-                  className="group text-left rounded-[28px] border border-white/10 bg-white/5 p-5 backdrop-blur-md transition-all duration-300 relative overflow-hidden"
+                  className="group text-left rounded-[28px] border border-slate-100 bg-white p-5 transition-all duration-300 relative overflow-hidden cursor-pointer hover:border-[#3686FF]/20 hover:shadow-md"
                 >
-                  <div className="absolute top-0 right-0 w-16 h-16 bg-white/5 rounded-full blur-xl pointer-events-none" />
                   <div
                     className={`h-1.5 w-14 rounded-full bg-gradient-to-r ${step.accent} mb-5`}
                   />
@@ -450,20 +445,20 @@ export function StudyOverviewDashboard({
                       <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-400">
                         Step 0{idx + 1}
                       </p>
-                      <h4 className="mt-1 text-lg font-extrabold text-white">
+                      <h4 className="mt-1 text-lg font-extrabold text-slate-950">
                         {step.title}
                       </h4>
                     </div>
-                    <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
+                    <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-[#3686FF] group-hover:translate-x-0.5 transition-all" />
                   </div>
-                  <p className="mt-3 text-[13px] leading-relaxed text-slate-300 font-medium">
+                  <p className="mt-3 text-[13px] leading-relaxed text-slate-500 font-medium">
                     {step.subtitle}
                   </p>
-                  <div className="mt-5 pt-3 border-t border-white/5 flex items-center justify-between gap-3">
-                    <span className="text-[13px] font-black text-white">
+                  <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
+                    <span className="text-[13px] font-black text-slate-950">
                       {step.detail}
                     </span>
-                    <span className="text-[12px] font-bold text-sky-300 group-hover:text-sky-200 transition-colors">
+                    <span className="text-[12px] font-bold text-[#3686FF] group-hover:text-blue-600 transition-colors">
                       {step.cta}
                     </span>
                   </div>

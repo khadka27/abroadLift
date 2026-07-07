@@ -62,6 +62,36 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { formatNPRDevanagari } from "@/lib/currency";
 import PremiumLoader from "@/components/PremiumLoader";
+import { FlagIcon } from "@/components/matches/FlagIcon";
+
+const formatDegree = (deg: string) => {
+  if (!deg) return "Bachelor's";
+  const mapping: Record<string, string> = {
+    masters_degree: "Master's Degree",
+    doctoral_phd: "Doctoral / PhD",
+    bachelors: "Bachelor's",
+    "3_year_bachelors": "3-Yr Bachelor's",
+    post_graduate_diploma: "Postgrad Diploma",
+    post_graduate_certificate: "Postgrad Certificate",
+    diploma: "Diploma",
+    advanced_diploma: "Advanced Diploma",
+    integrated_masters: "Integrated Master's",
+    certificate: "Certificate",
+    english: "ESL Language"
+  };
+  const key = deg.toLowerCase();
+  return mapping[key] || deg.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+};
+
+const formatTestType = (t: string) => {
+  if (!t) return "";
+  const upper = t.toUpperCase();
+  if (upper.includes("PTE")) return "PTE";
+  if (upper.includes("IELTS")) return "IELTS";
+  if (upper.includes("TOEFL")) return "TOEFL";
+  if (upper.includes("DUOLINGO")) return "DET";
+  return t;
+};
 
 /* ─── Types ─────────────────────────────────────────────────── */
 
@@ -311,6 +341,44 @@ function DashboardInner() {
   const [filterCountry, setFilterCountry] = useState("");
   const [filterDegree, setFilterDegree] = useState("");
   const [launchingId, setLaunchingId] = useState<string | number | null>(null);
+
+  const filteredShortlists = useMemo(() => {
+    return savedMatches.filter((m) => {
+      const mCountry = m.formData?.countries?.[0] || m.matchData?.countryCode || "";
+      const countryCodeMap: Record<string, string> = {
+        canada: "CA",
+        usa: "US",
+        "united kingdom": "GB",
+        uk: "GB",
+        australia: "AU",
+        germany: "DE",
+        ireland: "IE",
+        malta: "MT"
+      };
+
+      let passCountry = true;
+      if (filterCountry) {
+        const targetCode = filterCountry.toUpperCase();
+        const matchCode = (mCountry.length === 2 ? mCountry : (countryCodeMap[mCountry.toLowerCase()] || "")).toUpperCase();
+        passCountry = matchCode === targetCode;
+      }
+
+      let passDegree = true;
+      if (filterDegree) {
+        const rawDegree = m.formData?.degree || "bachelors";
+        const degreeLower = rawDegree.toLowerCase();
+        if (filterDegree === "master") {
+          passDegree = degreeLower.includes("master");
+        } else if (filterDegree === "bachelor") {
+          passDegree = degreeLower.includes("bachelor");
+        } else if (filterDegree === "diploma") {
+          passDegree = degreeLower.includes("diploma");
+        }
+      }
+
+      return passCountry && passDegree;
+    });
+  }, [savedMatches, filterCountry, filterDegree]);
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -965,50 +1033,48 @@ function DashboardInner() {
                     <div className="xl:col-span-2 space-y-6">
                       
                       {/* Enhanced Hero Banner */}
-                      <div className="rounded-[32px] bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white p-6 md:p-8 relative overflow-hidden shadow-[0_20px_50px_rgba(30,41,59,0.15)] group">
-                        <div className="absolute right-0 top-0 w-80 h-80 bg-blue-500/10 rounded-full blur-[80px] pointer-events-none transition-transform duration-1000 group-hover:scale-110" />
-                        <div className="absolute left-1/3 bottom-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-[70px] pointer-events-none" />
-                        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMC4yIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-5 pointer-events-none" />
+                      <div className="rounded-[32px] border border-blue-100 bg-[#3686FF]/5 p-6 md:p-8 relative overflow-hidden shadow-sm group">
+                        <div className="absolute right-0 top-0 w-80 h-80 bg-blue-500/5 rounded-full blur-[80px] pointer-events-none transition-transform duration-1000 group-hover:scale-110" />
                         
                         <div className="relative z-10">
                           <div className="flex flex-wrap items-start justify-between gap-4 mb-5">
-                            <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white/10 backdrop-blur-md text-sky-200 text-[11px] font-black tracking-wider uppercase rounded-full border border-white/10 shadow-sm">
-                              <Sparkles className="w-3.5 h-3.5 text-sky-300" />
+                            <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-50 text-[#3686FF] text-[11px] font-black tracking-wider uppercase rounded-full border border-blue-100 shadow-sm">
+                              <Compass className="w-3.5 h-3.5 text-[#3686FF]" />
                               Goal: {profile.preferredCountry || "Canada"} · {profile.intake || "Fall 2026"}
                             </div>
                             <div className="flex gap-2">
                               {profile.gpa && (
-                                <span className="px-2.5 py-1 rounded-xl bg-white/10 text-[10px] font-black text-white border border-white/10">GPA {profile.gpa}</span>
+                                <span className="px-2.5 py-1 rounded-xl bg-white text-[10px] font-black text-slate-700 border border-slate-200 shadow-xs">GPA {profile.gpa}</span>
                               )}
                               {profile.englishScore && (
-                                <span className="px-2.5 py-1 rounded-xl bg-emerald-500/20 text-[10px] font-black text-emerald-300 border border-emerald-400/20">{profile.testType || "IELTS"} {profile.englishScore}</span>
+                                <span className="px-2.5 py-1 rounded-xl bg-emerald-50 text-[10px] font-black text-emerald-700 border border-emerald-150 shadow-xs">{profile.testType || "IELTS"} {profile.englishScore}</span>
                               )}
                             </div>
                           </div>
 
-                          <h2 className="text-2xl md:text-3xl font-black tracking-tight leading-snug">Welcome back, {firstName}!</h2>
-                          <p className="text-slate-300 text-xs sm:text-sm mt-3 max-w-xl font-semibold leading-relaxed">
-                            Your academic credentials match <strong className="text-white">{matches.length || "12"} global institutions</strong>. {profileCompleteness < 80 ? "Complete your profile to unlock personalized recommendations." : "Your visa success probability is strong. Let's finish your SOP this week!"}
+                          <h2 className="text-2xl md:text-3xl font-black tracking-tight leading-snug text-slate-900">Welcome back, {firstName}!</h2>
+                          <p className="text-slate-500 text-xs sm:text-sm mt-3 max-w-xl font-semibold leading-relaxed">
+                            Your academic credentials match <strong className="text-[#3686FF] font-black">{matches.length || "12"} global institutions</strong>. {profileCompleteness < 80 ? "Complete your profile to unlock personalized recommendations." : "Your visa success probability is strong. Let's finish your SOP this week!"}
                           </p>
                           
                           <div className="flex flex-wrap gap-3 mt-6">
                             <button
                               onClick={() => setActiveTab("matches")}
-                              className="bg-[#3686FF] hover:bg-blue-500 text-white font-black px-5 py-3 rounded-2xl text-xs shadow-lg shadow-blue-500/30 transition-all active:scale-95 hover:shadow-blue-500/40 hover:-translate-y-0.5 flex items-center gap-1.5"
+                              className="bg-[#3686FF] hover:bg-blue-600 text-white font-black px-5 py-3 rounded-2xl text-xs shadow-lg shadow-blue-500/25 transition-all active:scale-95 hover:shadow-blue-500/35 hover:-translate-y-0.5 flex items-center gap-1.5 cursor-pointer"
                             >
                               <Compass className="w-4 h-4" /> Explore Matches
                             </button>
                             <button
                               onClick={() => setActiveTab("profile")}
-                              className="bg-white/10 hover:bg-white/20 text-white font-black px-5 py-3 rounded-2xl text-xs backdrop-blur-sm border border-white/10 transition-all active:scale-95 flex items-center gap-1.5"
+                              className="bg-white hover:bg-slate-50 text-slate-700 font-black px-5 py-3 rounded-2xl text-xs border border-slate-200 transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer shadow-sm"
                             >
-                              <Pencil className="w-4 h-4" /> Refine Profile
+                              <Pencil className="w-4 h-4 text-slate-400" /> Refine Profile
                             </button>
                             <button
                               onClick={() => router.push("/costing")}
-                              className="bg-amber-500/20 hover:bg-amber-400/30 text-amber-200 font-black px-5 py-3 rounded-2xl text-xs border border-amber-400/20 transition-all active:scale-95 flex items-center gap-1.5"
+                              className="bg-amber-50 hover:bg-amber-100/80 text-amber-700 font-black px-5 py-3 rounded-2xl text-xs border border-amber-100/60 transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
                             >
-                              <DollarSign className="w-4 h-4" /> Cost Estimator
+                              <DollarSign className="w-4 h-4 text-amber-600" /> Cost Estimator
                             </button>
                           </div>
                         </div>
@@ -1030,7 +1096,7 @@ function DashboardInner() {
                               <span className="font-semibold text-xs">No saved matches yet. Use the Matching Wizard to find and save your evaluations!</span>
                               <button
                                 onClick={() => router.push("/matches")}
-                                className="rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 px-4 py-2 text-[10px] font-bold text-white shadow-md transition-all active:scale-95 cursor-pointer"
+                                className="rounded-xl bg-[#3686FF] hover:bg-blue-600 px-4 py-2 text-[10px] font-bold text-white shadow-md transition-all active:scale-95 cursor-pointer"
                               >
                                 Start Matching Wizard
                               </button>
@@ -1039,33 +1105,6 @@ function DashboardInner() {
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                               {savedMatches.slice(0, 3).map((m) => {
                                 const rawDegree = m.formData?.degree || "bachelors";
-                                const formatDegree = (deg: string) => {
-                                  const mapping: Record<string, string> = {
-                                    masters_degree: "Master's Degree",
-                                    doctoral_phd: "Doctoral / PhD",
-                                    bachelors: "Bachelor's",
-                                    "3_year_bachelors": "3-Yr Bachelor's",
-                                    post_graduate_diploma: "Postgrad Diploma",
-                                    post_graduate_certificate: "Postgrad Certificate",
-                                    diploma: "Diploma",
-                                    advanced_diploma: "Advanced Diploma",
-                                    integrated_masters: "Integrated Master's",
-                                    certificate: "Certificate",
-                                    english: "ESL Language"
-                                  };
-                                  const key = deg.toLowerCase();
-                                  return mapping[key] || deg.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
-                                };
-                                const formatTestType = (t: string) => {
-                                  if (!t) return "";
-                                  const upper = t.toUpperCase();
-                                  if (upper.includes("PTE")) return "PTE";
-                                  if (upper.includes("IELTS")) return "IELTS";
-                                  if (upper.includes("TOEFL")) return "TOEFL";
-                                  if (upper.includes("DUOLINGO")) return "DET";
-                                  return t;
-                                };
-
                                 const degree = formatDegree(rawDegree);
                                 const gpa = m.formData?.gpa || "—";
                                 const testType = m.formData?.testType && m.formData?.testType !== "NONE" ? m.formData.testType : null;
@@ -1534,144 +1573,34 @@ function DashboardInner() {
                       </div>
                     </Card>
 
-                    {/* Section 1: User's Saved Match Profiles (Direct Step 8) */}
-                    {savedMatches.length > 0 && (
-                      <div className="space-y-4">
-                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] px-1">Your Shortlisted Match Profiles</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {savedMatches.map((item) => {
-                            const degree = item.formData?.degree || "Bachelor";
-                            const gpa = item.formData?.gpa || "—";
-                            const testType = item.formData?.testType && item.formData?.testType !== "NONE" ? item.formData.testType : null;
-                            const testScore = item.formData?.testScore || "";
-                            const univName = item.matchData?.name || "University Match";
-                            const admissionChance = item.admissionChance;
-                            const isExpanded = expandedProfileId === item.id;
-
-                            return (
-                              <Card key={item.id} className="rounded-[28px] p-5 border border-slate-100 bg-white shadow-md hover:border-blue-100 transition-all duration-300 flex flex-col justify-between gap-4">
-                                <div>
-                                  <div className="flex justify-between items-start mb-2">
-                                    <span className="inline-flex px-2 py-0.5 text-[9px] font-black tracking-widest uppercase bg-blue-50 text-blue-650 rounded-full">
-                                      {degree}
-                                    </span>
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-[10px] font-bold text-slate-400 uppercase">Saved Shortlist</span>
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setDeleteProfileId(item.id);
-                                        }}
-                                        className="text-slate-300 hover:text-red-500 transition-colors p-1 rounded-md hover:bg-red-50 cursor-pointer"
-                                        title="Delete saved profile"
-                                      >
-                                        <Trash2 className="w-3.5 h-3.5" />
-                                      </button>
-                                    </div>
-                                  </div>
-                                  <h4 className="font-extrabold text-slate-800 text-sm truncate">{univName}</h4>
-                                  <p className="text-xs text-slate-400 font-medium mt-1">
-                                    GPA {gpa} · {testType ? `${testType} ${testScore}` : "No Test"}
-                                  </p>
-
-                                  {/* Expander Button */}
-                                  <button
-                                    onClick={() => setExpandedProfileId(isExpanded ? null : item.id)}
-                                    className="flex items-center gap-1 text-[11px] font-bold text-blue-500 hover:text-blue-600 transition-colors mt-3 cursor-pointer"
-                                  >
-                                    {isExpanded ? (
-                                      <>Hide Details <ChevronUp className="w-3.5 h-3.5" /></>
-                                    ) : (
-                                      <>View Step Details <ChevronDown className="w-3.5 h-3.5" /></>
-                                    )}
-                                  </button>
-
-                                  {/* Collapsible Details Grid */}
-                                  <AnimatePresence>
-                                    {isExpanded && (
-                                      <motion.div
-                                        initial={{ opacity: 0, height: 0 }}
-                                        animate={{ opacity: 1, height: "auto" }}
-                                        exit={{ opacity: 0, height: 0 }}
-                                        transition={{ duration: 0.25 }}
-                                        className="overflow-hidden"
-                                      >
-                                        <div className="mt-4 pt-3 border-t border-slate-100 grid grid-cols-2 gap-x-4 gap-y-3 text-[11px] font-medium text-slate-500">
-                                          <div>
-                                            <span className="text-slate-400 block text-[9px] font-bold uppercase tracking-wider">Target Countries</span>
-                                            <strong className="text-slate-700">{item.formData?.countries?.join(", ") || item.formData?.preferredCountry || "Canada"}</strong>
-                                          </div>
-                                          <div>
-                                            <span className="text-slate-400 block text-[9px] font-bold uppercase tracking-wider">Course Preference</span>
-                                            <strong className="text-slate-700 truncate block" title={item.formData?.program || item.formData?.field || "General"}>
-                                              {item.formData?.program || item.formData?.field || "General"}
-                                            </strong>
-                                          </div>
-                                          <div>
-                                            <span className="text-slate-400 block text-[9px] font-bold uppercase tracking-wider">Target Intake</span>
-                                            <strong className="text-slate-700">{item.formData?.intake || "Fall 2026"}</strong>
-                                          </div>
-                                          <div>
-                                            <span className="text-slate-400 block text-[9px] font-bold uppercase tracking-wider">Yearly Budget</span>
-                                            <strong className="text-slate-700">${parseInt(item.formData?.budget || "30000").toLocaleString()} USD/yr</strong>
-                                          </div>
-                                          <div>
-                                            <span className="text-slate-400 block text-[9px] font-bold uppercase tracking-wider">Backlogs & Gap</span>
-                                            <strong className="text-slate-700">{item.formData?.backlogs || "0"} backlogs · {item.formData?.studyGap || "0"} yr gap</strong>
-                                          </div>
-                                          <div>
-                                            <span className="text-slate-400 block text-[9px] font-bold uppercase tracking-wider">Financial Sponsor</span>
-                                            <strong className="text-slate-700">{item.formData?.sponsorType || "Self"} (${parseInt(item.formData?.sponsorIncome || "1500000").toLocaleString()} NPR)</strong>
-                                          </div>
-                                        </div>
-                                      </motion.div>
-                                    )}
-                                  </AnimatePresence>
-                                </div>
-                                <div className="flex items-center justify-between pt-3 border-t border-slate-50 mt-2">
-                                  <div className="text-left">
-                                    <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Admit Odds</p>
-                                    <p className="text-sm font-extrabold text-blue-600 leading-none mt-1">{admissionChance ?? "—"}%</p>
-                                  </div>
-                                  <button
-                                    onClick={() => handleLoadSavedProfile(item)}
-                                    className="bg-slate-50 border border-slate-200 hover:border-[#3686FF] hover:bg-[#3686FF] hover:text-white text-slate-600 font-bold px-3 py-2 rounded-xl text-[10px] shadow-sm transition-all active:scale-95 cursor-pointer"
-                                  >
-                                    Open Analytics (Step 8)
-                                  </button>
-                                </div>
-                              </Card>
-                            );
-                          })}
-                        </div>
+                    {/* Premium Unified Filters Bar at the Top */}
+                    <Card className="rounded-2xl p-4 border border-slate-100 shadow-sm bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div className="flex items-center gap-2 text-slate-400 font-bold text-xs">
+                        <Filter className="w-3.5 h-3.5 text-[#3686FF]" />
+                        FILTER MATCHES & RECOMMENDATIONS:
                       </div>
-                    )}
-
-                    {/* Section 2: Recommended Universities */}
-                    <div className="space-y-4">
-                      <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] px-1">More Recommended Universities for You</h3>
-                      
-                      {/* Premium Filters bar inside tab */}
-                      <Card className="rounded-2xl p-4 border-none shadow-md bg-white flex flex-wrap gap-4 items-center justify-between">
-                        <div className="flex items-center gap-2 text-slate-400 font-bold text-xs">
-                          <Filter className="w-3.5 h-3.5" />
-                          FILTERS:
-                        </div>
-                        <div className="flex flex-wrap gap-3">
+                      <div className="flex flex-wrap gap-3">
+                        <div className="relative">
                           <select
                             value={filterCountry}
                             onChange={(e) => setFilterCountry(e.target.value)}
-                            className="bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 text-xs font-bold text-slate-600 outline-none hover:border-blue-200"
+                            className="bg-slate-50 border border-slate-200/80 rounded-xl px-4 py-2 text-xs font-black text-slate-705 outline-none hover:border-[#3686FF] transition-all cursor-pointer shadow-2xs appearance-none pr-8 relative bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%2522%20fill%3D%22none%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:10px] bg-[right_10px_center] bg-no-repeat"
                           >
                             <option value="">All Countries</option>
                             <option value="CA">Canada</option>
                             <option value="US">United States</option>
                             <option value="GB">United Kingdom</option>
+                            <option value="AU">Australia</option>
+                            <option value="DE">Germany</option>
+                            <option value="IE">Ireland</option>
+                            <option value="MT">Malta</option>
                           </select>
+                        </div>
+                        <div className="relative">
                           <select
                             value={filterDegree}
                             onChange={(e) => setFilterDegree(e.target.value)}
-                            className="bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 text-xs font-bold text-slate-600 outline-none hover:border-blue-200"
+                            className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-black text-slate-705 outline-none hover:border-[#3686FF] transition-all cursor-pointer shadow-2xs appearance-none pr-8 relative bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%2522%20fill%3D%22none%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:10px] bg-[right_10px_center] bg-no-repeat"
                           >
                             <option value="">All Degrees</option>
                             <option value="bachelor">Bachelor</option>
@@ -1679,7 +1608,143 @@ function DashboardInner() {
                             <option value="diploma">Diploma</option>
                           </select>
                         </div>
-                      </Card>
+                      </div>
+                    </Card>
+
+                    {/* Section 1: User's Saved Match Profiles (Direct Step 8) */}
+                    {savedMatches.length > 0 && (
+                      <div className="space-y-4">
+                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] px-1">Your Shortlisted Match Profiles</h3>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {filteredShortlists.length === 0 ? (
+                            <div className="col-span-full py-12 text-center bg-white rounded-[28px] border border-slate-100 text-slate-400 font-semibold text-xs flex flex-col items-center justify-center gap-2">
+                              No match profiles found matching selected filters.
+                            </div>
+                          ) : (
+                            filteredShortlists.map((item) => {
+                              const degree = item.formData?.degree || "Bachelor";
+                              const gpa = item.formData?.gpa || "—";
+                              const testType = item.formData?.testType && item.formData?.testType !== "NONE" ? item.formData.testType : null;
+                              const testScore = item.formData?.testScore || "";
+                              const univName = item.matchData?.name || "University Match";
+                              const countryCode = item.formData?.countries?.[0] || item.matchData?.countryCode || "CA";
+                              const admissionChance = item.admissionChance;
+                              const isExpanded = expandedProfileId === item.id;
+
+                              return (
+                                <Card key={item.id} className="rounded-[28px] p-5 border border-slate-100 bg-white shadow-md hover:border-blue-100 transition-all duration-300 flex flex-col justify-between gap-4">
+                                  <div>
+                                    <div className="flex justify-between items-start mb-2 gap-2">
+                                      <div className="flex items-center gap-2">
+                                        <FlagIcon countryCode={countryCode} className="w-5 h-3.5 rounded-[3px] object-cover shrink-0 shadow-xs" />
+                                        <span className="inline-flex px-2.5 py-0.5 text-[9px] font-black tracking-widest uppercase bg-blue-50 text-blue-650 rounded-full border border-blue-100/50">
+                                          {formatDegree(degree)}
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center gap-2">
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setDeleteProfileId(item.id);
+                                          }}
+                                          className="text-slate-300 hover:text-red-500 transition-colors p-1 rounded-md hover:bg-red-50 cursor-pointer"
+                                          title="Delete saved match"
+                                        >
+                                          <Trash2 className="w-3.5 h-3.5" />
+                                        </button>
+                                      </div>
+                                    </div>
+                                    <h4 className="font-extrabold text-slate-800 text-[15px] leading-tight hover:text-[#3686FF] transition-colors truncate mt-3" title={univName}>{univName}</h4>
+                                    
+                                    <div className="space-y-2 mt-4 mb-3 text-[11px] font-bold text-slate-500">
+                                      <div className="flex justify-between items-center bg-slate-50 px-3 py-2 rounded-xl border border-slate-100/50">
+                                        <span className="text-slate-400 font-medium">GPA / Test</span>
+                                        <span className="text-slate-800 font-extrabold truncate max-w-[140px]" title={`GPA ${gpa} · ${testType ? `${testType} ${testScore}` : "No Test"}`}>
+                                          GPA {gpa} · {testType ? `${formatTestType(testType)} ${testScore}` : "No Test"}
+                                        </span>
+                                      </div>
+                                    </div>
+
+                                    {/* Expander Button */}
+                                    <button
+                                      onClick={() => setExpandedProfileId(isExpanded ? null : item.id)}
+                                      className="flex items-center gap-1 text-[11px] font-bold text-blue-500 hover:text-blue-600 transition-colors mt-3 cursor-pointer"
+                                    >
+                                      {isExpanded ? (
+                                        <>Hide Details <ChevronUp className="w-3.5 h-3.5" /></>
+                                      ) : (
+                                        <>View Step Details <ChevronDown className="w-3.5 h-3.5" /></>
+                                      )}
+                                    </button>
+
+                                    {/* Collapsible Details Grid */}
+                                    <AnimatePresence>
+                                      {isExpanded && (
+                                        <motion.div
+                                          initial={{ opacity: 0, height: 0 }}
+                                          animate={{ opacity: 1, height: "auto" }}
+                                          exit={{ opacity: 0, height: 0 }}
+                                          transition={{ duration: 0.25 }}
+                                          className="overflow-hidden"
+                                        >
+                                          <div className="mt-4 pt-4 border-t border-slate-100 grid grid-cols-2 gap-3 text-[11px] font-bold text-slate-500">
+                                            <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100/50">
+                                              <span className="text-slate-400 block text-[8px] font-black uppercase tracking-wider mb-0.5">Target Countries</span>
+                                              <strong className="text-slate-800 truncate block">{item.formData?.countries?.join(", ") || item.formData?.preferredCountry || "Canada"}</strong>
+                                            </div>
+                                            <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100/50">
+                                              <span className="text-slate-400 block text-[8px] font-black uppercase tracking-wider mb-0.5">Course Preference</span>
+                                              <strong className="text-slate-800 truncate block" title={item.formData?.program || item.formData?.field || "General"}>
+                                                {item.formData?.program || item.formData?.field || "General"}
+                                              </strong>
+                                            </div>
+                                            <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100/50">
+                                              <span className="text-slate-400 block text-[8px] font-black uppercase tracking-wider mb-0.5">Target Intake</span>
+                                              <strong className="text-slate-800 block">{item.formData?.intake || "Fall 2026"}</strong>
+                                            </div>
+                                            <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100/50">
+                                              <span className="text-slate-400 block text-[8px] font-black uppercase tracking-wider mb-0.5">Yearly Budget</span>
+                                              <strong className="text-slate-800 block">${parseInt(item.formData?.budget || "30000").toLocaleString()} USD/yr</strong>
+                                            </div>
+                                            <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100/50">
+                                              <span className="text-slate-400 block text-[8px] font-black uppercase tracking-wider mb-0.5">Backlogs & Gap</span>
+                                              <strong className="text-slate-800 block">{item.formData?.backlogs || "0"} backlogs · {item.formData?.studyGap || "0"} yr gap</strong>
+                                            </div>
+                                            <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100/50">
+                                              <span className="text-slate-400 block text-[8px] font-black uppercase tracking-wider mb-0.5">Financial Sponsor</span>
+                                              <strong className="text-slate-800 block truncate">{item.formData?.sponsorType || "Self"} (${parseInt(item.formData?.sponsorIncome || "1500000").toLocaleString()} NPR)</strong>
+                                            </div>
+                                          </div>
+                                        </motion.div>
+                                      )}
+                                    </AnimatePresence>
+                                  </div>
+                                  <div className="flex items-center justify-between pt-4 border-t border-slate-100 mt-2">
+                                    <div className="text-left">
+                                      <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Admit Odds</p>
+                                      <p className="text-base font-black text-[#10B981] leading-none mt-1">{admissionChance ?? "—"}%</p>
+                                    </div>
+                                    <button
+                                      onClick={() => handleLoadSavedProfile(item)}
+                                      className="bg-[#3686FF] hover:bg-blue-600 text-white font-extrabold px-4 py-2.5 rounded-xl text-[10px] uppercase tracking-wider shadow-sm transition-all active:scale-95 cursor-pointer"
+                                    >
+                                      Open Analytics (Step 8)
+                                    </button>
+                                  </div>
+                                </Card>
+                              );
+                            })
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Section 2: Recommended Universities */}
+                    <div className="space-y-4">
+                      <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] px-1">More Recommended Universities for You</h3>
+
+
 
                       {matchesLoading ? (
                         <div className="flex py-16 justify-center items-center">

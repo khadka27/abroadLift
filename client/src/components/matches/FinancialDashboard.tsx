@@ -635,7 +635,7 @@ export function FinancialDashboard({
               </div>
               Back to Dashboard
             </button>
-            <h1 className="text-[32px] sm:text-[40px] md:text-[46px] font-extrabold text-[#111827] tracking-tight leading-[1.1] bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 bg-clip-text text-transparent">
+            <h1 className="text-[32px] sm:text-[40px] md:text-[46px] font-extrabold text-[#111827] tracking-tight leading-[1.1]">
               Estimated Cost Breakdown
             </h1>
             <p className="text-slate-500 text-[15px] md:text-[17px] leading-relaxed font-medium">
@@ -889,7 +889,7 @@ export function FinancialDashboard({
           <div className="lg:col-span-8">
             <Card className="rounded-[36px] border border-white/60 bg-white/70 backdrop-blur-xl shadow-[0_12px_40px_rgba(31,41,55,0.04)] overflow-hidden h-full">
               <div className="p-6 sm:p-8 md:p-12">
-                <h2 className="text-[22px] md:text-[26px] font-extrabold text-slate-900 mb-10 tracking-tight bg-gradient-to-r from-slate-900 to-indigo-950 bg-clip-text text-transparent">
+                <h2 className="text-[22px] md:text-[26px] font-extrabold text-slate-900 mb-10 tracking-tight">
                   Detailed Expense Categories
                 </h2>
 

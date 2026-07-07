@@ -4,6 +4,18 @@ import React from "react";
 import { Plane } from "lucide-react";
 
 export default function PremiumLoader({ message = "Initializing Portal..." }: { message?: string }) {
+  const [mounted, setMounted] = React.useState(false);
+  
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    // Return a minimal, transparent fallback during SSR to avoid hydration mismatches 
+    // caused by browser extensions injecting attributes into the complex div tree.
+    return <div className="fixed inset-0 bg-[#0f172a]" />;
+  }
+
   return (
     <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#1e40af] text-white overflow-hidden">
       {/* CSS Animations */}

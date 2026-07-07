@@ -7,11 +7,13 @@ import { usePathname } from "next/navigation";
 
 const FOOTER_LINKS = {
   Destinations: [
-    { href: "/matches?country=AU", label: "Australia" },
+    { href: "/matches?country=US", label: "United States" },
+    { href: "/matches?country=GB", label: "United Kingdom" },
     { href: "/matches?country=CA", label: "Canada" },
+    { href: "/matches?country=AU", label: "Australia" },
     { href: "/matches?country=DE", label: "Germany" },
     { href: "/matches?country=IE", label: "Ireland" },
-    { href: "/matches?country=UK", label: "United Kingdom" },
+    { href: "/matches?country=MT", label: "Malta" },
   ],
   About: [
     { href: "/about", label: "Our Story" },
@@ -60,19 +62,19 @@ export default function Footer() {
             </Link>
             
             <address className="not-italic text-[#64748B] text-[15px] leading-[1.8] mb-8 font-medium">
-              101 Frederick St,<br />
-              Kitchener, ON<br />
-              N2H 6R2
+              Chanaute Road,<br />
+              Pokhara-19, Kaski 60600<br />
+              Nepal
             </address>
 
             <div className="flex flex-wrap items-center gap-4">
-              <a href="#" className="text-[#3686FF] hover:text-[#2563eb] transition-colors" aria-label="Facebook">
+              <a href="https://facebook.com/abroadlift" target="_blank" rel="noopener noreferrer" className="text-[#3686FF] hover:text-[#2563eb] transition-colors" aria-label="Facebook">
                 <Facebook className="w-5 h-5 fill-current" strokeWidth={0} />
               </a>
-              <a href="#" className="text-[#3686FF] hover:text-[#2563eb] transition-colors" aria-label="Twitter">
+              <a href="https://twitter.com/abroadlift" target="_blank" rel="noopener noreferrer" className="text-[#3686FF] hover:text-[#2563eb] transition-colors" aria-label="Twitter">
                 <Twitter className="w-5 h-5 fill-current" strokeWidth={0} />
               </a>
-              <a href="#" className="text-[#3686FF] hover:text-[#2563eb] transition-colors" aria-label="Instagram">
+              <a href="https://instagram.com/abroadlift" target="_blank" rel="noopener noreferrer" className="text-[#3686FF] hover:text-[#2563eb] transition-colors" aria-label="Instagram">
                 <Instagram className="w-5 h-5" strokeWidth={2.5} />
               </a>
             </div>

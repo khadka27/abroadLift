@@ -611,7 +611,7 @@ function UniversityDetailsModal({
               <div className="rounded-[32px] bg-white p-8 shadow-[0_10px_40px_rgba(0,0,0,0.04)] border border-slate-100">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center">
-                    <Sparkles className="w-5 h-5 text-amber-500" />
+                    <Award className="w-5 h-5 text-amber-500" />
                   </div>
                   <h4 className="text-[20px] font-extrabold text-slate-900 tracking-tight">Highlights</h4>
                 </div>

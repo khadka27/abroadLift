@@ -238,7 +238,7 @@ export function VisaEligibility({
               </div>
               Back to Dashboard
             </button>
-            <h1 className="text-[32px] sm:text-[40px] md:text-[46px] font-extrabold text-slate-900 tracking-tight leading-[1.1] bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 bg-clip-text text-transparent">
+            <h1 className="text-[32px] sm:text-[40px] md:text-[46px] font-extrabold text-slate-900 tracking-tight leading-[1.1]">
               Visa Readiness
             </h1>
             <p className="text-slate-500 text-[15px] md:text-[17px] leading-relaxed font-medium">
@@ -382,7 +382,6 @@ export function VisaEligibility({
                 <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.2),transparent_50%)] pointer-events-none" />
                 <div className="relative z-10">
                   <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.18em] text-blue-100/90 mb-5">
-                    <Sparkles className="w-4 h-4" />
                     Missing Documents
                   </div>
                   <div className="space-y-4">
@@ -566,7 +565,7 @@ export function VisaEligibility({
             <Card className="p-6 md:p-8 rounded-[36px] border border-white/60 bg-white/70 backdrop-blur-xl shadow-[0_12px_40px_rgba(31,41,55,0.04)]">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white shrink-0 shadow-lg shadow-blue-500/20">
-                  <Sparkles className="w-5 h-5" />
+                  <FileCheck className="w-5 h-5" />
                 </div>
                 <div>
                   <h4 className="font-extrabold text-slate-900 text-lg">
