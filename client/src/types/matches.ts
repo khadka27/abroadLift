@@ -50,6 +50,8 @@ export interface Form {
   highestEducation: string;
   passingYear: string;
   hasEnglishTest: boolean | null;
+  plannedTestType: string;
+  plannedTestScore: string;
   passportReady: boolean;
   testDone: boolean;
   docsReady: boolean;

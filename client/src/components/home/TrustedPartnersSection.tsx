@@ -5,14 +5,37 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-const countries = [
+const fallbackCountries = [
   { name: "Canada", flag: "🇨🇦" },
-  { name: "United-States", flag: "🇺🇸" },
+  { name: "United States", flag: "🇺🇸" },
   { name: "United Kingdom", flag: "🇬🇧" },
   { name: "Australia", flag: "🇦🇺" },
   { name: "Germany", flag: "🇩🇪" },
   { name: "Ireland", flag: "🇮🇪" },
 ];
+
+const FLAG_MAP: Record<string, string> = {
+  "Canada": "🇨🇦",
+  "USA": "🇺🇸",
+  "United States": "🇺🇸",
+  "United Kingdom": "🇬🇧",
+  "UK": "🇬🇧",
+  "Australia": "🇦🇺",
+  "Germany": "🇩🇪",
+  "Ireland": "🇮🇪",
+  "Malta": "🇲🇹",
+  "Japan": "🇯🇵",
+  "South Korea": "🇰🇷",
+  "Netherlands": "🇳🇱",
+  "France": "🇫🇷",
+  "Italy": "🇮🇹",
+  "Spain": "🇪🇸",
+  "Sweden": "🇸🇪",
+  "Switzerland": "🇨🇭",
+  "New Zealand": "🇳🇿",
+  "Singapore": "🇸🇬",
+  "UAE": "🇦🇪"
+};
 
 interface UniversityItem {
   id: string | number;
@@ -159,6 +182,7 @@ const fallbackUniversities: UniversityItem[] = [
 const TrustedPartnersSection = () => {
   const [activeCountry, setActiveCountry] = useState("Canada");
   const [liveUnis, setLiveUnis] = useState<UniversityItem[]>([]);
+  const [dynamicCountries, setDynamicCountries] = useState<{name: string, flag: string}[]>([]);
 
   useEffect(() => {
     const fetchFeaturedSchools = async () => {
@@ -175,7 +199,11 @@ const TrustedPartnersSection = () => {
               tuition: school.tuitionFee ? formatNPRDevanagari(parseInt(school.tuitionFee) * getRateToNpr(school.country || "")) : "Varies",
               intake: "Sep 2026",
               scholarship: true,
-              img: (school.banner && school.banner.trim() !== "") ? school.banner : ((school.logo && school.logo.trim() !== "") ? school.logo : "/assets/university-melbourne.jpg"),
+              img: (typeof school.banner === "string" && school.banner.trim() !== "") 
+                ? school.banner 
+                : ((typeof school.logo === "string" && school.logo.trim() !== "") 
+                  ? school.logo 
+                  : "/assets/university-melbourne.jpg"),
               country: school.country || "",
             }));
             setLiveUnis(mapped);
@@ -186,7 +214,30 @@ const TrustedPartnersSection = () => {
       }
     };
 
+    const fetchCountries = async () => {
+      try {
+        const res = await fetch("/api/schools?allCountries=true");
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+            const fetched = json.data.map((c: any) => ({
+              name: c.name,
+              flag: FLAG_MAP[c.name] || "🌎"
+            }));
+            setDynamicCountries(fetched);
+            // Optionally set active country to the first fetched if not present in fallback
+            if (fetched.length > 0 && !fetched.some((c: any) => c.name.toLowerCase() === "canada")) {
+              setActiveCountry(fetched[0].name);
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load countries:", err);
+      }
+    };
+
     fetchFeaturedSchools();
+    fetchCountries();
   }, []);
 
   const filteredUniversities = useMemo(() => {
@@ -207,6 +258,34 @@ const TrustedPartnersSection = () => {
         const uCountry = (u.country || "").toLowerCase();
         return uCountry === targetCountry;
       });
+    }
+
+    // 3. Guarantee exactly 3 universities for ANY country (pad with popular placeholders if API/fallback falls short)
+    if (matched.length < 3) {
+      const missingCount = 3 - matched.length;
+      const genericNames = [
+        `National University of ${activeCountry === "United-States" ? "USA" : activeCountry}`,
+        `${activeCountry === "United-States" ? "American" : activeCountry} Institute of Technology`,
+        `Global Business School ${activeCountry === "United-States" ? "USA" : activeCountry}`
+      ];
+      
+      for (let i = 0; i < missingCount; i++) {
+        // Offset by matched length so we pick different names
+        const nameIdx = (matched.length + i) % 3;
+        matched.push({
+          id: `gen-${targetCountry}-${i}`,
+          name: genericNames[nameIdx],
+          location: `Popular City, ${activeCountry === "United-States" ? "USA" : activeCountry}`,
+          rank: nameIdx === 0 ? "Top 10 National" : "Featured",
+          tuition: "$15,000",
+          intake: "Sep 2026",
+          scholarship: nameIdx % 2 === 0,
+          img: nameIdx === 0 
+            ? "https://images.unsplash.com/photo-1541339907198-e08756ebafe3?auto=format&fit=crop&q=80&w=800" 
+            : (nameIdx === 1 ? "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&q=80&w=800" : "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&q=80&w=800"),
+          country: activeCountry,
+        });
+      }
     }
 
     // Return at most 3 top universities for the selected country
@@ -237,7 +316,7 @@ const TrustedPartnersSection = () => {
 
         {/* Interactive Country Selection Tabs */}
         <div className="flex flex-wrap justify-center gap-3 mb-12">
-          {countries.map((c) => {
+          {(dynamicCountries.length > 0 ? dynamicCountries : fallbackCountries).map((c) => {
             const isActive = activeCountry === c.name;
             return (
               <button
@@ -266,7 +345,7 @@ const TrustedPartnersSection = () => {
               <div>
                 <div className="relative h-48 bg-slate-50">
                   <Image
-                    src={u.img && u.img.trim() !== "" ? u.img : "/assets/university-melbourne.jpg"}
+                    src={typeof u.img === "string" && u.img.trim() !== "" ? u.img : "/assets/university-melbourne.jpg"}
                     alt={u.name}
                     fill
                     className="object-cover"

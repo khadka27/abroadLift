@@ -946,6 +946,8 @@ const DEF: Form = {
   highestEducation: "",
   passingYear: "",
   hasEnglishTest: null,
+  plannedTestType: "",
+  plannedTestScore: "",
   passportReady: false,
   testDone: false,
   docsReady: false,
@@ -3779,6 +3781,23 @@ export default function AbroadLiftMatchesPage() {
         ? Math.round(((scoreVal - selectedTest.min) / (selectedTest.max - selectedTest.min)) * 100)
         : 0;
 
+      // Planned Test Score Validation
+      let plannedScoreError = "";
+      if (form.plannedTestType && form.plannedTestScore) {
+        const pScore = parseFloat(form.plannedTestScore);
+        if (isNaN(pScore)) {
+          plannedScoreError = "Please enter a valid number";
+        } else if (form.plannedTestType === "IELTS" && (pScore < 0 || pScore > 9)) {
+          plannedScoreError = "IELTS score must be between 0 and 9";
+        } else if (form.plannedTestType === "PTE" && (pScore < 10 || pScore > 90)) {
+          plannedScoreError = "PTE score must be between 10 and 90";
+        } else if (form.plannedTestType === "TOEFL" && (pScore < 0 || pScore > 120)) {
+          plannedScoreError = "TOEFL score must be between 0 and 120";
+        } else if (form.plannedTestType === "Duolingo" && (pScore < 10 || pScore > 160)) {
+          plannedScoreError = "Duolingo score must be between 10 and 160";
+        }
+      }
+
       return (
         <div className="flex flex-col animate-in fade-in zoom-in-95 duration-700 w-full max-w-5xl mx-auto pb-2 px-4">
           <div className="mb-3 text-center">
@@ -3948,7 +3967,7 @@ export default function AbroadLiftMatchesPage() {
           )}
 
           {form.hasEnglishTest === false && (
-            <div className="text-center p-6 bg-blue-50/40 rounded-[28px] border border-blue-100/50 w-full max-w-2xl mx-auto animate-in zoom-in-95 duration-500 space-y-4">
+            <div className="text-center p-6 bg-blue-50/40 rounded-[28px] border border-blue-100/50 w-full max-w-2xl mx-auto animate-in zoom-in-95 duration-500 space-y-6">
               <div>
                 <p className="text-blue-800 font-extrabold mb-1 text-[16px]">
                   No problem!
@@ -3956,6 +3975,40 @@ export default function AbroadLiftMatchesPage() {
                 <p className="text-blue-600/80 text-[13px] font-semibold leading-relaxed">
                   You can continue to search matches without a score. Many universities offer pathway programs or English waivers, though we recommend preparing for a test later.
                 </p>
+              </div>
+              <div className="bg-white/80 rounded-2xl p-5 text-left border border-blue-100 space-y-4">
+                <p className="font-bold text-slate-800 text-[14px]">
+                  Which test do you plan to take? (Optional)
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-2 block">Planned Test</label>
+                    <select
+                      value={form.plannedTestType}
+                      onChange={(e) => setForm({ ...form, plannedTestType: e.target.value })}
+                      className="w-full bg-[#F4F7FF] text-slate-800 text-[15px] font-bold rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#3686FF]/50 border border-transparent transition-all"
+                    >
+                      <option value="">Select a test</option>
+                      <option value="IELTS">IELTS</option>
+                      <option value="PTE">PTE</option>
+                      <option value="TOEFL">TOEFL</option>
+                      <option value="Duolingo">Duolingo</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-2 block">Target Score</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. 6.5, 65, 90"
+                      value={form.plannedTestScore}
+                      onChange={(e) => setForm({ ...form, plannedTestScore: e.target.value })}
+                      className={`w-full bg-[#F4F7FF] text-slate-800 text-[15px] font-bold rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#3686FF]/50 border transition-all placeholder:font-medium placeholder:text-slate-400 ${plannedScoreError ? 'border-red-400 ring-2 ring-red-400/20' : 'border-transparent'}`}
+                    />
+                    {plannedScoreError && (
+                      <p className="text-red-500 text-[11px] font-bold mt-1.5">{plannedScoreError}</p>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           )}
