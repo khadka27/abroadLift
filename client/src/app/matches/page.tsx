@@ -69,6 +69,7 @@ import {
   Info as InfoIcon,
   CheckCircle,
   Save,
+  XCircle,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
@@ -3661,15 +3662,15 @@ export default function AbroadLiftMatchesPage() {
 
     if (step === 5) {
       const TEST_OPTIONS = [
-        { id: "IELTS", name: "IELTS", min: 0, max: 9, min50: 4.5, placeholder: "e.g., 6.5", step: "0.5", emoji: "🎓", desc: "Overall Band Score (0-9)" },
-        { id: "PTE Academic", name: "PTE Academic", min: 10, max: 90, min50: 50, placeholder: "e.g., 65", step: "1", emoji: "📝", desc: "Global Score (10-90)" },
-        { id: "TOEFL", name: "TOEFL iBT", min: 0, max: 120, min50: 60, placeholder: "e.g., 90", step: "1", emoji: "🌐", desc: "Internet test (0-120)" },
-        { id: "Duolingo", name: "Duolingo", min: 10, max: 160, min50: 85, placeholder: "e.g., 115", step: "5", emoji: "🦉", desc: "DET English Test (10-160)" },
-        { id: "Cambridge", name: "Cambridge English", min: 120, max: 230, min50: 160, placeholder: "e.g., 180", step: "1", emoji: "🇬🇧", desc: "Cambridge English Scale (120-230)" },
-        { id: "SAT", name: "SAT", min: 400, max: 1600, min50: 1000, placeholder: "e.g., 1200", step: "10", emoji: "🧠", desc: "SAT General (400-1600)" },
-        { id: "GRE", name: "GRE", min: 260, max: 340, min50: 300, placeholder: "e.g., 310", step: "1", emoji: "🔬", desc: "GRE Graduate (260-340)" },
-        { id: "GMAT", name: "GMAT", min: 200, max: 800, min50: 500, placeholder: "e.g., 600", step: "10", emoji: "📊", desc: "GMAT Management (200-800)" },
-        { id: "NONE", name: "No Test / None", min: 0, max: 0, min50: 0, placeholder: "", step: "1", emoji: "❌", desc: "No test taken yet" }
+        { id: "IELTS", name: "IELTS", min: 0, max: 9, min50: 4.5, placeholder: "e.g., 6.5", step: "0.5", icon: GraduationCap, desc: "Overall Band Score (0-9)" },
+        { id: "PTE Academic", name: "PTE Academic", min: 10, max: 90, min50: 50, placeholder: "e.g., 65", step: "1", icon: ScrollText, desc: "Global Score (10-90)" },
+        { id: "TOEFL", name: "TOEFL iBT", min: 0, max: 120, min50: 60, placeholder: "e.g., 90", step: "1", icon: Globe, desc: "Internet test (0-120)" },
+        { id: "Duolingo", name: "Duolingo", min: 10, max: 160, min50: 85, placeholder: "e.g., 115", step: "5", icon: Award, desc: "DET English Test (10-160)" },
+        { id: "Cambridge", name: "Cambridge English", min: 120, max: 230, min50: 160, placeholder: "e.g., 180", step: "1", icon: FileCheck, desc: "Cambridge English Scale (120-230)" },
+        { id: "SAT", name: "SAT", min: 400, max: 1600, min50: 1000, placeholder: "e.g., 1200", step: "10", icon: Brain, desc: "SAT General (400-1600)" },
+        { id: "GRE", name: "GRE", min: 260, max: 340, min50: 300, placeholder: "e.g., 310", step: "1", icon: Microscope, desc: "GRE Graduate (260-340)" },
+        { id: "GMAT", name: "GMAT", min: 200, max: 800, min50: 500, placeholder: "e.g., 600", step: "10", icon: LineChart, desc: "GMAT Management (200-800)" },
+        { id: "NONE", name: "No Test / None", min: 0, max: 0, min50: 0, placeholder: "", step: "1", icon: XCircle, desc: "No test taken yet" }
       ];
 
       const COUNTRY_CODE_TO_NAME: Record<string, string> = {
@@ -3684,53 +3685,53 @@ export default function AbroadLiftMatchesPage() {
 
       const TEST_SUPPORT_MATRIX: Record<string, Record<string, { status: "supported" | "limited" | "not_supported" | "some_unis" | "many_unis"; message: string }>> = {
         "Canada": {
-          IELTS: { status: "supported", message: "✅ Fully accepted by all universities and SDS visa stream." },
-          "PTE Academic": { status: "supported", message: "✅ Fully accepted by all universities and SDS visa stream." },
-          TOEFL: { status: "supported", message: "✅ Fully accepted by all universities and SDS visa stream." },
-          Duolingo: { status: "many_unis", message: "✅ Accepted by many universities for admission." },
-          Cambridge: { status: "some_unis", message: "✅ Accepted by some universities for admission." }
+          IELTS: { status: "supported", message: "Fully accepted by all universities and SDS visa stream." },
+          "PTE Academic": { status: "supported", message: "Fully accepted by all universities and SDS visa stream." },
+          TOEFL: { status: "supported", message: "Fully accepted by all universities and SDS visa stream." },
+          Duolingo: { status: "many_unis", message: "Accepted by many universities for admission." },
+          Cambridge: { status: "some_unis", message: "Accepted by some universities for admission." }
         },
         "United States": {
-          IELTS: { status: "supported", message: "✅ Fully accepted by all universities." },
-          "PTE Academic": { status: "supported", message: "✅ Fully accepted by all universities." },
-          TOEFL: { status: "supported", message: "✅ Fully accepted by all universities." },
-          Duolingo: { status: "many_unis", message: "✅ Accepted by many universities for admission." },
-          Cambridge: { status: "some_unis", message: "✅ Accepted by some universities for admission." }
+          IELTS: { status: "supported", message: "Fully accepted by all universities." },
+          "PTE Academic": { status: "supported", message: "Fully accepted by all universities." },
+          TOEFL: { status: "supported", message: "Fully accepted by all universities." },
+          Duolingo: { status: "many_unis", message: "Accepted by many universities for admission." },
+          Cambridge: { status: "some_unis", message: "Accepted by some universities for admission." }
         },
         "Australia": {
-          IELTS: { status: "supported", message: "✅ Fully accepted for admission and student visa." },
-          "PTE Academic": { status: "supported", message: "✅ Fully accepted for admission and student visa." },
-          TOEFL: { status: "supported", message: "✅ Fully accepted for admission and student visa." },
+          IELTS: { status: "supported", message: "Fully accepted for admission and student visa." },
+          "PTE Academic": { status: "supported", message: "Fully accepted for admission and student visa." },
+          TOEFL: { status: "supported", message: "Fully accepted for admission and student visa." },
           Duolingo: { status: "not_supported", message: "This language is not supported in this country" },
-          Cambridge: { status: "supported", message: "✅ Accepted for admission and student visa." }
+          Cambridge: { status: "supported", message: "Accepted for admission and student visa." }
         },
         "United Kingdom": {
-          IELTS: { status: "supported", message: "✅ Fully accepted. IELTS Academic/UKVI is standard." },
-          "PTE Academic": { status: "supported", message: "✅ Fully accepted by all universities." },
-          TOEFL: { status: "supported", message: "✅ Fully accepted by all universities." },
-          Duolingo: { status: "some_unis", message: "⚠️ Accepted by some universities only. Check university specific requirements." },
-          Cambridge: { status: "supported", message: "✅ Fully accepted by all universities." }
+          IELTS: { status: "supported", message: "Fully accepted. IELTS Academic/UKVI is standard." },
+          "PTE Academic": { status: "supported", message: "Fully accepted by all universities." },
+          TOEFL: { status: "supported", message: "Fully accepted by all universities." },
+          Duolingo: { status: "some_unis", message: "Accepted by some universities only. Check university specific requirements." },
+          Cambridge: { status: "supported", message: "Fully accepted by all universities." }
         },
         "Ireland": {
-          IELTS: { status: "supported", message: "✅ Fully accepted by all universities." },
-          "PTE Academic": { status: "supported", message: "✅ Fully accepted by all universities." },
-          TOEFL: { status: "supported", message: "✅ Fully accepted by all universities." },
-          Duolingo: { status: "some_unis", message: "⚠️ Accepted by some universities. Check university specific requirements." },
-          Cambridge: { status: "supported", message: "✅ Fully accepted by all universities." }
+          IELTS: { status: "supported", message: "Fully accepted by all universities." },
+          "PTE Academic": { status: "supported", message: "Fully accepted by all universities." },
+          TOEFL: { status: "supported", message: "Fully accepted by all universities." },
+          Duolingo: { status: "some_unis", message: "Accepted by some universities. Check university specific requirements." },
+          Cambridge: { status: "supported", message: "Fully accepted by all universities." }
         },
         "Germany": {
-          IELTS: { status: "supported", message: "✅ Fully accepted by all universities." },
-          "PTE Academic": { status: "supported", message: "✅ Fully accepted by all universities." },
-          TOEFL: { status: "supported", message: "✅ Fully accepted by all universities." },
-          Duolingo: { status: "some_unis", message: "⚠️ Accepted by some universities. Check university specific requirements." },
-          Cambridge: { status: "supported", message: "✅ Fully accepted by all universities." }
+          IELTS: { status: "supported", message: "Fully accepted by all universities." },
+          "PTE Academic": { status: "supported", message: "Fully accepted by all universities." },
+          TOEFL: { status: "supported", message: "Fully accepted by all universities." },
+          Duolingo: { status: "some_unis", message: "Accepted by some universities. Check university specific requirements." },
+          Cambridge: { status: "supported", message: "Fully accepted by all universities." }
         },
         "Malta": {
-          IELTS: { status: "supported", message: "✅ Fully accepted by all universities." },
-          "PTE Academic": { status: "supported", message: "✅ Fully accepted by all universities." },
-          TOEFL: { status: "supported", message: "✅ Fully accepted by all universities." },
-          Duolingo: { status: "some_unis", message: "⚠️ Accepted by some universities. Check university specific requirements." },
-          Cambridge: { status: "supported", message: "✅ Fully accepted by all universities." }
+          IELTS: { status: "supported", message: "Fully accepted by all universities." },
+          "PTE Academic": { status: "supported", message: "Fully accepted by all universities." },
+          TOEFL: { status: "supported", message: "Fully accepted by all universities." },
+          Duolingo: { status: "some_unis", message: "Accepted by some universities. Check university specific requirements." },
+          Cambridge: { status: "supported", message: "Fully accepted by all universities." }
         }
       };
 
@@ -3803,13 +3804,23 @@ export default function AbroadLiftMatchesPage() {
                     ? "bg-rose-50 text-rose-700 border border-rose-100 animate-pulse"
                     : "bg-amber-50 text-amber-700 border border-amber-100"
                 }`}>
-                  {support.status === "supported"
-                    ? "✅ Accepted"
-                    : support.status === "many_unis"
-                    ? "✅ Many Unis"
-                    : support.status === "not_supported"
-                    ? "❌ Not Accepted"
-                    : "⚠️ Some Unis"}
+                  {support.status === "supported" ? (
+                    <span className="flex items-center gap-1">
+                      <Check className="w-2.5 h-2.5 text-emerald-700" /> Accepted
+                    </span>
+                  ) : support.status === "many_unis" ? (
+                    <span className="flex items-center gap-1">
+                      <Check className="w-2.5 h-2.5 text-emerald-700" /> Many Unis
+                    </span>
+                  ) : support.status === "not_supported" ? (
+                    <span className="flex items-center gap-1">
+                      <XCircle className="w-2.5 h-2.5 text-rose-700" /> Not Accepted
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1">
+                      <AlertTriangle className="w-2.5 h-2.5 text-amber-700" /> Some Unis
+                    </span>
+                  )}
                 </span>
               ) : null;
 
@@ -3825,12 +3836,15 @@ export default function AbroadLiftMatchesPage() {
                   }`}
                 >
                   {isSelected && (
-                    <span className="absolute top-3 right-3 w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center text-white text-[10px] font-black">
-                      ✓
+                    <span className="absolute top-3 right-3 w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center text-white">
+                      <Check className="w-3 h-3 stroke-[3]" />
                     </span>
                   )}
                   <div>
-                    <span className="text-2xl mb-1.5 block">{test.emoji}</span>
+                    {(() => {
+                      const TestIcon = test.icon;
+                      return <TestIcon className={`w-6 h-6 mb-2 ${isSelected ? "text-blue-500" : "text-slate-400"}`} />;
+                    })()}
                     <span className={`text-[11px] font-black uppercase block tracking-wider leading-none mb-1 ${isSelected ? "text-blue-600" : "text-slate-400"}`}>
                       {test.name}
                     </span>
@@ -3885,8 +3899,14 @@ export default function AbroadLiftMatchesPage() {
                       ? "bg-rose-50/70 border-rose-100 text-rose-800"
                       : "bg-amber-50/70 border-amber-100 text-amber-800"
                   }`}>
-                    <span className="text-lg shrink-0 mt-0.5">
-                      {supportInfo.status === "supported" || supportInfo.status === "many_unis" ? "✅" : supportInfo.status === "not_supported" ? "❌" : "⚠️"}
+                    <span className="shrink-0 mt-0.5">
+                      {supportInfo.status === "supported" || supportInfo.status === "many_unis" ? (
+                        <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                      ) : supportInfo.status === "not_supported" ? (
+                        <ShieldAlert className="w-5 h-5 text-rose-600" />
+                      ) : (
+                        <AlertTriangle className="w-5 h-5 text-amber-600" />
+                      )}
                     </span>
                     <div className="space-y-1">
                       <p className="font-extrabold text-[14px] leading-tight">

@@ -54,10 +54,14 @@ import {
   ChevronUp,
   DollarSign,
   GraduationCap,
+  Lightbulb,
+  Rocket,
+  Paperclip,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { formatNPRDevanagari } from "@/lib/currency";
+import PremiumLoader from "@/components/PremiumLoader";
 
 /* ─── Types ─────────────────────────────────────────────────── */
 
@@ -690,14 +694,7 @@ function DashboardInner() {
   ];
 
   if (status === "loading" || loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-12 w-12 text-blue-600 animate-spin" />
-          <p className="text-sm font-bold text-slate-500 animate-pulse">Initializing Premium Portal...</p>
-        </div>
-      </div>
-    );
+    return <PremiumLoader message="Initializing Premium Portal. Please Wait..." />;
   }
 
   return (
@@ -712,7 +709,7 @@ function DashboardInner() {
         <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] lg:grid-cols-[300px_1fr] gap-6 lg:gap-8">
           
           {/* ══════════ SIDEBAR (NAVIGATION) ══════════ */}
-          <aside className="md:block md:sticky md:top-[110px] md:h-fit">
+          <aside className="md:block md:sticky md:top-[110px] md:h-fit self-start">
             <div className="space-y-6">
               
               {/* Profile Card */}
@@ -989,7 +986,7 @@ function DashboardInner() {
                             </div>
                           </div>
 
-                          <h2 className="text-2xl md:text-3xl font-black tracking-tight leading-snug">Welcome back, {firstName}! 👋</h2>
+                          <h2 className="text-2xl md:text-3xl font-black tracking-tight leading-snug">Welcome back, {firstName}!</h2>
                           <p className="text-slate-300 text-xs sm:text-sm mt-3 max-w-xl font-semibold leading-relaxed">
                             Your academic credentials match <strong className="text-white">{matches.length || "12"} global institutions</strong>. {profileCompleteness < 80 ? "Complete your profile to unlock personalized recommendations." : "Your visa success probability is strong. Let's finish your SOP this week!"}
                           </p>
@@ -997,24 +994,111 @@ function DashboardInner() {
                           <div className="flex flex-wrap gap-3 mt-6">
                             <button
                               onClick={() => setActiveTab("matches")}
-                              className="bg-[#3686FF] hover:bg-blue-500 text-white font-black px-5 py-3 rounded-2xl text-xs shadow-lg shadow-blue-500/30 transition-all active:scale-95 hover:shadow-blue-500/40 hover:-translate-y-0.5"
+                              className="bg-[#3686FF] hover:bg-blue-500 text-white font-black px-5 py-3 rounded-2xl text-xs shadow-lg shadow-blue-500/30 transition-all active:scale-95 hover:shadow-blue-500/40 hover:-translate-y-0.5 flex items-center gap-1.5"
                             >
-                              🎓 Explore Matches
+                              <Compass className="w-4 h-4" /> Explore Matches
                             </button>
                             <button
                               onClick={() => setActiveTab("profile")}
-                              className="bg-white/10 hover:bg-white/20 text-white font-black px-5 py-3 rounded-2xl text-xs backdrop-blur-sm border border-white/10 transition-all active:scale-95"
+                              className="bg-white/10 hover:bg-white/20 text-white font-black px-5 py-3 rounded-2xl text-xs backdrop-blur-sm border border-white/10 transition-all active:scale-95 flex items-center gap-1.5"
                             >
-                              ✏️ Refine Profile
+                              <Pencil className="w-4 h-4" /> Refine Profile
                             </button>
                             <button
                               onClick={() => router.push("/costing")}
-                              className="bg-amber-500/20 hover:bg-amber-400/30 text-amber-200 font-black px-5 py-3 rounded-2xl text-xs border border-amber-400/20 transition-all active:scale-95"
+                              className="bg-amber-500/20 hover:bg-amber-400/30 text-amber-200 font-black px-5 py-3 rounded-2xl text-xs border border-amber-400/20 transition-all active:scale-95 flex items-center gap-1.5"
                             >
-                              💰 Cost Estimator
+                              <DollarSign className="w-4 h-4" /> Cost Estimator
                             </button>
                           </div>
                         </div>
+                      </div>
+
+                      {/* Recent Matches Section */}
+                      <div className="space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-75">
+                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] px-1">
+                          Recent Matches
+                        </h3>
+                        <Card className="rounded-[32px] p-6 border border-white/60 bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 relative overflow-hidden">
+                          {loading ? (
+                            <div className="flex py-10 justify-center items-center">
+                              <Loader2 className="w-6 h-6 text-blue-600 animate-spin mr-3" />
+                              <span className="font-bold text-slate-500 animate-pulse text-xs">Loading saved matches...</span>
+                            </div>
+                          ) : savedMatches.length === 0 ? (
+                            <div className="text-center py-8 text-slate-500 flex flex-col items-center gap-3">
+                              <span className="font-semibold text-xs">No saved matches yet. Use the Matching Wizard to find and save your evaluations!</span>
+                              <button
+                                onClick={() => router.push("/matches")}
+                                className="rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 px-4 py-2 text-[10px] font-bold text-white shadow-md transition-all active:scale-95 cursor-pointer"
+                              >
+                                Start Matching Wizard
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                              {savedMatches.slice(0, 3).map((m) => {
+                                const degree = m.formData?.degree || "Bachelor";
+                                const gpa = m.formData?.gpa || "—";
+                                const testType = m.formData?.testType && m.formData?.testType !== "NONE" ? m.formData.testType : null;
+                                const testScore = m.formData?.testScore || "";
+                                const univName = m.matchData?.name || "University Match";
+                                const countryCode = m.formData?.countries?.[0] || m.matchData?.countryCode || "CA";
+                                const city = m.matchData?.city || "";
+                                const tuitionFee = m.matchData?.tuitionFee || 18000;
+                                const admissionChance = m.admissionChance;
+
+                                return (
+                                  <div
+                                    key={m.id}
+                                    onClick={() => handleLoadSavedProfile(m)}
+                                    className="rounded-2xl p-4 border border-slate-100 bg-white/50 hover:bg-white hover:shadow-md hover:border-blue-200 transition-all duration-300 flex flex-col justify-between group cursor-pointer"
+                                  >
+                                    <div>
+                                      <div className="flex justify-between items-start mb-2">
+                                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black tracking-widest uppercase bg-blue-50 text-blue-600">
+                                          {degree}
+                                        </span>
+                                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black tracking-widest uppercase bg-emerald-50 text-emerald-600">
+                                          Admit Odds: {admissionChance ?? "—"}%
+                                        </span>
+                                      </div>
+                                      <h4 className="font-extrabold text-slate-800 text-sm truncate group-hover:text-[#3686FF] transition-colors" title={univName}>
+                                        {univName}
+                                      </h4>
+                                      <p className="text-[10px] text-slate-400 font-semibold flex items-center gap-1 mt-1">
+                                        <MapPin className="w-3.5 h-3.5 shrink-0" />
+                                        {city ? `${city}, ` : ""}{countryCode}
+                                      </p>
+                                      
+                                      <div className="space-y-1.5 mt-3 mb-2 text-[11px] font-semibold text-slate-500">
+                                        <div className="flex justify-between">
+                                          <span className="text-slate-400">GPA / Test:</span>
+                                          <span className="text-slate-700 font-black">GPA {gpa} · {testType ? `${testType} ${testScore}` : "No Test"}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                          <span className="text-slate-400">Est. Tuition:</span>
+                                          <span className="text-slate-850 font-black">${Number(tuitionFee).toLocaleString()}/yr</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div className="flex gap-2 pt-2 border-t border-slate-100/60 mt-2">
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleLoadSavedProfile(m);
+                                        }}
+                                        className="w-full bg-[#3686FF] hover:bg-blue-600 text-white font-bold py-2 rounded-xl text-[10px] shadow-sm transition-all active:scale-95 cursor-pointer text-center flex items-center justify-center gap-1"
+                                      >
+                                        Open Step 8 Analytics <ChevronRight className="w-3 h-3" />
+                                      </button>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </Card>
                       </div>
 
                       {/* Enhanced Application Progress Roadmap */}
@@ -1055,55 +1139,56 @@ function DashboardInner() {
                           />
                           
                           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 relative z-10">
-                            {[
-                              { label: "Profile", emoji: "👤", done: profileCompleteness >= 65, tab: "profile" as TabKey },
-                              { label: "Documents", emoji: "📂", done: documents.filter(d => d.status === "Uploaded").length >= 3, tab: "documents" as TabKey },
-                              { label: "Shortlisted", emoji: "🎯", done: savedMatches.length > 0, tab: "saved-universities" as TabKey },
-                              { label: "Applied", emoji: "📨", done: applications.some(a => a.stage === "Submitted" || a.stage === "Under Review"), tab: "applications" as TabKey },
-                              { label: "Offer", emoji: "🎉", done: applications.some(a => a.stage === "Offer Received" || a.stage === "Accepted"), tab: "applications" as TabKey },
-                              { label: "Visa", emoji: "✈️", done: false, tab: "visa-assistance" as TabKey },
-                            ].map((stepItem, idx) => {
-                              const prevsDone = [
-                                profileCompleteness >= 65,
-                                documents.filter(d => d.status === "Uploaded").length >= 3,
-                                savedMatches.length > 0,
-                                applications.some(a => a.stage === "Submitted" || a.stage === "Under Review"),
-                                applications.some(a => a.stage === "Offer Received" || a.stage === "Accepted")
-                              ];
-                              const isActiveStep = !stepItem.done && (idx === 0 || prevsDone.slice(0, idx).every(Boolean));
+                             {[
+                               { label: "Profile", icon: User, done: profileCompleteness >= 65, tab: "profile" as TabKey },
+                               { label: "Documents", icon: FileText, done: documents.filter(d => d.status === "Uploaded").length >= 3, tab: "documents" as TabKey },
+                               { label: "Shortlisted", icon: Bookmark, done: savedMatches.length > 0, tab: "saved-universities" as TabKey },
+                               { label: "Applied", icon: Send, done: applications.some(a => a.stage === "Submitted" || a.stage === "Under Review"), tab: "applications" as TabKey },
+                               { label: "Offer", icon: Award, done: applications.some(a => a.stage === "Offer Received" || a.stage === "Accepted"), tab: "applications" as TabKey },
+                               { label: "Visa", icon: Globe, done: false, tab: "visa-assistance" as TabKey },
+                             ].map((stepItem, idx) => {
+                               const prevsDone = [
+                                 profileCompleteness >= 65,
+                                 documents.filter(d => d.status === "Uploaded").length >= 3,
+                                 savedMatches.length > 0,
+                                 applications.some(a => a.stage === "Submitted" || a.stage === "Under Review"),
+                                 applications.some(a => a.stage === "Offer Received" || a.stage === "Accepted")
+                               ];
+                               const isActiveStep = !stepItem.done && (idx === 0 || prevsDone.slice(0, idx).every(Boolean));
+                               const StepIcon = stepItem.icon;
 
-                              return (
-                                <button
-                                  key={idx}
-                                  onClick={() => setActiveTab(stepItem.tab)}
-                                  className="flex flex-col items-center text-center group cursor-pointer"
-                                >
-                                  <div className="relative mb-2.5">
-                                    {isActiveStep && (
-                                      <div className="absolute -inset-2 rounded-full bg-blue-500/20 animate-ping" />
-                                    )}
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center border-[3px] border-white shadow-md relative z-10 transition-all text-lg ${
-                                      stepItem.done
-                                        ? "bg-emerald-500 shadow-emerald-500/25"
-                                        : isActiveStep
-                                        ? "bg-[#3686FF] shadow-blue-500/25"
-                                        : "bg-slate-100"
-                                    }`}>
-                                      {stepItem.done ? (
-                                        <Check className="w-4 h-4 stroke-[3] text-white" />
-                                      ) : (
-                                        <span className={isActiveStep ? "text-white" : ""}>{stepItem.emoji}</span>
-                                      )}
-                                    </div>
-                                    {isActiveStep && (
-                                      <span className="absolute -top-5 left-1/2 -translate-x-1/2 text-[8px] font-black text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-full whitespace-nowrap">NEXT</span>
-                                    )}
-                                  </div>
-                                  <span className={`text-[10px] font-bold leading-tight ${
-                                    stepItem.done ? "text-emerald-600" : isActiveStep ? "text-[#3686FF]" : "text-slate-400"
-                                  }`}>
-                                    {stepItem.label}
-                                  </span>
+                               return (
+                                 <button
+                                   key={idx}
+                                   onClick={() => setActiveTab(stepItem.tab)}
+                                   className="flex flex-col items-center text-center group cursor-pointer"
+                                 >
+                                   <div className="relative mb-2.5">
+                                     {isActiveStep && (
+                                       <div className="absolute -inset-2 rounded-full bg-blue-500/20 animate-ping" />
+                                     )}
+                                     <div className={`w-10 h-10 rounded-full flex items-center justify-center border-[3px] border-white shadow-md relative z-10 transition-all text-lg ${
+                                       stepItem.done
+                                         ? "bg-emerald-500 shadow-emerald-500/25"
+                                         : isActiveStep
+                                         ? "bg-[#3686FF] shadow-blue-500/25 text-white"
+                                         : "bg-slate-100 text-slate-400"
+                                     }`}>
+                                       {stepItem.done ? (
+                                         <Check className="w-4 h-4 stroke-[3] text-white" />
+                                       ) : (
+                                         <StepIcon className="w-4 h-4" />
+                                       )}
+                                     </div>
+                                     {isActiveStep && (
+                                       <span className="absolute -top-5 left-1/2 -translate-x-1/2 text-[8px] font-black text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-full whitespace-nowrap">NEXT</span>
+                                     )}
+                                   </div>
+                                   <span className={`text-[10px] font-bold leading-tight ${
+                                     stepItem.done ? "text-emerald-600" : isActiveStep ? "text-[#3686FF]" : "text-slate-400"
+                                   }`}>
+                                     {stepItem.label}
+                                   </span>
                                 </button>
                               );
                             })}
@@ -1114,22 +1199,25 @@ function DashboardInner() {
                       {/* Quick Action Buttons - Enhanced */}
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                         {[
-                          { label: "Complete Profile", tab: "profile" as TabKey, emoji: "👤", gradient: "from-blue-500 to-indigo-600", shadow: "shadow-blue-500/20" },
-                          { label: "Upload Documents", tab: "documents" as TabKey, emoji: "📎", gradient: "from-violet-500 to-purple-600", shadow: "shadow-violet-500/20" },
-                          { label: "Find Universities", tab: "matches" as TabKey, emoji: "🏛️", gradient: "from-emerald-500 to-teal-600", shadow: "shadow-emerald-500/20" },
-                          { label: "Apply Now", tab: "applications" as TabKey, emoji: "🚀", gradient: "from-amber-500 to-orange-500", shadow: "shadow-amber-500/20" },
-                        ].map((act, i) => (
-                          <motion.button
-                            key={i}
-                            whileHover={{ y: -4, scale: 1.02 }}
-                            whileTap={{ scale: 0.97 }}
-                            onClick={() => setActiveTab(act.tab)}
-                            className={`p-4 rounded-2xl bg-gradient-to-br ${act.gradient} text-white flex flex-col items-center justify-center text-center font-black text-xs shadow-lg ${act.shadow} transition-shadow cursor-pointer`}
-                          >
-                            <span className="text-2xl mb-2">{act.emoji}</span>
-                            {act.label}
-                          </motion.button>
-                        ))}
+                          { label: "Complete Profile", tab: "profile" as TabKey, icon: User, gradient: "from-blue-500 to-indigo-600", shadow: "shadow-blue-500/20" },
+                          { label: "Upload Documents", tab: "documents" as TabKey, icon: Paperclip, gradient: "from-violet-500 to-purple-600", shadow: "shadow-violet-500/20" },
+                          { label: "Find Universities", tab: "matches" as TabKey, icon: Compass, gradient: "from-emerald-500 to-teal-600", shadow: "shadow-emerald-500/20" },
+                          { label: "Apply Now", tab: "applications" as TabKey, icon: Rocket, gradient: "from-amber-500 to-orange-500", shadow: "shadow-amber-500/20" },
+                        ].map((act, i) => {
+                          const ActionIcon = act.icon;
+                          return (
+                            <motion.button
+                              key={i}
+                              whileHover={{ y: -4, scale: 1.02 }}
+                              whileTap={{ scale: 0.97 }}
+                              onClick={() => setActiveTab(act.tab)}
+                              className={`p-4 rounded-2xl bg-gradient-to-br ${act.gradient} text-white flex flex-col items-center justify-center text-center font-black text-xs shadow-lg ${act.shadow} transition-shadow cursor-pointer`}
+                            >
+                              <ActionIcon className="w-6 h-6 mb-2 text-white" />
+                              {act.label}
+                            </motion.button>
+                          );
+                        })}
                       </div>
 
                       {/* Saved Matching Profiles Section */}
@@ -1287,9 +1375,21 @@ function DashboardInner() {
                                   <p className={`text-xs font-semibold leading-snug ${task.completed ? "line-through text-slate-400" : isUrgent ? "text-rose-700" : "text-slate-700"}`}>
                                     {task.title}
                                   </p>
-                                  <p className={`text-[10px] font-bold mt-0.5 ${isUrgent ? "text-rose-500" : "text-slate-400"}`}>
-                                    {task.completed ? "✓ Done" : isUrgent ? `⚠ Due in ${daysUntilDue}d` : `Due: ${task.dueDate}`}
-                                  </p>
+                                  <div className={`text-[10px] font-bold mt-0.5 flex items-center gap-1 ${isUrgent && !task.completed ? "text-rose-500" : "text-slate-400"}`}>
+                                    {task.completed ? (
+                                      <>
+                                        <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                                        <span>Done</span>
+                                      </>
+                                    ) : isUrgent ? (
+                                      <>
+                                        <AlertTriangle className="w-3 h-3 text-rose-500 shrink-0" />
+                                        <span>Due in {daysUntilDue}d</span>
+                                      </>
+                                    ) : (
+                                      <span>Due: {task.dueDate}</span>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
                             );
@@ -1587,7 +1687,7 @@ function DashboardInner() {
                                       <div className="space-y-2 mb-6">
                                         <div className="flex justify-between text-xs font-semibold">
                                           <span className="text-slate-400">Est. Tuition:</span>
-                                          <span className="text-slate-750 font-black">${(m.tuitionFee || 18000).toLocaleString()}/yr</span>
+                                          <span className="text-slate-700 font-black">${(m.tuitionFee || 18000).toLocaleString()}/yr</span>
                                         </div>
                                         <div className="flex justify-between text-xs font-semibold">
                                           <span className="text-slate-400">Scholarship:</span>
@@ -1703,9 +1803,9 @@ function DashboardInner() {
                                 )}
                                 <button
                                   onClick={() => setActiveTab("documents")}
-                                  className="border border-slate-200 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 bg-white text-slate-600 font-bold px-4 py-2.5 rounded-xl text-xs transition-all"
+                                  className="border border-slate-200 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 bg-white text-slate-600 font-bold px-4 py-2.5 rounded-xl text-xs transition-all flex items-center gap-1.5"
                                 >
-                                  📎 Documents
+                                  <Paperclip className="w-3.5 h-3.5" /> Documents
                                 </button>
                               </div>
                             </div>
@@ -1955,7 +2055,9 @@ function DashboardInner() {
                     {/* Completed Tasks */}
                     {tasks.filter(t => t.completed).length > 0 && (
                       <Card className="rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 bg-white">
-                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-5">Completed ✓</h3>
+                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-5 flex items-center gap-1.5">
+                          Completed <Check className="w-3.5 h-3.5 text-slate-400" />
+                        </h3>
                         <div className="space-y-2">
                           {tasks.filter(t => t.completed).map((task) => (
                             <div
@@ -1981,7 +2083,7 @@ function DashboardInner() {
                   <div className="space-y-6">
                     {/* Tip banner */}
                     <div className="rounded-2xl bg-gradient-to-r from-emerald-500/10 via-teal-500/5 to-white border border-emerald-100 p-4 flex items-center gap-3">
-                      <span className="text-2xl">💡</span>
+                      <Lightbulb className="w-6 h-6 text-emerald-600 shrink-0" />
                       <div>
                         <p className="text-xs font-black text-emerald-800">Scholarship Tips</p>
                         <p className="text-xs font-semibold text-emerald-700/80 mt-0.5">Your GPA of <strong>{profile.gpa || "3.5+"}</strong> makes you eligible for merit-based awards. Apply before deadlines!</p>
@@ -2006,11 +2108,13 @@ function DashboardInner() {
                                 <div className="flex justify-between items-start mb-4">
                                   <div>
                                     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black tracking-widest uppercase bg-emerald-50 text-emerald-700 border border-emerald-100">
-                                      🏆 {s.awardAmount}
+                                      <Award className="w-3.5 h-3.5 text-emerald-700" /> {s.awardAmount}
                                     </span>
                                   </div>
                                   {isEligible && (
-                                    <span className="text-[9px] font-black bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full border border-blue-100">✓ ELIGIBLE</span>
+                                    <span className="text-[9px] font-black bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full border border-blue-100 flex items-center gap-1">
+                                      <Check className="w-3 h-3 text-blue-700 shrink-0" /> ELIGIBLE
+                                    </span>
                                   )}
                                 </div>
 
@@ -2112,7 +2216,7 @@ function DashboardInner() {
                                         admissionChance && admissionChance >= 80
                                           ? "bg-emerald-50 text-emerald-700"
                                           : admissionChance && admissionChance >= 50
-                                          ? "bg-amber-50 text-amber-750"
+                                          ? "bg-amber-50 text-amber-700"
                                           : "bg-rose-50 text-rose-700"
                                       }`}>
                                         {admissionChance ?? "—"}%
@@ -2122,9 +2226,9 @@ function DashboardInner() {
                                       <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Visa Odds</p>
                                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-extrabold mt-0.5 ${
                                         visaSuccess && visaSuccess >= 80
-                                          ? "bg-emerald-50 text-emerald-750"
+                                          ? "bg-emerald-50 text-emerald-700"
                                           : visaSuccess && visaSuccess >= 50
-                                          ? "bg-amber-50 text-amber-750"
+                                          ? "bg-amber-50 text-amber-700"
                                           : "bg-rose-50 text-rose-700"
                                       }`}>
                                         {visaSuccess ?? "—"}%
@@ -2252,7 +2356,12 @@ function DashboardInner() {
                           <div key={item.label} className="flex justify-between items-center">
                             <span className="text-slate-400">{item.label}:</span>
                             <span className={`font-bold flex items-center gap-1 ${item.ok ? "text-emerald-400" : "text-amber-400"}`}>
-                              {item.ok ? "✓" : "!"} {item.value}
+                              {item.ok ? (
+                                <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                              ) : (
+                                <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                              )}
+                              <span>{item.value}</span>
                             </span>
                           </div>
                         ))}

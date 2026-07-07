@@ -189,7 +189,7 @@ export function StudyOverviewDashboard({
               onClick={() => {
                 setShowConfirmModal(true);
               }}
-              className="flex items-center gap-1.5 bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-650 text-slate-650 font-bold px-4 py-2.5 rounded-2xl text-xs shadow-sm transition-all active:scale-95 cursor-pointer"
+              className="flex items-center gap-1.5 bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-600 text-slate-600 font-bold px-4 py-2.5 rounded-2xl text-xs shadow-sm transition-all active:scale-95 cursor-pointer"
             >
               Start New Search
             </button>

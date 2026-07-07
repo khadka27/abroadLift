@@ -1137,6 +1137,7 @@ import { useEffect, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import PremiumLoader from "@/components/PremiumLoader";
 import HeroSection from "@/components/home/HeroSection";
 import StatsBar from "@/components/home/StatsBar";
 import EverythingSection from "@/components/home/EverythingSection";
@@ -1169,14 +1170,7 @@ function HomePageComponent() {
   }, [status, session, bypassRedirect, router]);
  
   if (status === "authenticated" && !bypassRedirect) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-12 w-12 text-blue-600 animate-spin" />
-          <p className="text-sm font-bold text-slate-500 animate-pulse">Redirecting to your dashboard...</p>
-        </div>
-      </div>
-    );
+    return <PremiumLoader message="Redirecting to your dashboard..." />;
   }
  
   return (
@@ -1199,11 +1193,7 @@ function HomePageComponent() {
  
 const HomePage = () => (
   <Suspense
-    fallback={
-      <div className="flex min-h-screen items-center justify-center bg-[#F8FAFC]">
-        <div className="w-12 h-12 border-[4px] border-[#3686FF]/20 border-t-[#3686FF] rounded-full animate-spin" />
-      </div>
-    }
+    fallback={<PremiumLoader message="Finding Your Path. Please Wait..." />}
   >
     <HomePageComponent />
   </Suspense>
