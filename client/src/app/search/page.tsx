@@ -409,7 +409,7 @@ export default function SearchPage() {
           </div>
 
           {/* Premium Search Bar & Stats */}
-          <div className="w-full max-w-[900px]">
+          <div className="w-full max-w-[900px] self-center">
             <div className="w-full bg-white p-3 rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-slate-100 flex items-center group hover:shadow-[0_25px_60px_rgba(54,134,255,0.1)] hover:border-blue-200 transition-all">
               <div className="flex-1 flex items-center px-6">
                 <Search className="w-6 h-6 text-slate-300 group-focus-within:text-[#3686FF] transition-colors mr-4" />
@@ -693,7 +693,7 @@ export default function SearchPage() {
                 </div>
               ))}
             </div>
-          )}}
+          )}
 
           {/* Pagination */}
           {totalPages > 1 && (

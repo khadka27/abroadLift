@@ -1038,7 +1038,35 @@ function DashboardInner() {
                           ) : (
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                               {savedMatches.slice(0, 3).map((m) => {
-                                const degree = m.formData?.degree || "Bachelor";
+                                const rawDegree = m.formData?.degree || "bachelors";
+                                const formatDegree = (deg: string) => {
+                                  const mapping: Record<string, string> = {
+                                    masters_degree: "Master's Degree",
+                                    doctoral_phd: "Doctoral / PhD",
+                                    bachelors: "Bachelor's",
+                                    "3_year_bachelors": "3-Yr Bachelor's",
+                                    post_graduate_diploma: "Postgrad Diploma",
+                                    post_graduate_certificate: "Postgrad Certificate",
+                                    diploma: "Diploma",
+                                    advanced_diploma: "Advanced Diploma",
+                                    integrated_masters: "Integrated Master's",
+                                    certificate: "Certificate",
+                                    english: "ESL Language"
+                                  };
+                                  const key = deg.toLowerCase();
+                                  return mapping[key] || deg.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+                                };
+                                const formatTestType = (t: string) => {
+                                  if (!t) return "";
+                                  const upper = t.toUpperCase();
+                                  if (upper.includes("PTE")) return "PTE";
+                                  if (upper.includes("IELTS")) return "IELTS";
+                                  if (upper.includes("TOEFL")) return "TOEFL";
+                                  if (upper.includes("DUOLINGO")) return "DET";
+                                  return t;
+                                };
+
+                                const degree = formatDegree(rawDegree);
                                 const gpa = m.formData?.gpa || "—";
                                 const testType = m.formData?.testType && m.formData?.testType !== "NONE" ? m.formData.testType : null;
                                 const testScore = m.formData?.testScore || "";
@@ -1055,11 +1083,11 @@ function DashboardInner() {
                                     className="rounded-2xl p-4 border border-slate-100 bg-white/50 hover:bg-white hover:shadow-md hover:border-blue-200 transition-all duration-300 flex flex-col justify-between group cursor-pointer"
                                   >
                                     <div>
-                                      <div className="flex justify-between items-start mb-2">
-                                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black tracking-widest uppercase bg-blue-50 text-blue-600">
+                                      <div className="flex justify-between items-start mb-2 gap-1">
+                                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black tracking-widest uppercase bg-blue-50 text-blue-600 truncate max-w-[100px]" title={degree}>
                                           {degree}
                                         </span>
-                                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black tracking-widest uppercase bg-emerald-50 text-emerald-600">
+                                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black tracking-widest uppercase bg-emerald-50 text-emerald-600 shrink-0">
                                           Admit Odds: {admissionChance ?? "—"}%
                                         </span>
                                       </div>
@@ -1071,14 +1099,18 @@ function DashboardInner() {
                                         {city ? `${city}, ` : ""}{countryCode}
                                       </p>
                                       
-                                      <div className="space-y-1.5 mt-3 mb-2 text-[11px] font-semibold text-slate-500">
-                                        <div className="flex justify-between">
-                                          <span className="text-slate-400">GPA / Test:</span>
-                                          <span className="text-slate-700 font-black">GPA {gpa} · {testType ? `${testType} ${testScore}` : "No Test"}</span>
+                                      <div className="space-y-2 mt-4 mb-3 text-[11px] font-bold text-slate-500">
+                                        <div className="flex justify-between items-center bg-slate-50 px-3 py-2 rounded-xl border border-slate-100/50">
+                                          <span className="text-slate-400 font-medium">GPA / Test</span>
+                                          <span className="text-slate-800 font-extrabold truncate max-w-[125px]" title={`GPA ${gpa} · ${testType ? `${testType} ${testScore}` : "No Test"}`}>
+                                            GPA {gpa} · {testType ? `${formatTestType(testType)} ${testScore}` : "No Test"}
+                                          </span>
                                         </div>
-                                        <div className="flex justify-between">
-                                          <span className="text-slate-400">Est. Tuition:</span>
-                                          <span className="text-slate-850 font-black">${Number(tuitionFee).toLocaleString()}/yr</span>
+                                        <div className="flex justify-between items-center bg-slate-50 px-3 py-2 rounded-xl border border-slate-100/50">
+                                          <span className="text-slate-400 font-medium">Est. Tuition</span>
+                                          <span className="text-slate-800 font-extrabold">
+                                            ${Number(tuitionFee).toLocaleString()}/yr
+                                          </span>
                                         </div>
                                       </div>
                                     </div>
