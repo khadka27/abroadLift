@@ -37,6 +37,8 @@ const COUNTRY_BASE_COSTS: Record<string, Record<string, number>> = {
   },
   DE: { living: 1000, housing: 800, food: 300, transport: 90, healthcare: 30 },
   IN: { living: 400, housing: 300, food: 150, transport: 50, healthcare: 20 },
+  IE: { living: 1200, housing: 1000, food: 320, transport: 100, healthcare: 50 },
+  MT: { living: 900, housing: 700, food: 280, transport: 80, healthcare: 40 },
 };
 
 const COUNTRY_CURRENCIES: Record<string, { code: string; symbol: string; defaultRate: number }> = {
@@ -46,6 +48,8 @@ const COUNTRY_CURRENCIES: Record<string, { code: string; symbol: string; default
   AU: { code: "AUD", symbol: "A$", defaultRate: 1.50 },
   DE: { code: "EUR", symbol: "€", defaultRate: 0.93 },
   IN: { code: "INR", symbol: "₹", defaultRate: 83.50 },
+  IE: { code: "EUR", symbol: "€", defaultRate: 0.93 },
+  MT: { code: "EUR", symbol: "€", defaultRate: 0.93 },
 };
 
 function getCountryCurrency(countryCode: string) {

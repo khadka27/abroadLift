@@ -28,11 +28,15 @@ import {
   Edit2,
   Check,
   X,
+  Phone,
+  Shield,
+  Activity,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Match, Form } from "@/types/matches";
 import { motion, animate } from "framer-motion";
 import { formatNPRDevanagari } from "@/lib/currency";
+import { COUNTRY_COSTS_DATA } from "@/lib/countryCosts";
 
 // Unified component to animate currency numbers as single, clean, rounded values
 function AnimatedCurrency({
@@ -116,10 +120,11 @@ export function FinancialDashboard({
   onBack,
 }: FinancialDashboardProps) {
   const [period, setPeriod] = useState<
-    "Before Departure" | "First 6 Months" | "Combined Total"
+    "Before Departure" | "First 6 Months" | "Overall Cost of Living"
   >("Before Departure");
   const [currency, setCurrency] = useState<"NPR" | "USD">("NPR");
   const [generatingPdf, setGeneratingPdf] = useState(false);
+  const [durationYearsOverride, setDurationYearsOverride] = useState<number | null>(null);
 
   const {
     tuitionUsd,
@@ -143,34 +148,39 @@ export function FinancialDashboard({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState<string>("");
 
-  useEffect(() => {
-    // living.rent, living.food, living.transport are ANNUAL USD values from the API
-    // 6-month window = annual * 0.5
-    const rentMonthly    = Math.round(living.rent    / 12);
-    const foodMonthly    = Math.round(living.food    / 12);
-    const transportMonthly = Math.round(living.transport / 12);
+  const matchedCountryCode = useMemo(() => {
+    if (selectedMatch.countryCode) {
+      let code = selectedMatch.countryCode.toUpperCase().trim();
+      if (code === "USA") return "US";
+      if (code === "UK") return "GB";
+      return code;
+    }
+    const loc = (selectedMatch.location || "").toLowerCase();
+    if (loc.includes("united states") || loc.includes("usa") || loc.includes("us")) return "US";
+    if (loc.includes("canada") || loc.includes("ca")) return "CA";
+    if (loc.includes("australia") || loc.includes("au")) return "AU";
+    if (loc.includes("united kingdom") || loc.includes("uk") || loc.includes("gb") || loc.includes("england") || loc.includes("scotland")) return "GB";
+    if (loc.includes("ireland") || loc.includes("ie")) return "IE";
+    if (loc.includes("germany") || loc.includes("de")) return "DE";
+    if (loc.includes("malta") || loc.includes("mt")) return "MT";
+    return "US"; // default fallback
+  }, [selectedMatch]);
 
-    const defaultCosts: Record<string, number> = {
-      "identity-docs":      75,
-      "language-classes":   300,
-      "counsellor-fee":     110,
-      "admissions-testing": 425,
-      "visa-compliance":    685,
-      "tuition-fee":        Math.round(tuitionUsd * 0.5),
-      "flight-tickets":     1200,
-      "shopping":           Math.round(100000 / usdToNpr),
-      "cash-in-hand":       1500,
-      // Rent + Food × 6 months (transport is a separate line)
-      "cost-of-living":     (rentMonthly + foodMonthly) * 6,
-      "internet-phone":     300,
-      // Transport × 6 months
-      "transportation":     transportMonthly * 6,
-      "academic-recurring": 600,
-      "buffer":             900,
-      "local-compliance":   300,
-    };
+  useEffect(() => {
+    const items = COUNTRY_COSTS_DATA[matchedCountryCode] || [];
+    const defaultCosts: Record<string, number> = {};
+
+    items.forEach((item) => {
+      // Default to the average of min and max range in USD
+      defaultCosts[item.id] = Math.round((item.min + item.max) / 2);
+    });
+
+    // Special matched/personal overrides
+    defaultCosts["tuition-fee"] = Math.round(tuitionUsd * 0.5);
+    defaultCosts["cash-in-hand"] = 1500;
+
     setCosts(defaultCosts);
-  }, [tuitionUsd, living.rent, living.food, living.transport, usdToNpr]);
+  }, [tuitionUsd, matchedCountryCode]);
 
   const handleSaveEdit = (id: string) => {
     const val = parseFloat(editValue);
@@ -411,175 +421,104 @@ export function FinancialDashboard({
   };
 
   const getCategories = () => {
-    const cats = [
-      {
-        id: "identity-docs",
-        label: "Identity & Civil Documents",
-        desc: "Passport, police clearance, photos, translations, notarization, courier",
-        group: "Before Departure" as const,
-        usd: costs["identity-docs"] || 75,
-        editable: false,
-        icon: <FileText className="w-5 h-5" />,
-        color: "bg-slate-500",
-        hex: "#64748b",
-      },
-      {
-        id: "language-classes",
-        label: "Language Classes and Exam",
-        desc: "IELTS/Language coaching classes and registration exam fee (optional)",
-        group: "Before Departure" as const,
-        usd: costs["language-classes"] || 300,
-        editable: true,
-        icon: <BookOpen className="w-5 h-5" />,
-        color: "bg-teal-500",
-        hex: "#14b8a6",
-      },
-      {
-        id: "counsellor-fee",
-        label: "Counsellor / Agency Service Fee",
-        desc: "Service fee for counsellor guidance, visa lodging, and applications",
-        group: "Before Departure" as const,
-        usd: costs["counsellor-fee"] || 110,
-        editable: true,
-        icon: <UserCheck className="w-5 h-5" />,
-        color: "bg-indigo-500",
-        hex: "#6366f1",
-      },
-      {
-        id: "admissions-testing",
-        label: "Admissions & Testing",
-        desc: "Application fees, English tests, credential evaluation, counsellor fee",
-        group: "Before Departure" as const,
-        usd: costs["admissions-testing"] || 425,
-        editable: true,
-        icon: <GraduationCap className="w-5 h-5" />,
-        color: "bg-blue-500",
-        hex: "#3b82f6",
-      },
-      {
-        id: "visa-compliance",
-        label: "Visa & Compliance",
-        desc: "Visa fee, SEVIS/biometrics, medical/TB, health surcharge insurance, bank docs",
-        group: "Before Departure" as const,
-        usd: costs["visa-compliance"] || 685,
-        editable: false,
-        icon: <ShieldCheck className="w-5 h-5" />,
-        color: "bg-rose-500",
-        hex: "#f43f5e",
-      },
-      {
-        id: "tuition-fee",
-        label: "Tuition Fee",
-        desc: "First tuition deposit or first semester installment payment",
-        group: "Before Departure" as const,
-        usd: costs["tuition-fee"] || Math.round(tuitionUsd * 0.5),
-        editable: false,
-        icon: <CreditCard className="w-5 h-5" />,
-        color: "bg-emerald-600",
-        hex: "#059669",
-      },
-      {
-        id: "flight-tickets",
-        label: "Flight Tickets",
-        desc: "Flight tickets, baggage, airport transfer, FX markup, wire transfer",
-        group: "Before Departure" as const,
-        usd: costs["flight-tickets"] || 1200,
-        editable: true,
-        icon: <Plane className="w-5 h-5" />,
-        color: "bg-sky-500",
-        hex: "#0ea5e9",
-      },
-      {
-        id: "shopping",
-        label: "Shopping",
-        desc: "One-time shopping for clothing, adapters, bags, luggage, and electronics",
-        group: "Before Departure" as const,
-        usd: costs["shopping"] || Math.round(100000 / usdToNpr),
-        editable: true,
-        icon: <ShoppingBag className="w-5 h-5" />,
-        color: "bg-pink-500",
-        hex: "#ec4899",
-      },
-      {
-        id: "cash-in-hand",
-        label: "Cash In Hand",
-        desc: "FOREx cash in hand for immediate use upon arrival ($1500)",
-        group: "First 6 Months" as const,
-        usd: costs["cash-in-hand"] || 1500,
-        editable: true,
-        icon: <DollarSign className="w-5 h-5" />,
-        color: "bg-amber-600",
-        hex: "#d97706",
-      },
-      {
-        id: "cost-of-living",
-        label: "Cost Of Living",
-        desc: "6 months rent + food (housing & groceries only — transport is listed separately)",
-        group: "First 6 Months" as const,
-        usd: costs["cost-of-living"] || Math.round(((living.rent + living.food) / 12) * 6),
-        editable: false,
-        icon: <Home className="w-5 h-5" />,
-        color: "bg-emerald-500",
-        hex: "#10b981",
-      },
-      {
-        id: "internet-phone",
-        label: "Internet & Phone",
-        desc: "Monthly high-speed data, sim card, utilities and phone plan bills",
-        group: "First 6 Months" as const,
-        usd: costs["internet-phone"] || 300,
-        editable: true,
-        icon: <Wifi className="w-5 h-5" />,
-        color: "bg-cyan-500",
-        hex: "#06b6d4",
-      },
-      {
-        id: "transportation",
-        label: "Transportation",
-        desc: "6 months public transit pass & daily commute (country-accurate, separate from living costs)",
-        group: "First 6 Months" as const,
-        usd: costs["transportation"] || Math.round((living.transport / 12) * 6),
-        editable: true,
-        icon: <Bus className="w-5 h-5" />,
-        color: "bg-purple-500",
-        hex: "#a855f7",
-      },
-      {
-        id: "academic-recurring",
-        label: "Academic Recurring",
-        desc: "Academic printing, books/software, field trip/lab material if ongoing",
-        group: "First 6 Months" as const,
-        usd: costs["academic-recurring"] || 600,
-        editable: true,
-        icon: <Printer className="w-5 h-5" />,
-        color: "bg-orange-500",
-        hex: "#f97316",
-      },
-      {
-        id: "buffer",
-        label: "Buffer",
-        desc: "Medical checkups, contingency savings, weather replacement clothing",
-        group: "First 6 Months" as const,
-        usd: costs["buffer"] || 900,
-        editable: true,
-        icon: <HeartPulse className="w-5 h-5" />,
-        color: "bg-rose-500",
-        hex: "#f43f5e",
-      },
-      {
-        id: "local-compliance",
-        label: "Local Compliance After Arrival",
-        desc: "Residence permit, BRP collection, local city and health registration",
-        group: "First 6 Months" as const,
-        usd: costs["local-compliance"] || 300,
-        editable: true,
-        icon: <MapPin className="w-5 h-5" />,
-        color: "bg-lime-600",
-        hex: "#65a30d",
-      },
-    ];
-    return cats;
+    const items = COUNTRY_COSTS_DATA[matchedCountryCode] || [];
+    
+    const getIcon = (id: string) => {
+      if (id === "passport" || id === "aps") return <FileText className="w-5 h-5" />;
+      if (id === "visa" || id === "permit" || id === "biometrics" || id === "bank-setup") return <CreditCard className="w-5 h-5" />;
+      if (id === "sevis" || id === "laundry") return <Activity className="w-5 h-5" />;
+      if (id === "exams" || id === "books") return <BookOpen className="w-5 h-5" />;
+      if (id === "medical" || id === "vaccines" || id === "entertainment") return <HeartPulse className="w-5 h-5" />;
+      if (id === "health-insurance-init" || id === "insurance" || id === "travel-insurance" || id === "sec-deposit") return <Shield className="w-5 h-5" />;
+      if (id === "flight") return <Plane className="w-5 h-5" />;
+      if (id === "airport-transport" || id === "baggage" || id === "transport") return <Bus className="w-5 h-5" />;
+      if (id === "acc-deposit" || id === "rent-1" || id === "accommodation" || id === "utilities") return <Home className="w-5 h-5" />;
+      if (id === "sim" || id === "internet") return <Wifi className="w-5 h-5" />;
+      if (id === "mobile") return <Phone className="w-5 h-5" />;
+      if (id === "shopping-dep" || id === "shopping") return <ShoppingBag className="w-5 h-5" />;
+      if (id === "food") return <Utensils className="w-5 h-5" />;
+      return <Info className="w-5 h-5" />;
+    };
+
+    const getColorClass = (id: string) => {
+      if (id === "passport" || id === "aps" || id === "bank-setup") return "bg-slate-500";
+      if (id === "visa" || id === "permit" || id === "biometrics" || id === "university-app-fee") return "bg-blue-500";
+      if (id === "sevis") return "bg-indigo-500";
+      if (id === "ihs") return "bg-emerald-600";
+      if (id === "exams" || id === "books") return "bg-orange-500";
+      if (id === "medical" || id === "vaccines" || id === "entertainment") return "bg-rose-500";
+      if (id === "health-insurance-init" || id === "insurance" || id === "travel-insurance" || id === "sec-deposit") return "bg-emerald-500";
+      if (id === "flight") return "bg-sky-500";
+      if (id === "airport-transport" || id === "baggage" || id === "transport") return "bg-violet-500";
+      if (id === "acc-deposit" || id === "rent-1" || id === "accommodation" || id === "utilities") return "bg-emerald-500";
+      if (id === "sim" || id === "internet") return "bg-pink-500";
+      if (id === "mobile") return "bg-pink-500";
+      if (id === "shopping-dep" || id === "shopping") return "bg-pink-500";
+      if (id === "food") return "bg-orange-500";
+      return "bg-slate-500";
+    };
+
+    const getHexColor = (id: string) => {
+      if (id === "passport" || id === "aps" || id === "bank-setup") return "#64748b";
+      if (id === "visa" || id === "permit" || id === "biometrics" || id === "university-app-fee") return "#3b82f6";
+      if (id === "sevis") return "#6366f1";
+      if (id === "ihs") return "#059669";
+      if (id === "exams" || id === "books") return "#f97316";
+      if (id === "medical" || id === "vaccines" || id === "entertainment") return "#f43f5e";
+      if (id === "health-insurance-init" || id === "insurance" || id === "travel-insurance" || id === "sec-deposit") return "#10b981";
+      if (id === "flight") return "#0ea5e9";
+      if (id === "airport-transport" || id === "baggage" || id === "transport") return "#a855f7";
+      if (id === "acc-deposit" || id === "rent-1" || id === "accommodation" || id === "utilities") return "#10b981";
+      if (id === "sim" || id === "internet") return "#ec4899";
+      if (id === "mobile") return "#ec4899";
+      if (id === "shopping-dep" || id === "shopping") return "#ec4899";
+      if (id === "food") return "#f97316";
+      return "#64748b";
+    };
+
+    const mappedItems = items.map((item) => ({
+      id: item.id,
+      label: item.label,
+      desc: item.description,
+      group: item.category === "Before Departure" ? ("Before Departure" as const) : ("First 6 Months" as const),
+      usd: costs[item.id] !== undefined ? costs[item.id] : Math.round((item.min + item.max) / 2),
+      editable: true,
+      icon: getIcon(item.id),
+      color: getColorClass(item.id),
+      hex: getHexColor(item.id),
+    }));
+
+    const beforeDepartureList = mappedItems.filter((i) => i.group === "Before Departure");
+    const first6MonthsList = mappedItems.filter((i) => i.group === "First 6 Months");
+
+    beforeDepartureList.unshift({
+      id: "tuition-fee",
+      label: "Tuition Fee Deposit",
+      desc: "First tuition deposit or first semester installment payment required for admission confirmation",
+      group: "Before Departure" as const,
+      usd: costs["tuition-fee"] !== undefined ? costs["tuition-fee"] : Math.round(tuitionUsd * 0.5),
+      editable: false,
+      icon: <CreditCard className="w-5 h-5" />,
+      color: "bg-emerald-600",
+      hex: "#059669",
+    });
+
+    beforeDepartureList.push({
+      id: "cash-in-hand",
+      label: "Cash In Hand",
+      desc: "FOREX cash in hand for immediate use upon arrival in country",
+      group: "Before Departure" as const,
+      usd: costs["cash-in-hand"] !== undefined ? costs["cash-in-hand"] : 1500,
+      editable: true,
+      icon: <DollarSign className="w-5 h-5" />,
+      color: "bg-amber-600",
+      hex: "#d97706",
+    });
+
+    return [...beforeDepartureList, ...first6MonthsList];
   };
+
+  const durationYears = durationYearsOverride ?? graduationDuration ?? 4;
 
   const categories = useMemo(() => {
     const cats = getCategories();
@@ -588,8 +527,27 @@ export function FinancialDashboard({
     } else if (period === "First 6 Months") {
       return cats.filter((c) => c.group === "First 6 Months");
     }
-    return cats;
-  }, [period, costs, tuitionUsd, living, usdToNpr]);
+    // Overall Cost of Living: scale tuition and living items by duration
+    return cats.map((cat) => {
+      if (cat.id === "tuition-fee") {
+        return {
+          ...cat,
+          label: `Total Tuition (${durationYears} Yrs)`,
+          desc: `Annual tuition scaled for ${durationYears}-year programme`,
+          usd: Math.round(tuitionUsd * durationYears),
+        };
+      }
+      if (cat.group === "First 6 Months") {
+        const scaleFactor = 2 * durationYears; // 6 months × 2 × years
+        return {
+          ...cat,
+          label: `${cat.label} (${durationYears} Yrs)`,
+          usd: Math.round(cat.usd * scaleFactor),
+        };
+      }
+      return cat;
+    });
+  }, [period, costs, tuitionUsd, living, usdToNpr, durationYears]);
 
   const totalUsd = useMemo(
     () => categories.reduce((sum, cat) => sum + cat.usd, 0),
@@ -641,8 +599,8 @@ export function FinancialDashboard({
             <p className="text-slate-500 text-[15px] md:text-[17px] leading-relaxed font-medium">
               A comprehensive view of your expected expenses for{" "}
               <span className="text-slate-700 font-bold">
-                {period === "Combined Total"
-                  ? "the entire journey (Before Departure + First 6 Months)"
+                {period === "Overall Cost of Living"
+                  ? `your entire ${durationYears}-year study journey`
                   : period === "Before Departure"
                     ? "before you depart"
                     : "your first 6 months after arrival"}
@@ -678,7 +636,7 @@ export function FinancialDashboard({
 
             {/* Period Toggle */}
             <div className="relative flex items-center bg-white p-1.5 rounded-[22px] border border-slate-200/60 shadow-[0_4px_15px_rgba(0,0,0,0.02)] w-full sm:w-auto overflow-hidden">
-              {["Before Departure", "First 6 Months", "Combined Total"].map((p) => (
+              {["Before Departure", "First 6 Months", "Overall Cost of Living"].map((p) => (
                 <button
                   key={p}
                   onClick={() => setPeriod(p as any)}
@@ -716,8 +674,8 @@ export function FinancialDashboard({
               <div className="space-y-6 relative z-10">
                 <div>
                   <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                    {period === "Combined Total"
-                      ? "Grand Total Cost"
+                    {period === "Overall Cost of Living"
+                      ? `Overall Cost (${durationYears} Yrs)`
                       : period === "Before Departure"
                         ? "Before Departure Cost"
                         : "First 6 Months Cost"}
@@ -726,8 +684,8 @@ export function FinancialDashboard({
                     <AnimatedCurrency usdVal={totalUsd} usdToNpr={usdToNpr} currency={currency} period={period} />
                   </h2>
                   <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-[10px] font-black uppercase tracking-widest">
-                    {period === "Combined Total"
-                      ? "grand total"
+                    {period === "Overall Cost of Living"
+                      ? `${durationYears}-year total`
                       : period === "Before Departure"
                         ? "pre-departure"
                         : "first 6 months"}
@@ -889,9 +847,29 @@ export function FinancialDashboard({
           <div className="lg:col-span-8">
             <Card className="rounded-[36px] border border-white/60 bg-white/70 backdrop-blur-xl shadow-[0_12px_40px_rgba(31,41,55,0.04)] overflow-hidden h-full">
               <div className="p-6 sm:p-8 md:p-12">
-                <h2 className="text-[22px] md:text-[26px] font-extrabold text-slate-900 mb-10 tracking-tight">
-                  Detailed Expense Categories
-                </h2>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
+                  <h2 className="text-[22px] md:text-[26px] font-extrabold text-slate-900 tracking-tight">
+                    Detailed Expense Categories
+                  </h2>
+
+                  {period === "Overall Cost of Living" && (
+                    <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-xl shrink-0">
+                      {[1, 2, 3, 4].map((yr) => (
+                        <button
+                          key={yr}
+                          onClick={() => setDurationYearsOverride(yr)}
+                          className={`px-4 py-2 rounded-lg text-[13px] font-extrabold transition-all cursor-pointer whitespace-nowrap ${
+                            durationYears === yr
+                              ? "bg-white text-slate-900 shadow-sm"
+                              : "text-slate-500 hover:text-slate-800"
+                          }`}
+                        >
+                          {yr === 1 ? "1st yr" : yr === 2 ? "2nd yrs" : `${yr} yrs`}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
                 <div className="flex flex-col md:flex-row items-center gap-10 lg:gap-14 mb-12">
                   {/* Donut Chart */}
