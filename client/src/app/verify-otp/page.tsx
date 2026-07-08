@@ -59,11 +59,6 @@ function VerifyOtpForm() {
 
       setSuccess("Phone verified. Redirecting to matching portal...");
       setTimeout(() => {
-        if (callbackUrl) {
-          router.replace(callbackUrl);
-          return;
-        }
-
         router.replace("/matches");
       }, 700);
     } catch {

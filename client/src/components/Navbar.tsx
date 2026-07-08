@@ -121,12 +121,20 @@ export default function Navbar() {
                 </span>
               </Link>
             ) : (
-              <Link
-                href={`/register?callbackUrl=${encodeURIComponent(pathname)}`}
-                className="flex items-center gap-2 bg-[#3366FF] text-white font-bold px-[30px] py-[12px] rounded-full text-[15px] shadow-[0_8px_20px_rgb(51,102,255,0.3)] hover:-translate-y-0.5 transition-all duration-300 active:scale-95 hover:bg-[#254bdb]"
-              >
-                Sign Up
-              </Link>
+              <div className="flex items-center gap-4">
+                <Link
+                  href={`/login?callbackUrl=${encodeURIComponent(pathname)}`}
+                  className="text-[15px] font-bold text-gray-800 hover:text-[#3366FF] transition-colors"
+                >
+                  Login
+                </Link>
+                <Link
+                  href={`/register?callbackUrl=${encodeURIComponent(pathname)}`}
+                  className="flex items-center gap-2 bg-[#3366FF] text-white font-bold px-[30px] py-[12px] rounded-full text-[15px] shadow-[0_8px_20px_rgb(51,102,255,0.3)] hover:-translate-y-0.5 transition-all duration-300 active:scale-95 hover:bg-[#254bdb]"
+                >
+                  Sign Up
+                </Link>
+              </div>
             )}
           </div>
 
@@ -193,13 +201,22 @@ export default function Navbar() {
                 <span>{session?.user?.name || "My Profile"}</span>
               </Link>
             ) : (
-              <Link
-                href={`/register?callbackUrl=${encodeURIComponent(pathname)}`}
-                onClick={() => setMobileOpen(false)}
-                className="flex items-center justify-center gap-2 bg-[#3366FF] text-white font-bold px-6 py-4 rounded-full shadow-[0_10px_30px_rgb(51,102,255,0.3)]"
-              >
-                Sign Up
-              </Link>
+              <div className="flex flex-col gap-3">
+                <Link
+                  href={`/login?callbackUrl=${encodeURIComponent(pathname)}`}
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center justify-center gap-2 bg-gray-50 border border-gray-100 text-gray-900 font-bold px-6 py-4 rounded-full"
+                >
+                  Login
+                </Link>
+                <Link
+                  href={`/register?callbackUrl=${encodeURIComponent(pathname)}`}
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center justify-center gap-2 bg-[#3366FF] text-white font-bold px-6 py-4 rounded-full shadow-[0_10px_30px_rgb(51,102,255,0.3)]"
+                >
+                  Sign Up
+                </Link>
+              </div>
             )}
           </div>
         )}

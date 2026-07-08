@@ -17,6 +17,10 @@ export default function ErrorPage({
   useEffect(() => {
     // Log the error to the console or error tracking service
     console.error("[CRITICAL_SERVER_ERROR]", error);
+    fetch("/api/log-error", {
+      method: "POST",
+      body: JSON.stringify({ message: error.message, stack: error.stack, digest: error.digest }),
+    }).catch(console.error);
   }, [error]);
 
   return (

@@ -2922,10 +2922,17 @@ export default function AbroadLiftMatchesPage() {
               ...loadedForm,
             }));
 
-            // Direct access step 7 or first incomplete step if already partially filled
+            // Direct access step 8 (Cost Calculation) or first incomplete step if already partially filled
             if (isFormCompleteForSteps1To6(loadedForm)) {
-              setStep(7);
-              runMatch(loadedForm as any);
+              runMatch(loadedForm as any).then((generatedMatches) => {
+                if (generatedMatches && generatedMatches.length > 0) {
+                  // Auto-select the top match and proceed to Cost Calculation
+                  setSelectedMatch(generatedMatches[0]);
+                  setStep(8);
+                } else {
+                  setStep(7);
+                }
+              });
             } else {
               const resumeStep = getFirstIncompleteStep(loadedForm);
               setStep(resumeStep);

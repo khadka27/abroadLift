@@ -50,7 +50,7 @@ function LoginForm() {
       return;
     }
 
-    if (safeCallbackUrl) {
+    if (safeCallbackUrl && safeCallbackUrl !== "/") {
       router.replace(safeCallbackUrl);
       return;
     }

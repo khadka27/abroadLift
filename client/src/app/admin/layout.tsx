@@ -5,7 +5,6 @@ import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import { Loader2 } from "lucide-react";
-import router from "next/router";
 
 export default function AdminLayout({
   children,
@@ -14,6 +13,7 @@ export default function AdminLayout({
 }) {
   const { data: session, status } = useSession();
   const pathname = usePathname();
+  const router = useRouter();
   const isLoginPage = pathname === "/admin/login";
 
   useEffect(() => {
