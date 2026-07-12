@@ -55,6 +55,7 @@ export interface Form {
   passportReady: boolean;
   testDone: boolean;
   docsReady: boolean;
+  educationStatus: string;
 }
 
 export interface Match {

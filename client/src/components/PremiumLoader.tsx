@@ -11,13 +11,11 @@ export default function PremiumLoader({ message = "Initializing Portal..." }: { 
   }, []);
 
   if (!mounted) {
-    // Return a minimal, transparent fallback during SSR to avoid hydration mismatches 
-    // caused by browser extensions injecting attributes into the complex div tree.
-    return <div className="fixed inset-0 bg-[#0f172a]" />;
+    return <div className="fixed inset-0 bg-white" suppressHydrationWarning={true} />;
   }
 
   return (
-    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#1e40af] text-white overflow-hidden">
+    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white overflow-hidden" suppressHydrationWarning={true}>
       {/* CSS Animations */}
       <style>{`
         @keyframes globe-scroll {
@@ -59,16 +57,17 @@ export default function PremiumLoader({ message = "Initializing Portal..." }: { 
 
       {/* Ambient background glows */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-blue-500/10 blur-[100px] animate-pulse-glow" />
-        <div className="absolute -bottom-40 -right-40 w-96 h-96 rounded-full bg-indigo-500/10 blur-[100px] animate-pulse-glow" style={{ animationDelay: "1.5s" }} />
+        <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-blue-400/10 blur-[120px] animate-pulse-glow" />
+        <div className="absolute -bottom-40 -right-40 w-96 h-96 rounded-full bg-indigo-400/10 blur-[120px] animate-pulse-glow" style={{ animationDelay: "1.5s" }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-blue-50 blur-[80px]" />
       </div>
 
       <div className="relative flex items-center justify-center w-full max-w-4xl px-4 select-none">
-        {/* Large semi-transparent background letters like SFO and JFK */}
-        <div className="absolute left-10 md:left-20 text-6xl md:text-[120px] font-black text-white/5 tracking-wider font-quicksand pointer-events-none uppercase">
+        {/* Large semi-transparent background letters */}
+        <div className="absolute left-10 md:left-20 text-6xl md:text-[120px] font-black text-slate-900/[0.03] tracking-wider font-quicksand pointer-events-none uppercase">
           Abroad
         </div>
-        <div className="absolute right-10 md:right-20 text-6xl md:text-[120px] font-black text-white/5 tracking-wider font-quicksand pointer-events-none uppercase">
+        <div className="absolute right-10 md:right-20 text-6xl md:text-[120px] font-black text-slate-900/[0.03] tracking-wider font-quicksand pointer-events-none uppercase">
           Lift
         </div>
 
@@ -76,12 +75,12 @@ export default function PremiumLoader({ message = "Initializing Portal..." }: { 
         <div className="relative w-56 h-56 flex items-center justify-center">
           
           {/* Outer Orbit Path Line */}
-          <div className="absolute w-[200px] h-[200px] rounded-full border border-white/10" />
+          <div className="absolute w-[200px] h-[200px] rounded-full border border-[#3686FF]/15" />
 
           {/* Plane Orbiting Group */}
           <div className="absolute w-[200px] h-[200px] animate-orbit-spin">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-45">
-              <Plane className="w-6 h-6 text-white fill-white drop-shadow-[0_2px_8px_rgba(255,255,255,0.4)]" />
+              <Plane className="w-6 h-6 text-[#3686FF] fill-[#3686FF] drop-shadow-[0_2px_8px_rgba(54,134,255,0.4)]" />
             </div>
             {/* Orbit trail */}
             <svg className="absolute inset-0 w-full h-full -rotate-90 pointer-events-none" viewBox="0 0 100 100">
@@ -96,8 +95,8 @@ export default function PremiumLoader({ message = "Initializing Portal..." }: { 
               />
               <defs>
                 <linearGradient id="trail-grad" x1="1" y1="0" x2="0" y2="0">
-                  <stop offset="0%" stopColor="rgba(255, 255, 255, 0.6)" />
-                  <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" />
+                  <stop offset="0%" stopColor="rgba(54, 134, 255, 0.5)" />
+                  <stop offset="100%" stopColor="rgba(54, 134, 255, 0)" />
                 </linearGradient>
               </defs>
             </svg>
@@ -109,7 +108,7 @@ export default function PremiumLoader({ message = "Initializing Portal..." }: { 
               <defs>
                 {/* Dot pattern for continents */}
                 <pattern id="dot-pattern" width="6" height="6" patternUnits="userSpaceOnUse">
-                  <circle cx="3" cy="3" r="1.3" fill="#60a5fa" />
+                  <circle cx="3" cy="3" r="1.3" fill="#3686FF" />
                 </pattern>
 
                 {/* Clip path to keep scrolling continents within the sphere */}
@@ -135,11 +134,11 @@ export default function PremiumLoader({ message = "Initializing Portal..." }: { 
               </defs>
 
               {/* Sea/Ocean sphere background */}
-              <circle cx="80" cy="80" r="60" fill="url(#ocean-gradient)" stroke="rgba(96, 165, 250, 0.2)" strokeWidth="1" />
+              <circle cx="80" cy="80" r="60" fill="url(#ocean-gradient)" stroke="rgba(54, 134, 255, 0.15)" strokeWidth="1" />
               <radialGradient id="ocean-gradient" cx="30%" cy="30%" r="70%">
-                <stop offset="0%" stopColor="#1e3a8a" />
-                <stop offset="60%" stopColor="#0f172a" />
-                <stop offset="100%" stopColor="#020617" />
+                <stop offset="0%" stopColor="#eff6ff" />
+                <stop offset="60%" stopColor="#dbeafe" />
+                <stop offset="100%" stopColor="#bfdbfe" />
               </radialGradient>
 
               {/* Scrolling Dotted Continents */}
@@ -154,16 +153,16 @@ export default function PremiumLoader({ message = "Initializing Portal..." }: { 
               <circle cx="80" cy="80" r="60" fill="url(#sphere-shadow)" pointerEvents="none" />
               <radialGradient id="sphere-shadow" cx="35%" cy="35%" r="65%">
                 <stop offset="0%" stopColor="transparent" />
-                <stop offset="50%" stopColor="rgba(2, 6, 23, 0.15)" />
-                <stop offset="100%" stopColor="rgba(2, 6, 23, 0.75)" />
+                <stop offset="50%" stopColor="rgba(219, 234, 254, 0.1)" />
+                <stop offset="100%" stopColor="rgba(191, 219, 254, 0.35)" />
               </radialGradient>
 
               {/* Orbiting connection arcs wrapping around the globe */}
-              <g fill="none" strokeWidth="1.2" opacity="0.8" className="overflow-visible">
+              <g fill="none" strokeWidth="1.2" opacity="0.6" className="overflow-visible">
                 {/* Path 1: Front-top arc */}
-                <path d="M 32,55 Q 80,10 128,55" stroke="#93c5fd" />
-                <circle cx="32" cy="55" r="2.5" fill="#93c5fd" />
-                <circle cx="128" cy="55" r="2.5" fill="#93c5fd" />
+                <path d="M 32,55 Q 80,10 128,55" stroke="#3686FF" />
+                <circle cx="32" cy="55" r="2.5" fill="#3686FF" />
+                <circle cx="128" cy="55" r="2.5" fill="#3686FF" />
 
                 {/* Path 2: Bottom-front arc */}
                 <path d="M 28,105 Q 80,150 132,105" stroke="#60a5fa" />
@@ -180,12 +179,12 @@ export default function PremiumLoader({ message = "Initializing Portal..." }: { 
                 <circle cx="115" cy="30" r="2.5" fill="#2563eb" />
                 <circle cx="115" cy="130" r="2.5" fill="#2563eb" />
 
-                {/* Path 5: Tilted center loop (like in the image) */}
-                <path d="M 20,80 C 40,30 120,40 140,80 C 120,130 40,120 20,80 Z" stroke="#3b82f6" strokeDasharray="3,3" opacity="0.5" />
+                {/* Path 5: Tilted center loop */}
+                <path d="M 20,80 C 40,30 120,40 140,80 C 120,130 40,120 20,80 Z" stroke="#3686FF" strokeDasharray="3,3" opacity="0.4" />
               </g>
 
               {/* Dotted Grid lines overlay */}
-              <g opacity="0.15" fill="none" stroke="#93c5fd" strokeWidth="0.8">
+              <g opacity="0.12" fill="none" stroke="#3686FF" strokeWidth="0.8">
                 {/* Latitudes */}
                 <ellipse cx="80" cy="80" rx="60" ry="20" strokeDasharray="1, 5" strokeLinecap="round" />
                 <ellipse cx="80" cy="80" rx="60" ry="40" strokeDasharray="1, 5" strokeLinecap="round" />
@@ -196,7 +195,7 @@ export default function PremiumLoader({ message = "Initializing Portal..." }: { 
               </g>
 
               {/* Outer Ring Glow */}
-              <circle cx="80" cy="80" r="60.5" fill="none" stroke="rgba(147, 197, 253, 0.4)" strokeWidth="1" />
+              <circle cx="80" cy="80" r="60.5" fill="none" stroke="rgba(54, 134, 255, 0.2)" strokeWidth="1" />
             </svg>
           </div>
 
@@ -205,10 +204,10 @@ export default function PremiumLoader({ message = "Initializing Portal..." }: { 
 
       {/* Brand logo & tagline */}
       <div className="mt-8 flex flex-col items-center gap-2 relative z-20">
-        <h1 className="text-2xl font-black tracking-widest uppercase bg-gradient-to-r from-white via-slate-100 to-blue-200 bg-clip-text text-transparent font-quicksand">
+        <h1 className="text-2xl font-black tracking-widest uppercase bg-gradient-to-r from-[#3686FF] via-[#3366FF] to-indigo-600 bg-clip-text text-transparent font-quicksand">
           AbroadLift
         </h1>
-        <div className="flex items-center gap-1.5 text-xs text-blue-300/80 font-bold uppercase tracking-widest">
+        <div className="flex items-center gap-1.5 text-xs text-slate-400 font-bold uppercase tracking-widest">
           <span>{message}</span>
         </div>
       </div>

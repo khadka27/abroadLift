@@ -1193,7 +1193,7 @@ function HomePageComponent() {
  
 const HomePage = () => (
   <Suspense
-    fallback={<PremiumLoader message="Finding Your Path. Please Wait..." />}
+    fallback={null}
   >
     <HomePageComponent />
   </Suspense>

@@ -951,9 +951,93 @@ const DEF: Form = {
   passportReady: false,
   testDone: false,
   docsReady: false,
+  educationStatus: "",
 };
 
-/* ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ UI Components ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+/* ─────────────── UI Components ─────────────── */
+
+const PLANNED_TEST_OPTIONS = [
+  { value: "", label: "Select a test" },
+  { value: "IELTS", label: "IELTS" },
+  { value: "PTE", label: "PTE" },
+  { value: "TOEFL", label: "TOEFL" },
+  { value: "Duolingo", label: "Duolingo" },
+];
+
+function PlannedTestDropdown({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const selectedLabel =
+    PLANNED_TEST_OPTIONS.find((o) => o.value === value)?.label || "Select a test";
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className={`w-full flex items-center justify-between bg-[#F4F7FF] text-[15px] font-bold rounded-xl px-4 py-3 outline-none border transition-all ${
+          open
+            ? "border-[#3686FF] ring-2 ring-[#3686FF]/20 bg-white shadow-md"
+            : "border-transparent hover:border-blue-200"
+        } ${value ? "text-slate-800" : "text-slate-400"}`}
+      >
+        <span className="truncate">{selectedLabel}</span>
+        <ChevronDown
+          className={`w-4 h-4 text-slate-400 transition-transform duration-200 shrink-0 ml-2 ${
+            open ? "rotate-180 text-[#3686FF]" : ""
+          }`}
+        />
+      </button>
+
+      {open && (
+        <div className="absolute top-[calc(100%+6px)] left-0 w-full bg-white border border-slate-100 shadow-xl rounded-2xl z-[200] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+          <div className="py-1.5">
+            {PLANNED_TEST_OPTIONS.map((opt) => {
+              const isSelected = value === opt.value;
+              return (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => {
+                    onChange(opt.value);
+                    setOpen(false);
+                  }}
+                  className={`w-full text-left px-4 py-2.5 text-[14px] font-semibold transition-all flex items-center gap-2.5 ${
+                    isSelected
+                      ? "bg-blue-600 text-white"
+                      : "text-slate-600 hover:bg-blue-50 hover:text-blue-700"
+                  }`}
+                >
+                  {isSelected && (
+                    <CheckCircle className="w-4 h-4 shrink-0" />
+                  )}
+                  <span>{opt.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function SearchSelect({
   placeholder,
@@ -2122,6 +2206,38 @@ export default function AbroadLiftMatchesPage() {
 
   const [hasRestored, setHasRestored] = useState(false);
 
+  // ── Browser history sync: make browser back button go to previous step ──
+  const isPopstateNav = useRef(false);
+
+  // Push browser history whenever step changes (skip if change came from popstate)
+  useEffect(() => {
+    if (isPopstateNav.current) {
+      isPopstateNav.current = false;
+      return;
+    }
+    window.history.pushState({ matchStep: step }, "");
+  }, [step]);
+
+  // Listen for browser back/forward button
+  useEffect(() => {
+    const onPopState = (e: PopStateEvent) => {
+      if (e.state && typeof e.state.matchStep === "number") {
+        isPopstateNav.current = true;
+        setStep(e.state.matchStep);
+      } else {
+        // No match step in history — go back one step in the form, or let browser navigate away
+        if (step > 1) {
+          isPopstateNav.current = true;
+          setStep((prev) => Math.max(1, prev - 1));
+          // Push current state so further back presses keep working
+          window.history.pushState({ matchStep: Math.max(1, step - 1) }, "");
+        }
+      }
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, [step]);
+
   const saveSelectionState = (match?: Match | null) => {
     const nextMatch = match ?? selectedMatch;
     const nextStep = 8; // Move to Cost Estimation after selection
@@ -2741,7 +2857,7 @@ export default function AbroadLiftMatchesPage() {
     if (!f.countries || f.countries.length === 0) return false;
     if (!f.degree) return false;
     if (!f.field || !f.program) return false;
-    if (!f.highestEducation || !f.gpa || !f.passingYear) return false;
+    if (!f.highestEducation || !f.educationStatus || !f.gpa || !f.passingYear) return false;
     const gpa = parseFloat(f.gpa);
     if (isNaN(gpa) || gpa < 0 || gpa > 4.0) return false;
     if (f.hasEnglishTest === null) return false;
@@ -2758,7 +2874,7 @@ export default function AbroadLiftMatchesPage() {
     if (!f.countries || f.countries.length === 0) return 1;
     if (!f.degree) return 2;
     if (!f.field || !f.program) return 3;
-    if (!f.highestEducation || !f.gpa || !f.passingYear) return 4;
+    if (!f.highestEducation || !f.educationStatus || !f.gpa || !f.passingYear) return 4;
     const gpa = parseFloat(f.gpa);
     if (isNaN(gpa) || gpa < 0 || gpa > 4.0) return 4;
     if (f.hasEnglishTest === null) return 5;
@@ -2962,7 +3078,7 @@ export default function AbroadLiftMatchesPage() {
     if (step === 2) return !!form.degree;
     if (step === 3) return !!form.field && !!form.program;
     if (step === 4) {
-      if (!form.highestEducation || !form.gpa || !form.passingYear)
+      if (!form.highestEducation || !form.educationStatus || !form.gpa || !form.passingYear)
         return false;
       const gpa = parseFloat(form.gpa);
       return !isNaN(gpa) && gpa >= 0 && gpa <= 4.0;
@@ -3619,12 +3735,82 @@ export default function AbroadLiftMatchesPage() {
               <label className="text-[12px] font-bold text-slate-400 uppercase tracking-widest ml-1">
                 Highest Education Level
               </label>
-              <SearchSelect
-                placeholder="Select Education Level"
-                options={EDUCATION_LEVELS}
-                value={form.highestEducation}
-                onChange={(v) => updateForm("highestEducation", v)}
-              />
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {EDUCATION_LEVELS.map((level) => {
+                  const isSelected = form.highestEducation === level;
+                  const iconMap: Record<string, any> = {
+                    "10th Grade / SLC": BookOpen,
+                    "12th Grade / +2 / HSEB": GraduationCap,
+                    "3-Year Diploma": FileText,
+                    "Bachelor's Degree": Award,
+                    "Master's Degree": Award,
+                    "Integrated Master's": Sparkles,
+                  };
+                  const LevelIcon = iconMap[level] || GraduationCap;
+                  return (
+                    <button
+                      key={level}
+                      type="button"
+                      onClick={() => updateForm("highestEducation", level)}
+                      className={`group relative text-left p-4 rounded-2xl border-2 transition-all duration-300 flex flex-col items-start h-full ${
+                        isSelected
+                          ? "border-blue-500 bg-blue-50/20 shadow-md scale-[1.02]"
+                          : "border-slate-100 bg-[#f8fafc] shadow-sm hover:border-blue-200"
+                      }`}
+                    >
+                      {isSelected && (
+                        <span className="absolute top-3 right-3 w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center text-white">
+                          <Check className="w-3 h-3 stroke-[3]" />
+                        </span>
+                      )}
+                      <LevelIcon className={`w-6 h-6 mb-2 ${isSelected ? "text-blue-500" : "text-slate-400"}`} />
+                      <span className={`text-[11px] font-black uppercase block tracking-wider leading-tight ${isSelected ? "text-blue-600" : "text-slate-500"}`}>
+                        {level}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="md:col-span-2 space-y-3">
+              <label className="text-[12px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                Education Status
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                {([
+                  { value: "Pursuing", icon: Clock, desc: "Currently enrolled" },
+                  { value: "Completed", icon: CheckCircle, desc: "Already graduated" },
+                ] as const).map((opt) => {
+                  const isSelected = form.educationStatus === opt.value;
+                  const StatusIcon = opt.icon;
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => updateForm("educationStatus", opt.value)}
+                      className={`group relative text-left p-4 rounded-2xl border-2 transition-all duration-300 flex flex-col items-start ${
+                        isSelected
+                          ? "border-blue-500 bg-blue-50/20 shadow-md scale-[1.02]"
+                          : "border-slate-100 bg-[#f8fafc] shadow-sm hover:border-blue-200"
+                      }`}
+                    >
+                      {isSelected && (
+                        <span className="absolute top-3 right-3 w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center text-white">
+                          <Check className="w-3 h-3 stroke-[3]" />
+                        </span>
+                      )}
+                      <StatusIcon className={`w-6 h-6 mb-2 ${isSelected ? "text-blue-500" : "text-slate-400"}`} />
+                      <span className={`text-[11px] font-black uppercase block tracking-wider leading-none mb-0.5 ${isSelected ? "text-blue-600" : "text-slate-500"}`}>
+                        {opt.value}
+                      </span>
+                      <span className="text-[10px] font-medium text-slate-400 block leading-tight">
+                        {opt.desc}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             <div className="space-y-3">
@@ -3655,12 +3841,28 @@ export default function AbroadLiftMatchesPage() {
               <label className="text-[12px] font-bold text-slate-400 uppercase tracking-widest ml-1">
                 Year of Passing
               </label>
-              <SearchSelect
-                placeholder="Select Passing Year"
-                options={YEARS}
-                value={form.passingYear}
-                onChange={(v) => updateForm("passingYear", v)}
-              />
+              <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                {YEARS.map((year) => {
+                  const isSelected = form.passingYear === year;
+                  return (
+                    <button
+                      key={year}
+                      type="button"
+                      onClick={() => updateForm("passingYear", year)}
+                      className={`h-[46px] md:h-[52px] rounded-2xl text-[14px] font-bold transition-all duration-300 border-2 flex items-center justify-center ${
+                        isSelected
+                          ? "border-blue-500 bg-blue-50/20 text-blue-600 shadow-md scale-[1.03]"
+                          : "border-slate-100 bg-[#f8fafc] text-slate-500 hover:border-blue-200"
+                      }`}
+                    >
+                      {isSelected && (
+                        <Check className="w-3.5 h-3.5 mr-1.5 text-blue-500 stroke-[3]" />
+                      )}
+                      {year}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
@@ -3983,26 +4185,48 @@ export default function AbroadLiftMatchesPage() {
                   You can continue to search matches without a score. Many universities offer pathway programs or English waivers, though we recommend preparing for a test later.
                 </p>
               </div>
-              <div className="bg-white/80 rounded-2xl p-5 text-left border border-blue-100 space-y-4">
+              <div className="bg-white/80 rounded-2xl p-5 text-left border border-blue-100 space-y-5">
                 <p className="font-bold text-slate-800 text-[14px]">
                   Which test do you plan to take? (Optional)
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-2 block">Planned Test</label>
-                    <select
-                      value={form.plannedTestType}
-                      onChange={(e) => setForm({ ...form, plannedTestType: e.target.value })}
-                      className="w-full bg-[#F4F7FF] text-slate-800 text-[15px] font-bold rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#3686FF]/50 border border-transparent transition-all"
-                    >
-                      <option value="">Select a test</option>
-                      <option value="IELTS">IELTS</option>
-                      <option value="PTE">PTE</option>
-                      <option value="TOEFL">TOEFL</option>
-                      <option value="Duolingo">Duolingo</option>
-                    </select>
-                  </div>
-                  <div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {[
+                    { value: "IELTS", label: "IELTS", icon: GraduationCap, desc: "Band Score (0-9)" },
+                    { value: "PTE", label: "PTE", icon: ScrollText, desc: "Global Score (10-90)" },
+                    { value: "TOEFL", label: "TOEFL", icon: Globe, desc: "iBT Score (0-120)" },
+                    { value: "Duolingo", label: "Duolingo", icon: Award, desc: "DET Score (10-160)" },
+                  ].map((opt) => {
+                    const isSelected = form.plannedTestType === opt.value;
+                    const TestIcon = opt.icon;
+                    return (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setForm({ ...form, plannedTestType: isSelected ? "" : opt.value, plannedTestScore: isSelected ? "" : form.plannedTestScore })}
+                        className={`group relative text-left p-3.5 rounded-2xl border-2 transition-all duration-300 flex flex-col items-start ${
+                          isSelected
+                            ? "border-blue-500 bg-blue-50/30 shadow-md scale-[1.02]"
+                            : "border-slate-100 bg-white shadow-sm hover:border-blue-200"
+                        }`}
+                      >
+                        {isSelected && (
+                          <span className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center text-white">
+                            <Check className="w-3 h-3 stroke-[3]" />
+                          </span>
+                        )}
+                        <TestIcon className={`w-5 h-5 mb-1.5 ${isSelected ? "text-blue-500" : "text-slate-400"}`} />
+                        <span className={`text-[11px] font-black uppercase block tracking-wider leading-none mb-0.5 ${isSelected ? "text-blue-600" : "text-slate-500"}`}>
+                          {opt.label}
+                        </span>
+                        <span className="text-[10px] font-medium text-slate-400 block leading-tight">
+                          {opt.desc}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+                {form.plannedTestType && (
+                  <div className="animate-in fade-in slide-in-from-top-2 duration-300">
                     <label className="text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-2 block">Target Score</label>
                     <input
                       type="text"
@@ -4015,7 +4239,7 @@ export default function AbroadLiftMatchesPage() {
                       <p className="text-red-500 text-[11px] font-bold mt-1.5">{plannedScoreError}</p>
                     )}
                   </div>
-                </div>
+                )}
               </div>
             </div>
           )}

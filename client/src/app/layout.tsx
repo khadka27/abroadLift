@@ -98,7 +98,7 @@ export default function RootLayout({
   ];
 
   return (
-    <html lang="en" className="overflow-x-hidden">
+    <html lang="en" className="overflow-x-clip">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -116,7 +116,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className="bg-white text-[#0f172a] antialiased overflow-x-hidden font-quicksand"
+        className="bg-white text-[#0f172a] antialiased overflow-x-clip font-quicksand"
         suppressHydrationWarning={true}
       >
         <Suspense fallback={null}>
