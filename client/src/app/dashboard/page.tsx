@@ -1,4 +1,6 @@
 /* eslint-disable react-hooks/immutability */
+/* eslint-disable react-hooks/purity */
+/* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -57,6 +59,7 @@ import {
   Lightbulb,
   Rocket,
   Paperclip,
+  Menu,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
@@ -273,6 +276,7 @@ function DashboardInner() {
   const tabParam = searchParams.get("tab");
 
   const [activeTab, setActiveTab] = useState<TabKey>("dashboard");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     if (tabParam) {
@@ -515,6 +519,68 @@ function DashboardInner() {
     const completed = tasks.filter((t) => t.completed).length;
     return Math.round((completed / tasks.length) * 100);
   }, [tasks]);
+
+  const nextRecommendedStep = useMemo(() => {
+    if (profileCompleteness < 65) {
+      return {
+        title: "Step 1: Complete Your Academic Profile",
+        description: `Your profile is only ${profileCompleteness}% complete. Fill out your GPA, test scores, and preferred countries so we can find accurate university matches.`,
+        cta: "Fill Profile Details",
+        tab: "profile" as TabKey,
+        icon: User,
+        color: "from-blue-500/10 to-indigo-500/5 border-blue-100",
+        btnColor: "bg-blue-600 hover:bg-blue-700 shadow-blue-500/20",
+        iconColor: "text-blue-600 bg-blue-50"
+      };
+    }
+    const uploadedDocs = documents.filter((d) => d.status === "Uploaded").length;
+    if (uploadedDocs < 3) {
+      return {
+        title: "Step 2: Upload Required Documents",
+        description: `You've uploaded ${uploadedDocs} of ${documents.length} essential files. Securely upload your Passport and Academic Transcripts to qualify for applications.`,
+        cta: "Go to Document Locker",
+        tab: "documents" as TabKey,
+        icon: FileText,
+        color: "from-violet-500/10 to-purple-500/5 border-violet-100",
+        btnColor: "bg-violet-600 hover:bg-violet-700 shadow-violet-500/20",
+        iconColor: "text-violet-600 bg-violet-50"
+      };
+    }
+    if (savedMatches.length === 0) {
+      return {
+        title: "Step 3: Discover Your University Matches",
+        description: "You haven't saved any university match evaluations yet. Run our smart evaluation wizard to check your admissibility odds and save targets.",
+        cta: "Find Matches Now",
+        tab: "matches" as TabKey,
+        icon: Compass,
+        color: "from-emerald-500/10 to-teal-500/5 border-emerald-100",
+        btnColor: "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/20",
+        iconColor: "text-emerald-600 bg-emerald-50"
+      };
+    }
+    if (applications.length === 0) {
+      return {
+        title: "Step 4: Start College Applications",
+        description: "Your matches look strong! Draft and submit your application folder to your shortlisted universities to initiate the enrollment process.",
+        cta: "Start Application Form",
+        tab: "applications" as TabKey,
+        icon: Briefcase,
+        color: "from-amber-500/10 to-orange-500/5 border-amber-100",
+        btnColor: "bg-amber-600 hover:bg-amber-700 shadow-amber-500/20",
+        iconColor: "text-amber-600 bg-amber-50"
+      };
+    }
+    return {
+      title: "Step 5: Prepare Visa Guidelines",
+      description: "You are on track with your admissions! Review the visa roadmap, open your GIC escrow account, and start preparing supporting documents.",
+      cta: "View Visa Roadmap",
+      tab: "visa-assistance" as TabKey,
+      icon: Globe,
+      color: "from-slate-500/10 to-slate-600/5 border-slate-200",
+      btnColor: "bg-slate-800 hover:bg-slate-900 shadow-slate-800/20",
+      iconColor: "text-slate-800 bg-slate-100"
+    };
+  }, [profileCompleteness, documents, savedMatches, applications]);
 
   const handleToggleTask = (taskId: string) => {
     setTasks(
@@ -773,11 +839,145 @@ function DashboardInner() {
         <div className="absolute -bottom-20 -left-20 h-[400px] w-[400px] rounded-full bg-indigo-400/15 blur-[100px]" />
       </div>
 
+      {/* Mobile Top Header Bar */}
+      <div className="max-w-[1580px] mx-auto px-4 md:hidden">
+        <div className="flex items-center justify-between bg-white/70 backdrop-blur-xl border border-white/60 p-4 rounded-3xl mb-6 shadow-[0_8px_30px_rgba(0,0,0,0.02)]">
+          <button
+            onClick={() => setIsMobileMenuOpen(true)}
+            className="p-2.5 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-2xl transition-all shadow-xs flex items-center justify-center shrink-0 border border-slate-100"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+          <span className="font-black text-slate-800 text-sm tracking-tight capitalize">
+            {activeTab.replace("-", " ")}
+          </span>
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center font-black text-white shadow-sm text-xs">
+            {profile.name.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase() || "S"}
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Drawer Navigation Overlay */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[150] md:hidden"
+            />
+            {/* Drawer */}
+            <motion.aside
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="fixed top-0 bottom-0 left-0 w-[300px] max-w-[85%] bg-white/90 backdrop-blur-xl border-r border-slate-100 p-6 z-[160] flex flex-col justify-between md:hidden shadow-[20px_0_40px_rgba(0,0,0,0.05)] overflow-y-auto"
+            >
+              <div className="space-y-6">
+                {/* Header inside drawer */}
+                <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+                  <div className="flex items-center gap-2">
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center font-black text-white shadow-md text-xs">
+                      {profile.name.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase() || "S"}
+                    </div>
+                    <div className="min-w-0">
+                      <h4 className="font-black text-slate-800 text-xs leading-none truncate max-w-[130px]">{profile.name}</h4>
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1 block">Student Portal</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="p-1.5 hover:bg-slate-50 text-slate-400 hover:text-slate-600 rounded-xl transition-all"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* Sidebar menu inside drawer */}
+                <nav className="space-y-5">
+                  {NAVIGATION_GROUPS.map((group) => (
+                    <div key={group.title} className="space-y-1">
+                      <h4 className="text-[9px] font-black text-slate-400 uppercase tracking-[0.25em] px-3 mb-2">
+                        {group.title}
+                      </h4>
+                      <div className="space-y-0.5">
+                        {group.items.map((tab) => {
+                          const Icon = tab.icon;
+                          const isActive = activeTab === tab.key;
+                          return (
+                            <button
+                              key={tab.key}
+                              onClick={() => {
+                                setActiveTab(tab.key);
+                                setIsEditingProfile(false);
+                                setIsMobileMenuOpen(false);
+                              }}
+                              className={`flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left text-xs font-extrabold transition-all duration-200 relative overflow-hidden group ${
+                                isActive
+                                  ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md shadow-blue-500/15"
+                                  : "text-slate-500 hover:bg-slate-50 hover:text-slate-950"
+                              }`}
+                            >
+                              <Icon className={`h-4 w-4 shrink-0 ${isActive ? "text-white" : "text-slate-400"}`} />
+                              <span className="truncate">{tab.label}</span>
+                              {tab.key === "saved-universities" && savedMatches.length > 0 && (
+                                <span className={`ml-auto px-2 py-0.5 text-[9px] font-black rounded-full ${isActive ? "bg-white/20 text-white" : "bg-blue-50 text-blue-600"}`}>
+                                  {savedMatches.length}
+                                </span>
+                              )}
+                              {tab.key === "applications" && applications.length > 0 && (
+                                <span className={`ml-auto px-2 py-0.5 text-[9px] font-black rounded-full ${isActive ? "bg-white/20 text-white" : "bg-indigo-50 text-indigo-600"}`}>
+                                  {applications.length}
+                                </span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                  <div className="h-px bg-slate-100 my-2" />
+                  <button
+                    onClick={async () => {
+                      setIsMobileMenuOpen(false);
+                      await signOut({ redirect: false });
+                      router.replace("/");
+                    }}
+                    className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-xs font-extrabold text-rose-500 hover:bg-rose-50 transition-all duration-200"
+                  >
+                    <LogOut className="h-4 w-4 text-rose-400" />
+                    Logout
+                  </button>
+                </nav>
+              </div>
+
+              {/* Completeness bar at bottom of mobile drawer */}
+              <div className="pt-4 border-t border-slate-100">
+                <div className="flex justify-between items-center text-[9px] font-bold text-slate-400 mb-1">
+                  <span>PROFILE</span>
+                  <span className="text-[#3686FF]">{profileCompleteness}%</span>
+                </div>
+                <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full"
+                    style={{ width: `${profileCompleteness}%` }}
+                  />
+                </div>
+              </div>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+
       <div className="max-w-[1580px] mx-auto px-4 md:px-8">
         <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] lg:grid-cols-[300px_1fr] gap-6 lg:gap-8">
           
           {/* ══════════ SIDEBAR (NAVIGATION) ══════════ */}
-          <aside className="md:block md:sticky md:top-[110px] md:h-fit self-start">
+          <aside className="hidden md:block md:sticky md:top-[110px] md:h-fit self-start">
             <div className="space-y-6">
               
               {/* Profile Card */}
@@ -967,6 +1167,177 @@ function DashboardInner() {
                 {activeTab === "dashboard" && (
                   <div className="space-y-6">
 
+                    {/* Enhanced Hero Banner */}
+                    <div className="rounded-[32px] border border-blue-100 bg-[#3686FF]/5 p-6 md:p-8 relative overflow-hidden shadow-sm group">
+                      <div className="absolute right-0 top-0 w-80 h-80 bg-blue-500/5 rounded-full blur-[80px] pointer-events-none transition-transform duration-1000 group-hover:scale-110" />
+                      
+                      <div className="relative z-10">
+                        <div className="flex flex-wrap items-start justify-between gap-4 mb-5">
+                          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-50 text-[#3686FF] text-[11px] font-black tracking-wider uppercase rounded-full border border-blue-100 shadow-sm">
+                            <Compass className="w-3.5 h-3.5 text-[#3686FF]" />
+                            Goal: {profile.preferredCountry || "Canada"} · {profile.intake || "Fall 2026"}
+                          </div>
+                          <div className="flex gap-2">
+                            {profile.gpa && (
+                              <span className="px-2.5 py-1 rounded-xl bg-white text-[10px] font-black text-slate-700 border border-slate-200 shadow-xs">GPA {profile.gpa}</span>
+                            )}
+                            {profile.englishScore && (
+                              <span className="px-2.5 py-1 rounded-xl bg-emerald-50 text-[10px] font-black text-emerald-700 border border-emerald-150 shadow-xs">{profile.testType || "IELTS"} {profile.englishScore}</span>
+                            )}
+                          </div>
+                        </div>
+
+                        <h2 className="text-2xl md:text-3xl font-black tracking-tight leading-snug text-slate-900">Welcome back, {firstName}!</h2>
+                        <p className="text-slate-500 text-xs sm:text-sm mt-3 max-w-xl font-semibold leading-relaxed">
+                          Your academic credentials match <strong className="text-[#3686FF] font-black">{matches.length || "12"} global institutions</strong>. {profileCompleteness < 80 ? "Complete your profile to unlock personalized recommendations." : "Your visa success probability is strong. Let's finish your SOP this week!"}
+                        </p>
+                        
+                        <div className="flex flex-wrap gap-3 mt-6">
+                          <button
+                            onClick={() => setActiveTab("matches")}
+                            className="bg-[#3686FF] hover:bg-blue-600 text-white font-black px-5 py-3 rounded-2xl text-xs shadow-lg shadow-blue-500/25 transition-all active:scale-95 hover:shadow-blue-500/35 hover:-translate-y-0.5 flex items-center gap-1.5 cursor-pointer"
+                          >
+                            <Compass className="w-4 h-4" /> Explore Matches
+                          </button>
+                          <button
+                            onClick={() => setActiveTab("profile")}
+                            className="bg-white hover:bg-slate-50 text-slate-700 font-black px-5 py-3 rounded-2xl text-xs border border-slate-200 transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer shadow-sm"
+                          >
+                            <Pencil className="w-4 h-4 text-slate-400" /> Refine Profile
+                          </button>
+                          <button
+                            onClick={() => router.push("/costing")}
+                            className="bg-amber-50 hover:bg-amber-100/80 text-amber-700 font-black px-5 py-3 rounded-2xl text-xs border border-amber-100/60 transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
+                          >
+                            <DollarSign className="w-4 h-4 text-amber-600" /> Cost Estimator
+                          </button>
+                          <button
+                            onClick={() => router.push("/matches?new=true")}
+                            className="bg-violet-50 hover:bg-violet-100/80 text-violet-700 font-black px-5 py-3 rounded-2xl text-xs border border-violet-200/60 transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer shadow-sm"
+                          >
+                            <Plus className="w-4 h-4 text-violet-600" /> Start New Session
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Recent Matches Section */}
+                    <div className="space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-75">
+                      <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] px-1">
+                        Recent Matches
+                      </h3>
+                      <Card className="rounded-[32px] p-6 border border-slate-100 bg-white shadow-xl shadow-slate-100/50 relative overflow-hidden">
+                        {loading ? (
+                          <div className="flex py-10 justify-center items-center">
+                            <Loader2 className="w-6 h-6 text-blue-600 animate-spin mr-3" />
+                            <span className="font-bold text-slate-500 animate-pulse text-xs">Loading saved matches...</span>
+                          </div>
+                        ) : savedMatches.length === 0 ? (
+                          <div className="text-center py-8 text-slate-500 flex flex-col items-center gap-3">
+                            <span className="font-semibold text-xs">No saved matches yet. Use the Matching Wizard to find and save your evaluations!</span>
+                            <button
+                              onClick={() => router.push("/matches")}
+                              className="rounded-xl bg-[#3686FF] hover:bg-blue-600 px-4 py-2 text-[10px] font-bold text-white shadow-md transition-all active:scale-95 cursor-pointer"
+                            >
+                              Start Matching Wizard
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                            {savedMatches.slice(0, 3).map((m) => {
+                              const rawDegree = m.formData?.degree || "bachelors";
+                              const degree = formatDegree(rawDegree);
+                              const gpa = m.formData?.gpa || "—";
+                              const testType = m.formData?.testType && m.formData?.testType !== "NONE" ? m.formData.testType : null;
+                              const testScore = m.formData?.testScore || "";
+                              const univName = m.matchData?.name || "University Match";
+                              const countryCode = m.formData?.countries?.[0] || m.matchData?.countryCode || "CA";
+                              const city = m.matchData?.city || "";
+                              const tuitionFee = m.matchData?.tuitionFee || 18000;
+                              const admissionChance = m.admissionChance;
+
+                              return (
+                                <div
+                                  key={m.id}
+                                  onClick={() => handleLoadSavedProfile(m)}
+                                  className="rounded-[24px] p-5 border border-slate-100 bg-slate-50/20 hover:bg-white hover:shadow-lg hover:border-blue-200 transition-all duration-300 flex flex-col justify-between group cursor-pointer"
+                                >
+                                  <div>
+                                    <div className="flex justify-between items-center mb-3">
+                                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[9px] font-black tracking-widest uppercase bg-blue-50 text-blue-600 truncate max-w-[110px]" title={degree}>
+                                        {degree}
+                                      </span>
+                                      <div className="flex items-center gap-1.5 shrink-0">
+                                        <div className={`w-1.5 h-1.5 rounded-full ${
+                                          admissionChance && admissionChance >= 80
+                                            ? "bg-emerald-500 animate-pulse"
+                                            : admissionChance && admissionChance >= 50
+                                            ? "bg-amber-500"
+                                            : "bg-rose-500"
+                                        }`} />
+                                        <span className={`text-[10px] font-black tracking-wide uppercase ${
+                                          admissionChance && admissionChance >= 80
+                                            ? "text-emerald-600"
+                                            : admissionChance && admissionChance >= 50
+                                            ? "text-amber-600"
+                                            : "text-rose-600"
+                                        }`}>
+                                          {admissionChance ?? "—"}% Odds
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <h4 className="font-extrabold text-slate-800 text-sm tracking-tight group-hover:text-[#3686FF] transition-colors leading-tight" title={univName}>
+                                      {univName}
+                                    </h4>
+                                    <p className="text-[10px] text-slate-400 font-semibold flex items-center gap-1 mt-1.5">
+                                      <MapPin className="w-3.5 h-3.5 shrink-0 text-slate-400" />
+                                      {city ? `${city}, ` : ""}{countryCode}
+                                    </p>
+                                    
+                                    <div className="grid grid-cols-2 gap-3 border-t border-slate-100 pt-3.5 mt-4 text-left">
+                                      <div>
+                                        <span className="block text-[10px] font-black text-slate-400 uppercase tracking-wider">GPA & Test Score</span>
+                                        <span className="block text-xs font-extrabold text-slate-750 mt-1 truncate" title={`GPA ${gpa} · ${testType ? `${formatTestType(testType)} ${testScore}` : "No Test"}`}>
+                                          GPA {gpa} · {testType ? `${formatTestType(testType)} ${testScore}` : "No Test"}
+                                        </span>
+                                      </div>
+                                      <div className="border-l border-slate-100 pl-4">
+                                        <span className="block text-[10px] font-black text-slate-400 uppercase tracking-wider">Yearly Tuition</span>
+                                        <span className="block text-xs font-black text-slate-800 mt-1">
+                                          ${Number(tuitionFee).toLocaleString()}/yr
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="pt-4 mt-3">
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleLoadSavedProfile(m);
+                                      }}
+                                      className="w-full bg-[#3686FF] hover:bg-blue-600 text-white font-black py-2.5 rounded-xl text-xs shadow-sm hover:shadow-md transition-all active:scale-95 cursor-pointer text-center flex items-center justify-center gap-1.5"
+                                    >
+                                      Check Full Evaluation <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                                    </button>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                            {savedMatches.length > 3 && (
+                              <div className="col-span-full flex justify-center pt-4 border-t border-slate-100/50 mt-2">
+                                <button
+                                  onClick={() => setActiveTab("saved-universities")}
+                                  className="text-xs font-black text-[#3686FF] hover:text-blue-700 transition-colors flex items-center gap-1 cursor-pointer"
+                                >
+                                  View All {savedMatches.length} Shortlisted Campuses →
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </Card>
+                    </div>
+
                     {/* ── KPI Stats Row ── */}
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                       {[
@@ -1029,148 +1400,150 @@ function DashboardInner() {
                       })}
                     </div>
 
-                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                    <div className="xl:col-span-2 space-y-6">
-                      
-                      {/* Enhanced Hero Banner */}
-                      <div className="rounded-[32px] border border-blue-100 bg-[#3686FF]/5 p-6 md:p-8 relative overflow-hidden shadow-sm group">
-                        <div className="absolute right-0 top-0 w-80 h-80 bg-blue-500/5 rounded-full blur-[80px] pointer-events-none transition-transform duration-1000 group-hover:scale-110" />
-                        
-                        <div className="relative z-10">
-                          <div className="flex flex-wrap items-start justify-between gap-4 mb-5">
-                            <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-50 text-[#3686FF] text-[11px] font-black tracking-wider uppercase rounded-full border border-blue-100 shadow-sm">
-                              <Compass className="w-3.5 h-3.5 text-[#3686FF]" />
-                              Goal: {profile.preferredCountry || "Canada"} · {profile.intake || "Fall 2026"}
+                      {/* Dynamic Recommended Onboarding Step Banner */}
+                      {(() => {
+                        const StepIcon = nextRecommendedStep.icon;
+                        return (
+                          <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className={`rounded-[32px] border bg-gradient-to-br ${nextRecommendedStep.color} p-6 shadow-sm flex flex-col sm:flex-row gap-5 items-start justify-between relative overflow-hidden group`}
+                          >
+                            <div className="flex gap-4 items-start relative z-10">
+                              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-sm ${nextRecommendedStep.iconColor}`}>
+                                <StepIcon className="w-6 h-6" />
+                              </div>
+                              <div className="space-y-1.5 min-w-0">
+                                <span className="text-[10px] font-black tracking-widest uppercase text-[#3686FF] bg-blue-50 px-2.5 py-0.5 rounded-full">
+                                  Your Next Recommended Step
+                                </span>
+                                <h3 className="text-base font-black text-slate-800 tracking-tight leading-snug mt-1">
+                                  {nextRecommendedStep.title}
+                                </h3>
+                                <p className="text-slate-500 font-semibold text-xs leading-relaxed max-w-lg">
+                                  {nextRecommendedStep.description}
+                                </p>
+                              </div>
                             </div>
-                            <div className="flex gap-2">
-                              {profile.gpa && (
-                                <span className="px-2.5 py-1 rounded-xl bg-white text-[10px] font-black text-slate-700 border border-slate-200 shadow-xs">GPA {profile.gpa}</span>
-                              )}
-                              {profile.englishScore && (
-                                <span className="px-2.5 py-1 rounded-xl bg-emerald-50 text-[10px] font-black text-emerald-700 border border-emerald-150 shadow-xs">{profile.testType || "IELTS"} {profile.englishScore}</span>
-                              )}
-                            </div>
+                            <button
+                              onClick={() => {
+                                setActiveTab(nextRecommendedStep.tab);
+                                setIsEditingProfile(nextRecommendedStep.tab === "profile");
+                              }}
+                              className={`w-full sm:w-auto shrink-0 font-black text-white px-5 py-3 rounded-2xl text-xs transition-all active:scale-95 hover:-translate-y-0.5 cursor-pointer shadow-md ${nextRecommendedStep.btnColor}`}
+                            >
+                              {nextRecommendedStep.cta}
+                            </button>
+                          </motion.div>
+                        );
+                      })()}
+
+
+                      {/* Saved Matching Profiles Section */}
+                      <Card className="rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 bg-white">
+                        <div className="flex justify-between items-center mb-6">
+                          <div>
+                            <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Saved Matching Profiles</h3>
+                            <p className="text-xs text-slate-400 font-semibold mt-1">{"Your personalized study abroad search histories and analytical evaluations."}</p>
                           </div>
-
-                          <h2 className="text-2xl md:text-3xl font-black tracking-tight leading-snug text-slate-900">Welcome back, {firstName}!</h2>
-                          <p className="text-slate-500 text-xs sm:text-sm mt-3 max-w-xl font-semibold leading-relaxed">
-                            Your academic credentials match <strong className="text-[#3686FF] font-black">{matches.length || "12"} global institutions</strong>. {profileCompleteness < 80 ? "Complete your profile to unlock personalized recommendations." : "Your visa success probability is strong. Let's finish your SOP this week!"}
-                          </p>
-                          
-                          <div className="flex flex-wrap gap-3 mt-6">
-                            <button
-                              onClick={() => setActiveTab("matches")}
-                              className="bg-[#3686FF] hover:bg-blue-600 text-white font-black px-5 py-3 rounded-2xl text-xs shadow-lg shadow-blue-500/25 transition-all active:scale-95 hover:shadow-blue-500/35 hover:-translate-y-0.5 flex items-center gap-1.5 cursor-pointer"
-                            >
-                              <Compass className="w-4 h-4" /> Explore Matches
-                            </button>
-                            <button
-                              onClick={() => setActiveTab("profile")}
-                              className="bg-white hover:bg-slate-50 text-slate-700 font-black px-5 py-3 rounded-2xl text-xs border border-slate-200 transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer shadow-sm"
-                            >
-                              <Pencil className="w-4 h-4 text-slate-400" /> Refine Profile
-                            </button>
-                            <button
-                              onClick={() => router.push("/costing")}
-                              className="bg-amber-50 hover:bg-amber-100/80 text-amber-700 font-black px-5 py-3 rounded-2xl text-xs border border-amber-100/60 transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
-                            >
-                              <DollarSign className="w-4 h-4 text-amber-600" /> Cost Estimator
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Recent Matches Section */}
-                      <div className="space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-75">
-                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] px-1">
-                          Recent Matches
-                        </h3>
-                        <Card className="rounded-[32px] p-6 border border-white/60 bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 relative overflow-hidden">
-                          {loading ? (
-                            <div className="flex py-10 justify-center items-center">
-                              <Loader2 className="w-6 h-6 text-blue-600 animate-spin mr-3" />
-                              <span className="font-bold text-slate-500 animate-pulse text-xs">Loading saved matches...</span>
-                            </div>
-                          ) : savedMatches.length === 0 ? (
-                            <div className="text-center py-8 text-slate-500 flex flex-col items-center gap-3">
-                              <span className="font-semibold text-xs">No saved matches yet. Use the Matching Wizard to find and save your evaluations!</span>
-                              <button
-                                onClick={() => router.push("/matches")}
-                                className="rounded-xl bg-[#3686FF] hover:bg-blue-600 px-4 py-2 text-[10px] font-bold text-white shadow-md transition-all active:scale-95 cursor-pointer"
-                              >
-                                Start Matching Wizard
-                              </button>
-                            </div>
-                          ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                              {savedMatches.slice(0, 3).map((m) => {
-                                const rawDegree = m.formData?.degree || "bachelors";
-                                const degree = formatDegree(rawDegree);
-                                const gpa = m.formData?.gpa || "—";
-                                const testType = m.formData?.testType && m.formData?.testType !== "NONE" ? m.formData.testType : null;
-                                const testScore = m.formData?.testScore || "";
-                                const univName = m.matchData?.name || "University Match";
-                                const countryCode = m.formData?.countries?.[0] || m.matchData?.countryCode || "CA";
-                                const city = m.matchData?.city || "";
-                                const tuitionFee = m.matchData?.tuitionFee || 18000;
-                                const admissionChance = m.admissionChance;
-
-                                return (
-                                  <div
-                                    key={m.id}
-                                    onClick={() => handleLoadSavedProfile(m)}
-                                    className="rounded-2xl p-4 border border-slate-100 bg-white/50 hover:bg-white hover:shadow-md hover:border-blue-200 transition-all duration-300 flex flex-col justify-between group cursor-pointer"
-                                  >
-                                    <div>
-                                      <div className="flex justify-between items-start mb-2 gap-1">
-                                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black tracking-widest uppercase bg-blue-50 text-blue-600 truncate max-w-[100px]" title={degree}>
-                                          {degree}
-                                        </span>
-                                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black tracking-widest uppercase bg-emerald-50 text-emerald-600 shrink-0">
-                                          Admit Odds: {admissionChance ?? "—"}%
-                                        </span>
-                                      </div>
-                                      <h4 className="font-extrabold text-slate-800 text-sm truncate group-hover:text-[#3686FF] transition-colors" title={univName}>
-                                        {univName}
-                                      </h4>
-                                      <p className="text-[10px] text-slate-400 font-semibold flex items-center gap-1 mt-1">
-                                        <MapPin className="w-3.5 h-3.5 shrink-0" />
-                                        {city ? `${city}, ` : ""}{countryCode}
-                                      </p>
-                                      
-                                      <div className="space-y-2 mt-4 mb-3 text-[11px] font-bold text-slate-500">
-                                        <div className="flex justify-between items-center bg-slate-50 px-3 py-2 rounded-xl border border-slate-100/50">
-                                          <span className="text-slate-400 font-medium">GPA / Test</span>
-                                          <span className="text-slate-800 font-extrabold truncate max-w-[125px]" title={`GPA ${gpa} · ${testType ? `${testType} ${testScore}` : "No Test"}`}>
-                                            GPA {gpa} · {testType ? `${formatTestType(testType)} ${testScore}` : "No Test"}
-                                          </span>
-                                        </div>
-                                        <div className="flex justify-between items-center bg-slate-50 px-3 py-2 rounded-xl border border-slate-100/50">
-                                          <span className="text-slate-400 font-medium">Est. Tuition</span>
-                                          <span className="text-slate-800 font-extrabold">
-                                            ${Number(tuitionFee).toLocaleString()}/yr
-                                          </span>
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div className="flex gap-2 pt-2 border-t border-slate-100/60 mt-2">
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleLoadSavedProfile(m);
-                                        }}
-                                        className="w-full bg-[#3686FF] hover:bg-blue-600 text-white font-bold py-2 rounded-xl text-[10px] shadow-sm transition-all active:scale-95 cursor-pointer text-center flex items-center justify-center gap-1"
-                                      >
-                                        Open Step 8 Analytics <ChevronRight className="w-3 h-3" />
-                                      </button>
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                            </div>
+                          {savedMatches.length > 0 && (
+                            <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-xl">
+                              {savedMatches.length} Profile{savedMatches.length === 1 ? "" : "s"}
+                            </span>
                           )}
-                        </Card>
-                      </div>
+                        </div>
+
+                        {savedMatches.length === 0 ? (
+                          <div className="flex flex-col items-center justify-center gap-3 py-10 text-center">
+                            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-50 text-slate-400">
+                              <Compass className="h-7 w-7" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-bold text-slate-700">No saved profiles yet</p>
+                              <p className="text-xs text-slate-400 max-w-md mx-auto">Run a university match query to build and save your study abroad evaluations.</p>
+                            </div>
+                            <button
+                              onClick={() => router.push("/matches")}
+                              className="mt-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-md transition-all active:scale-95"
+                            >
+                              Start Matching Wizard
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="space-y-4">
+                            {savedMatches.map((item) => {
+                              const degree = item.formData?.degree || "Bachelor";
+                              const gpa = item.formData?.gpa || "—";
+                              const testType = item.formData?.testType && item.formData?.testType !== "NONE" ? item.formData.testType : null;
+                              const testScore = item.formData?.testScore || "";
+                              const country = item.formData?.countries?.[0] || item.matchData?.countryCode || "CA";
+                              const intake = item.formData?.intake || "Fall 2026";
+                              const univName = item.matchData?.name || "University Match";
+                              const admissionChance = item.admissionChance;
+                              const visaSuccess = item.visaSuccess;
+
+                              return (
+                                <div
+                                  key={item.id}
+                                  className="rounded-2xl border border-slate-100 bg-slate-50/35 p-4 hover:border-blue-100 hover:bg-blue-50/10 transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-4 group"
+                                >
+                                  <div className="min-w-0 flex-1">
+                                    <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                                      <span className="inline-flex px-2 py-0.5 text-[9px] font-black tracking-widest uppercase bg-blue-50 text-blue-600 rounded-full">
+                                        {degree}
+                                      </span>
+                                      <span className="text-[11px] font-bold text-slate-400">
+                                        GPA: {gpa} • {testType ? `${testType} ${testScore}` : "No language test"}
+                                      </span>
+                                      <span className="text-[11px] font-bold text-slate-400">• Intake: {intake}</span>
+                                    </div>
+                                    <h4 className="font-extrabold text-slate-800 text-sm truncate group-hover:text-[#3686FF] transition-colors">
+                                      {univName}
+                                    </h4>
+                                    <p className="text-xs text-slate-400 font-semibold mt-0.5">Target Destination: {country}</p>
+                                  </div>
+
+                                  <div className="flex items-center gap-4 shrink-0 justify-between md:justify-end">
+                                    <div className="flex gap-3">
+                                      <div className="text-center">
+                                        <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Admission</p>
+                                        <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold mt-0.5 ${
+                                          admissionChance && admissionChance >= 80
+                                            ? "bg-emerald-50 text-emerald-700"
+                                            : admissionChance && admissionChance >= 50
+                                            ? "bg-amber-50 text-amber-700"
+                                            : "bg-rose-50 text-rose-700"
+                                        }`}>
+                                          {admissionChance ?? "—"}%
+                                        </span>
+                                      </div>
+                                      <div className="text-center">
+                                        <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Visa Odds</p>
+                                        <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold mt-0.5 ${
+                                          visaSuccess && visaSuccess >= 80
+                                            ? "bg-emerald-50 text-emerald-700"
+                                            : visaSuccess && visaSuccess >= 50
+                                            ? "bg-amber-50 text-amber-700"
+                                            : "bg-rose-50 text-rose-700"
+                                        }`}>
+                                          {visaSuccess ?? "—"}%
+                                        </span>
+                                      </div>
+                                    </div>
+
+                                    <button
+                                      onClick={() => handleLoadSavedProfile(item)}
+                                      className="bg-white border border-slate-200 hover:border-[#3686FF] hover:bg-[#3686FF] hover:text-white text-slate-600 font-bold px-3.5 py-2 rounded-xl text-[11px] shadow-sm transition-all flex items-center gap-1 shrink-0 active:scale-95"
+                                    >
+                                      Launch Analytics (Step 8)
+                                    </button>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </Card>
 
                       {/* Enhanced Application Progress Roadmap */}
                       <Card className="rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 bg-white relative overflow-hidden">
@@ -1291,239 +1664,93 @@ function DashboardInner() {
                         })}
                       </div>
 
-                      {/* Saved Matching Profiles Section */}
+                      {/* Logical Explore Portal Features Directory */}
                       <Card className="rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 bg-white">
-                        <div className="flex justify-between items-center mb-6">
-                          <div>
-                            <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Saved Matching Profiles</h3>
-                            <p className="text-xs text-slate-400 font-semibold mt-1">Your personalized study abroad search histories and analytical evaluations.</p>
-                          </div>
-                          {savedMatches.length > 0 && (
-                            <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-xl">
-                              {savedMatches.length} Profile{savedMatches.length === 1 ? "" : "s"}
-                            </span>
-                          )}
+                        <div className="mb-6">
+                          <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Explore Portal Features</h3>
+                          <p className="text-[11px] text-slate-400 font-semibold mt-1">{"A beginner's index to all the tools and resources available in your portal"}</p>
                         </div>
-
-                        {savedMatches.length === 0 ? (
-                          <div className="flex flex-col items-center justify-center gap-3 py-10 text-center">
-                            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-50 text-slate-400">
-                              <Compass className="h-7 w-7" />
-                            </div>
-                            <div>
-                              <p className="text-sm font-bold text-slate-700">No saved profiles yet</p>
-                              <p className="text-xs text-slate-400 max-w-md mx-auto">Run a university match query to build and save your study abroad evaluations.</p>
-                            </div>
-                            <button
-                              onClick={() => router.push("/matches")}
-                              className="mt-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-md transition-all active:scale-95"
-                            >
-                              Start Matching Wizard
-                            </button>
-                          </div>
-                        ) : (
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          {/* Group 1: Discovery */}
                           <div className="space-y-4">
-                            {savedMatches.map((item) => {
-                              const degree = item.formData?.degree || "Bachelor";
-                              const gpa = item.formData?.gpa || "—";
-                              const testType = item.formData?.testType && item.formData?.testType !== "NONE" ? item.formData.testType : null;
-                              const testScore = item.formData?.testScore || "";
-                              const country = item.formData?.countries?.[0] || item.matchData?.countryCode || "CA";
-                              const intake = item.formData?.intake || "Fall 2026";
-                              const univName = item.matchData?.name || "University Match";
-                              const admissionChance = item.admissionChance;
-                              const visaSuccess = item.visaSuccess;
-
-                              return (
-                                <div
-                                  key={item.id}
-                                  className="rounded-2xl border border-slate-100 bg-slate-50/35 p-4 hover:border-blue-100 hover:bg-blue-50/10 transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-4 group"
-                                >
-                                  <div className="min-w-0 flex-1">
-                                    <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                                      <span className="inline-flex px-2 py-0.5 text-[9px] font-black tracking-widest uppercase bg-blue-50 text-blue-600 rounded-full">
-                                        {degree}
-                                      </span>
-                                      <span className="text-[11px] font-bold text-slate-400">
-                                        GPA: {gpa} • {testType ? `${testType} ${testScore}` : "No language test"}
-                                      </span>
-                                      <span className="text-[11px] font-bold text-slate-400">• Intake: {intake}</span>
-                                    </div>
-                                    <h4 className="font-extrabold text-slate-800 text-sm truncate group-hover:text-[#3686FF] transition-colors">
-                                      {univName}
-                                    </h4>
-                                    <p className="text-xs text-slate-400 font-semibold mt-0.5">Target Destination: {country}</p>
-                                  </div>
-
-                                  <div className="flex items-center gap-4 shrink-0 justify-between md:justify-end">
-                                    <div className="flex gap-3">
-                                      <div className="text-center">
-                                        <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Admission</p>
-                                        <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold mt-0.5 ${
-                                          admissionChance && admissionChance >= 80
-                                            ? "bg-emerald-50 text-emerald-700"
-                                            : admissionChance && admissionChance >= 50
-                                            ? "bg-amber-50 text-amber-700"
-                                            : "bg-rose-50 text-rose-700"
-                                        }`}>
-                                          {admissionChance ?? "—"}%
-                                        </span>
-                                      </div>
-                                      <div className="text-center">
-                                        <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Visa Odds</p>
-                                        <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold mt-0.5 ${
-                                          visaSuccess && visaSuccess >= 80
-                                            ? "bg-emerald-50 text-emerald-700"
-                                            : visaSuccess && visaSuccess >= 50
-                                            ? "bg-amber-50 text-amber-700"
-                                            : "bg-rose-50 text-rose-700"
-                                        }`}>
-                                          {visaSuccess ?? "—"}%
-                                        </span>
-                                      </div>
-                                    </div>
-
-                                    <button
-                                      onClick={() => handleLoadSavedProfile(item)}
-                                      className="bg-white border border-slate-200 hover:border-[#3686FF] hover:bg-[#3686FF] hover:text-white text-slate-600 font-bold px-3.5 py-2 rounded-xl text-[11px] shadow-sm transition-all flex items-center gap-1 shrink-0 active:scale-95"
-                                    >
-                                      Launch Analytics (Step 8)
-                                    </button>
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </Card>
-
-                    </div>
-
-                    {/* Enhanced right-column sidebar widgets */}
-                    <div className="space-y-6">
-
-                      {/* Task Tracker Widget with mini progress ring */}
-                      <Card className="rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 bg-white">
-                        <div className="flex justify-between items-center mb-5">
-                          <div>
-                            <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Tasks</h3>
-                            <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Visa & admission roadmap</p>
-                          </div>
-                          {/* Mini SVG progress ring */}
-                          <div className="relative w-12 h-12 shrink-0">
-                            <svg className="w-full h-full -rotate-90">
-                              <circle cx="24" cy="24" r="18" fill="none" stroke="#f1f5f9" strokeWidth="4" />
-                              <circle
-                                cx="24" cy="24" r="18" fill="none"
-                                stroke="#3686FF" strokeWidth="4"
-                                strokeDasharray={2 * Math.PI * 18}
-                                strokeDashoffset={2 * Math.PI * 18 * (1 - taskCompletion / 100)}
-                                strokeLinecap="round"
-                                className="transition-all duration-700"
-                              />
-                            </svg>
-                            <span className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-blue-600">{taskCompletion}%</span>
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          {tasks.slice(0, 4).map((task) => {
-                            const daysUntilDue = Math.ceil((new Date(task.dueDate).getTime() - Date.now()) / 86400000);
-                            const isUrgent = !task.completed && daysUntilDue <= 5;
-                            return (
-                              <div
-                                key={task.id}
-                                onClick={() => handleToggleTask(task.id)}
-                                className={`flex gap-3 items-start p-3 rounded-xl transition-all cursor-pointer ${
-                                  task.completed ? "opacity-50" : isUrgent ? "bg-rose-50 hover:bg-rose-100/80" : "hover:bg-slate-50"
-                                }`}
-                              >
-                                <div className={`w-4.5 h-4.5 rounded-md border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all ${
-                                  task.completed ? "bg-blue-500 border-blue-500 text-white" : isUrgent ? "border-rose-400" : "border-slate-300 bg-white"
-                                }`}>
-                                  {task.completed && <Check className="w-2.5 h-2.5" />}
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                  <p className={`text-xs font-semibold leading-snug ${task.completed ? "line-through text-slate-400" : isUrgent ? "text-rose-700" : "text-slate-700"}`}>
-                                    {task.title}
-                                  </p>
-                                  <div className={`text-[10px] font-bold mt-0.5 flex items-center gap-1 ${isUrgent && !task.completed ? "text-rose-500" : "text-slate-400"}`}>
-                                    {task.completed ? (
-                                      <>
-                                        <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                                        <span>Done</span>
-                                      </>
-                                    ) : isUrgent ? (
-                                      <>
-                                        <AlertTriangle className="w-3 h-3 text-rose-500 shrink-0" />
-                                        <span>Due in {daysUntilDue}d</span>
-                                      </>
-                                    ) : (
-                                      <span>Due: {task.dueDate}</span>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                        <button
-                          onClick={() => setActiveTab("tasks")}
-                          className="w-full text-center text-xs font-bold text-[#3686FF] hover:text-blue-700 mt-4 pt-3 border-t border-slate-100 transition-colors"
-                        >
-                          View All {tasks.length} Tasks →
-                        </button>
-                      </Card>
-
-                      {/* Counselor Chat Widget */}
-                      <Card className="rounded-[32px] border-none shadow-xl shadow-slate-200/50 bg-white flex flex-col overflow-hidden" style={{ height: 360 }}>
-                        <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white shrink-0">
-                          <div className="relative">
-                            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center font-black text-white text-xs shadow-md">
-                              AC
+                            <div className="flex items-center gap-2 pb-2.5 border-b border-slate-100/60">
+                              <Compass className="w-4 h-4 text-blue-500 animate-pulse" />
+                              <h4 className="font-extrabold text-slate-700 text-xs uppercase tracking-wider">1. Find & Match</h4>
                             </div>
-                            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full">
-                              <div className="absolute inset-0 bg-emerald-500 rounded-full animate-ping opacity-75" />
-                            </div>
+                            <ul className="space-y-3.5 list-none p-0 m-0">
+                              {[
+                                { key: "matches" as TabKey, label: "College Matching", desc: "Check admissibility odds based on GPA & tests" },
+                                { key: "scholarships" as TabKey, label: "Scholarship Finder", desc: "Explore institutional & country awards" },
+                                { key: "saved-universities" as TabKey, label: "Saved Universities", desc: "Shortlist campuses for your applications" },
+                              ].map((item) => (
+                                <li key={item.key}>
+                                  <button
+                                    onClick={() => setActiveTab(item.key)}
+                                    className="w-full text-left group hover:bg-slate-50 p-2 -mx-2 rounded-xl transition-all cursor-pointer"
+                                  >
+                                    <span className="block text-xs font-bold text-slate-800 group-hover:text-blue-600 transition-colors">{item.label}</span>
+                                    <span className="block text-[10px] text-slate-400 font-medium leading-normal mt-0.5">{item.desc}</span>
+                                  </button>
+                                </li>
+                              ))}
+                            </ul>
                           </div>
-                          <div>
-                            <h4 className="text-xs font-black text-slate-800">Abby Carter</h4>
-                            <p className="text-[9px] font-bold text-emerald-600 uppercase tracking-wider">● Online · Counselor</p>
-                          </div>
-                          <button onClick={() => setActiveTab("messages")} className="ml-auto text-[10px] font-bold text-blue-500 hover:text-blue-700">
-                            Open Chat →
-                          </button>
-                        </div>
-
-                        <div className="flex-1 px-4 py-3 overflow-y-auto space-y-3 scrollbar-hide" ref={chatContainerRef}>
-                          {messages.slice(-4).map((m) => (
-                            <div key={m.id} className={`flex ${m.sender === "student" ? "justify-end" : "justify-start"}`}>
-                              <div className={`p-2.5 rounded-2xl max-w-[85%] text-xs leading-relaxed font-semibold shadow-sm ${
-                                m.sender === "student"
-                                  ? "bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-tr-none"
-                                  : "bg-slate-100 text-slate-700 rounded-tl-none"
-                              }`}>
-                                {m.text}
-                              </div>
+                          
+                          {/* Group 2: Admissions */}
+                          <div className="space-y-4">
+                            <div className="flex items-center gap-2 pb-2.5 border-b border-slate-100/60">
+                              <Briefcase className="w-4 h-4 text-violet-500" />
+                              <h4 className="font-extrabold text-slate-700 text-xs uppercase tracking-wider">2. Prep & Apply</h4>
                             </div>
-                          ))}
+                            <ul className="space-y-3.5 list-none p-0 m-0">
+                              {[
+                                { key: "profile" as TabKey, label: "Profile Credentials", desc: "Set up and sync your educational qualifications" },
+                                { key: "documents" as TabKey, label: "Document Locker", desc: "Securely upload and store academic transcripts" },
+                                { key: "applications" as TabKey, label: "Application Tracker", desc: "Track admission stages from Draft to Offer" },
+                              ].map((item) => (
+                                <li key={item.key}>
+                                  <button
+                                    onClick={() => {
+                                      setActiveTab(item.key);
+                                      if (item.key === "profile") setIsEditingProfile(false);
+                                    }}
+                                    className="w-full text-left group hover:bg-slate-50 p-2 -mx-2 rounded-xl transition-all cursor-pointer"
+                                  >
+                                    <span className="block text-xs font-bold text-slate-800 group-hover:text-violet-600 transition-colors">{item.label}</span>
+                                    <span className="block text-[10px] text-slate-400 font-medium leading-normal mt-0.5">{item.desc}</span>
+                                  </button>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                          
+                          {/* Group 3: Support */}
+                          <div className="space-y-4">
+                            <div className="flex items-center gap-2 pb-2.5 border-b border-slate-100/60">
+                              <MessageSquare className="w-4 h-4 text-emerald-500" />
+                              <h4 className="font-extrabold text-slate-700 text-xs uppercase tracking-wider">3. Expert Support</h4>
+                            </div>
+                            <ul className="space-y-3.5 list-none p-0 m-0">
+                              {[
+                                { key: "messages" as TabKey, label: "Counselor Chat", desc: "Direct messaging with your personal counselor" },
+                                { key: "tasks" as TabKey, label: "Roadmap Checklist", desc: "To-do lists to track visa & financial tasks" },
+                                { key: "visa-assistance" as TabKey, label: "Visa Success Odds", desc: "Process checklist and success probability scores" },
+                              ].map((item) => (
+                                <li key={item.key}>
+                                  <button
+                                    onClick={() => setActiveTab(item.key)}
+                                    className="w-full text-left group hover:bg-slate-50 p-2 -mx-2 rounded-xl transition-all cursor-pointer"
+                                  >
+                                    <span className="block text-xs font-bold text-slate-800 group-hover:text-emerald-600 transition-colors">{item.label}</span>
+                                    <span className="block text-[10px] text-slate-400 font-medium leading-normal mt-0.5">{item.desc}</span>
+                                  </button>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
                         </div>
-
-                        <form onSubmit={handleSendMessage} className="px-4 py-3 border-t border-slate-100 flex gap-2 shrink-0">
-                          <input
-                            type="text"
-                            value={typedMessage}
-                            onChange={(e) => setTypedMessage(e.target.value)}
-                            placeholder="Message Abby..."
-                            className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-800 placeholder-slate-400 outline-none focus:border-blue-400 focus:bg-white transition-colors"
-                          />
-                          <button type="submit" className="bg-[#3686FF] hover:bg-blue-600 text-white p-2.5 rounded-xl shadow-md transition-all active:scale-95">
-                            <Send className="w-3.5 h-3.5" />
-                          </button>
-                        </form>
                       </Card>
-
-                    </div>
-                    </div>
                   </div>
                 )}
 

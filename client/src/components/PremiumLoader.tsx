@@ -65,10 +65,10 @@ export default function PremiumLoader({ message = "Initializing Portal..." }: { 
 
       <div className="relative flex items-center justify-center w-full max-w-4xl px-4 select-none">
         {/* Large semi-transparent background letters like SFO and JFK */}
-        <div className="absolute left-10 md:left-20 text-6xl md:text-[120px] font-black text-white/5 tracking-wider font-poppins pointer-events-none uppercase">
+        <div className="absolute left-10 md:left-20 text-6xl md:text-[120px] font-black text-white/5 tracking-wider font-quicksand pointer-events-none uppercase">
           Abroad
         </div>
-        <div className="absolute right-10 md:right-20 text-6xl md:text-[120px] font-black text-white/5 tracking-wider font-poppins pointer-events-none uppercase">
+        <div className="absolute right-10 md:right-20 text-6xl md:text-[120px] font-black text-white/5 tracking-wider font-quicksand pointer-events-none uppercase">
           Lift
         </div>
 
@@ -205,7 +205,7 @@ export default function PremiumLoader({ message = "Initializing Portal..." }: { 
 
       {/* Brand logo & tagline */}
       <div className="mt-8 flex flex-col items-center gap-2 relative z-20">
-        <h1 className="text-2xl font-black tracking-widest uppercase bg-gradient-to-r from-white via-slate-100 to-blue-200 bg-clip-text text-transparent font-poppins">
+        <h1 className="text-2xl font-black tracking-widest uppercase bg-gradient-to-r from-white via-slate-100 to-blue-200 bg-clip-text text-transparent font-quicksand">
           AbroadLift
         </h1>
         <div className="flex items-center gap-1.5 text-xs text-blue-300/80 font-bold uppercase tracking-widest">
