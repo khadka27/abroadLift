@@ -10,7 +10,7 @@ export async function POST(req: Request) {
     const session: any = await getServerSession(authOptions);
 
     // Ensure this route is strictly for ADMIN users
-    if (!session || session.user.role !== "ADMIN") {
+    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUPERADMIN")) {
       return new NextResponse("Unauthorized. Admin access required.", {
         status: 401,
       });

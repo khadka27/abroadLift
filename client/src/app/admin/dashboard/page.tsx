@@ -26,6 +26,12 @@ import {
   PieChart,
   Bell,
   Eye,
+  EyeOff,
+  Pencil,
+  KeyRound,
+  ShieldAlert,
+  CheckCircle2,
+  AlertTriangle,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -35,7 +41,8 @@ interface UserData {
   email: string;
   username: string;
   phoneNumber: string | null;
-  role: "STUDENT" | "ADMIN";
+  role: "STUDENT" | "ADMIN" | "SUPERADMIN";
+  isActive: boolean;
   createdAt: string;
   profile: any;
 }
@@ -43,6 +50,7 @@ interface UserData {
 export default function AdminDashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const isSuperAdmin = session?.user?.role === "SUPERADMIN";
 
   const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,6 +60,24 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState({ total: 0, student: 0, admin: 0 });
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
   const [errorMsg, setErrorMsg] = useState("");
+
+  // Edit / Reset password / Delete state
+  const [actionUser, setActionUser] = useState<UserData | null>(null);
+  const [actionMode, setActionMode] = useState<"edit" | "delete" | "resetPassword" | null>(null);
+  const [actionForm, setActionForm] = useState({
+    name: "",
+    email: "",
+    phoneNumber: "",
+    password: "",
+  });
+  const [submittingAction, setSubmittingAction] = useState(false);
+  const [showActionPassword, setShowActionPassword] = useState(false);
+  const [toast, setToast] = useState<{ type: "success" | "error"; msg: string } | null>(null);
+
+  const triggerToast = (type: "success" | "error", msg: string) => {
+    setToast({ type, msg });
+    setTimeout(() => setToast(null), 4000);
+  };
 
   // Registration Form State
   const [formData, setFormData] = useState({
@@ -68,11 +94,11 @@ export default function AdminDashboard() {
       router.push("/admin/login?callbackUrl=/admin/dashboard");
       return;
     }
-    if (session?.user && session.user.role !== "ADMIN") {
+    if (session?.user && session.user.role !== "ADMIN" && session.user.role !== "SUPERADMIN") {
       router.push("/");
       return;
     }
-    if (session?.user.role === "ADMIN") {
+    if (session?.user && (session.user.role === "ADMIN" || session.user.role === "SUPERADMIN")) {
       fetchUsers();
     }
   }, [status, session, router]);
@@ -127,6 +153,114 @@ export default function AdminDashboard() {
       setErrorMsg("Network error. Please try again.");
     } finally {
       setRegistering(false);
+    }
+  };
+
+  const handleEditAction = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!actionUser) return;
+    setSubmittingAction(true);
+    try {
+      const res = await fetch(`/api/admin/users/${actionUser.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: actionForm.name,
+          email: actionForm.email,
+          phoneNumber: actionForm.phoneNumber,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        triggerToast("success", "User details updated successfully.");
+        setActionMode(null);
+        setActionUser(null);
+        fetchUsers();
+      } else {
+        triggerToast("error", data.error || "Failed to update details.");
+      }
+    } catch {
+      triggerToast("error", "Network error.");
+    } finally {
+      setSubmittingAction(false);
+    }
+  };
+
+  const handleResetPasswordAction = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!actionUser) return;
+    if (!actionForm.password || actionForm.password.length < 8) {
+      triggerToast("error", "Password must be at least 8 characters.");
+      return;
+    }
+    setSubmittingAction(true);
+    try {
+      const res = await fetch(`/api/admin/users/${actionUser.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: actionUser.name,
+          email: actionUser.email,
+          password: actionForm.password,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        triggerToast("success", "Password reset successfully.");
+        setActionMode(null);
+        setActionUser(null);
+      } else {
+        triggerToast("error", data.error || "Failed to reset password.");
+      }
+    } catch {
+      triggerToast("error", "Network error.");
+    } finally {
+      setSubmittingAction(false);
+    }
+  };
+
+  const handleDeleteAction = async () => {
+    if (!actionUser) return;
+    setSubmittingAction(true);
+    try {
+      const res = await fetch(`/api/admin/users/${actionUser.id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (res.ok) {
+        triggerToast("success", "User account removed.");
+        setActionMode(null);
+        setActionUser(null);
+        fetchUsers();
+      } else {
+        triggerToast("error", data.error || "Failed to delete user.");
+      }
+    } catch {
+      triggerToast("error", "Network error.");
+    } finally {
+      setSubmittingAction(false);
+    }
+  };
+
+  const toggleUserStatus = async (user: UserData) => {
+    try {
+      const res = await fetch(`/api/admin/users/${user.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "UPDATE_STATUS",
+          isActive: !user.isActive,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        triggerToast("success", `User status updated to ${!user.isActive ? "Active" : "Suspended"}.`);
+        fetchUsers();
+      } else {
+        triggerToast("error", data.error || "Failed to toggle status.");
+      }
+    } catch {
+      triggerToast("error", "Network error.");
     }
   };
 
@@ -240,7 +374,7 @@ export default function AdminDashboard() {
               </button>
               <button
                 onClick={() => setShowModal(true)}
-                className="h-[48px] px-6 rounded-2xl bg-slate-900 text-white font-bold text-sm flex items-center gap-2.5 hover:bg-indigo-600 transition-all shadow-xl shadow-slate-900/10 active:scale-95"
+                className="h-[48px] px-6 rounded-2xl bg-blue-600 text-white font-bold text-sm flex items-center gap-2.5 hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/10 active:scale-95"
               >
                 <Plus className="w-4 h-4" />
                 New User
@@ -348,6 +482,7 @@ export default function AdminDashboard() {
                       <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Contact</th>
                       <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Role</th>
                       <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Origin</th>
+                      <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Status</th>
                       <th className="px-8 py-5 text-center text-[11px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Actions</th>
                     </tr>
                   </thead>
@@ -392,12 +527,14 @@ export default function AdminDashboard() {
                         <td className="px-8 py-4">
                           <span
                             className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-black tracking-widest uppercase ${
-                              user.role === "ADMIN"
+                              user.role === "SUPERADMIN"
+                                ? "bg-amber-100 text-amber-700 border border-amber-200"
+                                : user.role === "ADMIN"
                                 ? "bg-indigo-50 text-indigo-600"
                                 : "bg-slate-100 text-slate-600"
                             }`}
                           >
-                            {user.role}
+                            {user.role === "SUPERADMIN" ? "SUPERADMIN" : user.role}
                           </span>
                         </td>
                         <td className="px-8 py-4">
@@ -409,16 +546,80 @@ export default function AdminDashboard() {
                           </div>
                         </td>
                         <td className="px-8 py-4">
-                          <div className="flex items-center justify-center gap-2">
+                          <span
+                            onClick={() => {
+                              const canManage = isSuperAdmin || user.role === "STUDENT";
+                              const isSelf = user.id === session?.user?.id;
+                              if (canManage && !isSelf) {
+                                toggleUserStatus(user);
+                              }
+                            }}
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black tracking-widest uppercase ${
+                              (isSuperAdmin || user.role === "STUDENT") && user.id !== session?.user?.id
+                                ? "cursor-pointer hover:opacity-85"
+                                : "opacity-75"
+                            } ${
+                              user.isActive
+                                ? "bg-emerald-50 text-emerald-600"
+                                : "bg-rose-50 text-rose-600"
+                            }`}
+                          >
+                            <span className={`w-1.5 h-1.5 rounded-full ${user.isActive ? "bg-emerald-500" : "bg-rose-500"}`} />
+                            {user.isActive ? "Active" : "Suspended"}
+                          </span>
+                        </td>
+                        <td className="px-8 py-4">
+                          <div className="flex items-center justify-center gap-1">
                             <button 
                               onClick={() => setSelectedUser(user)}
-                              className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                              title="View details"
+                              className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
                             >
                               <Eye className="w-4 h-4" />
                             </button>
-                            <button className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100">
-                              <Trash2 className="w-4 h-4" />
-                            </button>
+                            {(isSuperAdmin || user.role === "STUDENT") && user.id !== session?.user?.id && (
+                              <>
+                                <button
+                                  onClick={() => {
+                                    setActionUser(user);
+                                    setActionForm({
+                                      name: user.name,
+                                      email: user.email,
+                                      phoneNumber: user.phoneNumber || "",
+                                      password: "",
+                                    });
+                                    setShowActionPassword(false);
+                                    setActionMode("edit");
+                                  }}
+                                  title="Edit details"
+                                  className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                                >
+                                  <Pencil className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setActionUser(user);
+                                    setActionForm((f) => ({ ...f, password: "" }));
+                                    setShowActionPassword(false);
+                                    setActionMode("resetPassword");
+                                  }}
+                                  title="Reset password"
+                                  className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all"
+                                >
+                                  <KeyRound className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setActionUser(user);
+                                    setActionMode("delete");
+                                  }}
+                                  title="Delete user"
+                                  className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </>
+                            )}
                           </div>
                         </td>
                       </motion.tr>
@@ -575,26 +776,32 @@ export default function AdminDashboard() {
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
                     Account Role
                   </label>
-                  <select
-                    className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm font-semibold outline-none focus:border-indigo-400 appearance-none cursor-pointer"
-                    value={formData.role}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        role: e.target.value as "STUDENT" | "ADMIN",
-                      })
-                    }
-                  >
-                    <option value="STUDENT">Student (Standard User)</option>
-                    <option value="ADMIN">Admin (Dashboard Access)</option>
-                  </select>
+                  {isSuperAdmin ? (
+                    <select
+                      className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm font-semibold outline-none focus:border-indigo-400 appearance-none cursor-pointer"
+                      value={formData.role}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          role: e.target.value as "STUDENT" | "ADMIN",
+                        })
+                      }
+                    >
+                      <option value="STUDENT">Student (Standard User)</option>
+                      <option value="ADMIN">Admin (Dashboard Access)</option>
+                    </select>
+                  ) : (
+                    <div className="w-full h-12 bg-slate-100 border border-slate-200 rounded-xl px-4 flex items-center text-sm font-bold text-slate-500">
+                      Student (Standard User Only)
+                    </div>
+                  )}
                 </div>
 
                 <div className="pt-4">
                   <button
                     type="submit"
                     disabled={registering}
-                    className="w-full py-4 bg-slate-900 hover:bg-indigo-600 text-white rounded-xl font-black text-sm uppercase tracking-widest transition-all shadow-xl shadow-slate-900/10 disabled:opacity-50"
+                    className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-sm uppercase tracking-widest transition-all shadow-xl shadow-blue-500/10 disabled:opacity-50"
                   >
                     {registering ? "Processing..." : "Create User"}
                   </button>
@@ -762,6 +969,219 @@ export default function AdminDashboard() {
                       )}
                     </div>
                   </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+
+        {/* Toast Notification */}
+        {toast && (
+          <div
+            className={`fixed top-6 right-6 z-[300] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl text-sm font-bold transition-all animate-in slide-in-from-top-2 duration-300 ${
+              toast.type === "success"
+                ? "bg-emerald-600 text-white"
+                : "bg-rose-600 text-white"
+            }`}
+          >
+            {toast.type === "success" ? (
+              <CheckCircle2 className="w-5 h-5" />
+            ) : (
+              <AlertTriangle className="w-5 h-5" />
+            )}
+            {toast.msg}
+          </div>
+        )}
+
+        {/* Action Modals (Edit User) */}
+        {actionMode === "edit" && actionUser && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+          >
+            <div
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+              onClick={() => { setActionMode(null); setActionUser(null); }}
+            />
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="relative w-full max-w-md bg-white rounded-[32px] overflow-hidden shadow-2xl border border-slate-100"
+            >
+              <div className="p-8 bg-gradient-to-r from-blue-600 to-indigo-600 text-white relative">
+                <h3 className="text-xl font-black">Edit User Details</h3>
+                <p className="text-blue-100 text-xs mt-1">Editing account details for @{actionUser.username}</p>
+                <button
+                  onClick={() => { setActionMode(null); setActionUser(null); }}
+                  className="absolute top-6 right-6 text-blue-100 hover:text-white transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <form onSubmit={handleEditAction} className="p-8 space-y-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Full Name</label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm font-semibold outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 transition-all"
+                    value={actionForm.name}
+                    onChange={(e) => setActionForm({ ...actionForm, name: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Email Address</label>
+                  <input
+                    type="email"
+                    required
+                    className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm font-semibold outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 transition-all"
+                    value={actionForm.email}
+                    onChange={(e) => setActionForm({ ...actionForm, email: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Phone Number</label>
+                  <input
+                    type="text"
+                    className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm font-semibold outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 transition-all"
+                    value={actionForm.phoneNumber}
+                    onChange={(e) => setActionForm({ ...actionForm, phoneNumber: e.target.value })}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={submittingAction}
+                  className="w-full h-12 mt-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-sm uppercase tracking-widest transition-all shadow-lg active:scale-95 disabled:opacity-50"
+                >
+                  {submittingAction ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "Save Changes"}
+                </button>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+
+        {/* Action Modals (Reset Password) */}
+        {actionMode === "resetPassword" && actionUser && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+          >
+            <div
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+              onClick={() => { setActionMode(null); setActionUser(null); }}
+            />
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="relative w-full max-w-md bg-white rounded-[32px] overflow-hidden shadow-2xl border border-slate-100"
+            >
+              <div className="p-8 bg-amber-500 text-white relative">
+                <h3 className="text-xl font-black">Reset password</h3>
+                <p className="text-amber-100 text-xs mt-1">Set a secure password for @{actionUser.username}</p>
+                <button
+                  onClick={() => { setActionMode(null); setActionUser(null); }}
+                  className="absolute top-6 right-6 text-amber-100 hover:text-white transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <form onSubmit={handleResetPasswordAction} className="p-8 space-y-4">
+                <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 flex gap-3 items-start">
+                  <ShieldAlert className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                  <p className="text-xs font-semibold text-amber-700">
+                    The user will need to log in with this new password. Keep it secure and share it safely.
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">New Password</label>
+                  <div className="relative">
+                    <input
+                      type={showActionPassword ? "text" : "password"}
+                      required
+                      className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl pl-4 pr-12 text-sm font-semibold outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 transition-all"
+                      placeholder="Min. 8 characters"
+                      value={actionForm.password}
+                      onChange={(e) => setActionForm({ ...actionForm, password: e.target.value })}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowActionPassword(!showActionPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700"
+                    >
+                      {showActionPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  disabled={submittingAction}
+                  className="w-full h-12 mt-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-black text-sm uppercase tracking-widest transition-all shadow-lg active:scale-95 disabled:opacity-50"
+                >
+                  {submittingAction ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "Reset Password"}
+                </button>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+
+        {/* Action Modals (Delete User) */}
+        {actionMode === "delete" && actionUser && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+          >
+            <div
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+              onClick={() => { setActionMode(null); setActionUser(null); }}
+            />
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="relative w-full max-w-md bg-white rounded-[32px] overflow-hidden shadow-2xl border border-slate-100"
+            >
+              <div className="p-8 bg-rose-600 text-white relative">
+                <h3 className="text-xl font-black">Remove User Account</h3>
+                <p className="text-rose-100 text-xs mt-1">Permanently remove @{actionUser.username}</p>
+                <button
+                  onClick={() => { setActionMode(null); setActionUser(null); }}
+                  className="absolute top-6 right-6 text-rose-100 hover:text-white transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="p-8 space-y-6">
+                <div className="p-5 bg-rose-50 rounded-2xl border border-rose-100 flex gap-3 items-start">
+                  <AlertTriangle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-black text-rose-700 mb-1">Warning: Destructive action</p>
+                    <p className="text-xs font-semibold text-rose-600">
+                      User <span className="font-bold">{actionUser.name}</span> ({actionUser.email}) and all their profile matches, documents, and logs will be permanently deleted.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => { setActionMode(null); setActionUser(null); }}
+                    className="flex-1 h-12 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs uppercase tracking-widest hover:bg-slate-50 transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleDeleteAction}
+                    disabled={submittingAction}
+                    className="flex-1 h-12 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-lg active:scale-95 disabled:opacity-50"
+                  >
+                    {submittingAction ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "Delete User"}
+                  </button>
                 </div>
               </div>
             </motion.div>

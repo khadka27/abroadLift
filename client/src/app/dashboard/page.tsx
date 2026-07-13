@@ -346,6 +346,67 @@ function DashboardInner() {
   const [filterDegree, setFilterDegree] = useState("");
   const [launchingId, setLaunchingId] = useState<string | number | null>(null);
 
+  // Redesigned Support & Settings State Variables
+  const [activeSettingsSubTab, setActiveSettingsSubTab] = useState<"account" | "notifications" | "security" | "system">("account");
+  const [avatarTheme, setAvatarTheme] = useState<string>("ocean");
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState<boolean>(false);
+  const [show2faModal, setShow2faModal] = useState<boolean>(false);
+  const [settingsSavedToast, setSettingsSavedToast] = useState<boolean>(false);
+  const [showDeactivateModal, setShowDeactivateModal] = useState<boolean>(false);
+  const [darkModeSimulated, setDarkModeSimulated] = useState<boolean>(false);
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [selectedLanguage, setSelectedLanguage] = useState("English");
+  const [selectedCurrency, setSelectedCurrency] = useState("USD");
+  const [isLoggingOut, setIsLoggingOut] = useState<boolean>(false);
+  
+  const triggerLogout = async () => {
+    setIsLoggingOut(true);
+    setTimeout(async () => {
+      await signOut({ redirect: false });
+      router.replace("/login");
+    }, 850);
+  };
+  const [chatSearch, setChatSearch] = useState<string>("");
+  const [selectedTopic, setSelectedTopic] = useState<string>("general");
+  const [whatsappNotifications, setWhatsappNotifications] = useState<boolean>(true);
+  const [emailNotifications, setEmailNotifications] = useState<boolean>(true);
+  const [pushNotifications, setPushNotifications] = useState<boolean>(false);
+  const [weeklyReportNotifications, setWeeklyReportNotifications] = useState<boolean>(true);
+  const [settingsForm, setSettingsForm] = useState({
+    name: "",
+    email: "",
+    phone: ""
+  });
+  
+  // Custom styled gradient mapping for User Avatars
+  const avatarThemeClasses: Record<string, string> = {
+    sunset: "from-amber-500 to-rose-500 shadow-rose-500/20",
+    ocean: "from-blue-500 to-indigo-600 shadow-blue-500/20",
+    emerald: "from-emerald-400 to-teal-600 shadow-teal-500/20",
+    grape: "from-purple-500 to-indigo-700 shadow-indigo-500/20",
+    crimson: "from-rose-500 to-red-700 shadow-red-500/20",
+    slate: "from-slate-600 to-slate-800 shadow-slate-500/20"
+  };
+  
+  const currentAvatarGradient = avatarThemeClasses[avatarTheme] || avatarThemeClasses.ocean;
+
+  const passwordStrength = useMemo(() => {
+    if (!newPassword) return { score: 0, text: "None", color: "bg-slate-200", textColor: "text-slate-400" };
+    let score = 0;
+    if (newPassword.length >= 6) score += 1;
+    if (newPassword.length >= 10) score += 1;
+    if (/[A-Z]/.test(newPassword)) score += 1;
+    if (/[0-9]/.test(newPassword)) score += 1;
+    if (/[^A-Za-z0-9]/.test(newPassword)) score += 1;
+
+    if (score <= 2) return { score, text: "Weak", color: "bg-rose-500", textColor: "text-rose-500" };
+    if (score <= 4) return { score, text: "Medium", color: "bg-amber-500", textColor: "text-amber-500" };
+    return { score, text: "Strong", color: "bg-emerald-500", textColor: "text-emerald-500" };
+  }, [newPassword]);
+
+
   const filteredShortlists = useMemo(() => {
     return savedMatches.filter((m) => {
       const mCountry = m.formData?.countries?.[0] || m.matchData?.countryCode || "";
@@ -467,6 +528,11 @@ function DashboardInner() {
         };
         setProfile(stateData);
         setEditForm(stateData);
+        setSettingsForm({
+          name: data.name || stateData.name || "",
+          email: data.email || stateData.email || "",
+          phone: data.phoneE164 || data.phoneNumber || stateData.phoneNumber || "",
+        });
         setSavedMatches(Array.isArray(data.matchingRecords) ? data.matchingRecords : []);
       }
     } catch (e) {
@@ -588,27 +654,55 @@ function DashboardInner() {
     );
   };
 
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!typedMessage.trim()) return;
+  const handleSendMessage = (e?: React.FormEvent, customText?: string) => {
+    if (e) e.preventDefault();
+    const textToSend = customText || typedMessage;
+    if (!textToSend.trim()) return;
+
     const newMsg: Message = {
       id: `msg-${Date.now()}`,
       sender: "student",
-      text: typedMessage.trim(),
+      text: textToSend.trim(),
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     };
     setMessages((prev) => [...prev, newMsg]);
-    setTypedMessage("");
+    if (!customText) setTypedMessage("");
+
+    // Context-aware replies for suggestion chips
+    let replyText = "Thanks for checking in! I am reviewing your request and will follow up with the admissions team. I'll get back to you shortly.";
+    const lowerText = textToSend.toLowerCase();
+    if (lowerText.includes("sop") || lowerText.includes("purpose")) {
+      replyText = "Certainly! Please upload your draft in the 'Documents' tab. I will review your structure, grammar, and/or template with Canadian university requirements. Let's aim to finalize it by Friday.";
+    } else if (lowerText.includes("visa")) {
+      replyText = "I've checked your roadmap. Since you're targeting Canada, we need to set up your GIC and pay the tuition fee first. Have you prepared your sponsor's source of funds documentation? I can schedule a mock visa interview for you when you're ready.";
+    } else if (lowerText.includes("scholarship")) {
+      replyText = `Based on your GPA of ${profile?.gpa || "3.5"}, you qualify for several entrance scholarships. Let's look at the 'Scholarships' tab to apply for the Ontario Graduate Scholarship or college-specific merit awards.`;
+    } else if (lowerText.includes("document") || lowerText.includes("upload")) {
+      replyText = "I see you've uploaded your Transcripts. We still need your English Test Report and Statement of Purpose. Once those are ready, we can submit your applications!";
+    }
 
     setTimeout(() => {
       const replyMsg: Message = {
         id: `msg-${Date.now() + 1}`,
         sender: "counselor",
-        text: "Thanks for checking in! I am reviewing your request and will follow up with the admissions team. I'll get back to you shortly.",
+        text: replyText,
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       };
       setMessages((prev) => [...prev, replyMsg]);
-    }, 1500);
+    }, 1200);
+  };
+
+  const handleSaveSettings = () => {
+    setProfile((prev) => ({
+      ...prev,
+      name: settingsForm.name,
+      email: settingsForm.email,
+      phoneNumber: settingsForm.phone,
+    }));
+    setSettingsSavedToast(true);
+    setTimeout(() => {
+      setSettingsSavedToast(false);
+    }, 3000);
   };
 
   const handleMockUpload = (docId: string) => {
@@ -832,7 +926,11 @@ function DashboardInner() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50/50 text-slate-900 pb-16 pt-24 md:pt-28">
+    <div className={`transition-all duration-700 ${isLoggingOut ? "bg-slate-955 fixed inset-0 z-[99999] overflow-hidden flex items-center justify-center" : ""}`}>
+      {isLoggingOut && (
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white shadow-[0_0_30px_15px_rgba(255,255,255,1)] animate-tv-dot pointer-events-none z-[100000]" />
+      )}
+      <div className={`w-full min-h-screen bg-slate-50/50 text-slate-900 pb-16 pt-24 md:pt-28 ${isLoggingOut ? "animate-tv-off" : ""}`}>
       {/* Ambient Background Blobs */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10">
         <div className="absolute -right-40 -top-40 h-[500px] w-[500px] rounded-full bg-blue-400/15 blur-[120px] animate-pulse" />
@@ -851,7 +949,7 @@ function DashboardInner() {
           <span className="font-black text-slate-800 text-sm tracking-tight capitalize">
             {activeTab.replace("-", " ")}
           </span>
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center font-black text-white shadow-sm text-xs">
+          <div className={`w-10 h-10 rounded-2xl bg-gradient-to-br ${currentAvatarGradient} flex items-center justify-center font-black text-white shadow-sm text-xs`}>
             {profile.name.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase() || "S"}
           </div>
         </div>
@@ -881,7 +979,7 @@ function DashboardInner() {
                 {/* Header inside drawer */}
                 <div className="flex items-center justify-between pb-4 border-b border-slate-100">
                   <div className="flex items-center gap-2">
-                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center font-black text-white shadow-md text-xs">
+                    <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${currentAvatarGradient} flex items-center justify-center font-black text-white shadow-md text-xs`}>
                       {profile.name.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase() || "S"}
                     </div>
                     <div className="min-w-0">
@@ -942,10 +1040,9 @@ function DashboardInner() {
                   ))}
                   <div className="h-px bg-slate-100 my-2" />
                   <button
-                    onClick={async () => {
+                    onClick={() => {
                       setIsMobileMenuOpen(false);
-                      await signOut({ redirect: false });
-                      router.replace("/");
+                      triggerLogout();
                     }}
                     className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-xs font-extrabold text-rose-500 hover:bg-rose-50 transition-all duration-200"
                   >
@@ -990,7 +1087,7 @@ function DashboardInner() {
               >
                 <div className="absolute -right-10 -top-10 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl pointer-events-none" />
                 <div className="flex items-center gap-3.5">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#3686FF] to-indigo-600 font-black text-white shadow-[0_4px_15px_rgba(54,134,255,0.25)] text-lg">
+                  <div className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${currentAvatarGradient} font-black text-white shadow-lg text-lg`}>
                     {profile.name.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase() || "S"}
                   </div>
                   <div className="min-w-0">
@@ -1061,9 +1158,8 @@ function DashboardInner() {
                   ))}
                   <div className="h-px bg-slate-100 my-2 px-2" />
                   <button
-                    onClick={async () => {
-                      await signOut({ redirect: false });
-                      router.replace("/");
+                    onClick={() => {
+                      triggerLogout();
                     }}
                     className="flex w-full items-center gap-3 rounded-2xl px-4 py-3.5 text-left text-[13px] font-extrabold text-rose-500 hover:bg-rose-50 hover:translate-x-1 transition-all duration-200"
                   >
@@ -2246,73 +2342,202 @@ function DashboardInner() {
                 {/* 5. MESSAGES TAB */}
                 {activeTab === "messages" && (
                   <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                    <Card className="rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 bg-white xl:col-span-1 h-fit">
-                      <div className="text-center pb-6 border-b border-slate-50">
-                        <div className="relative w-16 h-16 mx-auto shadow-md rounded-3xl overflow-hidden">
-                          <div className="w-full h-full bg-gradient-to-br from-blue-500 to-indigo-600 font-black text-white text-xl flex items-center justify-center">
+                    {/* Left Column: Counselor Hub & Contact Centre */}
+                    <div className="space-y-6 xl:col-span-1 animate-in fade-in duration-300">
+                      <Card className="rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 bg-white relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50/40 rounded-full blur-3xl pointer-events-none" />
+                        
+                        <div className="text-center pb-6 border-b border-slate-150">
+                          <div className="relative w-20 h-20 mx-auto shadow-lg rounded-[28px] overflow-hidden p-0.5 bg-gradient-to-tr from-blue-500 via-[#3686FF] to-indigo-600">
+                            <div className="w-full h-full bg-white rounded-[26px] p-1 overflow-hidden">
+                              <div className="w-full h-full rounded-[24px] bg-gradient-to-br from-blue-500 to-indigo-600 font-black text-white text-2xl flex items-center justify-center">
+                                AC
+                              </div>
+                            </div>
+                            <div className="absolute bottom-0 right-0 w-5 h-5 bg-emerald-500 border-4 border-white rounded-full">
+                              <div className="absolute inset-0 bg-emerald-500 rounded-full animate-ping opacity-75" />
+                            </div>
+                          </div>
+                          
+                          <h3 className="font-black text-slate-800 text-xl mt-4">Abby Carter</h3>
+                          <p className="text-xs font-extrabold text-blue-600 tracking-wide uppercase mt-1">Dedicated Counselor</p>
+                          <p className="text-[10px] font-semibold text-slate-400 mt-0.5">Admissions & Visa Specialist</p>
+                        </div>
+                        
+                        <div className="py-5 space-y-3 text-xs font-semibold text-slate-600">
+                          <div className="flex justify-between items-center bg-slate-50 p-2.5 rounded-2xl border border-slate-100/50">
+                            <span className="text-slate-400 font-bold uppercase tracking-wider text-[9px]">Working Hours</span>
+                            <span className="text-slate-800 font-extrabold">9:00 AM - 6:00 PM EST</span>
+                          </div>
+                          <div className="flex justify-between items-center bg-slate-50 p-2.5 rounded-2xl border border-slate-100/50">
+                            <span className="text-slate-400 font-bold uppercase tracking-wider text-[9px]">Response Time</span>
+                            <span className="text-emerald-600 font-extrabold flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                              Under 1 hour
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center bg-slate-50 p-2.5 rounded-2xl border border-slate-100/50">
+                            <span className="text-slate-400 font-bold uppercase tracking-wider text-[9px]">Email Support</span>
+                            <a href="mailto:counselor@abroadlift.com" className="text-blue-600 hover:text-blue-700 font-extrabold transition-colors">
+                              counselor@abroadlift.com
+                            </a>
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-100">
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText("+1 (800) 555-0199");
+                              alert("Advisor phone number (+1 800 555 0199) copied to clipboard!");
+                            }}
+                            className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-black py-3 rounded-2xl text-[10px] tracking-wider uppercase transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                          >
+                            <Phone className="w-3.5 h-3.5" /> Call Advisor
+                          </button>
+                          <a
+                            href="mailto:counselor@abroadlift.com"
+                            className="bg-blue-50 hover:bg-blue-100 text-blue-700 font-black py-3 rounded-2xl text-[10px] tracking-wider uppercase transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
+                          >
+                            <Mail className="w-3.5 h-3.5" /> Email Direct
+                          </a>
+                        </div>
+                      </Card>
+
+                      {/* Quick FAQ / Helper Resources */}
+                      <Card className="rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 bg-white">
+                        <div className="flex items-center gap-2 mb-4">
+                          <HelpCircle className="w-4 h-4 text-blue-600" />
+                          <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest">Support FAQ</h3>
+                        </div>
+                        <div className="space-y-2.5">
+                          {[
+                            { q: "How long does a GIC account setup take?", a: "Setting up a Canadian GIC with CIBC or Simplii usually takes 3 to 5 business days after transfer verification." },
+                            { q: "When should I submit my English scores?", a: "Ideally, upload your IELTS/PTE reports at least 2 weeks before the college application deadline to ensure smooth processing." },
+                            { q: "Can I add more universities to my matches?", a: "Yes! Use the 'My Matches' tab to match with more institutions or run a new search in the search bar." }
+                          ].map((item, i) => (
+                            <details key={i} className="group bg-slate-50 border border-slate-100/50 rounded-2xl overflow-hidden [&_summary::-webkit-details-marker]:hidden">
+                              <summary className="flex justify-between items-center p-3 text-xs font-bold text-slate-700 cursor-pointer select-none group-hover:bg-slate-100/50 list-none">
+                                <span className="pr-3 leading-snug">{item.q}</span>
+                                <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-open:rotate-90 transition-transform duration-200" />
+                              </summary>
+                              <div className="p-3 pt-0 text-[11px] font-medium leading-relaxed text-slate-500 border-t border-slate-100/50">
+                                {item.a}
+                              </div>
+                            </details>
+                          ))}
+                        </div>
+                      </Card>
+                    </div>
+
+                    {/* Right Column: Chat Interface */}
+                    <Card className="rounded-[32px] border-none shadow-xl shadow-slate-200/50 bg-white xl:col-span-2 flex flex-col h-[600px] justify-between overflow-hidden relative animate-in fade-in duration-300">
+                      {/* Chat Header */}
+                      <div className="bg-slate-50 px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center font-black text-white text-sm shadow-md">
                             AC
                           </div>
-                          <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-emerald-500 border-4 border-white rounded-full">
-                            <div className="absolute inset-0 bg-emerald-500 rounded-full animate-ping opacity-75" />
+                          <div>
+                            <h4 className="font-black text-slate-800 text-sm">Abby Carter</h4>
+                            <p className="text-[10px] font-bold text-emerald-605 flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                              Online · Admissions Advisor
+                            </p>
                           </div>
                         </div>
-                        <h3 className="font-extrabold text-slate-800 text-lg mt-3">Abby Carter</h3>
-                        <p className="text-xs font-semibold text-slate-400">Dedicated Study-Abroad Counselor</p>
-                      </div>
-                      <div className="py-6 space-y-4 text-xs font-semibold text-slate-650">
-                        <div className="flex justify-between">
-                          <span className="text-slate-400">Working Hours:</span>
-                          <span className="text-slate-800">9:00 AM - 6:00 PM</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-slate-400">Response Time:</span>
-                          <span className="text-emerald-600">Under 1 hour</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-slate-400">Email:</span>
-                          <span className="text-slate-800">counselor@abroadlift.com</span>
-                        </div>
-                      </div>
-                    </Card>
-
-                    {/* Chat Interface */}
-                    <Card className="rounded-[32px] border-none shadow-xl shadow-slate-200/50 bg-white xl:col-span-2 flex flex-col h-[520px] justify-between overflow-hidden">
-                      <div className="bg-slate-50 px-6 py-4 border-b border-slate-100 flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center font-black text-blue-600 text-xs">
-                          AC
-                        </div>
-                        <div>
-                          <h4 className="font-black text-slate-800 text-sm">Abby Carter</h4>
-                          <p className="text-[10px] font-bold text-slate-400">Admissions & Shortlist Advisor</p>
+                        
+                        {/* Chat Search Box */}
+                        <div className="relative w-full sm:w-48">
+                          <input
+                            type="text"
+                            value={chatSearch}
+                            onChange={(e) => setChatSearch(e.target.value)}
+                            placeholder="Search messages..."
+                            className="w-full rounded-full border border-slate-200 bg-white pl-8 pr-3 py-1.5 text-xs font-semibold text-slate-800 placeholder-slate-400 outline-none focus:border-blue-400"
+                          />
+                          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
                         </div>
                       </div>
 
-                      <div className="flex-1 p-6 overflow-y-auto space-y-4 scrollbar-hide" ref={chatContainerRef}>
-                        {messages.map((m) => (
-                          <div key={m.id} className={`flex flex-col ${m.sender === "student" ? "items-end" : "items-start"}`}>
-                            <div className={`p-3 rounded-2xl max-w-[80%] leading-relaxed font-semibold text-xs ${m.sender === "student" ? "bg-blue-500 text-white rounded-tr-none" : "bg-slate-100 text-slate-700 rounded-tl-none"}`}>
-                              {m.text}
-                            </div>
-                            <span className="text-[9px] font-bold text-slate-400 mt-1 px-1">{m.timestamp}</span>
+                      {/* Chat Messages Zone */}
+                      <div className="flex-1 p-6 overflow-y-auto space-y-4 scrollbar-hide bg-slate-50/20" ref={chatContainerRef}>
+                        {messages.filter(m => m.text.toLowerCase().includes(chatSearch.toLowerCase())).length === 0 ? (
+                          <div className="h-full flex flex-col items-center justify-center text-center text-slate-400 py-10">
+                            <MessageSquare className="w-10 h-10 mb-2 opacity-30" />
+                            <p className="text-xs font-bold">No messages found matching your search</p>
                           </div>
-                        ))}
+                        ) : (
+                          messages.filter(m => m.text.toLowerCase().includes(chatSearch.toLowerCase())).map((m) => {
+                            const isStudent = m.sender === "student";
+                            return (
+                              <div key={m.id} className={`flex flex-col ${isStudent ? "items-end" : "items-start"} max-w-full animate-in slide-in-from-bottom-2 duration-200`}>
+                                <div className="flex items-end gap-2 max-w-[85%]">
+                                  {!isStudent && (
+                                    <div className="w-6 h-6 rounded-lg bg-blue-500 font-bold text-white text-[9px] flex items-center justify-center shrink-0 mb-1">
+                                      AC
+                                    </div>
+                                  )}
+                                  <div className={`p-4 rounded-[24px] leading-relaxed font-semibold text-xs shadow-sm ${
+                                    isStudent 
+                                      ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-br-none" 
+                                      : "bg-white text-slate-700 rounded-bl-none border border-slate-100"
+                                  }`}>
+                                    {m.text}
+                                  </div>
+                                </div>
+                                <span className={`text-[9px] font-bold text-slate-400 mt-1 px-1 ${isStudent ? "mr-1" : "ml-9"}`}>{m.timestamp}</span>
+                              </div>
+                            );
+                          })
+                        )}
                       </div>
 
-                      <form onSubmit={handleSendMessage} className="p-4 bg-slate-50 border-t border-slate-100 flex gap-3">
-                        <input
-                          type="text"
-                          value={typedMessage}
-                          onChange={(e) => setTypedMessage(e.target.value)}
-                          placeholder="Type your message to Abby..."
-                          className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs font-semibold text-slate-800 placeholder-slate-400 outline-none focus:border-blue-400"
-                        />
-                        <button
-                          type="submit"
-                          className="bg-[#3686FF] hover:bg-blue-600 text-white p-3 rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center cursor-pointer"
-                        >
-                          <Send className="w-4 h-4" />
-                        </button>
-                      </form>
+                      {/* Chat Suggestions & Send Form */}
+                      <div className="bg-slate-50 border-t border-slate-100 p-4 space-y-3">
+                        {/* Quick Suggestion Chips */}
+                        <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-hide -mx-2 px-2">
+                          {[
+                            { label: "📝 SOP Review", query: "Can you please review my SOP draft?" },
+                            { label: "✈️ Visa Help", query: "What are the next steps for my Canada visa assistance?" },
+                            { label: "🎓 Scholarships", query: "Which scholarships am I eligible for?" },
+                            { label: "📂 Document Check", query: "Can you verify if my uploaded documents are correct?" }
+                          ].map((chip) => (
+                            <button
+                              key={chip.label}
+                              type="button"
+                              onClick={() => handleSendMessage(undefined, chip.query)}
+                              className="shrink-0 bg-white hover:bg-blue-50 border border-slate-200 hover:border-blue-205 text-slate-650 hover:text-blue-700 font-extrabold px-3 py-1.5 rounded-full text-[10px] tracking-wide shadow-sm hover:shadow transition-all active:scale-95 cursor-pointer flex items-center gap-1"
+                            >
+                              {chip.label}
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* Send Form */}
+                        <form onSubmit={(e) => handleSendMessage(e)} className="flex gap-3">
+                          <button
+                            type="button"
+                            onClick={() => alert("Select a document or image to attach and share with Abby.")}
+                            className="bg-white border border-slate-200 text-slate-400 hover:text-slate-600 p-3 rounded-2xl shadow-sm transition-all hover:bg-slate-100 flex items-center justify-center cursor-pointer shrink-0"
+                            title="Attach File"
+                          >
+                            <Paperclip className="w-4 h-4" />
+                          </button>
+                          <input
+                            type="text"
+                            value={typedMessage}
+                            onChange={(e) => setTypedMessage(e.target.value)}
+                            placeholder="Message Abby Carter..."
+                            className="flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-xs font-semibold text-slate-800 placeholder-slate-400 outline-none focus:border-blue-400 shadow-inner"
+                          />
+                          <button
+                            type="submit"
+                            className="bg-[#3686FF] hover:bg-blue-600 text-white p-3.5 rounded-2xl shadow-lg shadow-blue-500/10 transition-all active:scale-95 flex items-center justify-center cursor-pointer"
+                          >
+                            <Send className="w-4.5 h-4.5" />
+                          </button>
+                        </form>
+                      </div>
                     </Card>
                   </div>
                 )}
@@ -3940,35 +4165,403 @@ function DashboardInner() {
 
                 {/* 11. SETTINGS TAB */}
                 {activeTab === "settings" && (
-                  <Card className="rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 bg-white space-y-6">
-                    <div className="space-y-4">
-                      <h3 className="text-sm font-bold text-slate-800 border-b border-slate-50 pb-2">Notification Preferences</h3>
-                      <div className="flex items-center justify-between py-2">
-                        <div>
-                          <p className="text-xs font-bold text-slate-700">WhatsApp Updates</p>
-                          <p className="text-[10px] text-slate-400 font-semibold">Receive real-time application and visa status alerts on WhatsApp.</p>
-                        </div>
-                        <input type="checkbox" defaultChecked className="h-4 w-4 text-blue-600 rounded outline-none" />
-                      </div>
-                      <div className="flex items-center justify-between py-2">
-                        <div>
-                          <p className="text-xs font-bold text-slate-700">Email Newsletters</p>
-                          <p className="text-[10px] text-slate-400 font-semibold">Receive monthly scholarship roundups and study guides.</p>
-                        </div>
-                        <input type="checkbox" defaultChecked className="h-4 w-4 text-blue-600 rounded outline-none" />
-                      </div>
+                  <div className={`grid grid-cols-1 lg:grid-cols-4 gap-6 animate-in fade-in duration-300`}>
+                    
+                    {/* Left Column: Sub-tabs Navigator */}
+                    <div className="lg:col-span-1 space-y-2">
+                      {[
+                        { id: "account" as const, label: "Account Info", desc: "Avatar & profile details", icon: User },
+                        { id: "notifications" as const, label: "Notifications", desc: "WhatsApp & email alerts", icon: Bell },
+                        { id: "security" as const, label: "Security & Privacy", desc: "Password & 2FA setup", icon: Shield },
+                        { id: "system" as const, label: "System Preferences", desc: "Language & theme settings", icon: Settings }
+                      ].map((subTab) => {
+                        const SubIcon = subTab.icon;
+                        const isSubActive = activeSettingsSubTab === subTab.id;
+                        return (
+                          <button
+                            key={subTab.id}
+                            type="button"
+                            onClick={() => setActiveSettingsSubTab(subTab.id)}
+                            className={`w-full text-left p-4 rounded-2xl transition-all flex items-center gap-3 border ${
+                              isSubActive 
+                                ? "bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-500/15" 
+                                : `${darkModeSimulated ? "bg-slate-800/50 border-slate-800 text-slate-350 hover:bg-slate-800" : "bg-white border-slate-100 text-slate-600 hover:bg-slate-50"}`
+                            }`}
+                          >
+                            <SubIcon className={`w-5 h-5 shrink-0 ${isSubActive ? "text-white" : "text-slate-400"}`} />
+                            <div className="min-w-0">
+                              <p className="text-xs font-black leading-none">{subTab.label}</p>
+                              <p className={`text-[9px] font-semibold mt-1 truncate ${isSubActive ? "text-blue-100" : "text-slate-400"}`}>{subTab.desc}</p>
+                            </div>
+                          </button>
+                        );
+                      })}
                     </div>
 
-                    <div className="space-y-4 pt-4 border-t border-slate-50">
-                      <h3 className="text-sm font-bold text-slate-855 border-b border-slate-50 pb-2">Account Security</h3>
-                      <button
-                        onClick={() => alert("Password reset link has been sent to your registered email.")}
-                        className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-xl text-xs shadow-sm transition-colors"
-                      >
-                        Reset Password
-                      </button>
+                    {/* Right Column: Settings Panel Pane */}
+                    <div className="lg:col-span-3">
+                      <Card className={`rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 transition-all duration-300 ${
+                        darkModeSimulated 
+                          ? "bg-slate-900 text-slate-100 border border-slate-800 shadow-none" 
+                          : "bg-white text-slate-900"
+                      }`}>
+                        
+                        {/* Sub-tab 1: ACCOUNT & AVATAR */}
+                        {activeSettingsSubTab === "account" && (
+                          <div className="space-y-6">
+                            <h3 className="text-sm font-black border-b pb-3 flex items-center gap-2 border-slate-100">
+                              <User className="w-4 h-4 text-blue-500" /> Account Details & Customize Avatar
+                            </h3>
+
+                            {/* Dynamic Avatar Customize Section */}
+                            <div className={`flex flex-col sm:flex-row items-center gap-6 p-5 rounded-3xl border ${darkModeSimulated ? "bg-slate-800/40 border-slate-800" : "bg-slate-50/50 border-slate-100/50"}`}>
+                              {/* Avatar Preview */}
+                              <div className={`w-20 h-20 rounded-[28px] bg-gradient-to-br ${currentAvatarGradient} flex items-center justify-center font-black text-white text-3xl shadow-lg transition-all duration-500`}>
+                                {profile.name.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase() || "S"}
+                              </div>
+                              <div className="space-y-3 flex-1 text-center sm:text-left">
+                                <p className="text-xs font-black text-slate-700">Choose Avatar Theme</p>
+                                <div className="flex flex-wrap justify-center sm:justify-start gap-2">
+                                  {Object.keys(avatarThemeClasses).map((themeName) => {
+                                    const gradient = avatarThemeClasses[themeName];
+                                    return (
+                                      <button
+                                        key={themeName}
+                                        type="button"
+                                        onClick={() => setAvatarTheme(themeName)}
+                                        className={`w-7 h-7 rounded-lg bg-gradient-to-br ${gradient} border-2 transition-all ${
+                                          avatarTheme === themeName 
+                                            ? "border-blue-500 scale-110 shadow-sm" 
+                                            : "border-transparent opacity-80 hover:opacity-100 hover:scale-105"
+                                        }`}
+                                        title={themeName}
+                                      />
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Account Form */}
+                            <div className="space-y-4">
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="space-y-1">
+                                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Full Name</label>
+                                  <input
+                                    type="text"
+                                    value={settingsForm.name}
+                                    onChange={(e) => setSettingsForm({ ...settingsForm, name: e.target.value })}
+                                    className={`w-full rounded-xl border px-3.5 py-2.5 text-xs font-semibold outline-none transition-colors ${darkModeSimulated ? "bg-slate-800 border-slate-750 text-white focus:border-blue-550" : "bg-white border-slate-200 text-slate-800 focus:border-blue-500"}`}
+                                  />
+                                </div>
+                                <div className="space-y-1">
+                                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Email Address</label>
+                                  <input
+                                    type="email"
+                                    value={settingsForm.email}
+                                    onChange={(e) => setSettingsForm({ ...settingsForm, email: e.target.value })}
+                                    className={`w-full rounded-xl border px-3.5 py-2.5 text-xs font-semibold outline-none transition-colors ${darkModeSimulated ? "bg-slate-800 border-slate-750 text-white focus:border-blue-550" : "bg-white border-slate-200 text-slate-800 focus:border-blue-500"}`}
+                                  />
+                                </div>
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Phone Number (E.164)</label>
+                                <input
+                                  type="text"
+                                  value={settingsForm.phone}
+                                  onChange={(e) => setSettingsForm({ ...settingsForm, phone: e.target.value })}
+                                  className={`w-full rounded-xl border px-3.5 py-2.5 text-xs font-semibold outline-none transition-colors ${darkModeSimulated ? "bg-slate-800 border-slate-750 text-white focus:border-blue-550" : "bg-white border-slate-200 text-slate-800 focus:border-blue-500"}`}
+                                />
+                              </div>
+                              
+                              <div className="pt-2 flex items-center gap-4">
+                                <button
+                                  type="button"
+                                  onClick={handleSaveSettings}
+                                  className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold px-6 py-3 rounded-2xl text-xs shadow-md shadow-blue-500/10 transition-all active:scale-95 cursor-pointer"
+                                >
+                                  Save Changes
+                                </button>
+                                {settingsSavedToast && (
+                                  <span className="text-xs font-bold text-emerald-600 animate-pulse flex items-center gap-1.5">
+                                    <CheckCircle className="w-4 h-4 text-emerald-600" /> Settings updated successfully!
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Sub-tab 2: NOTIFICATIONS */}
+                        {activeSettingsSubTab === "notifications" && (
+                          <div className="space-y-6">
+                            <h3 className="text-sm font-black border-b pb-3 flex items-center gap-2 border-slate-100">
+                              <Bell className="w-4 h-4 text-blue-500" /> Notification Preferences
+                            </h3>
+
+                            <div className="space-y-4 divide-y divide-slate-100">
+                              {/* Toggle Row 1: WhatsApp */}
+                              <div className="flex items-center justify-between py-3">
+                                <div>
+                                  <p className="text-xs font-black text-slate-700">WhatsApp Alerts</p>
+                                  <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Receive real-time matches and counselor messages directly on WhatsApp.</p>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => setWhatsappNotifications(!whatsappNotifications)}
+                                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${whatsappNotifications ? "bg-blue-600" : "bg-slate-250"}`}
+                                >
+                                  <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${whatsappNotifications ? "translate-x-5" : "translate-x-0"}`} />
+                                </button>
+                              </div>
+
+                              {/* Toggle Row 2: Email Newsletters */}
+                              <div className="flex items-center justify-between py-3 pt-4 border-slate-100">
+                                <div>
+                                  <p className="text-xs font-black text-slate-700">Email Newsletters & digests</p>
+                                  <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Receive monthly scholarship roundups and admissions guidelines.</p>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => setEmailNotifications(!emailNotifications)}
+                                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${emailNotifications ? "bg-blue-600" : "bg-slate-250"}`}
+                                >
+                                  <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${emailNotifications ? "translate-x-5" : "translate-x-0"}`} />
+                                </button>
+                              </div>
+
+                              {/* Toggle Row 3: Push Notifications */}
+                              <div className="flex items-center justify-between py-3 pt-4 border-slate-100">
+                                <div>
+                                  <p className="text-xs font-black text-slate-700">Browser Push Alerts</p>
+                                  <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Receive live notifications when counselor replies or document state changes.</p>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => setPushNotifications(!pushNotifications)}
+                                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${pushNotifications ? "bg-blue-600" : "bg-slate-255"}`}
+                                >
+                                  <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${pushNotifications ? "translate-x-5" : "translate-x-0"}`} />
+                                </button>
+                              </div>
+
+                              {/* Toggle Row 4: Weekly Report */}
+                              <div className="flex items-center justify-between py-3 pt-4 border-slate-100">
+                                <div>
+                                  <p className="text-xs font-black text-slate-700">Weekly Progress Report</p>
+                                  <p className="text-[10px] text-slate-400 font-semibold mt-0.5">A comprehensive digest of your application pipeline and tasks status.</p>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => setWeeklyReportNotifications(!weeklyReportNotifications)}
+                                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${weeklyReportNotifications ? "bg-blue-600" : "bg-slate-250"}`}
+                                >
+                                  <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${weeklyReportNotifications ? "translate-x-5" : "translate-x-0"}`} />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Sub-tab 3: SECURITY & 2FA */}
+                        {activeSettingsSubTab === "security" && (
+                          <div className="space-y-6">
+                            <h3 className="text-sm font-black border-b pb-3 flex items-center gap-2 border-slate-100">
+                              <Shield className="w-4 h-4 text-blue-500" /> Account Security & Credentials
+                            </h3>
+
+                            {/* Password Fields */}
+                            <div className="space-y-4">
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Current Password</label>
+                                <input
+                                  type="password"
+                                  value={oldPassword}
+                                  onChange={(e) => setOldPassword(e.target.value)}
+                                  className={`w-full rounded-xl border px-3.5 py-2.5 text-xs font-semibold outline-none transition-colors ${darkModeSimulated ? "bg-slate-800 border-slate-750 text-white focus:border-blue-550" : "bg-white border-slate-200 text-slate-800 focus:border-blue-500"}`}
+                                />
+                              </div>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="space-y-1">
+                                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">New Password</label>
+                                  <input
+                                    type="password"
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                    className={`w-full rounded-xl border px-3.5 py-2.5 text-xs font-semibold outline-none transition-colors ${darkModeSimulated ? "bg-slate-800 border-slate-750 text-white focus:border-blue-550" : "bg-white border-slate-200 text-slate-800 focus:border-blue-500"}`}
+                                  />
+                                </div>
+                                <div className="space-y-1">
+                                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Confirm Password</label>
+                                  <input
+                                    type="password"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    className={`w-full rounded-xl border px-3.5 py-2.5 text-xs font-semibold outline-none transition-colors ${darkModeSimulated ? "bg-slate-800 border-slate-750 text-white focus:border-blue-550" : "bg-white border-slate-200 text-slate-800 focus:border-blue-500"}`}
+                                  />
+                                </div>
+                              </div>
+
+                              {/* Password Strength Meter */}
+                              {newPassword && (
+                                <div className={`space-y-1.5 p-3.5 rounded-2xl border ${darkModeSimulated ? "bg-slate-800/50 border-slate-800" : "bg-slate-50 border-slate-100"}`}>
+                                  <div className="flex justify-between items-center text-[10px] font-bold">
+                                    <span className="text-slate-400 uppercase tracking-wide">Password Strength</span>
+                                    <span className={`font-black ${passwordStrength.textColor}`}>{passwordStrength.text}</span>
+                                  </div>
+                                  <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
+                                    <div
+                                      className={`h-full ${passwordStrength.color} transition-all duration-300`}
+                                      style={{ width: `${(passwordStrength.score / 5) * 100}%` }}
+                                    />
+                                  </div>
+                                  <p className="text-[9px] text-slate-400 leading-snug font-semibold">Include length, capital letters, digits, and special characters for a strong password.</p>
+                                </div>
+                              )}
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (!oldPassword || !newPassword) {
+                                    alert("Please fill in current and new password fields.");
+                                    return;
+                                  }
+                                  if (newPassword !== confirmPassword) {
+                                    alert("New password and confirmation password do not match.");
+                                    return;
+                                  }
+                                  alert("Password updated successfully!");
+                                  setOldPassword("");
+                                  setNewPassword("");
+                                  setConfirmPassword("");
+                                }}
+                                className="bg-slate-100 hover:bg-slate-200 text-slate-750 font-extrabold px-5 py-2.5 rounded-xl text-xs shadow-sm transition-all cursor-pointer"
+                              >
+                                Update Password
+                              </button>
+                            </div>
+
+                            {/* Two-Factor Authentication Section */}
+                            <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                              <div>
+                                <p className="text-xs font-black text-slate-700">Two-Factor Authentication (2FA)</p>
+                                <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Secure your student credentials with Google Authenticator verification codes.</p>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (twoFactorEnabled) {
+                                    setTwoFactorEnabled(false);
+                                  } else {
+                                    setShow2faModal(true);
+                                  }
+                                }}
+                                className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${
+                                  twoFactorEnabled 
+                                    ? "bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-100" 
+                                    : "bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+                                }`}
+                              >
+                                {twoFactorEnabled ? "Disable 2FA" : "Configure 2FA"}
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Sub-tab 4: SYSTEM PREFERENCES & SIMULATED DARK MODE */}
+                        {activeSettingsSubTab === "system" && (
+                          <div className="space-y-6">
+                            <h3 className="text-sm font-black border-b pb-3 flex items-center gap-2 border-slate-100">
+                              <Settings className="w-4 h-4 text-blue-500" /> System Preferences
+                            </h3>
+
+                            <div className="space-y-4">
+                              {/* Language dropdown */}
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Portal Language</label>
+                                <select
+                                  value={selectedLanguage}
+                                  onChange={(e) => setSelectedLanguage(e.target.value)}
+                                  className={`w-full rounded-xl border px-3.5 py-2.5 text-xs font-semibold outline-none transition-colors ${darkModeSimulated ? "bg-slate-800 border-slate-750 text-white focus:border-blue-550" : "bg-white border-slate-200 text-slate-850 focus:border-blue-500"}`}
+                                >
+                                  <option value="English">English (United States)</option>
+                                  <option value="French">Français (French)</option>
+                                  <option value="Spanish">Español (Spanish)</option>
+                                  <option value="Nepali">नेपाली (Nepali)</option>
+                                </select>
+                              </div>
+
+                              {/* Currency dropdown */}
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Preferred Display Currency</label>
+                                <select
+                                  value={selectedCurrency}
+                                  onChange={(e) => setSelectedCurrency(e.target.value)}
+                                  className={`w-full rounded-xl border px-3.5 py-2.5 text-xs font-semibold outline-none transition-colors ${darkModeSimulated ? "bg-slate-800 border-slate-750 text-white focus:border-blue-550" : "bg-white border-slate-200 text-slate-850 focus:border-blue-500"}`}
+                                >
+                                  <option value="USD">USD ($) - US Dollar</option>
+                                  <option value="CAD">CAD ($) - Canadian Dollar</option>
+                                  <option value="NPR">NPR (Rs.) - Nepalese Rupee</option>
+                                  <option value="INR">INR (₹) - Indian Rupee</option>
+                                </select>
+                              </div>
+
+                              {/* Dark Mode Simulator Toggle */}
+                              <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                                <div>
+                                  <p className="text-xs font-black text-slate-700">Simulated Dark Theme</p>
+                                  <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Toggle a simulated dark slate theme for this settings card.</p>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => setDarkModeSimulated(!darkModeSimulated)}
+                                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${darkModeSimulated ? "bg-blue-600" : "bg-slate-200"}`}
+                                >
+                                  <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${darkModeSimulated ? "translate-x-5" : "translate-x-0"}`} />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Common Danger Zone - Rendered inside right panel below active sub-tabs */}
+                        <div className="mt-8 pt-6 border-t border-rose-100">
+                          <Card className={`rounded-2xl border border-rose-200 bg-rose-50/40 p-5 space-y-4`}>
+                            <div className="flex items-start gap-3">
+                              <AlertTriangle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
+                              <div>
+                                <h4 className="text-sm font-black text-rose-900 uppercase tracking-wider">Danger Zone</h4>
+                                <p className="text-xs font-semibold text-rose-800 mt-1">Once you deactivate or request account deletion, your applications and matching records will be frozen.</p>
+                              </div>
+                            </div>
+                            <div className="flex flex-wrap gap-2.5">
+                              <button
+                                type="button"
+                                onClick={() => setShowDeactivateModal(true)}
+                                className="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-extrabold px-4 py-2.5 rounded-xl text-xs tracking-wider uppercase transition-all active:scale-95 cursor-pointer"
+                              >
+                                Deactivate Account
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (confirm("Are you sure you want to permanently delete your AbroadLift account? This action is irreversible.")) {
+                                    alert("Account deletion request submitted.");
+                                    triggerLogout();
+                                  }
+                                }}
+                                className="bg-rose-600 hover:bg-rose-700 text-white font-extrabold px-4 py-2.5 rounded-xl text-xs tracking-wider uppercase transition-all active:scale-95 cursor-pointer shadow-md shadow-rose-500/10"
+                              >
+                                Permanently Delete
+                              </button>
+                            </div>
+                          </Card>
+                        </div>
+                        
+                      </Card>
                     </div>
-                  </Card>
+
+                  </div>
                 )}
 
               </motion.div>
@@ -4013,6 +4606,70 @@ function DashboardInner() {
           </div>
         </div>
       )}
+
+      {show2faModal && (
+        <div className="fixed inset-0 z-[250] flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4 animate-in fade-in duration-200">
+          <Card className="bg-white border border-slate-100 rounded-[32px] p-6 max-w-sm w-full shadow-2xl space-y-4 text-center transform animate-in zoom-in-95 duration-200">
+            <h3 className="text-lg font-black text-slate-900">Configure Two-Factor Auth</h3>
+            <p className="text-xs text-slate-500 font-semibold leading-relaxed">Scan this QR code with Google Authenticator or Duo to enable 2FA alerts.</p>
+            <div className="w-40 h-40 bg-slate-100 mx-auto rounded-2xl flex items-center justify-center border border-slate-200">
+              <div className="grid grid-cols-5 gap-1 p-4 bg-white rounded-xl">
+                {Array.from({ length: 25 }).map((_, i) => (
+                  <div key={i} className={`w-5 h-5 rounded-[2px] ${Math.random() > 0.4 ? "bg-slate-900" : "bg-white"}`} />
+                ))}
+              </div>
+            </div>
+            <p className="text-[10px] font-black text-slate-400 bg-slate-50 py-1.5 rounded-lg border border-slate-100">KEY: AB12 CD34 EF56 GH78</p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  setTwoFactorEnabled(true);
+                  setShow2faModal(false);
+                }}
+                className="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs rounded-xl transition-all shadow-md cursor-pointer"
+              >
+                Verify & Enable
+              </button>
+              <button
+                onClick={() => setShow2faModal(false)}
+                className="flex-1 py-3 bg-slate-150 hover:bg-slate-200 text-slate-700 font-black text-xs rounded-xl transition-all cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {showDeactivateModal && (
+        <div className="fixed inset-0 z-[250] flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4 animate-in fade-in duration-200">
+          <Card className="bg-white border border-slate-100 rounded-[32px] p-6 max-w-sm w-full shadow-2xl space-y-4 text-center transform animate-in zoom-in-95 duration-200">
+            <div className="w-12 h-12 rounded-full bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-500 mx-auto">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+            <h3 className="text-lg font-black text-slate-900">Deactivate Account?</h3>
+            <p className="text-xs text-slate-500 font-semibold leading-relaxed">This will pause your dashboard access. You can reactivate your account at any time by logging back in.</p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  setShowDeactivateModal(false);
+                  triggerLogout();
+                }}
+                className="flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white font-black text-xs rounded-xl transition-all shadow-md cursor-pointer"
+              >
+                Yes, Deactivate
+              </button>
+              <button
+                onClick={() => setShowDeactivateModal(false)}
+                className="flex-1 py-3 bg-slate-150 hover:bg-slate-200 text-slate-700 font-black text-xs rounded-xl transition-all cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+          </Card>
+        </div>
+      )}
+      </div>
     </div>
   );
 }

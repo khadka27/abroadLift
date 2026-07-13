@@ -67,6 +67,33 @@ async function main() {
   console.log(
     `✅ Admin user created: ${adminUser.username} (${adminUser.email})`,
   );
+
+  const superAdminPassword = await bcrypt.hash("SuperAdmin123!", 10);
+
+  const superAdminUser = await prisma.user.create({
+    data: {
+      username: "superadmin",
+      email: "superadmin@abroadlift.com",
+      password: superAdminPassword,
+      name: "Global Super Administrator",
+      countryDialCode: "+1",
+      phoneNumber: "2025550999",
+      phoneE164: "+12025550999",
+      prefersWhatsApp: false,
+      role: "SUPERADMIN",
+      phoneVerified: true,
+      profile: {
+        create: {
+          nationality: "System",
+          currentCountry: "Cloud",
+        },
+      },
+    },
+  });
+
+  console.log(
+    `✅ Super Admin user created: ${superAdminUser.username} (${superAdminUser.email})`,
+  );
   console.log(`✅ Test user created: ${testUser.username} (${testUser.email})`);
 
   console.log("Seeding universities...");

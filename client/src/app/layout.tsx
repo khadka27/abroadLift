@@ -107,7 +107,7 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Quicksand:wght@300;400;500;600;700&display=swap"
           rel="stylesheet"
         />
         <script
@@ -116,7 +116,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className="bg-white text-[#0f172a] antialiased overflow-x-clip font-quicksand"
+        className="bg-white text-[#0f172a] antialiased overflow-x-clip font-sans"
         suppressHydrationWarning={true}
       >
         <Suspense fallback={null}>

@@ -24,10 +24,19 @@ export default function AdminLayout({
       return;
     }
 
-    if (status === "authenticated" && session?.user?.role !== "ADMIN") {
-      router.push("/");
+    if (status === "authenticated") {
+      const role = session?.user?.role;
+      if (role !== "ADMIN" && role !== "SUPERADMIN") {
+        router.push("/");
+        return;
+      }
+
+      // Only block standard admin from accessing the manage-admins page
+      if (role === "ADMIN" && pathname.startsWith("/admin/manage-admins")) {
+        router.push("/admin");
+      }
     }
-  }, [status, session, router, isLoginPage]);
+  }, [status, session, router, isLoginPage, pathname]);
 
   if (status === "loading") {
     return (
@@ -41,11 +50,12 @@ export default function AdminLayout({
   }
 
   if (isLoginPage) {
-    return <div className="min-h-screen bg-[#0f172a]">{children}</div>;
+    return <>{children}</>;
   }
 
-  // Only render children if authenticated and admin
-  if (status !== "authenticated" || session?.user?.role !== "ADMIN") {
+  // Only render children if authenticated and admin/superadmin
+  const userRole = session?.user?.role;
+  if (status !== "authenticated" || (userRole !== "ADMIN" && userRole !== "SUPERADMIN")) {
     return null;
   }
 

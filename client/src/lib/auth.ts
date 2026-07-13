@@ -101,16 +101,18 @@ export const authOptions: NextAuthOptions = {
         }
 
         const identifier = credentials.identifier.trim();
+        const lowerIdentifier = identifier.toLowerCase();
 
-        // Find admin user by email or phone
+        // Find admin user by email, username, or phone
         const user = await prisma.user.findFirst({
           where: {
             OR: [
-              { email: identifier },
+              { email: lowerIdentifier },
+              { username: lowerIdentifier },
               { phoneE164: identifier },
               { phoneNumber: identifier },
             ],
-            role: "ADMIN",
+            role: { in: ["ADMIN", "SUPERADMIN"] },
           },
         });
 

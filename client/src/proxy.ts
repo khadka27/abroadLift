@@ -20,11 +20,18 @@ export const proxy = withAuth(
           : "";
 
       const redirectPath =
-        token.role === "ADMIN" ? "/admin/dashboard" : safeCallbackUrl || "/";
+        token.role === "ADMIN" || token.role === "SUPERADMIN"
+          ? "/admin/dashboard"
+          : safeCallbackUrl || "/";
       return NextResponse.redirect(new URL(redirectPath, req.url));
     }
 
-    if (path.startsWith("/admin") && !path.startsWith("/admin/login") && token?.role !== "ADMIN") {
+    if (
+      path.startsWith("/admin") &&
+      !path.startsWith("/admin/login") &&
+      token?.role !== "ADMIN" &&
+      token?.role !== "SUPERADMIN"
+    ) {
       return NextResponse.redirect(new URL("/", req.url));
     }
 
@@ -38,7 +45,7 @@ export const proxy = withAuth(
     ];
     if (
       studentRoutes.some((route) => path.startsWith(route)) &&
-      token?.role === "ADMIN"
+      (token?.role === "ADMIN" || token?.role === "SUPERADMIN")
     ) {
       return NextResponse.redirect(new URL("/admin/dashboard", req.url));
     }

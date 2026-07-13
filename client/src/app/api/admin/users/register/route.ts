@@ -8,11 +8,16 @@ export async function POST(req: Request) {
   try {
     const session: any = await getServerSession(authOptions);
 
-    if (!session || session.user.role !== "ADMIN") {
+    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUPERADMIN")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { name, email, username, password, phoneNumber, role } = await req.json();
+
+    // Standard ADMIN users are only permitted to register student accounts
+    if (session.user.role === "ADMIN" && role !== "STUDENT") {
+      return NextResponse.json({ error: "Unauthorized: Admins can only register student accounts" }, { status: 403 });
+    }
 
     if (!name || !email || !username || !password) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });

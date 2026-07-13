@@ -16,7 +16,9 @@ import {
   Award,
   GraduationCap,
   ShieldCheck,
-  FileSpreadsheet
+  FileSpreadsheet,
+  UserCog,
+  Crown
 } from "lucide-react";
 import Link from "next/link";
 
@@ -24,6 +26,8 @@ export default function AdminSidebar() {
   const { data: session } = useSession();
   const router = useRouter();
   const pathname = usePathname();
+
+  const isSuperAdmin = session?.user?.role === "SUPERADMIN";
 
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [updatingProfile, setUpdatingProfile] = useState(false);
@@ -37,7 +41,7 @@ export default function AdminSidebar() {
   });
 
   useEffect(() => {
-    if (session?.user?.role === "ADMIN") {
+    if (session?.user?.role === "ADMIN" || session?.user?.role === "SUPERADMIN") {
       setProfileData((prev) => ({
         ...prev,
         name: session.user.name || "",
@@ -79,40 +83,40 @@ export default function AdminSidebar() {
 
   return (
     <>
-      <aside className="w-[280px] bg-slate-950 hidden md:flex flex-col text-slate-400 shrink-0 border-r border-slate-900 shadow-2xl h-screen sticky top-0 overflow-y-auto">
+      <aside className="w-[280px] bg-white hidden md:flex flex-col text-slate-500 shrink-0 border-r border-slate-200 h-screen sticky top-0 overflow-y-auto">
         <div className="p-8">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-tr from-indigo-600 to-blue-500 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/30">
+            <div className="w-10 h-10 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20">
               <LayoutDashboard className="w-5 h-5 text-white" />
             </div>
             <div className="flex flex-col">
-              <span className="font-black text-white tracking-widest text-[13px]">
+              <span className="font-black text-slate-900 tracking-widest text-[13px]">
                 ABROADLIFT
               </span>
-              <span className="text-[10px] text-slate-500 font-bold tracking-widest leading-none mt-0.5 uppercase italic">
-                Enterprise Admin
+              <span className={`text-[10px] font-black tracking-widest leading-none mt-0.5 uppercase italic ${isSuperAdmin ? "text-amber-500 bg-amber-50 px-1.5 py-0.5 rounded-md" : "text-slate-400"}`}>
+                {isSuperAdmin ? "⚡ Super Admin" : "Enterprise Admin"}
               </span>
             </div>
           </div>
         </div>
 
         <div className="px-6 mb-6 mt-4">
-          <p className="text-[10px] font-black tracking-[0.2em] uppercase text-slate-600 mb-4 px-4">
+          <p className="text-[10px] font-black tracking-[0.2em] uppercase text-slate-400 mb-4 px-4">
             Core Modules
           </p>
-          <nav className="space-y-2">
+          <nav className="space-y-1">
             <Link
               href="/admin"
               className={`w-full h-12 flex items-center gap-4 px-5 rounded-2xl font-bold text-[13px] transition-all group overflow-hidden relative ${
                 pathname === "/admin"
-                  ? "bg-indigo-500/10 text-white"
-                  : "hover:bg-slate-900 hover:text-slate-200"
+                  ? "bg-blue-50 text-blue-600"
+                  : "hover:bg-slate-50 text-slate-600 hover:text-slate-900"
               }`}
             >
               {pathname === "/admin" && (
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500 rounded-r-full shadow-[0_0_10px_rgb(99,102,241)]" />
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-600 rounded-r-full shadow-[0_0_10px_rgba(37,99,235,0.5)]" />
               )}
-              <PieChart className={`w-4 h-4 ${pathname === "/admin" ? "text-indigo-400" : "text-slate-500 group-hover:text-indigo-400"}`} />
+              <PieChart className={`w-4 h-4 ${pathname === "/admin" ? "text-blue-600" : "text-slate-400 group-hover:text-blue-600"}`} />
               Dashboard Overview
             </Link>
 
@@ -120,14 +124,14 @@ export default function AdminSidebar() {
               href="/admin/dashboard"
               className={`w-full h-12 flex items-center gap-4 px-5 rounded-2xl font-bold text-[13px] transition-all group overflow-hidden relative ${
                 pathname === "/admin/dashboard"
-                  ? "bg-violet-500/10 text-white"
-                  : "hover:bg-slate-900 hover:text-slate-200"
+                  ? "bg-blue-50 text-blue-600"
+                  : "hover:bg-slate-50 text-slate-600 hover:text-slate-900"
               }`}
             >
               {pathname === "/admin/dashboard" && (
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-violet-500 rounded-r-full shadow-[0_0_10px_rgb(139,92,246)]" />
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-600 rounded-r-full shadow-[0_0_10px_rgba(37,99,235,0.5)]" />
               )}
-              <LayoutDashboard className={`w-4 h-4 ${pathname === "/admin/dashboard" ? "text-violet-400" : "text-slate-500 group-hover:text-violet-400"}`} />
+              <LayoutDashboard className={`w-4 h-4 ${pathname === "/admin/dashboard" ? "text-blue-600" : "text-slate-400 group-hover:text-blue-600"}`} />
               User Management
             </Link>
 
@@ -135,14 +139,14 @@ export default function AdminSidebar() {
               href="/admin/students"
               className={`w-full h-12 flex items-center gap-4 px-5 rounded-2xl font-bold text-[13px] transition-all group overflow-hidden relative ${
                 pathname.startsWith("/admin/students")
-                  ? "bg-emerald-500/10 text-white"
-                  : "hover:bg-slate-900 hover:text-slate-200"
+                  ? "bg-blue-50 text-blue-600"
+                  : "hover:bg-slate-50 text-slate-600 hover:text-slate-900"
               }`}
             >
               {pathname.startsWith("/admin/students") && (
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500 rounded-r-full shadow-[0_0_10px_rgb(16,185,129)]" />
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-600 rounded-r-full shadow-[0_0_10px_rgba(37,99,235,0.5)]" />
               )}
-              <Users className={`w-4 h-4 ${pathname.startsWith("/admin/students") ? "text-emerald-400" : "text-slate-500 group-hover:text-emerald-400"}`} />
+              <Users className={`w-4 h-4 ${pathname.startsWith("/admin/students") ? "text-blue-600" : "text-slate-400 group-hover:text-blue-600"}`} />
               Student Management
             </Link>
 
@@ -150,14 +154,14 @@ export default function AdminSidebar() {
               href="/admin/applications"
               className={`w-full h-12 flex items-center gap-4 px-5 rounded-2xl font-bold text-[13px] transition-all group overflow-hidden relative ${
                 pathname.startsWith("/admin/applications")
-                  ? "bg-amber-500/10 text-white"
-                  : "hover:bg-slate-900 hover:text-slate-200"
+                  ? "bg-blue-50 text-blue-600"
+                  : "hover:bg-slate-50 text-slate-600 hover:text-slate-900"
               }`}
             >
               {pathname.startsWith("/admin/applications") && (
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-amber-500 rounded-r-full shadow-[0_0_10px_rgb(245,158,11)]" />
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-600 rounded-r-full shadow-[0_0_10px_rgba(37,99,235,0.5)]" />
               )}
-              <GraduationCap className={`w-4 h-4 ${pathname.startsWith("/admin/applications") ? "text-amber-400" : "text-slate-500 group-hover:text-amber-400"}`} />
+              <GraduationCap className={`w-4 h-4 ${pathname.startsWith("/admin/applications") ? "text-blue-600" : "text-slate-400 group-hover:text-blue-600"}`} />
               Applications
             </Link>
 
@@ -165,37 +169,56 @@ export default function AdminSidebar() {
               href="/admin/visa"
               className={`w-full h-12 flex items-center gap-4 px-5 rounded-2xl font-bold text-[13px] transition-all group overflow-hidden relative ${
                 pathname.startsWith("/admin/visa")
-                  ? "bg-sky-500/10 text-white"
-                  : "hover:bg-slate-900 hover:text-slate-200"
+                  ? "bg-blue-50 text-blue-600"
+                  : "hover:bg-slate-50 text-slate-600 hover:text-slate-900"
               }`}
             >
               {pathname.startsWith("/admin/visa") && (
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-sky-500 rounded-r-full shadow-[0_0_10px_rgb(14,165,233)]" />
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-600 rounded-r-full shadow-[0_0_10px_rgba(37,99,235,0.5)]" />
               )}
-              <ShieldCheck className={`w-4 h-4 ${pathname.startsWith("/admin/visa") ? "text-sky-400" : "text-slate-500 group-hover:text-sky-400"}`} />
+              <ShieldCheck className={`w-4 h-4 ${pathname.startsWith("/admin/visa") ? "text-blue-600" : "text-slate-400 group-hover:text-blue-600"}`} />
               Visa Assessments
             </Link>
-
           </nav>
         </div>
 
         <div className="px-6 mb-6 mt-4">
-          <p className="text-[10px] font-black tracking-[0.2em] uppercase text-slate-600 mb-4 px-4">
+          <p className="text-[10px] font-black tracking-[0.2em] uppercase text-slate-400 mb-4 px-4">
             System & Tools
           </p>
-          <nav className="space-y-2">
+
+          <nav className="space-y-1 mb-4">
+            {isSuperAdmin && (
+              <Link
+                href="/admin/manage-admins"
+                className={`w-full h-12 flex items-center gap-4 px-5 rounded-2xl font-bold text-[13px] transition-all group overflow-hidden relative ${
+                  pathname.startsWith("/admin/manage-admins")
+                    ? "bg-blue-50 text-blue-600"
+                    : "hover:bg-slate-50 text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                {pathname.startsWith("/admin/manage-admins") && (
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-600 rounded-r-full shadow-[0_0_10px_rgba(37,99,235,0.5)]" />
+                )}
+                <UserCog className={`w-4 h-4 ${pathname.startsWith("/admin/manage-admins") ? "text-blue-600" : "text-slate-400 group-hover:text-blue-600"}`} />
+                Manage Admins
+                <span className="ml-auto text-[9px] font-black px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-600 tracking-wider">SA</span>
+              </Link>
+            )}
+          </nav>
+          <nav className="space-y-1">
             <Link
               href="/admin/reports"
               className={`w-full h-12 flex items-center gap-4 px-5 rounded-2xl font-bold text-[13px] transition-all group overflow-hidden relative ${
                 pathname.startsWith("/admin/reports")
-                  ? "bg-purple-500/10 text-white"
-                  : "hover:bg-slate-900 hover:text-slate-200"
+                  ? "bg-blue-50 text-blue-600"
+                  : "hover:bg-slate-50 text-slate-600 hover:text-slate-900"
               }`}
             >
               {pathname.startsWith("/admin/reports") && (
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-purple-500 rounded-r-full shadow-[0_0_10px_rgb(168,85,247)]" />
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-600 rounded-r-full shadow-[0_0_10px_rgba(37,99,235,0.5)]" />
               )}
-              <FileSpreadsheet className={`w-4 h-4 ${pathname.startsWith("/admin/reports") ? "text-purple-400" : "text-slate-500 group-hover:text-purple-400"}`} />
+              <FileSpreadsheet className={`w-4 h-4 ${pathname.startsWith("/admin/reports") ? "text-blue-600" : "text-slate-400 group-hover:text-blue-600"}`} />
               Reports & Exports
             </Link>
 
@@ -203,42 +226,42 @@ export default function AdminSidebar() {
               href="/admin/settings"
               className={`w-full h-12 flex items-center gap-4 px-5 rounded-2xl font-bold text-[13px] transition-all group overflow-hidden relative ${
                 pathname.startsWith("/admin/settings")
-                  ? "bg-rose-500/10 text-white"
-                  : "hover:bg-slate-900 hover:text-slate-200"
+                  ? "bg-blue-50 text-blue-600"
+                  : "hover:bg-slate-50 text-slate-600 hover:text-slate-900"
               }`}
             >
               {pathname.startsWith("/admin/settings") && (
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-rose-500 rounded-r-full shadow-[0_0_10px_rgb(244,63,94)]" />
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-600 rounded-r-full shadow-[0_0_10px_rgba(37,99,235,0.5)]" />
               )}
-              <Settings className={`w-4 h-4 ${pathname.startsWith("/admin/settings") ? "text-rose-400" : "text-slate-500 group-hover:text-rose-400"}`} />
+              <Settings className={`w-4 h-4 ${pathname.startsWith("/admin/settings") ? "text-blue-600" : "text-slate-400 group-hover:text-blue-600"}`} />
               Platform Settings
             </Link>
 
             <Link
               href="/"
-              className="w-full h-12 flex items-center gap-4 px-5 hover:bg-slate-900 hover:text-slate-200 rounded-2xl font-bold text-[13px] transition-all group"
+              className="w-full h-12 flex items-center gap-4 px-5 hover:bg-slate-50 text-slate-600 hover:text-slate-900 rounded-2xl font-bold text-[13px] transition-all group"
             >
-              <Globe className="w-4 h-4 text-slate-500 group-hover:text-blue-400 transition-colors" />
+              <Globe className="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors" />
               View Live Site
             </Link>
           </nav>
         </div>
 
         <div className="px-6 mt-auto mb-8">
-          <div className="h-px w-full bg-slate-900 mb-6" />
-          <nav className="space-y-2">
+          <div className="h-px w-full bg-slate-100 mb-6" />
+          <nav className="space-y-1">
             <button
               onClick={() => setShowSettingsModal(true)}
-              className="w-full h-12 flex items-center gap-4 px-5 hover:bg-slate-900 hover:text-slate-200 rounded-2xl font-bold text-[13px] transition-all group"
+              className="w-full h-12 flex items-center gap-4 px-5 hover:bg-slate-50 text-slate-600 hover:text-slate-900 rounded-2xl font-bold text-[13px] transition-all group"
             >
-              <Settings className="w-4 h-4 text-slate-500 group-hover:text-slate-300 transition-colors" />
+              <Settings className="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors" />
               My Profile
             </button>
             <button
               onClick={handleLogout}
-              className="w-full h-12 flex items-center gap-4 px-5 group hover:bg-red-500/10 hover:text-red-400 rounded-2xl font-bold text-[13px] transition-all"
+              className="w-full h-12 flex items-center gap-4 px-5 group hover:bg-red-50 text-slate-600 hover:text-red-600 rounded-2xl font-bold text-[13px] transition-all"
             >
-              <LogOut className="w-4 h-4 text-slate-500 group-hover:text-red-400 transition-colors" />
+              <LogOut className="w-4 h-4 text-slate-400 group-hover:text-red-500 transition-colors" />
               Sign out
             </button>
           </nav>
@@ -254,8 +277,8 @@ export default function AdminSidebar() {
           />
           <div className="relative w-full max-w-xl bg-white rounded-[40px] overflow-hidden shadow-[0_40px_100px_-20px_rgba(0,0,0,0.3)] border border-white/20 animate-in zoom-in-95 duration-300">
             {/* Modal Header */}
-            <div className="bg-slate-950 p-10 flex items-center justify-between relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-500/20 rounded-full blur-[80px]" />
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-10 flex items-center justify-between relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-[80px]" />
               <div className="relative z-10">
                 <h2 className="text-[26px] font-black text-white tracking-tightest leading-tight">
                   Admin Profile
