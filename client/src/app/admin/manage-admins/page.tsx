@@ -31,7 +31,7 @@ interface Admin {
 type ModalMode = "add" | "edit" | "delete" | "resetPassword" | null;
 
 const inputCls =
-  "w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm font-semibold outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 transition-all placeholder:text-slate-300";
+  "w-full h-12 bg-slate-50/50 border border-slate-200/80 rounded-2xl px-4 text-sm font-semibold outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 focus:bg-white transition-all placeholder:text-slate-300";
 
 export default function ManageAdminsPage() {
   const [admins, setAdmins] = useState<Admin[]>([]);
@@ -225,11 +225,11 @@ export default function ManageAdminsPage() {
   };
 
   return (
-    <div className="p-8 lg:p-12 max-w-[1400px] mx-auto space-y-8">
+    <div className="p-8 lg:p-12 max-w-[1400px] mx-auto space-y-8 selection:bg-[#3366FF]/10 font-sans">
       {/* Toast */}
       {toast && (
         <div
-          className={`fixed top-6 right-6 z-[300] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl text-sm font-bold transition-all animate-in slide-in-from-top-2 duration-300 ${
+          className={`fixed top-6 right-6 z-[300] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl text-xs font-bold transition-all animate-in slide-in-from-top-2 duration-300 ${
             toast.type === "success"
               ? "bg-emerald-600 text-white"
               : "bg-rose-600 text-white"
@@ -245,26 +245,26 @@ export default function ManageAdminsPage() {
       )}
 
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 select-none">
         <div>
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-2xl bg-amber-500/10 flex items-center justify-center">
-              <Crown className="w-5 h-5 text-amber-500" />
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-9 h-9 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/10">
+              <Crown className="w-4.5 h-4.5 text-amber-600" />
             </div>
-            <span className="text-[10px] font-black tracking-[0.2em] uppercase text-amber-500 bg-amber-50 px-3 py-1 rounded-full">
-              Superadmin Only
+            <span className="text-[9px] font-black tracking-widest uppercase text-amber-600 bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-full">
+              Super Admin Override
             </span>
           </div>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tight">
+          <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight leading-none">
             Admin Management
           </h1>
-          <p className="text-slate-500 font-medium text-lg mt-2">
-            Add, edit, reset passwords, and remove admin accounts.
+          <p className="text-slate-400 font-semibold text-sm mt-3.5 leading-relaxed">
+            Provision dashboard permissions, audit access levels, reset credentials, and remove admin accounts.
           </p>
         </div>
         <button
           onClick={openAdd}
-          className="flex items-center gap-2 bg-slate-900 hover:bg-indigo-600 text-white px-6 py-3.5 rounded-2xl font-bold transition-all shadow-xl shadow-slate-900/20 active:scale-95 shrink-0"
+          className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3.5 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all shadow-lg shadow-blue-500/20 hover:shadow-blue-500/35 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 cursor-pointer shrink-0"
         >
           <Plus className="w-4 h-4" />
           Add New Admin
@@ -272,28 +272,29 @@ export default function ManageAdminsPage() {
       </div>
 
       {/* Stats bar */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 select-none">
         {[
-          { label: "Total Admins", value: admins.length, color: "indigo" },
-          { label: "Active", value: admins.filter((a) => a.isActive).length, color: "emerald" },
-          { label: "Suspended", value: admins.filter((a) => !a.isActive).length, color: "rose" },
-          { label: "This Month", value: admins.filter((a) => new Date(a.createdAt).getMonth() === new Date().getMonth()).length, color: "amber" },
+          { label: "Total Admins", value: admins.length, bg: "bg-blue-50/50 border border-blue-100/30 text-blue-600" },
+          { label: "Active", value: admins.filter((a) => a.isActive).length, bg: "bg-emerald-50/50 border border-emerald-100/30 text-emerald-600" },
+          { label: "Suspended", value: admins.filter((a) => !a.isActive).length, bg: "bg-rose-50/50 border border-rose-100/30 text-rose-600" },
+          { label: "This Month", value: admins.filter((a) => new Date(a.createdAt).getMonth() === new Date().getMonth()).length, bg: "bg-amber-50/50 border border-amber-100/30 text-amber-600" },
         ].map((s) => (
           <div
             key={s.label}
-            className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col gap-1"
+            className="bg-white rounded-3xl p-6 shadow-[0_10px_25px_-5px_rgba(0,0,0,0.02)] border border-slate-100 flex flex-col gap-2 relative overflow-hidden group hover:border-blue-500/10 transition-all duration-300"
           >
-            <p className="text-xs font-black text-slate-400 uppercase tracking-widest">{s.label}</p>
-            <p className="text-3xl font-black text-slate-900">{s.value}</p>
+            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-blue-500/3 to-transparent rounded-bl-full pointer-events-none" />
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">{s.label}</p>
+            <p className="text-3xl font-extrabold text-slate-900 leading-none mt-1">{s.value}</p>
           </div>
         ))}
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-[32px] shadow-xl shadow-slate-200/50 overflow-hidden border border-slate-100">
+      <div className="bg-white rounded-[32px] shadow-xl shadow-slate-200/50 overflow-hidden border border-slate-100/80">
         {loading ? (
           <div className="h-64 flex items-center justify-center">
-            <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+            <Loader2 className="w-8 h-8 text-[#3366FF] animate-spin" />
           </div>
         ) : admins.length === 0 ? (
           <div className="h-64 flex flex-col items-center justify-center text-slate-400 gap-3">
@@ -301,7 +302,7 @@ export default function ManageAdminsPage() {
             <p className="font-bold">No admin accounts found.</p>
             <button
               onClick={openAdd}
-              className="text-indigo-500 font-bold text-sm hover:underline"
+              className="text-[#3366FF] font-bold text-sm hover:underline"
             >
               Create the first admin →
             </button>
@@ -310,8 +311,8 @@ export default function ManageAdminsPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-50/70">
-                  {["Admin", "Email", "Phone", "Status", "Joined", "Actions"].map((h) => (
+                <tr className="bg-slate-50/50">
+                  {["Admin", "Email", "Phone", "Status", "Joined", ""].map((h) => (
                     <th
                       key={h}
                       className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap"
@@ -323,28 +324,28 @@ export default function ManageAdminsPage() {
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {admins.map((admin) => (
-                  <tr key={admin.id} className="hover:bg-slate-50/40 transition-colors group">
+                  <tr key={admin.id} className="hover:bg-slate-50/50 transition-colors group">
                     <td className="px-8 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center font-black text-indigo-600 text-sm">
+                      <div className="flex items-center gap-3.5">
+                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-indigo-100/60 flex items-center justify-center font-extrabold text-blue-600 text-sm">
                           {admin.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <p className="font-bold text-slate-900 text-sm">{admin.name}</p>
-                          <p className="text-xs text-slate-400 font-semibold">@{admin.username}</p>
+                          <p className="font-bold text-slate-900 text-sm leading-none group-hover:text-blue-600 transition-colors">{admin.name}</p>
+                          <p className="text-xs text-slate-400 font-semibold mt-1.5">@{admin.username}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-8 py-4 text-sm font-medium text-slate-600">{admin.email}</td>
-                    <td className="px-8 py-4 text-sm font-medium text-slate-500">
-                      {admin.phoneNumber || <span className="text-slate-300 italic">—</span>}
+                    <td className="px-8 py-4 text-sm font-semibold text-slate-500">{admin.email}</td>
+                    <td className="px-8 py-4 text-sm font-bold text-slate-700">
+                      {admin.phoneNumber || <span className="text-slate-300 italic font-semibold">—</span>}
                     </td>
                     <td className="px-8 py-4">
                       <span
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black tracking-widest uppercase ${
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black tracking-widest uppercase border ${
                           admin.isActive
-                            ? "bg-emerald-50 text-emerald-600"
-                            : "bg-rose-50 text-rose-600"
+                            ? "bg-emerald-50 text-emerald-600 border-emerald-200/50"
+                            : "bg-rose-50 text-rose-600 border-rose-200/50"
                         }`}
                       >
                         <span
@@ -357,25 +358,25 @@ export default function ManageAdminsPage() {
                       {format(new Date(admin.createdAt), "MMM d, yyyy")}
                     </td>
                     <td className="px-8 py-4">
-                      <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity justify-end">
                         <button
                           onClick={() => openEdit(admin)}
                           title="Edit details"
-                          className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-indigo-600 hover:text-white text-slate-400 flex items-center justify-center transition-all"
+                          className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-100 hover:bg-blue-600 hover:text-white hover:border-blue-600 text-slate-400 flex items-center justify-center transition-all cursor-pointer"
                         >
                           <Pencil className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => openResetPassword(admin)}
                           title="Reset password"
-                          className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-amber-500 hover:text-white text-slate-400 flex items-center justify-center transition-all"
+                          className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-100 hover:bg-amber-500 hover:text-white hover:border-amber-500 text-slate-400 flex items-center justify-center transition-all cursor-pointer"
                         >
                           <KeyRound className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => openDelete(admin)}
                           title="Remove admin"
-                          className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-rose-600 hover:text-white text-slate-400 flex items-center justify-center transition-all"
+                          className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-100 hover:bg-rose-600 hover:text-white hover:border-rose-600 text-slate-400 flex items-center justify-center transition-all cursor-pointer"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -407,7 +408,7 @@ export default function ManageAdminsPage() {
                   : "bg-slate-950"
               }`}
             >
-              <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-[60px]" />
+              <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-[60px] pointer-events-none" />
               <div className="relative z-10">
                 <h2 className="text-2xl font-black text-white">
                   {modalMode === "add" && "Add New Admin"}

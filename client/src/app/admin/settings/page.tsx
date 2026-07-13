@@ -68,7 +68,7 @@ export default function PlatformSettings() {
   if (loading) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center">
-        <Loader2 className="w-12 h-12 text-rose-500 animate-spin" />
+        <Loader2 className="w-12 h-12 text-[#3366FF] animate-spin" />
       </div>
     );
   }
@@ -81,54 +81,54 @@ export default function PlatformSettings() {
   ];
 
   return (
-    <div className="p-8 lg:p-12 max-w-[1200px] mx-auto space-y-8">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+    <div className="p-8 lg:p-12 max-w-[1200px] mx-auto space-y-8 selection:bg-[#3366FF]/10 font-sans">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 select-none">
         <div>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tight">
+          <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight leading-none">
             Platform Configuration
           </h1>
-          <p className="text-slate-500 font-medium text-lg mt-2">
-            Manage global settings and application behavior.
+          <p className="text-slate-400 font-semibold text-sm mt-3.5 leading-relaxed">
+            Manage global platform properties, security behavior, and student metrics limits.
           </p>
         </div>
         <button
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center gap-2 px-8 py-4 bg-slate-900 hover:bg-rose-500 text-white rounded-2xl font-black uppercase tracking-widest text-sm transition-all shadow-xl shadow-slate-900/20 disabled:opacity-50"
+          className="flex items-center gap-2 px-6 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-650 hover:from-blue-700 hover:to-indigo-700 text-white rounded-2xl font-bold text-xs uppercase tracking-widest transition-all shadow-lg shadow-blue-500/15 disabled:opacity-50 cursor-pointer hover:-translate-y-0.5 active:translate-y-0 shrink-0"
         >
-          {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+          {saving ? <Loader2 className="w-4.5 h-4.5 animate-spin" /> : <Save className="w-4 h-4" />}
           {saving ? "Saving..." : "Save Settings"}
         </button>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8">
-        <Card className="w-full lg:w-80 shrink-0 p-4 rounded-[32px] border-none shadow-xl shadow-slate-200/50 bg-white h-fit">
-          <nav className="space-y-2">
+        <Card className="w-full lg:w-80 shrink-0 p-4 rounded-[28px] border border-slate-100 shadow-[0_10px_25px_-5px_rgba(0,0,0,0.02)] bg-white h-fit select-none">
+          <nav className="space-y-1.5">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-sm transition-all ${
+                className={`w-full flex items-center gap-4 px-5 py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${
                   activeTab === tab.id
-                    ? "bg-rose-50 text-rose-600"
-                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                    ? "bg-blue-50/70 text-blue-600 border border-blue-150/20"
+                    : "text-slate-455 hover:bg-slate-50 hover:text-slate-800"
                 }`}
               >
-                <tab.icon className={`w-5 h-5 ${activeTab === tab.id ? "text-rose-500" : "text-slate-400"}`} />
+                <tab.icon className={`w-4.5 h-4.5 ${activeTab === tab.id ? "text-blue-500" : "text-slate-400"}`} />
                 {tab.label}
               </button>
             ))}
           </nav>
         </Card>
 
-        <Card className="flex-1 p-8 rounded-[32px] border-none shadow-xl shadow-slate-200/50 bg-white">
+        <Card className="flex-1 p-8 rounded-[28px] border border-slate-100 shadow-[0_10px_25px_-5px_rgba(0,0,0,0.02)] bg-white">
           {activeTab === "GENERAL" && (
             <div className="space-y-8 animate-in fade-in duration-300">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 rounded-xl bg-rose-100 flex items-center justify-center text-rose-600">
-                  <Globe className="w-6 h-6" />
+              <div className="flex items-center gap-3.5 mb-8 select-none">
+                <div className="w-11 h-11 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600">
+                  <Globe className="w-5.5 h-5.5" />
                 </div>
-                <h2 className="text-2xl font-black text-slate-900">General Settings</h2>
+                <h2 className="text-xl font-extrabold text-slate-900">General Settings</h2>
               </div>
 
               <div className="space-y-6">
@@ -138,7 +138,7 @@ export default function PlatformSettings() {
                     type="text"
                     value={settings.platformName}
                     onChange={(e) => setSettings({ ...settings, platformName: e.target.value })}
-                    className="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 font-bold text-slate-700 outline-none focus:border-rose-400 focus:ring-4 focus:ring-rose-100 transition-all"
+                    className="w-full h-12 bg-slate-50/50 border border-slate-200/80 rounded-2xl px-5 font-bold text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 focus:bg-white transition-all"
                   />
                 </div>
                 
@@ -148,7 +148,7 @@ export default function PlatformSettings() {
                     type="email"
                     value={settings.contactEmail}
                     onChange={(e) => setSettings({ ...settings, contactEmail: e.target.value })}
-                    className="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 font-bold text-slate-700 outline-none focus:border-rose-400 focus:ring-4 focus:ring-rose-100 transition-all"
+                    className="w-full h-12 bg-slate-50/50 border border-slate-200/80 rounded-2xl px-5 font-bold text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 focus:bg-white transition-all"
                   />
                 </div>
 
@@ -158,7 +158,7 @@ export default function PlatformSettings() {
                     type="number"
                     value={settings.maxApplicationsPerStudent}
                     onChange={(e) => setSettings({ ...settings, maxApplicationsPerStudent: parseInt(e.target.value) })}
-                    className="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 font-bold text-slate-700 outline-none focus:border-rose-400 focus:ring-4 focus:ring-rose-100 transition-all"
+                    className="w-full h-12 bg-slate-50/50 border border-slate-200/80 rounded-2xl px-5 font-bold text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 focus:bg-white transition-all"
                   />
                 </div>
               </div>
@@ -167,48 +167,48 @@ export default function PlatformSettings() {
 
           {activeTab === "SECURITY" && (
             <div className="space-y-8 animate-in fade-in duration-300">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 rounded-xl bg-slate-900 flex items-center justify-center text-white">
-                  <ShieldAlert className="w-6 h-6" />
+              <div className="flex items-center gap-3.5 mb-8 select-none">
+                <div className="w-11 h-11 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600">
+                  <ShieldAlert className="w-5.5 h-5.5" />
                 </div>
-                <h2 className="text-2xl font-black text-slate-900">Security & Access</h2>
+                <h2 className="text-xl font-extrabold text-slate-900">Security & Access</h2>
               </div>
 
-              <div className="space-y-6">
-                <div className="flex items-center justify-between p-6 bg-slate-50 rounded-2xl border border-slate-100">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-6 bg-[#fafbfc]/50 rounded-2xl border border-slate-100">
                   <div>
-                    <h4 className="font-bold text-slate-900">Maintenance Mode</h4>
-                    <p className="text-sm font-medium text-slate-500 mt-1">Disables access for all non-admin users.</p>
+                    <h4 className="font-bold text-slate-900 text-sm">Maintenance Mode</h4>
+                    <p className="text-xs font-semibold text-slate-400 mt-1.5">Disables access for all non-admin users.</p>
                   </div>
                   <button 
                     onClick={() => setSettings({ ...settings, maintenanceMode: !settings.maintenanceMode })}
-                    className={`w-14 h-8 rounded-full relative transition-colors ${settings.maintenanceMode ? 'bg-rose-500' : 'bg-slate-300'}`}
+                    className={`w-14 h-8 rounded-full relative transition-colors cursor-pointer ${settings.maintenanceMode ? 'bg-[#3366FF]' : 'bg-slate-200'}`}
                   >
                     <div className={`w-6 h-6 bg-white rounded-full absolute top-1 transition-transform ${settings.maintenanceMode ? 'translate-x-7' : 'translate-x-1'}`} />
                   </button>
                 </div>
 
-                <div className="flex items-center justify-between p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                <div className="flex items-center justify-between p-6 bg-[#fafbfc]/50 rounded-2xl border border-slate-100">
                   <div>
-                    <h4 className="font-bold text-slate-900">Allow New Registrations</h4>
-                    <p className="text-sm font-medium text-slate-500 mt-1">Enable or disable new user signups.</p>
+                    <h4 className="font-bold text-slate-900 text-sm">Allow New Registrations</h4>
+                    <p className="text-xs font-semibold text-slate-400 mt-1.5">Enable or disable new user signups.</p>
                   </div>
                   <button 
                     onClick={() => setSettings({ ...settings, allowNewRegistrations: !settings.allowNewRegistrations })}
-                    className={`w-14 h-8 rounded-full relative transition-colors ${settings.allowNewRegistrations ? 'bg-emerald-500' : 'bg-slate-300'}`}
+                    className={`w-14 h-8 rounded-full relative transition-colors cursor-pointer ${settings.allowNewRegistrations ? 'bg-emerald-500' : 'bg-slate-200'}`}
                   >
                     <div className={`w-6 h-6 bg-white rounded-full absolute top-1 transition-transform ${settings.allowNewRegistrations ? 'translate-x-7' : 'translate-x-1'}`} />
                   </button>
                 </div>
 
-                <div className="flex items-center justify-between p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                <div className="flex items-center justify-between p-6 bg-[#fafbfc]/50 rounded-2xl border border-slate-100">
                   <div>
-                    <h4 className="font-bold text-slate-900">Require Phone Verification</h4>
-                    <p className="text-sm font-medium text-slate-500 mt-1">Mandate OTP verification before profile access.</p>
+                    <h4 className="font-bold text-slate-900 text-sm">Require Phone Verification</h4>
+                    <p className="text-xs font-semibold text-slate-400 mt-1.5">Mandate OTP verification before profile access.</p>
                   </div>
                   <button 
                     onClick={() => setSettings({ ...settings, requireEmailVerification: !settings.requireEmailVerification })}
-                    className={`w-14 h-8 rounded-full relative transition-colors ${settings.requireEmailVerification ? 'bg-emerald-500' : 'bg-slate-300'}`}
+                    className={`w-14 h-8 rounded-full relative transition-colors cursor-pointer ${settings.requireEmailVerification ? 'bg-emerald-500' : 'bg-slate-200'}`}
                   >
                     <div className={`w-6 h-6 bg-white rounded-full absolute top-1 transition-transform ${settings.requireEmailVerification ? 'translate-x-7' : 'translate-x-1'}`} />
                   </button>
@@ -218,10 +218,10 @@ export default function PlatformSettings() {
           )}
 
           {(activeTab === "EMAILS" || activeTab === "NOTIFICATIONS") && (
-            <div className="h-[400px] flex flex-col items-center justify-center text-center animate-in fade-in duration-300">
-              <ToggleLeft className="w-16 h-16 text-slate-300 mb-6" />
+            <div className="h-[400px] flex flex-col items-center justify-center text-center animate-in fade-in duration-300 select-none">
+              <ToggleLeft className="w-16 h-16 text-slate-200 mb-6" />
               <h3 className="text-2xl font-black text-slate-900">Under Construction</h3>
-              <p className="text-slate-500 font-medium max-w-md mt-2">
+              <p className="text-slate-400 font-semibold max-w-sm mt-2.5 text-xs leading-relaxed">
                 This configuration module is currently being integrated with our third-party communication providers.
               </p>
             </div>

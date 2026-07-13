@@ -49,13 +49,76 @@ export async function GET() {
       appStats[stat.status] = stat._count.status;
     });
 
-    // Generate mock trend data for the chart (last 6 months)
-    // In a real scenario, group by month from DB
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
-    const applicationTrend = months.map((month) => ({
-      name: month,
-      applications: Math.floor(Math.random() * 50) + 10,
-      visas: Math.floor(Math.random() * 40) + 5,
+    // Calculate dynamic last 6 months using real data
+    const monthsData: Array<{
+      name: string;
+      year: number;
+      month: number;
+      applications: number;
+      visas: number;
+    }> = [];
+    const now = new Date();
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const name = d.toLocaleString('en-US', { month: 'short' });
+      monthsData.push({
+        name,
+        year: d.getFullYear(),
+        month: d.getMonth(),
+        applications: 0,
+        visas: 0,
+      });
+    }
+
+    const startDate = new Date(monthsData[0].year, monthsData[0].month, 1);
+
+    const [realApps, realVisas] = await Promise.all([
+      prisma.application.findMany({
+        where: {
+          createdAt: {
+            gte: startDate,
+          },
+        },
+        select: {
+          createdAt: true,
+        },
+      }),
+      prisma.visaRateCheck.findMany({
+        where: {
+          createdAt: {
+            gte: startDate,
+          },
+        },
+        select: {
+          createdAt: true,
+        },
+      }),
+    ]);
+
+    realApps.forEach((app) => {
+      const date = new Date(app.createdAt);
+      const monthIndex = monthsData.findIndex(
+        (m) => m.year === date.getFullYear() && m.month === date.getMonth()
+      );
+      if (monthIndex !== -1) {
+        monthsData[monthIndex].applications++;
+      }
+    });
+
+    realVisas.forEach((visa) => {
+      const date = new Date(visa.createdAt);
+      const monthIndex = monthsData.findIndex(
+        (m) => m.year === date.getFullYear() && m.month === date.getMonth()
+      );
+      if (monthIndex !== -1) {
+        monthsData[monthIndex].visas++;
+      }
+    });
+
+    const applicationTrend = monthsData.map(({ name, applications, visas }) => ({
+      name,
+      applications,
+      visas,
     }));
 
     return NextResponse.json({

@@ -316,38 +316,38 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
-        <header className="h-[90px] bg-white/80 backdrop-blur-xl border-b border-slate-200/60 flex items-center justify-between px-10 sticky top-0 z-10 shadow-sm">
-          <div className="flex items-center gap-4 bg-slate-50 rounded-2xl px-5 h-[50px] border border-slate-200/50 w-full max-w-md focus-within:border-indigo-400 focus-within:bg-white transition-all shadow-sm">
-            <Search className="w-5 h-5 text-slate-400" />
+        <header className="h-[90px] bg-white/70 backdrop-blur-xl border-b border-slate-100 flex items-center justify-between px-10 sticky top-0 z-10 shadow-xs selection:bg-[#3366FF]/10 select-none">
+          <div className="flex items-center gap-3.5 bg-slate-50/50 rounded-2xl px-5 h-[48px] border border-slate-200/50 w-full max-w-md focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/5 transition-all shadow-inner">
+            <Search className="w-4.5 h-4.5 text-slate-400" />
             <input
               type="text"
-              placeholder="Query user records..."
-              className="bg-transparent text-sm font-semibold outline-none w-full text-slate-800 placeholder:text-slate-400"
+              placeholder="Search user records..."
+              className="bg-transparent text-sm font-semibold outline-none w-full text-slate-800 placeholder:text-slate-400/80"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
 
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-5">
             <div className="flex items-center gap-2">
-              <button className="w-11 h-11 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition-all shadow-sm">
-                <Bell className="w-5 h-5" />
+              <button className="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-slate-100 text-slate-400 hover:text-blue-600 hover:bg-slate-50 hover:border-blue-100/50 transition-all shadow-xs cursor-pointer">
+                <Bell className="w-4.5 h-4.5" />
               </button>
-              <div className="w-px h-6 bg-slate-200 mx-2" />
+              <div className="w-px h-5 bg-slate-100 mx-1.5" />
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3.5">
               <div className="text-right">
-                <p className="text-sm font-black text-slate-900 tracking-tight leading-none mb-1">
+                <p className="text-sm font-extrabold text-slate-900 leading-none mb-1.5">
                   {session?.user.name}
                 </p>
                 <div className="flex items-center justify-end gap-1.5">
                   <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                  <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest leading-none">
-                    System Admin
+                  <span className="text-[9px] font-black text-blue-600 uppercase tracking-widest leading-none">
+                    {session?.user.role === "SUPERADMIN" ? "Super Admin" : "System Admin"}
                   </span>
                 </div>
               </div>
-              <div className="w-12 h-12 bg-indigo-600 rounded-[14px] flex items-center justify-center font-black text-white text-lg shadow-lg shadow-indigo-500/20 border border-indigo-400">
+              <div className="w-11 h-11 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-[12px] flex items-center justify-center font-extrabold text-white text-md shadow-md shadow-blue-500/20 border border-blue-400/25">
                 {session?.user.name?.[0].toUpperCase()}
               </div>
             </div>
@@ -355,26 +355,26 @@ export default function AdminDashboard() {
         </header>
 
         <div className="p-10 max-w-[1600px] mx-auto">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 select-none">
             <div>
-              <h1 className="text-4xl font-black text-slate-900 tracking-tight leading-tight">
+              <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight leading-none">
                 Global Users
               </h1>
-              <p className="text-lg font-medium text-slate-500 mt-2">
-                Management overview for all registered accounts.
+              <p className="text-slate-400 font-semibold text-sm mt-3.5 leading-relaxed">
+                Platform directory, account provisioning, and administration controls.
               </p>
             </div>
             <div className="flex items-center gap-3">
               <button
                 onClick={exportToExcel}
-                className="h-[48px] px-6 rounded-2xl bg-white border border-slate-200 text-slate-700 font-bold text-sm flex items-center gap-2.5 hover:bg-slate-50 hover:text-indigo-600 transition-all shadow-sm"
+                className="h-[48px] px-6 rounded-2xl bg-white border border-slate-100 text-slate-600 hover:text-[#3366FF] hover:border-blue-100 hover:shadow-md font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
               >
                 <Download className="w-4 h-4" />
                 Export CSV
               </button>
               <button
                 onClick={() => setShowModal(true)}
-                className="h-[48px] px-6 rounded-2xl bg-blue-600 text-white font-bold text-sm flex items-center gap-2.5 hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/10 active:scale-95"
+                className="h-[48px] px-6 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xs uppercase tracking-widest flex items-center gap-2 transition-all shadow-lg shadow-blue-500/20 hover:shadow-blue-500/35 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 New User
@@ -383,7 +383,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* Stat Cards */}
-          <div className="mb-10 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="mb-10 grid grid-cols-1 md:grid-cols-3 gap-6 select-none">
             {[
               {
                 label: "Total Students",
@@ -391,7 +391,7 @@ export default function AdminDashboard() {
                 sub: "+12.5% this month",
                 icon: Users,
                 color: "text-blue-600",
-                bg: "bg-blue-100",
+                bg: "bg-blue-50/80 border border-blue-100/30",
               },
               {
                 label: "System Admins",
@@ -399,7 +399,7 @@ export default function AdminDashboard() {
                 sub: "High integrity keys",
                 icon: Award,
                 color: "text-indigo-600",
-                bg: "bg-indigo-100",
+                bg: "bg-indigo-50/80 border border-indigo-100/30",
               },
               {
                 label: "Total Records",
@@ -407,32 +407,33 @@ export default function AdminDashboard() {
                 sub: "Synced with server",
                 icon: Globe,
                 color: "text-emerald-600",
-                bg: "bg-emerald-100",
+                bg: "bg-emerald-50/80 border border-emerald-100/30",
               },
             ].map((stat, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: i * 0.1, ease: "easeOut" }}
-                className="relative bg-white p-8 rounded-[32px] border border-slate-100 shadow-xl shadow-slate-200/40 group hover:-translate-y-1 transition-all duration-300"
+                transition={{ duration: 0.5, delay: i * 0.08, ease: "easeOut" }}
+                className="relative bg-white p-7 rounded-[28px] border border-slate-100/80 shadow-[0_12px_30px_-5px_rgba(0,0,0,0.03)] group hover:-translate-y-1.5 hover:shadow-[0_20px_45px_-5px_rgba(51,102,255,0.07)] hover:border-blue-500/10 transition-all duration-300 overflow-hidden"
               >
-                <div className="flex items-start justify-between mb-6">
-                  <div className={`w-14 h-14 ${stat.bg} rounded-2xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110`}>
+                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-blue-500/3 to-transparent rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform duration-300" />
+                <div className="flex items-start justify-between mb-6 relative z-10">
+                  <div className={`w-14 h-14 ${stat.bg} rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform duration-300`}>
                     <stat.icon className={`w-6 h-6 ${stat.color}`} />
                   </div>
                   <div className="text-right">
-                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1.5">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 leading-none">
                       {stat.label}
                     </p>
-                    <p className="text-4xl font-black text-slate-900 tracking-tighter">
+                    <p className="text-4xl font-extrabold text-slate-900 tracking-tight leading-none">
                       {stat.value}
                     </p>
                   </div>
                 </div>
-                <div className="pt-5 border-t border-slate-50 flex items-center gap-2">
+                <div className="pt-4 border-t border-slate-100/60 flex items-center gap-2 relative z-10">
                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mt-0.5">
                     {stat.sub}
                   </p>
                 </div>
@@ -443,47 +444,47 @@ export default function AdminDashboard() {
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="bg-white rounded-[32px] border border-slate-100 shadow-xl shadow-slate-200/40 overflow-hidden"
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="bg-white rounded-[32px] border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden"
           >
-            <div className="p-8 border-b border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <h2 className="font-black text-slate-900 tracking-tight text-xl">
+            <div className="p-8 border-b border-slate-100/70 flex flex-col sm:flex-row items-center justify-between gap-4 bg-[#fafbfc]/50 select-none">
+              <div className="flex items-center gap-3.5">
+                <h2 className="font-extrabold text-slate-900 tracking-tight text-xl leading-none">
                   User Directory
                 </h2>
-                <span className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-xs font-black tracking-widest uppercase">
+                <span className="px-2.5 py-1 bg-blue-50 border border-blue-100/50 text-blue-600 rounded-lg text-[9px] font-black tracking-widest uppercase leading-none mt-0.5">
                   {filteredUsers.length} Records
                 </span>
               </div>
-              <button className="flex items-center gap-2 px-4 h-10 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 bg-white hover:bg-slate-50 hover:text-indigo-600 transition-all shadow-sm">
-                <Filter className="w-4 h-4" />
+              <button className="flex items-center gap-2 px-4.5 h-10 border border-slate-100 rounded-xl text-xs font-bold text-slate-600 bg-white hover:bg-slate-50 hover:text-blue-600 hover:border-blue-100 transition-all shadow-xs cursor-pointer">
+                <Filter className="w-4 h-4 text-slate-400" />
                 Filters
               </button>
             </div>
 
             <div className="overflow-x-auto min-h-[300px]">
               {filteredUsers.length === 0 ? (
-                <div className="p-16 text-center">
-                  <div className="w-20 h-20 bg-slate-50 rounded-[30px] flex items-center justify-center mx-auto mb-6">
-                    <UserCircle className="w-10 h-10 text-slate-300" />
+                <div className="p-16 text-center select-none animate-in fade-in duration-200">
+                  <div className="w-16 h-16 bg-slate-50 rounded-[22px] flex items-center justify-center mx-auto mb-5 border border-slate-100 shadow-inner">
+                    <UserCircle className="w-8 h-8 text-slate-300" />
                   </div>
-                  <p className="text-xl font-black text-slate-900 mb-2">
+                  <p className="text-lg font-extrabold text-slate-900 mb-1.5">
                     No users found
                   </p>
-                  <p className="text-sm font-medium text-slate-500">
+                  <p className="text-xs font-semibold text-slate-400">
                     Try adjusting your search filters.
                   </p>
                 </div>
               ) : (
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-slate-50/50">
-                      <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">User</th>
-                      <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Contact</th>
-                      <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Role</th>
-                      <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Origin</th>
-                      <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Status</th>
-                      <th className="px-8 py-5 text-center text-[11px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Actions</th>
+                    <tr className="bg-slate-50/30">
+                      <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">User</th>
+                      <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Contact</th>
+                      <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Role</th>
+                      <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Origin</th>
+                      <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Status</th>
+                      <th className="px-8 py-5 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap pr-14">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
@@ -492,19 +493,19 @@ export default function AdminDashboard() {
                         key={user.id}
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.3, delay: i * 0.05 }}
-                        className="hover:bg-slate-50/70 transition-colors group"
+                        transition={{ duration: 0.3, delay: i * 0.03 }}
+                        className="hover:bg-slate-50/50 transition-colors group"
                       >
                         <td className="px-8 py-4">
-                          <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center font-black text-indigo-600 transition-transform group-hover:scale-105 group-hover:bg-indigo-100">
+                          <div className="flex items-center gap-3.5">
+                            <div className="w-9 h-9 bg-gradient-to-br from-blue-50 to-indigo-50 border border-indigo-100/60 rounded-xl flex items-center justify-center font-extrabold text-blue-600 text-sm transition-transform group-hover:scale-105">
                               {user.name?.[0].toUpperCase()}
                             </div>
                             <div>
-                              <p className="text-sm font-bold text-slate-900 leading-tight mb-1">
+                              <p className="text-sm font-bold text-slate-900 leading-none mb-1.5 group-hover:text-blue-600 transition-colors">
                                 {user.name}
                               </p>
-                              <p className="text-xs font-bold text-slate-400">
+                              <p className="text-xs font-bold text-slate-400 leading-none">
                                 @{user.username}
                               </p>
                             </div>
@@ -512,13 +513,13 @@ export default function AdminDashboard() {
                         </td>
                         <td className="px-8 py-4">
                           <div className="space-y-1.5">
-                            <div className="flex items-center gap-2 text-sm font-medium text-slate-600">
-                              <Mail className="w-4 h-4 text-slate-400" />
+                            <div className="flex items-center gap-2 text-sm font-semibold text-slate-500">
+                              <Mail className="w-4 h-4 text-slate-350 shrink-0" />
                               {user.email}
                             </div>
                             {user.phoneNumber && (
-                              <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
-                                <Phone className="w-3.5 h-3.5 text-slate-400" />
+                              <div className="flex items-center gap-2 text-xs font-bold text-slate-400">
+                                <Phone className="w-3.5 h-3.5 text-slate-350 shrink-0" />
                                 {user.phoneNumber}
                               </div>
                             )}
@@ -526,20 +527,20 @@ export default function AdminDashboard() {
                         </td>
                         <td className="px-8 py-4">
                           <span
-                            className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-black tracking-widest uppercase ${
+                            className={`inline-flex px-2.5 py-1 rounded-full text-[9px] font-black tracking-widest uppercase border ${
                               user.role === "SUPERADMIN"
-                                ? "bg-amber-100 text-amber-700 border border-amber-200"
+                                ? "bg-amber-50 text-amber-600 border-amber-200/50"
                                 : user.role === "ADMIN"
-                                ? "bg-indigo-50 text-indigo-600"
-                                : "bg-slate-100 text-slate-600"
+                                ? "bg-blue-50 text-[#3366FF] border-blue-200/30"
+                                : "bg-slate-150 text-slate-600 border-slate-200/40"
                             }`}
                           >
-                            {user.role === "SUPERADMIN" ? "SUPERADMIN" : user.role}
+                            {user.role === "SUPERADMIN" ? "SUPER ADMIN" : user.role}
                           </span>
                         </td>
                         <td className="px-8 py-4">
                           <div className="flex items-center gap-2">
-                            <Globe className="w-4 h-4 text-slate-400" />
+                            <Globe className="w-4 h-4 text-slate-350" />
                             <span className="text-sm font-bold text-slate-700">
                               {user.profile?.nationality || "Global"}
                             </span>
@@ -554,28 +555,28 @@ export default function AdminDashboard() {
                                 toggleUserStatus(user);
                               }
                             }}
-                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black tracking-widest uppercase ${
+                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black tracking-widest uppercase border ${
                               (isSuperAdmin || user.role === "STUDENT") && user.id !== session?.user?.id
                                 ? "cursor-pointer hover:opacity-85"
                                 : "opacity-75"
                             } ${
                               user.isActive
-                                ? "bg-emerald-50 text-emerald-600"
-                                : "bg-rose-50 text-rose-600"
+                                ? "bg-emerald-50 text-emerald-600 border-emerald-200/50"
+                                : "bg-rose-50 text-rose-600 border-rose-200/50"
                             }`}
                           >
-                            <span className={`w-1.5 h-1.5 rounded-full ${user.isActive ? "bg-emerald-500" : "bg-rose-500"}`} />
+                            <span className={`w-1.5 h-1.5 rounded-full ${user.isActive ? "bg-emerald-500 animate-pulse" : "bg-rose-500"}`} />
                             {user.isActive ? "Active" : "Suspended"}
                           </span>
                         </td>
                         <td className="px-8 py-4">
-                          <div className="flex items-center justify-center gap-1">
+                          <div className="flex items-center justify-end gap-1.5 pr-6 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                             <button 
                               onClick={() => setSelectedUser(user)}
                               title="View details"
-                              className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                              className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-50 border border-slate-100 hover:bg-blue-600 hover:text-white hover:border-blue-600 text-slate-400 transition-all cursor-pointer"
                             >
-                              <Eye className="w-4 h-4" />
+                              <Eye className="w-3.5 h-3.5" />
                             </button>
                             {(isSuperAdmin || user.role === "STUDENT") && user.id !== session?.user?.id && (
                               <>
@@ -592,9 +593,9 @@ export default function AdminDashboard() {
                                     setActionMode("edit");
                                   }}
                                   title="Edit details"
-                                  className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                                  className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-50 border border-slate-100 hover:bg-blue-600 hover:text-white hover:border-blue-600 text-slate-400 transition-all cursor-pointer"
                                 >
-                                  <Pencil className="w-4 h-4" />
+                                  <Pencil className="w-3.5 h-3.5" />
                                 </button>
                                 <button
                                   onClick={() => {
@@ -604,9 +605,9 @@ export default function AdminDashboard() {
                                     setActionMode("resetPassword");
                                   }}
                                   title="Reset password"
-                                  className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all"
+                                  className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-50 border border-slate-100 hover:bg-amber-500 hover:text-white hover:border-amber-500 text-slate-400 transition-all cursor-pointer"
                                 >
-                                  <KeyRound className="w-4 h-4" />
+                                  <KeyRound className="w-3.5 h-3.5" />
                                 </button>
                                 <button
                                   onClick={() => {
@@ -614,9 +615,9 @@ export default function AdminDashboard() {
                                     setActionMode("delete");
                                   }}
                                   title="Delete user"
-                                  className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
+                                  className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-50 border border-slate-100 hover:bg-rose-600 hover:text-white hover:border-rose-600 text-slate-400 transition-all cursor-pointer"
                                 >
-                                  <Trash2 className="w-4 h-4" />
+                                  <Trash2 className="w-3.5 h-3.5" />
                                 </button>
                               </>
                             )}
@@ -629,13 +630,13 @@ export default function AdminDashboard() {
               )}
             </div>
 
-            <div className="p-6 border-t border-slate-50 bg-slate-50/50 flex items-center justify-between">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+            <div className="p-6 border-t border-slate-100 bg-[#fafbfc]/50 flex items-center justify-between select-none text-[10px] font-black uppercase tracking-widest text-slate-400">
+              <p>
                 Showing {filteredUsers.length} records
               </p>
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>
                   Live Sync Active
                 </span>
               </div>

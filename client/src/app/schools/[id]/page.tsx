@@ -389,7 +389,7 @@ export default function SchoolDetailPage() {
           
           {/* Quick admissions details */}
           <div className="rounded-[32px] bg-slate-900 text-white p-8 relative overflow-hidden shadow-xl shadow-slate-900/10">
-            <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full blur-2xl" />
+            <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full blur-2xl pointer-events-none" />
             <h3 className="text-[20px] font-black mb-6 flex items-center gap-2">
               <CheckCircle className="w-5 h-5 text-emerald-400" /> Intake Information
             </h3>

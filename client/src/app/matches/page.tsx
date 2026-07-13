@@ -1569,7 +1569,7 @@ function DestinationInsight({ match: m }: { match: Match }) {
 
   return (
     <div className="mt-6 bg-linear-to-br from-indigo-600 to-violet-700 rounded-2xl p-4 text-white shadow-lg relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl" />
+      <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl pointer-events-none" />
       <div className="relative z-10 flex flex-col gap-3">
         <div className="flex justify-between items-start">
           <div className="flex items-center gap-2">

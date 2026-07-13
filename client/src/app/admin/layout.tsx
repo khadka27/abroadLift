@@ -40,11 +40,32 @@ export default function AdminLayout({
 
   if (status === "loading") {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50">
-        <Loader2 className="w-12 h-12 text-blue-600 animate-spin mb-4" />
-        <p className="text-slate-500 font-bold animate-pulse">
-          Initializing Administrative Secure Environment...
-        </p>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#0a0f1d] text-white relative overflow-hidden font-sans">
+        {/* Layered brand glowing blobs */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] bg-blue-600/10 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute top-1/3 left-1/4 w-[250px] h-[250px] bg-indigo-500/10 rounded-full blur-[80px] pointer-events-none" />
+        
+        {/* Grid pattern overlay */}
+        <div
+          className="absolute inset-0 opacity-[0.02] pointer-events-none"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)",
+            backgroundSize: "40px 40px",
+          }}
+        />
+
+        <div className="relative z-10 flex flex-col items-center text-center max-w-sm px-6">
+          <div className="w-16 h-16 rounded-[20px] bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 mb-8 border border-white/10">
+            <Loader2 className="w-8 h-8 text-white animate-spin" />
+          </div>
+          <h2 className="text-lg font-black tracking-widest uppercase bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent mb-2">
+            AbroadLift Admin
+          </h2>
+          <p className="text-slate-400 font-bold text-xs uppercase tracking-widest leading-relaxed animate-pulse">
+            Establishing administrative secure session...
+          </p>
+        </div>
       </div>
     );
   }

@@ -146,28 +146,28 @@ export default function StudentDetails({ params }: { params: Promise<{ id: strin
   const p = student.profile || {};
 
   return (
-    <div className="p-6 md:p-8 lg:p-12 max-w-[1600px] mx-auto space-y-8 animate-in fade-in duration-500">
+    <div className="p-6 md:p-8 lg:p-12 max-w-[1600px] mx-auto space-y-8 animate-in fade-in duration-500 selection:bg-[#3366FF]/10 font-sans">
       
       {/* Top Breadcrumb & Actions */}
-      <div className="flex flex-col gap-6 md:flex-row md:justify-between md:items-center">
+      <div className="flex flex-col gap-6 md:flex-row md:justify-between md:items-center select-none">
         <div>
           <button 
             onClick={() => router.back()}
-            className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-indigo-600 transition-colors mb-3"
+            className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-blue-600 transition-colors mb-4.5 cursor-pointer"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-3.5 h-3.5" />
             Back to Registry
           </button>
           
           <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
+            <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-none">
               {student.name}
             </h1>
-            <Badge className={student.isActive ? "bg-emerald-50 text-emerald-600 border-emerald-200 font-bold" : "bg-rose-50 text-rose-600 border-rose-200 font-bold"}>
+            <Badge className={`px-3 py-1 text-[9px] font-black tracking-widest uppercase border ${student.isActive ? "bg-emerald-50 text-emerald-600 border-emerald-200/50" : "bg-rose-50 text-rose-600 border-rose-200/50"}`}>
               {student.isActive ? "ACTIVE" : "SUSPENDED"}
             </Badge>
           </div>
-          <p className="text-slate-500 font-semibold mt-1">
+          <p className="text-slate-400 font-semibold text-xs mt-2.5">
             @{student.username} • Account Created {format(new Date(student.createdAt), "MMMM d, yyyy")}
           </p>
         </div>
@@ -176,10 +176,10 @@ export default function StudentDetails({ params }: { params: Promise<{ id: strin
           <button
             onClick={triggerToggleStatus}
             disabled={updating}
-            className={`px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all text-sm border shadow-sm ${
+            className={`px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all text-xs uppercase tracking-wider border shadow-xs cursor-pointer hover:-translate-y-0.5 active:translate-y-0 ${
               student.isActive 
-                ? "bg-rose-50 text-rose-600 hover:bg-rose-100/80 border-rose-200"
-                : "bg-emerald-50 text-emerald-600 hover:bg-emerald-100/80 border-emerald-200"
+                ? "bg-rose-50 text-rose-600 hover:bg-rose-100/50 border-rose-250/20"
+                : "bg-emerald-50 text-emerald-600 hover:bg-emerald-100/50 border-emerald-250/20"
             }`}
           >
             {student.isActive ? <Ban className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
@@ -189,55 +189,58 @@ export default function StudentDetails({ params }: { params: Promise<{ id: strin
           <button
             onClick={triggerDeleteAccount}
             disabled={updating}
-            className="h-10 px-4 flex items-center justify-center rounded-xl bg-red-50 text-red-600 hover:bg-red-500 hover:text-white transition-all border border-red-200 shadow-sm"
+            className="h-10 px-4 flex items-center justify-center rounded-xl bg-red-50 text-red-650 hover:bg-red-500 hover:text-white border border-red-200/50 shadow-xs cursor-pointer hover:-translate-y-0.5 active:translate-y-0 transition-all font-bold text-xs uppercase tracking-wider"
             title="Delete Account"
           >
             <Trash2 className="w-4 h-4 mr-2" />
-            <span className="text-sm font-bold">Delete</span>
+            <span>Delete Account</span>
           </button>
         </div>
       </div>
 
       {/* Calculated Success Odds & Stats Banner */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="p-6 rounded-[24px] border border-slate-100 shadow-lg shadow-slate-100/50 bg-gradient-to-br from-indigo-50/50 to-blue-50/20">
-          <div className="flex items-center justify-between">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 select-none">
+        <Card className="p-6 rounded-[28px] border border-white/5 shadow-xl bg-gradient-to-br from-blue-600 to-indigo-650 text-white relative overflow-hidden group hover:-translate-y-1 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-bl-full pointer-events-none group-hover:scale-105 transition-transform duration-300" />
+          <div className="flex items-center justify-between relative z-10">
             <div>
-              <p className="text-xs font-black uppercase text-indigo-500 tracking-wider">Admission Chance</p>
-              <h4 className="text-3xl font-black text-slate-800 mt-1">
+              <p className="text-[10px] font-black uppercase text-blue-200/80 tracking-widest leading-none">Admission Chance</p>
+              <h4 className="text-3xl font-extrabold mt-3.5 leading-none">
                 {p.admissionProb ? `${Math.round(p.admissionProb)}%` : "N/A"}
               </h4>
             </div>
-            <div className="w-12 h-12 rounded-2xl bg-indigo-100 flex items-center justify-center text-indigo-600">
-              <Award className="w-6 h-6" />
+            <div className="w-12 h-12 rounded-[16px] bg-white/10 flex items-center justify-center border border-white/10 shadow-inner">
+              <Award className="w-5.5 h-5.5 text-white" />
             </div>
           </div>
         </Card>
 
-        <Card className="p-6 rounded-[24px] border border-slate-100 shadow-lg shadow-slate-100/50 bg-gradient-to-br from-emerald-50/50 to-teal-50/20">
-          <div className="flex items-center justify-between">
+        <Card className="p-6 rounded-[28px] border border-white/5 shadow-xl bg-gradient-to-br from-emerald-650 to-teal-600 text-white relative overflow-hidden group hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-300">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-bl-full pointer-events-none group-hover:scale-105 transition-transform duration-300" />
+          <div className="flex items-center justify-between relative z-10">
             <div>
-              <p className="text-xs font-black uppercase text-emerald-600 tracking-wider">Visa Success Chance</p>
-              <h4 className="text-3xl font-black text-slate-800 mt-1">
+              <p className="text-[10px] font-black uppercase text-emerald-250/80 tracking-widest leading-none">Visa Success Odds</p>
+              <h4 className="text-3xl font-extrabold mt-3.5 leading-none">
                 {p.visaSuccessProb ? `${Math.round(p.visaSuccessProb)}%` : "N/A"}
               </h4>
             </div>
-            <div className="w-12 h-12 rounded-2xl bg-emerald-100 flex items-center justify-center text-emerald-600">
-              <ShieldCheck className="w-6 h-6" />
+            <div className="w-12 h-12 rounded-[16px] bg-white/10 flex items-center justify-center border border-white/10 shadow-inner">
+              <ShieldCheck className="w-5.5 h-5.5 text-white" />
             </div>
           </div>
         </Card>
 
-        <Card className="p-6 rounded-[24px] border border-slate-100 shadow-lg shadow-slate-100/50 bg-gradient-to-br from-purple-50/50 to-pink-50/20">
-          <div className="flex items-center justify-between">
+        <Card className="p-6 rounded-[28px] border border-white/5 shadow-xl bg-gradient-to-br from-slate-900 to-[#1e293b] text-white relative overflow-hidden group hover:-translate-y-1 hover:shadow-2xl hover:shadow-slate-500/10 transition-all duration-300">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-bl-full pointer-events-none group-hover:scale-105 transition-transform duration-300" />
+          <div className="flex items-center justify-between relative z-10">
             <div>
-              <p className="text-xs font-black uppercase text-purple-600 tracking-wider">Est. Annual Cost</p>
-              <h4 className="text-3xl font-black text-slate-800 mt-1">
+              <p className="text-[10px] font-black uppercase text-slate-350/80 tracking-widest leading-none">Est. Annual Cost</p>
+              <h4 className="text-3xl font-extrabold mt-3.5 leading-none">
                 {p.estimatedAnnualCost ? `$${p.estimatedAnnualCost.toLocaleString()}` : "N/A"}
               </h4>
             </div>
-            <div className="w-12 h-12 rounded-2xl bg-purple-100 flex items-center justify-center text-purple-600">
-              <DollarSign className="w-6 h-6" />
+            <div className="w-12 h-12 rounded-[16px] bg-white/10 flex items-center justify-center border border-white/10 shadow-inner">
+              <DollarSign className="w-5.5 h-5.5 text-white" />
             </div>
           </div>
         </Card>
