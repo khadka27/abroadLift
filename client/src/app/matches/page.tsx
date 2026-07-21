@@ -2203,6 +2203,8 @@ export default function AbroadLiftMatchesPage() {
   const [availableFields, setAvailableFields] = useState<string[]>([]);
   const [availableProgramsByField, setAvailableProgramsByField] = useState<Record<string, string[]>>({});
   const [loadingFields, setLoadingFields] = useState<boolean>(true);
+  
+  const [isYearDropdownOpen, setIsYearDropdownOpen] = useState(false);
 
   const [hasRestored, setHasRestored] = useState(false);
 
@@ -3709,7 +3711,10 @@ export default function AbroadLiftMatchesPage() {
             "Bachelor's Degree",
           ];
 
-      const YEARS = Array.from({ length: 15 }, (_, i) => (2026 - i).toString());
+      const currentYear = new Date().getFullYear();
+      const YEARS = form.educationStatus === "Pursuing"
+        ? Array.from({ length: 5 }, (_, i) => (currentYear + i).toString())
+        : Array.from({ length: 15 }, (_, i) => (currentYear - i).toString());
 
       return (
         <div className="flex flex-col animate-in fade-in zoom-in-95 duration-700 w-full max-w-5xl mx-auto pb-2 px-4 mt-1">
@@ -3841,27 +3846,52 @@ export default function AbroadLiftMatchesPage() {
               <label className="text-[12px] font-bold text-slate-400 uppercase tracking-widest ml-1">
                 Year of Passing
               </label>
-              <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-                {YEARS.map((year) => {
-                  const isSelected = form.passingYear === year;
-                  return (
-                    <button
-                      key={year}
-                      type="button"
-                      onClick={() => updateForm("passingYear", year)}
-                      className={`h-[46px] md:h-[52px] rounded-2xl text-[14px] font-bold transition-all duration-300 border-2 flex items-center justify-center ${
-                        isSelected
-                          ? "border-blue-500 bg-blue-50/20 text-blue-600 shadow-md scale-[1.03]"
-                          : "border-slate-100 bg-[#f8fafc] text-slate-500 hover:border-blue-200"
-                      }`}
-                    >
-                      {isSelected && (
-                        <Check className="w-3.5 h-3.5 mr-1.5 text-blue-500 stroke-[3]" />
-                      )}
-                      {year}
-                    </button>
-                  );
-                })}
+              <div className="relative w-full">
+                <button
+                  type="button"
+                  onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)}
+                  className={`flex items-center justify-between w-full h-[50px] md:h-[60px] px-6 bg-[#f8fafc] border rounded-[22px] text-[16px] font-semibold transition-all shadow-sm ${
+                    !form.passingYear ? "border-slate-200 text-slate-400" : "border-slate-200 text-slate-900 hover:border-blue-200"
+                  }`}
+                >
+                  <span>{form.passingYear || "Select Year"}</span>
+                  <ChevronDown className={`w-5 h-5 text-slate-500 transition-transform duration-200 ${isYearDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                <AnimatePresence>
+                  {isYearDropdownOpen && (
+                    <>
+                      <div className="fixed inset-0 z-40" onClick={() => setIsYearDropdownOpen(false)} />
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute bottom-full mb-2 z-50 w-full bg-white border border-slate-100 rounded-[22px] shadow-[0_8px_30px_rgb(0,0,0,0.08)] overflow-hidden"
+                      >
+                        <div className="max-h-[250px] overflow-y-auto p-2 scrollbar-hide">
+                          {YEARS.map((year) => (
+                            <button
+                              key={year}
+                              type="button"
+                              onClick={() => {
+                                updateForm("passingYear", year);
+                                setIsYearDropdownOpen(false);
+                              }}
+                              className={`w-full text-left px-4 py-3 rounded-[16px] text-[15px] font-medium transition-colors ${
+                                form.passingYear === year
+                                  ? "bg-blue-50 text-blue-600"
+                                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                              }`}
+                            >
+                              {year}
+                            </button>
+                          ))}
+                        </div>
+                      </motion.div>
+                    </>
+                  )}
+                </AnimatePresence>
               </div>
             </div>
           </div>
@@ -4148,30 +4178,7 @@ export default function AbroadLiftMatchesPage() {
                 );
               })()}
 
-              {!isNaN(scoreVal) && scoreVal > 0 && (
-                <div className={`p-4 rounded-2xl border flex items-start gap-3 transition-all duration-300 animate-in fade-in ${
-                  isAbove50 
-                    ? "bg-emerald-50/70 border-emerald-100 text-emerald-800" 
-                    : "bg-amber-50/70 border-amber-100 text-amber-800"
-                }`}>
-                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-extrabold shrink-0 mt-0.5 ${
-                    isAbove50 ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
-                  }`}>
-                    {isAbove50 ? "✓" : "⚠"}
-                  </span>
-                  <div className="space-y-1">
-                    <p className="font-extrabold text-[14px] leading-tight">
-                      Score represents {percentOfMax}% of maximum test value
-                    </p>
-                    <p className="text-[12px] opacity-90 leading-relaxed font-semibold">
-                      {isAbove50 
-                        ? `Great job! Your score is above the 50% threshold (${selectedTest.min50}+) and is competitive for standard university admissions.`
-                        : `Your score is below the 50% threshold (${selectedTest.min50}). Most universities require at least 50% to be eligible.`
-                      }
-                    </p>
-                  </div>
-                </div>
-              )}
+
             </div>
           )}
 
@@ -5770,7 +5777,7 @@ export default function AbroadLiftMatchesPage() {
 
   /* ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ RENDER ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
   return (
-    <div className="min-h-screen lg:min-h-[calc(100vh-112px)] w-full flex flex-col lg:flex-row bg-white relative overflow-x-hidden lg:h-[calc(100vh-112px)] lg:overflow-hidden font-sans selection:bg-blue-500/30 selection:text-blue-900">
+    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-white relative font-sans selection:bg-blue-500/30 selection:text-blue-900">
       {/* Left Panel - Hero Sidebar */}
       {step < 7 && (
         <div className="relative hidden lg:flex lg:w-[45%] lg:h-[calc(100vh-112px)] lg:sticky lg:top-0 bg-white p-4 lg:p-6 lg:pr-2 animate-in fade-in slide-in-from-left duration-700">
@@ -5848,7 +5855,7 @@ export default function AbroadLiftMatchesPage() {
 
       {/* Right Panel - Dynamic Flow Area */}
       <div
-        className={`relative flex-1 flex flex-col bg-white min-h-0 lg:overflow-hidden overflow-x-hidden lg:h-[calc(100vh-112px)]`}
+        className={`relative flex-1 flex flex-col bg-white min-h-0 overflow-x-hidden`}
       >
         {/* Simple Top Navigation Navbar matching the minimalist screenshot */}
         {step > 0 &&
@@ -5922,7 +5929,7 @@ export default function AbroadLiftMatchesPage() {
         {/* Step Navigation Footer - Absolute positioned inside Right Panel on desktop */}
         {step > 0 && step < 7 && (
           <div
-            className={`fixed lg:absolute bottom-0 left-0 right-0 w-full pb-8 px-6 md:pb-12 bg-white/95 backdrop-blur-md pt-4 z-[70] border-t border-slate-100 flex justify-center shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.03)]`}
+            className={`fixed lg:left-[45%] lg:w-[55%] bottom-0 left-0 right-0 w-full pb-8 px-6 md:pb-12 bg-white/95 backdrop-blur-md pt-4 z-[70] border-t border-slate-100 flex justify-center shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.03)]`}
           >
             <div className="w-full max-w-[340px] flex justify-center pt-0">
               <button
