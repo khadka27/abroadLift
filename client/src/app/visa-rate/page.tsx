@@ -55,7 +55,7 @@ export default function VisaRatePage() {
     destination: "USA",
     degreeLevel: "Masters",
     fundsAvailable: 0,
-    ieltsScore: 0,
+    ieltsScore: 6.5,
     pastRejections: 0,
   });
 
@@ -292,6 +292,8 @@ export default function VisaRatePage() {
                     <Input 
                       type="number" 
                       step="0.5" 
+                      min={1.0}
+                      max={9.0}
                       placeholder="e.g. 6.5" 
                       value={formData.ieltsScore}
                       onChange={(e) => setFormData({...formData, ieltsScore: parseFloat(e.target.value)})}
@@ -327,7 +329,7 @@ export default function VisaRatePage() {
                 {editingId && (
                   <button 
                     type="button" 
-                    onClick={() => { setEditingId(null); setFormData({ nationality: "", destination: "USA", degreeLevel: "Masters", fundsAvailable: 0, ieltsScore: 0, pastRejections: 0 }); }}
+                    onClick={() => { setEditingId(null); setFormData({ nationality: "", destination: "USA", degreeLevel: "Masters", fundsAvailable: 0, ieltsScore: 6.5, pastRejections: 0 }); }}
                     className="w-full text-slate-400 font-bold text-sm hover:text-slate-900 transition-colors"
                   >
                     Cancel Editing

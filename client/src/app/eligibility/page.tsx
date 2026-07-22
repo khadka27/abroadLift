@@ -421,6 +421,8 @@ export default function EligibilityHub() {
                     <input 
                       type="number" 
                       step="0.5"
+                      min="1.0"
+                      max="9.0"
                       value={form.englishScore}
                       onChange={(e) => setForm({...form, englishScore: parseFloat(e.target.value)})}
                       className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3.5 text-slate-900 font-bold outline-none focus:ring-2 focus:ring-teal-500/20"

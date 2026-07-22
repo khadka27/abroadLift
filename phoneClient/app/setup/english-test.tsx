@@ -72,10 +72,10 @@ export default function EnglishTestSelection() {
     if (!val) return false;
     const num = parseFloat(val);
     if (isNaN(num)) return false;
-    if (type === "IELTS") return num <= 9.0;
-    if (type === "PTE") return num <= 90;
-    if (type === "TOEFL") return num <= 120;
-    if (type === "Duolingo") return num <= 160;
+    if (type === "IELTS") return num >= 1.0 && num <= 9.0;
+    if (type === "PTE") return num >= 10 && num <= 90;
+    if (type === "TOEFL") return num >= 0 && num <= 120;
+    if (type === "Duolingo") return num >= 10 && num <= 160;
     return true;
   };
 
@@ -83,10 +83,10 @@ export default function EnglishTestSelection() {
     setScore(text);
     if (text) {
       const num = parseFloat(text);
-      if (testType === "IELTS" && num > 9.0) setScoreError("IELTS score cannot be above 9.0");
-      else if (testType === "PTE" && num > 90) setScoreError("PTE score cannot be above 90");
-      else if (testType === "TOEFL" && num > 120) setScoreError("TOEFL score cannot be above 120");
-      else if (testType === "Duolingo" && num > 160) setScoreError("Duolingo score cannot be above 160");
+      if (testType === "IELTS" && (num < 1.0 || num > 9.0)) setScoreError("IELTS score must be between 1.0 and 9.0");
+      else if (testType === "PTE" && (num < 10 || num > 90)) setScoreError("PTE score must be between 10 and 90");
+      else if (testType === "TOEFL" && (num < 0 || num > 120)) setScoreError("TOEFL score must be between 0 and 120");
+      else if (testType === "Duolingo" && (num < 10 || num > 160)) setScoreError("Duolingo score must be between 10 and 160");
       else setScoreError("");
     } else {
       setScoreError("");

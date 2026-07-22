@@ -267,7 +267,7 @@ export function UniversitySelection({
           ))
         ) : (
           <div className="col-span-full py-12 text-center text-slate-500 font-medium">
-            No universities found matching "{searchQuery}"
+            No universities found matching &quot;{searchQuery}&quot;
           </div>
         )}
       </div>

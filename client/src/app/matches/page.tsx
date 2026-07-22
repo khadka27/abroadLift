@@ -3065,7 +3065,17 @@ export default function AbroadLiftMatchesPage() {
   }, [status]);
 
   const updateForm = <K extends keyof Form>(k: K, v: Form[K]) =>
-    setForm((prev) => ({ ...prev, [k]: v }));
+    setForm((prev) => {
+      const next = { ...prev, [k]: v };
+      if (k === "passingYear" && typeof v === "string") {
+        const passingVal = parseInt(v);
+        const intakeVal = parseInt(prev.intakeYear);
+        if (!isNaN(passingVal) && !isNaN(intakeVal) && intakeVal < passingVal) {
+          next.intakeYear = "";
+        }
+      }
+      return next;
+    });
 
   const toggleCountry = (code: string) => {
     setForm((prev) => ({
@@ -3086,7 +3096,24 @@ export default function AbroadLiftMatchesPage() {
       return !isNaN(gpa) && gpa >= 0 && gpa <= 4.0;
     }
     if (step === 5) {
-      if (form.hasEnglishTest === false) return true;
+      if (form.hasEnglishTest === false) {
+        if (!form.plannedTestType) return true;
+        if (!form.plannedTestScore) return false;
+        const pScore = parseFloat(form.plannedTestScore);
+        if (isNaN(pScore)) return false;
+        switch (form.plannedTestType) {
+          case "IELTS":
+            return pScore >= 1 && pScore <= 9;
+          case "PTE":
+            return pScore >= 10 && pScore <= 90;
+          case "TOEFL":
+            return pScore >= 0 && pScore <= 120;
+          case "Duolingo":
+            return pScore >= 10 && pScore <= 160;
+          default:
+            return true;
+        }
+      }
       if (form.hasEnglishTest === true) {
         if (!form.testType || !form.testScore || form.testType === "NONE")
           return false;
@@ -3094,7 +3121,7 @@ export default function AbroadLiftMatchesPage() {
         if (isNaN(score)) return false;
         switch (form.testType) {
           case "IELTS":
-            return score >= 0 && score <= 9;
+            return score >= 1 && score <= 9;
           case "SAT":
             return score >= 400 && score <= 1600;
           case "GRE":
@@ -3820,7 +3847,7 @@ export default function AbroadLiftMatchesPage() {
 
             <div className="space-y-3">
               <label className="text-[12px] font-bold text-slate-400 uppercase tracking-widest ml-1">
-                Academics Score
+                {form.educationStatus === "Pursuing" ? "Expected Academics Score" : "Academics Score"}
               </label>
               <div className="relative">
                 <input
@@ -3828,7 +3855,7 @@ export default function AbroadLiftMatchesPage() {
                   min="0"
                   max="4.0"
                   step="0.01"
-                  placeholder="Academics Score (eg: 3.8)"
+                  placeholder={form.educationStatus === "Pursuing" ? "Expected Academics Score (eg: 3.8)" : "Academics Score (eg: 3.8)"}
                   className={`w-full h-[50px] md:h-[60px] px-6 bg-[#f8fafc] border rounded-[22px] text-[16px] font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all shadow-sm ${form.gpa && (parseFloat(form.gpa) < 0 || parseFloat(form.gpa) > 4.0) ? "border-red-400 ring-2 ring-red-500/20" : "border-slate-200"}`}
                   value={form.gpa}
                   onChange={(e) => updateForm("gpa", e.target.value)}
@@ -3844,7 +3871,7 @@ export default function AbroadLiftMatchesPage() {
 
             <div className="space-y-3">
               <label className="text-[12px] font-bold text-slate-400 uppercase tracking-widest ml-1">
-                Year of Passing
+                {form.educationStatus === "Pursuing" ? "Expected Year of Passing" : "Year of Completion"}
               </label>
               <div className="relative w-full">
                 <button
@@ -3903,7 +3930,7 @@ export default function AbroadLiftMatchesPage() {
 
     if (step === 5) {
       const TEST_OPTIONS = [
-        { id: "IELTS", name: "IELTS", min: 0, max: 9, min50: 4.5, placeholder: "e.g., 6.5", step: "0.5", icon: GraduationCap, desc: "Overall Band Score (0-9)" },
+        { id: "IELTS", name: "IELTS", min: 1, max: 9, min50: 4.5, placeholder: "e.g., 6.5", step: "0.5", icon: GraduationCap, desc: "Overall Band Score (1-9)" },
         { id: "PTE Academic", name: "PTE Academic", min: 10, max: 90, min50: 50, placeholder: "e.g., 65", step: "1", icon: ScrollText, desc: "Global Score (10-90)" },
         { id: "TOEFL", name: "TOEFL iBT", min: 0, max: 120, min50: 60, placeholder: "e.g., 90", step: "1", icon: Globe, desc: "Internet test (0-120)" },
         { id: "Duolingo", name: "Duolingo", min: 10, max: 160, min50: 85, placeholder: "e.g., 115", step: "5", icon: Award, desc: "DET English Test (10-160)" },
@@ -4026,8 +4053,8 @@ export default function AbroadLiftMatchesPage() {
         const pScore = parseFloat(form.plannedTestScore);
         if (isNaN(pScore)) {
           plannedScoreError = "Please enter a valid number";
-        } else if (form.plannedTestType === "IELTS" && (pScore < 0 || pScore > 9)) {
-          plannedScoreError = "IELTS score must be between 0 and 9";
+        } else if (form.plannedTestType === "IELTS" && (pScore < 1 || pScore > 9)) {
+          plannedScoreError = "IELTS score must be between 1 and 9";
         } else if (form.plannedTestType === "PTE" && (pScore < 10 || pScore > 90)) {
           plannedScoreError = "PTE score must be between 10 and 90";
         } else if (form.plannedTestType === "TOEFL" && (pScore < 0 || pScore > 120)) {
@@ -4049,7 +4076,10 @@ export default function AbroadLiftMatchesPage() {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 w-full mb-8">
-            {TEST_OPTIONS.map((test) => {
+            {TEST_OPTIONS.filter((test) => {
+              const support = getTestSupportInfo(test.id, selectedCountryCode);
+              return !support || support.status !== "not_supported";
+            }).map((test) => {
               const isSelected = (test.id === "NONE" && form.hasEnglishTest === false) ||
                                  (test.id !== "NONE" && form.hasEnglishTest === true && form.testType === test.id);
               
@@ -4198,11 +4228,20 @@ export default function AbroadLiftMatchesPage() {
                 </p>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {[
-                    { value: "IELTS", label: "IELTS", icon: GraduationCap, desc: "Band Score (0-9)" },
+                    { value: "IELTS", label: "IELTS", icon: GraduationCap, desc: "Band Score (1-9)" },
                     { value: "PTE", label: "PTE", icon: ScrollText, desc: "Global Score (10-90)" },
                     { value: "TOEFL", label: "TOEFL", icon: Globe, desc: "iBT Score (0-120)" },
                     { value: "Duolingo", label: "Duolingo", icon: Award, desc: "DET Score (10-160)" },
-                  ].map((opt) => {
+                  ].filter((opt) => {
+                    const testIdMap: Record<string, string> = {
+                      IELTS: "IELTS",
+                      PTE: "PTE Academic",
+                      TOEFL: "TOEFL",
+                      Duolingo: "Duolingo",
+                    };
+                    const support = getTestSupportInfo(testIdMap[opt.value] || opt.value, selectedCountryCode);
+                    return !support || support.status !== "not_supported";
+                  }).map((opt) => {
                     const isSelected = form.plannedTestType === opt.value;
                     const TestIcon = opt.icon;
                     return (
@@ -4274,11 +4313,13 @@ export default function AbroadLiftMatchesPage() {
       ];
 
       const currentYear = new Date().getFullYear();
+      const baseYear = form.passingYear ? parseInt(form.passingYear) : currentYear;
+      const startYear = Math.max(currentYear, baseYear);
       const YEARS = [
-        currentYear.toString(),
-        (currentYear + 1).toString(),
-        (currentYear + 2).toString(),
-        (currentYear + 3).toString(),
+        startYear.toString(),
+        (startYear + 1).toString(),
+        (startYear + 2).toString(),
+        (startYear + 3).toString(),
       ];
       
       const INTAKE_LABELS = INTAKE_OPTIONS.map(opt => `${opt.main} (${opt.meta}) - ${opt.sub}`);
