@@ -11,6 +11,8 @@ if (!AUTH_SECRET) {
   throw new Error("NEXTAUTH_SECRET is required for secure JWT sessions.");
 }
 
+//google
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -19,6 +21,7 @@ export const authOptions: NextAuthOptions = {
         phone: { label: "Phone Number", type: "text" },
         otp: { label: "OTP", type: "text" },
       },
+
       async authorize(credentials) {
         if (!credentials?.phone || !credentials?.otp) {
           throw new Error("Please enter your phone number and OTP.");
@@ -155,6 +158,8 @@ export const authOptions: NextAuthOptions = {
         };
       },
     }),
+    //google
+    
   ],
   pages: {
     signIn: "/login",

@@ -1,8 +1,10 @@
 import { Platform } from 'react-native';
 
-const API_BASE_URL = Platform.OS === 'android' ? `${process.env.EXPO_PUBLIC_API_URL}/api` : `http://192.168.1.68:3000/api`;
-// Fallback local IP for Expo Go on physical device if neither of the above works:
-// const API_BASE_URL = 'http://192.168.1.68:3000/api';
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL 
+  ? `${process.env.EXPO_PUBLIC_API_URL}/api`
+  : Platform.OS === 'android' 
+    ? 'http://10.0.2.2:3000/api'
+    : 'http://localhost:3000/api';
 
 export interface UniversityResult {
   id: string | number;
