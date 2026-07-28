@@ -135,13 +135,34 @@ export async function GET(req: NextRequest) {
   const degreeLevel = searchParams.get("degreeLevel") || "";
   const field = searchParams.get("field") || "";
   const program = searchParams.get("program") || "";
+  const userGpa = Number.parseFloat(searchParams.get("gpa") || "0");
+  const testType = (searchParams.get("testType") || "").toUpperCase();
+  const rawTestScore = Number.parseFloat(searchParams.get("testScore") || "0");
+  const intake = searchParams.get("intake") || "";
+  const intakeYear = searchParams.get("intakeYear") || "";
 
-  const hasCriteria = !!(degreeLevel || field || program || budget > 0);
+  // Normalize user English test score to IELTS 0-9 scale
+  let normalizedIelts = 0;
+  if (rawTestScore > 0) {
+    if (testType.includes("IELTS")) {
+      normalizedIelts = rawTestScore;
+    } else if (testType.includes("TOEFL")) {
+      normalizedIelts = rawTestScore >= 100 ? 8.0 : rawTestScore >= 90 ? 7.0 : rawTestScore >= 80 ? 6.5 : rawTestScore >= 70 ? 6.0 : 5.5;
+    } else if (testType.includes("PTE")) {
+      normalizedIelts = rawTestScore >= 76 ? 8.0 : rawTestScore >= 65 ? 7.0 : rawTestScore >= 58 ? 6.5 : rawTestScore >= 50 ? 6.0 : 5.5;
+    } else if (testType.includes("DUOLINGO") || testType.includes("DET")) {
+      normalizedIelts = rawTestScore >= 135 ? 8.0 : rawTestScore >= 120 ? 7.0 : rawTestScore >= 110 ? 6.5 : rawTestScore >= 100 ? 6.0 : 5.5;
+    } else {
+      normalizedIelts = rawTestScore;
+    }
+  }
+
+  const hasCriteria = !!(degreeLevel || field || program || budget > 0 || userGpa > 0 || rawTestScore > 0);
 
   try {
     // 1. Fetch remote cached schools/programs
     const schools = await getAllSchoolsCached();
-    const programs = hasCriteria ? await getProgramsCached() : [];
+    const programs = await getProgramsCached();
 
     const programsBySchool = new Map<number, any[]>();
     for (const prog of programs) {
@@ -159,40 +180,6 @@ export async function GET(req: NextRequest) {
       }
 
       const schoolPrograms = programsBySchool.get(school.school_id) || [];
-
-      // When no criteria, include all matching-country schools directly
-      if (!hasCriteria) {
-        const rank = school.school_rank || 500;
-        const admissionRate = Math.min(95, Math.max(25, 98 - Math.round(Math.log10(rank + 1) * 15)));
-        return {
-          id: String(school.school_id),
-          name: school.name,
-          location: school.city ? `${school.city}, ${school.province || ""}` : (school.country || ""),
-          countryCode: schoolCountry,
-          tuitionFee: 18000,
-          feeBand: "medium",
-          englishReq: 6.5,
-          admissionRate,
-          gpaRequirement: 3.0,
-          internationalPercentage: 22,
-          salaryMedian: rank < 100 ? 75000 : rank < 300 ? 60000 : 48000,
-          durationYears: 4,
-          applicationDeadline: "30 June 2026",
-          rankingWorld: rank,
-          rankingNational: rank > 100 ? Math.round(rank / 10) : 5,
-          founded: school.founded_in || 1967,
-          studentPopulation: school.total_number_of_students || 20000,
-          type: school.institution_type || "Public",
-          logo: school.logo?.url || school.logo?.url_thumbnail || "",
-          banner: school.banner?.url || (school.photos && school.photos[0]?.url) || "/uni-default.webp",
-          website: school.website || "",
-          popularPrograms: [],
-          matchType: "recommended",
-          description: school.about
-            ? school.about.replace(/<[^>]*>/g, "").slice(0, 200) + "..."
-            : `${school.name} offers top-tier academic courses.`,
-        };
-      }
 
       // Filter programs by criteria
       const matchingPrograms = schoolPrograms.filter((prog: any) => {
@@ -237,7 +224,7 @@ export async function GET(req: NextRequest) {
 
         if (budget > 0) {
           const tuitionVal = parseFloat(String(prog.tuition || 0));
-          if (tuitionVal > 0 && tuitionVal > budget) {
+          if (tuitionVal > 0 && tuitionVal > budget * 1.25) {
             return false;
           }
         }
@@ -245,8 +232,6 @@ export async function GET(req: NextRequest) {
         return true;
       });
 
-      // If we have specific criteria but no matching programs, still include school
-      // with a "similar" match type rather than returning null (better UX)
       const rank = school.school_rank || 500;
       const admissionRate = Math.min(95, Math.max(25, 98 - Math.round(Math.log10(rank + 1) * 15)));
       const primaryProgram = matchingPrograms[0] || schoolPrograms[0];
@@ -257,6 +242,98 @@ export async function GET(req: NextRequest) {
       const gpaRequirement = primaryProgram?.requirements?.min_gpa
         ? parseFloat(String(primaryProgram.requirements.min_gpa))
         : 3.0;
+
+      // ─── Calculate Dynamic Match Score (0 - 100%) and Match Reasons ───────────────────
+      const matchReasons: string[] = [];
+
+      // Normalize gpaRequirement to 4.0 scale if raw value is on a 100-point percentage scale
+      const normalizedGpaReq = gpaRequirement > 4.0 ? Math.round(((gpaRequirement / 100) * 4.0) * 10) / 10 : gpaRequirement;
+
+      // ─── Filter Out Ineligible Universities (Admission Chance 0%) ─────────────
+      const isGpaIneligible = userGpa > 0 && userGpa < normalizedGpaReq;
+      const isEnglishIneligible = normalizedIelts > 0 && normalizedIelts < englishReq;
+      if (isGpaIneligible || isEnglishIneligible || school.admissionRate === 0) {
+        return null; // Do not display university if admission chance is 0% / ineligible
+      }
+
+      // 1. Academic GPA Score (Granular based on exact user GPA vs school min GPA)
+      const gpaDiff = userGpa > 0 ? userGpa - normalizedGpaReq : 0;
+      let gpaPts = 24;
+      if (userGpa > 0) {
+        // Dynamic scaling: +4 pts per 0.5 GPA surplus, down to min 10 pts
+        gpaPts = Math.min(30, Math.max(10, 24 + gpaDiff * 6));
+        if (gpaDiff >= 0.3) {
+          matchReasons.push(`GPA (${userGpa}) exceeds min requirement (${normalizedGpaReq})`);
+        } else if (gpaDiff >= 0) {
+          matchReasons.push(`GPA (${userGpa}) meets requirement (${normalizedGpaReq})`);
+        } else {
+          matchReasons.push(`GPA (${userGpa}) near threshold (${normalizedGpaReq})`);
+        }
+      } else {
+        matchReasons.push("Academic background eligible");
+      }
+
+      // 2. English Proficiency Score (Granular based on exact user test score vs school min requirement)
+      const engDiff = normalizedIelts > 0 ? normalizedIelts - englishReq : 0;
+      let englishPts = 20;
+      if (normalizedIelts > 0) {
+        englishPts = Math.min(25, Math.max(10, 20 + engDiff * 5));
+        if (engDiff >= 0.5) {
+          matchReasons.push(`English score (${rawTestScore} ${testType || "IELTS"}) exceeds requirement (${englishReq})`);
+        } else if (engDiff >= 0) {
+          matchReasons.push(`English score meets requirement (${englishReq})`);
+        } else {
+          matchReasons.push(`English score close to cutoff (${englishReq})`);
+        }
+      } else {
+        englishPts = 18;
+        matchReasons.push("Pathway / English waiver available");
+      }
+
+      // 3. Program & Field Score (up to 25 pts)
+      let programPts = 18;
+      if (matchingPrograms.length > 0) {
+        const progBonus = Math.min(3, (matchingPrograms.length - 1) * 1.5);
+        programPts = 22 + progBonus;
+        matchReasons.push(`Offers exact program match for ${field || degreeLevel || "your choice"}`);
+      } else if (field || degreeLevel) {
+        programPts = 16;
+        matchReasons.push(`Offers related degrees in ${field || "selected field"}`);
+      } else {
+        matchReasons.push("Multiple relevant study programs available");
+      }
+
+      // 4. University Specific Factors (Ranking & Acceptance Rate variance up to +10 pts)
+      // Ranking factor: top 100 = +5.0, top 500 = +4.0, top 2000 = +2.5, top 10000 = +1.0
+      const rankPts = rank ? Math.max(0.5, 5 - Math.log10(Math.max(1, rank)) * 1.2) : 2.5;
+
+      // Acceptance rate factor: higher acceptance gives slight accessibility boost (+1 to +3 pts)
+      const acceptancePts = (admissionRate / 100) * 3;
+
+      // 5. Country & Financial Affordability Score (up to 15 pts)
+      let locBudgetPts = 8;
+      if (selectedCountries.length > 0 && selectedCountries.includes(schoolCountry)) {
+        locBudgetPts += 4;
+      }
+      if (budget > 0) {
+        if (tuitionFee <= budget) {
+          locBudgetPts += 3;
+          matchReasons.push(`Tuition ($${tuitionFee.toLocaleString()}) within your budget`);
+        } else if (tuitionFee <= budget * 1.2) {
+          locBudgetPts += 1;
+        }
+      } else {
+        // Affordability factor based on tuition fee (lower tuition gets small boost)
+        const tuitionFactor = Math.max(0, (30000 - tuitionFee) / 10000);
+        locBudgetPts += Math.min(3, Math.max(0, tuitionFactor));
+      }
+
+      // Calculate total raw score and apply deterministic hash based on school ID for slight unique tie-breaking
+      const schoolIdHash = (String(school.school_id).split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) % 5) - 2;
+      const rawScore = gpaPts + englishPts + programPts + rankPts + acceptancePts + locBudgetPts + (schoolIdHash * 0.4);
+
+      // Clamp score to clean 58 - 98% range
+      const matchScore = Math.min(98, Math.max(58, Math.round(rawScore)));
 
       return {
         id: String(school.school_id),
@@ -279,7 +356,7 @@ export async function GET(req: NextRequest) {
             : primaryProgram?.length_breakdown?.includes("2")
             ? 2
             : 4,
-        applicationDeadline: "30 June 2026",
+        applicationDeadline: intake && intakeYear ? `${intake} ${intakeYear}` : "30 June 2026",
         rankingWorld: rank,
         rankingNational: rank > 100 ? Math.round(rank / 10) : 5,
         founded: school.founded_in || 1967,
@@ -292,14 +369,16 @@ export async function GET(req: NextRequest) {
           matchingPrograms.length > 0
             ? matchingPrograms.slice(0, 3).map((p: any) => p.name)
             : schoolPrograms.slice(0, 3).map((p: any) => p.name),
-        matchType: matchingPrograms.length > 0 ? "exact" : "recommended",
+        matchType: matchScore >= 85 ? "exact" : "recommended",
+        matchScore,
+        matchReasons,
         description: school.about
           ? school.about.replace(/<[^>]*>/g, "").slice(0, 200) + "..."
           : `${school.name} offers top-tier academic courses.`,
       };
     });
 
-    // 2. Combine and Deduplicate
+    // 2. Combine, Deduplicate & Sort descending by matchScore
     const seenNames = new Set<string>();
     const matches: any[] = [];
 
@@ -311,6 +390,9 @@ export async function GET(req: NextRequest) {
         matches.push(match);
       }
     }
+
+    // Sort by Match Score descending (best matches first)
+    matches.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
 
     return NextResponse.json({ matches });
   } catch (error: any) {

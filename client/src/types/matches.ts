@@ -81,6 +81,8 @@ export interface Match {
   gpaRequirement?: number;
   durationYears?: number;
   matchType?: string;
+  matchScore?: number;
+  matchReasons?: string[];
   internationalPercentage?: number;
   salaryMedian?: number;
   deadline?: string;

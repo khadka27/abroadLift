@@ -3227,10 +3227,16 @@ export default function AbroadLiftMatchesPage() {
       const query = new URLSearchParams({
         countries: activeForm.countries.join(","),
         budget: activeForm.budget || "0",
-        englishScore: activeForm.testScore || "0",
-        degreeLevel: activeForm.degree,
+        gpa: activeForm.gpa || "0",
+        testType: activeForm.testType || "",
+        testScore: activeForm.testScore || "0",
+        degreeLevel: activeForm.degree || "",
         field: activeForm.field || "",
         program: activeForm.program || "",
+        intake: activeForm.intake || "",
+        intakeYear: activeForm.intakeYear || "",
+        studyGap: activeForm.studyGap || "0",
+        backlogs: activeForm.backlogs || "0",
       });
       const res = await fetch(`/api/matches?${query}`);
       if (!res.ok)
