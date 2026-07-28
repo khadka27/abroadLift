@@ -259,9 +259,26 @@ export async function GET(req: NextRequest) {
         }
       }
 
+      const schoolIeltsReqs = schoolPrograms
+        .map((p: any) => parseFloat(String(p.requirements?.min_ielts_average || 0)))
+        .filter((req: number) => !isNaN(req) && req > 0);
+
+      const matchingIeltsReqs = matchingPrograms
+        .map((p: any) => parseFloat(String(p.requirements?.min_ielts_average || 0)))
+        .filter((req: number) => !isNaN(req) && req > 0);
+
       const englishReq = primaryProgram?.requirements?.min_ielts_average
         ? parseFloat(String(primaryProgram.requirements.min_ielts_average))
-        : 6.5;
+        : matchingIeltsReqs.length > 0
+        ? Math.min(...matchingIeltsReqs)
+        : schoolIeltsReqs.length > 0
+        ? Math.min(...schoolIeltsReqs)
+        : rank <= 100
+        ? 7.0
+        : rank <= 500
+        ? 6.5
+        : 6.0;
+
       const gpaRequirement = primaryProgram?.requirements?.min_gpa
         ? parseFloat(String(primaryProgram.requirements.min_gpa))
         : 3.0;
@@ -274,9 +291,17 @@ export async function GET(req: NextRequest) {
 
       // ─── Filter Out Ineligible Universities (Admission Chance 0%) ─────────────
       const isGpaIneligible = userGpa > 0 && userGpa < normalizedGpaReq;
-      const isEnglishIneligible = normalizedIelts > 0 && normalizedIelts < englishReq;
+      const isEnglishIneligible =
+        normalizedIelts > 0 &&
+        (
+          normalizedIelts < englishReq ||
+          (testType.includes("TOEFL") && primaryProgram?.requirements?.min_toefl_total && rawTestScore < parseFloat(String(primaryProgram.requirements.min_toefl_total))) ||
+          (testType.includes("PTE") && primaryProgram?.requirements?.min_pte_overall && rawTestScore < parseFloat(String(primaryProgram.requirements.min_pte_overall))) ||
+          ((testType.includes("DUOLINGO") || testType.includes("DET")) && primaryProgram?.requirements?.min_duolingo_score && rawTestScore < parseFloat(String(primaryProgram.requirements.min_duolingo_score)))
+        );
+
       if (isGpaIneligible || isEnglishIneligible || school.admissionRate === 0) {
-        return null; // Do not display university if admission chance is 0% / ineligible
+        return null; // Do not display university if user does not meet GPA/English requirements
       }
 
       // 1. Academic GPA Score (Granular based on exact user GPA vs school min GPA)
