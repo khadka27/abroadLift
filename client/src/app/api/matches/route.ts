@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
-import { getAllSchoolsCached, getSchoolsCached, getProgramsCached } from "@/lib/api/cache";
+import { getAllSchoolsCached, getSchoolsCached, getProgramsMultiPageCached } from "@/lib/api/cache";
 
 function getProgramField(prog: any): string {
   const n = (prog.name || "").trim().toLowerCase();
@@ -162,7 +162,7 @@ export async function GET(req: NextRequest) {
   try {
     // 1. Fetch remote cached schools/programs
     const schools = await getAllSchoolsCached();
-    const programs = await getProgramsCached();
+    const programs = await getProgramsMultiPageCached(15);
 
     const programsBySchool = new Map<number, any[]>();
     for (const prog of programs) {
@@ -235,7 +235,30 @@ export async function GET(req: NextRequest) {
       const rank = school.school_rank || 500;
       const admissionRate = Math.min(95, Math.max(25, 98 - Math.round(Math.log10(rank + 1) * 15)));
       const primaryProgram = matchingPrograms[0] || schoolPrograms[0];
-      const tuitionFee = primaryProgram?.tuition ? parseFloat(String(primaryProgram.tuition)) : 18000;
+
+      // Extract exact tuition fee directly from API program or school data
+      let tuitionFee = 0;
+      const matchingTuitions = matchingPrograms
+        .map((p: any) => parseFloat(String(p.tuition || 0)))
+        .filter((t: number) => !isNaN(t) && t > 0);
+
+      if (matchingTuitions.length > 0) {
+        tuitionFee = Math.round(matchingTuitions.reduce((a: number, b: number) => a + b, 0) / matchingTuitions.length);
+      } else {
+        const schoolTuitions = schoolPrograms
+          .map((p: any) => parseFloat(String(p.tuition || 0)))
+          .filter((t: number) => !isNaN(t) && t > 0);
+
+        if (schoolTuitions.length > 0) {
+          tuitionFee = Math.round(schoolTuitions.reduce((a: number, b: number) => a + b, 0) / schoolTuitions.length);
+        } else {
+          const rawSchoolTuition = school.tuition || school.tuitionFee || school.tuition_fee || school.avg_tuition;
+          if (rawSchoolTuition && !isNaN(parseFloat(String(rawSchoolTuition))) && parseFloat(String(rawSchoolTuition)) > 0) {
+            tuitionFee = parseFloat(String(rawSchoolTuition));
+          }
+        }
+      }
+
       const englishReq = primaryProgram?.requirements?.min_ielts_average
         ? parseFloat(String(primaryProgram.requirements.min_ielts_average))
         : 6.5;

@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
-import { getAllSchoolsCached, getProgramsCached } from "@/lib/api/cache";
+import { getAllSchoolsCached, getProgramsMultiPageCached } from "@/lib/api/cache";
 
 const COUNTRY_ALIAS_TO_CODE: Record<string, string> = {
   US: "USA",
@@ -114,7 +115,7 @@ export async function GET(req: NextRequest) {
     // Fetch all schools and programs from cached multipage data
     const [schools, programs] = await Promise.all([
       getAllSchoolsCached(),
-      getProgramsCached().catch(() => [])
+      getProgramsMultiPageCached(15).catch(() => [])
     ]);
 
     // Map programs by school_id
@@ -128,7 +129,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Filter by selected countries and search query q in memory
-    const filteredSchools = schools.filter((school) => {
+    const filteredSchools = schools.filter((school: any) => {
       // 1. Filter by country code
       if (selectedCountries.length > 0) {
         const schoolCountryCode = normalizeCountryCode(school.country_code || school.country || "");
@@ -148,7 +149,7 @@ export async function GET(req: NextRequest) {
       return true;
     });
 
-    const results = filteredSchools.map((school) => {
+    const results = filteredSchools.map((school: any) => {
       const rank = school.school_rank || 500;
       const acceptanceRate = Math.min(95, Math.max(25, 98 - Math.round(Math.log10(rank + 1) * 15)));
       
@@ -157,13 +158,13 @@ export async function GET(req: NextRequest) {
       // Extract unique majors (fieldCategories) offered by this school
       const majors = Array.from(new Set(schoolPrograms.map(getProgramField)));
       
-      // Calculate a realistic average tuition fee based on programs
+      // Calculate a realistic average tuition fee based on programs or fallback
       const tuitions = schoolPrograms
         .map((p) => parseFloat(String(p.tuition || 0)))
-        .filter((t) => t > 0);
+        .filter((t) => !isNaN(t) && t > 0);
       const avgTuition = tuitions.length > 0 
         ? Math.round(tuitions.reduce((a, b) => a + b, 0) / tuitions.length)
-        : 18000;
+        : (school.tuition || school.tuitionFee || school.tuition_fee ? parseFloat(String(school.tuition || school.tuitionFee || school.tuition_fee)) : 0);
 
       return {
         id: school.school_id,

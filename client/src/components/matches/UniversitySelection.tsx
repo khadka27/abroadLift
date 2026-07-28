@@ -129,6 +129,9 @@ function formatCurrency(value: number, currency: string) {
 }
 
 function formatCurrencyRange(value: number, currency: string, spread = 0.12, usdToNpr = 134.5) {
+  if (currency === "USD") {
+    return `$${Math.round(value).toLocaleString()}`;
+  }
   const valueNpr = value * usdToNpr;
   const low = Math.max(0, Math.round(valueNpr * (1 - spread)));
   const high = Math.round(valueNpr * (1 + spread));

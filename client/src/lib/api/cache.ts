@@ -162,7 +162,7 @@ export async function getProgramsCached(): Promise<any[]> {
  * Returns programs across multiple pages (up to maxPages).
  * Used for study-level extraction. Sequential to avoid rate limits.
  */
-export async function getProgramsMultiPageCached(maxPages = 5): Promise<any[]> {
+export async function getProgramsMultiPageCached(maxPages = 25): Promise<any[]> {
   const now = Date.now();
 
   if (cache.allPrograms && now - cache.allPrograms.ts < CACHE_TTL) {
@@ -179,15 +179,19 @@ export async function getProgramsMultiPageCached(maxPages = 5): Promise<any[]> {
       const totalPages = Math.min(firstPage.pagination?.totalPages || 1, maxPages);
       const programs: any[] = [...(firstPage.data || [])];
 
-      for (let p = 2; p <= totalPages; p++) {
-        try {
-          const page = await rawFetch<any>(`/api/programs?page=${p}&limit=100`);
-          if (page.data) programs.push(...page.data);
-          await new Promise((r) => setTimeout(r, 250));
-        } catch (err) {
-          console.warn(`Skipping programs page ${p}:`, err);
-          break;
+      const batchSize = 4;
+      for (let p = 2; p <= totalPages; p += batchSize) {
+        const pagePromises = [];
+        for (let i = p; i < p + batchSize && i <= totalPages; i++) {
+          pagePromises.push(rawFetch<any>(`/api/programs?page=${i}&limit=100`).catch(() => ({ data: [] })));
         }
+        const results = await Promise.all(pagePromises);
+        for (const res of results) {
+          if (res && res.data) {
+            programs.push(...res.data);
+          }
+        }
+        await new Promise((r) => setTimeout(r, 100));
       }
 
       cache.allPrograms = { data: programs, ts: Date.now() };
