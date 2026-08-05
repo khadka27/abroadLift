@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -67,6 +67,8 @@ function buildCountryCodeOptions(data: unknown): CountryCodeOption[] {
   return options.sort((a, b) => a.label.localeCompare(b.label));
 }
 
+type DbStatus = "idle" | "checking" | "available" | "taken" | "error";
+
 function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -79,6 +81,12 @@ function RegisterForm() {
   const [countryCodes, setCountryCodes] = useState<CountryCodeOption[]>(
     FALLBACK_COUNTRY_CODES,
   );
+
+  // Real-time DB availability state
+  const [emailDbStatus, setEmailDbStatus] = useState<DbStatus>("idle");
+  const [phoneDbStatus, setPhoneDbStatus] = useState<DbStatus>("idle");
+  const emailDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const phoneDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [form, setForm] = useState({
     fullName: "",
@@ -136,27 +144,116 @@ function RegisterForm() {
     return () => controller.abort();
   }, []);
 
+  // Debounced email DB check
+  useEffect(() => {
+    if (emailDebounceRef.current) clearTimeout(emailDebounceRef.current);
+    const email = form.email.trim().toLowerCase();
+    const validFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!email || !validFormat) {
+      setEmailDbStatus("idle");
+      return;
+    }
+    setEmailDbStatus("checking");
+    emailDebounceRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/auth/check-availability?email=${encodeURIComponent(email)}`);
+        const data = await res.json();
+        if (data.reason === "taken") {
+          setEmailDbStatus("taken");
+          setErrors((p) => ({ ...p, email: "An account with this email already exists. Please login instead." }));
+        } else if (data.available) {
+          setEmailDbStatus("available");
+          setErrors((p) => ({ ...p, email: "" }));
+        } else {
+          setEmailDbStatus("error");
+        }
+      } catch {
+        setEmailDbStatus("error");
+      }
+    }, 600);
+    return () => { if (emailDebounceRef.current) clearTimeout(emailDebounceRef.current); };
+  }, [form.email]);
+
+  // Debounced phone DB check
+  useEffect(() => {
+    if (phoneDebounceRef.current) clearTimeout(phoneDebounceRef.current);
+    const digits = form.phone.replace(/\D/g, "");
+    const validFormat = /^\d{6,15}$/.test(digits);
+    if (!digits || !validFormat) {
+      setPhoneDbStatus("idle");
+      return;
+    }
+    setPhoneDbStatus("checking");
+    phoneDebounceRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `/api/auth/check-availability?dialCode=${encodeURIComponent(form.countryDialCode)}&phone=${encodeURIComponent(digits)}`
+        );
+        const data = await res.json();
+        if (data.reason === "taken") {
+          setPhoneDbStatus("taken");
+          setErrors((p) => ({ ...p, phone: "An account with this phone number already exists. Please login instead." }));
+        } else if (data.available) {
+          setPhoneDbStatus("available");
+          setErrors((p) => ({ ...p, phone: "" }));
+        } else {
+          setPhoneDbStatus("error");
+        }
+      } catch {
+        setPhoneDbStatus("error");
+      }
+    }, 600);
+    return () => { if (phoneDebounceRef.current) clearTimeout(phoneDebounceRef.current); };
+  }, [form.phone, form.countryDialCode]);
+
   if (status === "loading" || status === "authenticated") {
     return null;
   }
 
+  const validateField = (k: string, v: string): string => {
+    if (k === "fullName") {
+      if (!v.trim()) return "Full name is required.";
+      if (/[^a-zA-Z\s'\-.]/.test(v)) return "Full name must contain only letters, spaces, hyphens, apostrophes, or periods.";
+      if (v.trim().length < 2) return "Full name must be at least 2 characters.";
+    }
+    if (k === "email") {
+      if (!v.trim()) return "Email is required.";
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return "Enter a valid email address.";
+    }
+    if (k === "phone") {
+      if (!v.trim()) return "Phone number is required.";
+      if (!/^\d{6,15}$/.test(v.replaceAll(/\D/g, ""))) return "Enter a valid phone number (6–15 digits).";
+    }
+    return "";
+  };
+
   const handleChange = (k: string, v: string) => {
+    // Block special characters in fullName
+    if (k === "fullName" && /[^a-zA-Z\s'\-.]/.test(v)) {
+      const cleaned = v.replace(/[^a-zA-Z\s'\-.]/g, "");
+      setForm((p) => ({ ...p, [k]: cleaned }));
+      setErrors((p) => ({ ...p, [k]: "Special characters are not allowed in the full name." }));
+      setServerError("");
+      return;
+    }
     setForm((p) => ({ ...p, [k]: v }));
-    setErrors((p) => ({ ...p, [k]: "" }));
+    setErrors((p) => ({ ...p, [k]: validateField(k, v) }));
     setServerError("");
   };
 
+  const hasErrors = Object.values(errors).some((e) => e !== "");
+  const isFormEmpty = !form.fullName.trim() || !form.email.trim() || !form.phone.trim();
+  const isDbChecking = emailDbStatus === "checking" || phoneDbStatus === "checking";
+  const isSubmitDisabled = submitting || hasErrors || isFormEmpty || isDbChecking;
+
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!form.fullName.trim()) e.fullName = "Full name required.";
-    if (!form.email.trim()) e.email = "Email required.";
-    if (!form.countryDialCode.trim())
-      e.countryDialCode = "Country code required.";
-    if (!form.phone.trim()) e.phone = "Phone number required.";
-    if (!/^\d{6,15}$/.test(form.phone.replaceAll(/\D/g, ""))) {
-      e.phone = "Enter a valid phone number.";
-    }
-
+    e.fullName = validateField("fullName", form.fullName);
+    e.email = validateField("email", form.email);
+    e.phone = validateField("phone", form.phone);
+    if (!form.countryDialCode.trim()) e.countryDialCode = "Country code required.";
+    // Remove empty entries
+    Object.keys(e).forEach((key) => { if (!e[key]) delete e[key]; });
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -363,6 +460,22 @@ function RegisterForm() {
                   value={form.email}
                   error={errors.email}
                   onChange={(v) => handleChange("email", v)}
+                  suffix={
+                    emailDbStatus === "checking" ? (
+                      <svg className="w-5 h-5 animate-spin text-[#3686FF]" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                      </svg>
+                    ) : emailDbStatus === "available" ? (
+                      <svg className="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : emailDbStatus === "taken" ? (
+                      <svg className="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    ) : null
+                  }
                 />
               </div>
 
@@ -395,6 +508,22 @@ function RegisterForm() {
                       value={form.phone}
                       error={errors.phone}
                       onChange={(v) => handleChange("phone", v)}
+                      suffix={
+                        phoneDbStatus === "checking" ? (
+                          <svg className="w-5 h-5 animate-spin text-[#3686FF]" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                          </svg>
+                        ) : phoneDbStatus === "available" ? (
+                          <svg className="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                        ) : phoneDbStatus === "taken" ? (
+                          <svg className="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        ) : null
+                      }
                     />
                   </div>
                 </div>
@@ -429,8 +558,8 @@ function RegisterForm() {
               {/* Register Button */}
               <button
                 type="submit"
-                disabled={submitting}
-                className="w-full h-[60px] bg-[#3686FF] text-white font-extrabold rounded-[20px] text-[14px] shadow-[0_8px_20px_rgba(54,134,255,0.2)] hover:shadow-[0_12px_25px_rgba(54,134,255,0.3)] hover:-translate-y-0.5 hover:bg-[#2970E6] transition-all disabled:opacity-50 disabled:hover:translate-y-0 active:translate-y-0 uppercase tracking-widest mt-4"
+                disabled={isSubmitDisabled}
+                className="w-full h-[60px] bg-[#3686FF] text-white font-extrabold rounded-[20px] text-[14px] shadow-[0_8px_20px_rgba(54,134,255,0.2)] hover:shadow-[0_12px_25px_rgba(54,134,255,0.3)] hover:-translate-y-0.5 hover:bg-[#2970E6] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 active:translate-y-0 uppercase tracking-widest mt-4"
               >
                 Create Account
               </button>

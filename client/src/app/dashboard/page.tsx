@@ -696,8 +696,6 @@ function DashboardInner() {
     setProfile((prev) => ({
       ...prev,
       name: settingsForm.name,
-      email: settingsForm.email,
-      phoneNumber: settingsForm.phone,
     }));
     setSettingsSavedToast(true);
     setTimeout(() => {
@@ -930,7 +928,7 @@ function DashboardInner() {
       {isLoggingOut && (
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white shadow-[0_0_30px_15px_rgba(255,255,255,1)] animate-tv-dot pointer-events-none z-[100000]" />
       )}
-      <div className={`w-full min-h-screen bg-slate-50/50 text-slate-900 pb-16 pt-24 md:pt-28 ${isLoggingOut ? "animate-tv-off" : ""}`}>
+      <div className={`w-full h-screen flex flex-col bg-slate-50/50 text-slate-900 ${isLoggingOut ? "animate-tv-off" : ""}`}>
       {/* Ambient Background Blobs */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10">
         <div className="absolute -right-40 -top-40 h-[500px] w-[500px] rounded-full bg-blue-400/15 blur-[120px] animate-pulse" />
@@ -954,6 +952,9 @@ function DashboardInner() {
           </div>
         </div>
       </div>
+
+      {/* Scrollable dashboard body */}
+      <div className="flex flex-1 overflow-hidden pt-24 md:pt-28">
 
       {/* Mobile Drawer Navigation Overlay */}
       <AnimatePresence>
@@ -1070,11 +1071,12 @@ function DashboardInner() {
         )}
       </AnimatePresence>
 
-      <div className="max-w-[1580px] mx-auto px-4 md:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] lg:grid-cols-[300px_1fr] gap-6 lg:gap-8">
+        <div className="flex-1 overflow-y-auto">
+        <div className="max-w-[1580px] mx-auto px-4 md:px-8 pb-16">
+        <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] lg:grid-cols-[300px_1fr] gap-6 lg:gap-8 items-start">
           
           {/* ══════════ SIDEBAR (NAVIGATION) ══════════ */}
-          <aside className="hidden md:block md:sticky md:top-[110px] md:h-fit self-start">
+          <aside className="hidden md:flex md:flex-col" style={{ height: 'calc(100vh - 7rem)', position: 'sticky', top: 0, overflowY: 'auto' }}>
             <div className="space-y-6">
               
               {/* Profile Card */}
@@ -1173,7 +1175,7 @@ function DashboardInner() {
           </aside>
 
           {/* ══════════ MAIN CONTENT AREA ══════════ */}
-          <main className="min-w-0 space-y-6">
+          <main className="min-w-0 space-y-6 pb-16">
             
             {/* Header Title */}
             <div className="flex items-center justify-between border-b border-slate-100 pb-5">
@@ -3326,8 +3328,8 @@ function DashboardInner() {
                                       <option value="">Select Level</option>
                                       <option value="High School">High School (Grade 12)</option>
                                       <option value="Diploma">Diploma / Vocational</option>
-                                      <option value="Bachelor's Degree">Bachelor's Degree</option>
-                                      <option value="Master's Degree">Master's Degree</option>
+                                      <option value="Bachelor's Degree">Bachelor&apos;s Degree</option>
+                                      <option value="Master's Degree">Master&apos;s Degree</option>
                                       <option value="Doctorate">Doctorate / PhD</option>
                                     </select>
                                   </label>
@@ -4043,7 +4045,7 @@ function DashboardInner() {
                                     <span className="text-sm font-bold text-slate-800 mt-1">{profile.sponsorType || "Not set"}</span>
                                   </div>
                                   <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors">
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Sponsor's Annual Income</span>
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Sponsor&apos;s Annual Income</span>
                                     <span className="text-sm font-bold text-slate-800 mt-1">
                                       {profile.sponsorIncome ? formatNPRDevanagari((profile.currency === "USD" || !profile.currency) ? parseFloat(profile.sponsorIncome) * 134.5 : parseFloat(profile.sponsorIncome)) : "Not set"}
                                     </span>
@@ -4255,23 +4257,33 @@ function DashboardInner() {
                                   />
                                 </div>
                                 <div className="space-y-1">
-                                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Email Address</label>
-                                  <input
-                                    type="email"
-                                    value={settingsForm.email}
-                                    onChange={(e) => setSettingsForm({ ...settingsForm, email: e.target.value })}
-                                    className={`w-full rounded-xl border px-3.5 py-2.5 text-xs font-semibold outline-none transition-colors ${darkModeSimulated ? "bg-slate-800 border-slate-750 text-white focus:border-blue-550" : "bg-white border-slate-200 text-slate-800 focus:border-blue-500"}`}
-                                  />
+                                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                                    Email Address
+                                    <span className="inline-flex items-center gap-0.5 ml-1 px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-400 text-[9px] font-bold uppercase tracking-wider">
+                                      <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m0 0v2m0-2h2m-2 0H10m2-6a3 3 0 100-6 3 3 0 000 6zm6 6a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                      Locked
+                                    </span>
+                                  </label>
+                                  <div className={`w-full rounded-xl border px-3.5 py-2.5 text-xs font-semibold flex items-center gap-2 select-all cursor-default ${darkModeSimulated ? "bg-slate-800/60 border-slate-700 text-slate-400" : "bg-slate-50 border-slate-200 text-slate-500"}`}>
+                                    <svg className="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
+                                    <span className="truncate">{settingsForm.email}</span>
+                                  </div>
+                                  <p className="text-[9px] text-slate-400 font-medium pl-1">Contact support to change your email.</p>
                                 </div>
                               </div>
                               <div className="space-y-1">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Phone Number (E.164)</label>
-                                <input
-                                  type="text"
-                                  value={settingsForm.phone}
-                                  onChange={(e) => setSettingsForm({ ...settingsForm, phone: e.target.value })}
-                                  className={`w-full rounded-xl border px-3.5 py-2.5 text-xs font-semibold outline-none transition-colors ${darkModeSimulated ? "bg-slate-800 border-slate-750 text-white focus:border-blue-550" : "bg-white border-slate-200 text-slate-800 focus:border-blue-500"}`}
-                                />
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                                  Phone Number
+                                  <span className="inline-flex items-center gap-0.5 ml-1 px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-400 text-[9px] font-bold uppercase tracking-wider">
+                                    <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m0 0v2m0-2h2m-2 0H10m2-6a3 3 0 100-6 3 3 0 000 6zm6 6a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                    Locked
+                                  </span>
+                                </label>
+                                <div className={`w-full rounded-xl border px-3.5 py-2.5 text-xs font-semibold flex items-center gap-2 select-all cursor-default ${darkModeSimulated ? "bg-slate-800/60 border-slate-700 text-slate-400" : "bg-slate-50 border-slate-200 text-slate-500"}`}>
+                                  <svg className="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
+                                  <span>{settingsForm.phone || "Not set"}</span>
+                                </div>
+                                <p className="text-[9px] text-slate-400 font-medium pl-1">Phone is used for OTP login and cannot be changed here.</p>
                               </div>
                               
                               <div className="pt-2 flex items-center gap-4">
@@ -4669,6 +4681,8 @@ function DashboardInner() {
           </Card>
         </div>
       )}
+      </div>
+      </div>
       </div>
     </div>
   );
