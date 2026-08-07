@@ -660,9 +660,9 @@ export function FinancialDashboard({
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-          {/* Left Sidebar - Summary Cards */}
-          <div className="lg:col-span-4 space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+          {/* Left Sidebar - Summary Cards (Scrollable Column) */}
+          <div className="lg:col-span-4 space-y-6 lg:max-h-[calc(100vh-210px)] lg:overflow-y-auto pr-2 override-scroll lg:sticky lg:top-24">
             {/* Total Cost Card */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -843,8 +843,8 @@ export function FinancialDashboard({
             </motion.button>
           </div>
 
-          {/* Right Main Column - Charts & Breakdown */}
-          <div className="lg:col-span-8">
+          {/* Right Main Column - Charts & Breakdown (Scrollable Column) */}
+          <div className="lg:col-span-8 lg:max-h-[calc(100vh-210px)] lg:overflow-y-auto pr-2 override-scroll">
             <Card className="rounded-[36px] border border-white/60 bg-white/70 backdrop-blur-xl shadow-[0_12px_40px_rgba(31,41,55,0.04)] overflow-hidden h-full">
               <div className="p-6 sm:p-8 md:p-12">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
