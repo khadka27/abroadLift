@@ -4597,10 +4597,8 @@ export default function AbroadLiftMatchesPage() {
       const livingCostUsd = Object.values(
         livingBreakdown as Record<string, number>,
       ).reduce((s: number, v: number) => s + v, 0);
-      const beforeDepartureDefaultUsd = 75 + 300 + 110 + 425 + 685 + Math.round(tuitionUsd * 0.5) + 1200;
-      const first6MonthsDefaultUsd = Math.round(100000 / liveUsdToNpr) + 1500 + Math.round((livingBreakdown.rent + livingBreakdown.food) * 6) + 300 + Math.round(livingBreakdown.transport * 6) + 600 + 900 + 300;
-      const totalYear1Usd = beforeDepartureDefaultUsd + first6MonthsDefaultUsd;
-      const totalYear1Npr = Math.round(totalYear1Usd * liveUsdToNpr);
+      const totalYear1Npr = financialMetrics?.totalYear1Npr || Math.round((tuitionUsd + livingCostUsd + 1500) * liveUsdToNpr);
+      const totalYear1Usd = totalYear1Npr / liveUsdToNpr;
       const costBand = getCostBand(totalYear1Usd, budgetUsd);
       const nprRangeLakhs = (valueNpr: number, _spread = 0.12) => {
         return formatNPRDevanagari(valueNpr);
