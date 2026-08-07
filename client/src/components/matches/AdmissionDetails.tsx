@@ -742,37 +742,57 @@ export function AdmissionDetails({
                       })()}
 
                       {/* Language Score Row */}
-                      <tr className="hover:bg-white transition-colors">
-                        <td className="p-4 md:p-5 font-bold text-slate-800">
-                          💬 Language Score ({form.testType || "None"})
-                        </td>
-                        <td className="p-4 md:p-5 font-extrabold text-slate-700">
-                          {form.hasEnglishTest ? `${form.testType} ${form.testScore}` : "No Test Specified"}
-                        </td>
-                        <td className="p-4 md:p-5 font-semibold text-slate-500">
-                          {selectedMatch.englishReq ? `IELTS Equivalent: ${selectedMatch.englishReq.toFixed(1)}` : "IELTS Equivalent: 6.5"}
-                        </td>
-                        <td className="p-4 md:p-5 text-center">
-                          {(() => {
-                            const meetsLanguage = (form.testType === "IELTS" && testScore >= (selectedMatch.englishReq || 6.5)) ||
-                              (form.testType === "PTE Academic" && testScore >= 60) ||
-                              (form.testType === "TOEFL" && testScore >= 80) ||
-                              (form.testType === "Duolingo" && testScore >= 110) ||
-                              (form.testType === "Cambridge" && testScore >= 170) ||
-                              (!form.hasEnglishTest);
-                            
-                            return meetsLanguage ? (
-                              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm">
-                                Meets / Exceeds
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-100 shadow-sm">
-                                Below Target
-                              </span>
-                            );
-                          })()}
-                        </td>
-                      </tr>
+                      {(() => {
+                        const rawScoreVal = parseFloat(String(form.testScore)) || 0;
+                        const rawPlannedVal = parseFloat(String(form.plannedTestScore)) || 0;
+                        const effScore = rawScoreVal > 0 ? rawScoreVal : rawPlannedVal;
+                        const effType = rawScoreVal > 0 ? (form.testType || "IELTS") : (form.plannedTestType || form.testType || "None");
+
+                        let effIelts = 0;
+                        if (effScore > 0) {
+                          const t = effType.toUpperCase();
+                          if (t.includes("IELTS")) effIelts = effScore;
+                          else if (t.includes("TOEFL")) effIelts = effScore >= 100 ? 8.0 : effScore >= 90 ? 7.0 : effScore >= 80 ? 6.5 : 6.0;
+                          else if (t.includes("PTE")) effIelts = effScore >= 76 ? 8.0 : effScore >= 65 ? 7.0 : effScore >= 58 ? 6.5 : 6.0;
+                          else if (t.includes("DUOLINGO") || t.includes("DET")) effIelts = effScore >= 135 ? 8.0 : effScore >= 120 ? 7.0 : effScore >= 110 ? 6.5 : 6.0;
+                          else effIelts = effScore;
+                        }
+
+                        const reqIelts = selectedMatch.englishReq || 6.5;
+                        const meetsLang = effScore > 0 ? effIelts >= reqIelts : !form.hasEnglishTest;
+
+                        let scoreLabel = "No Test Specified";
+                        if (rawScoreVal > 0) {
+                          scoreLabel = `${effType} ${rawScoreVal}`;
+                        } else if (rawPlannedVal > 0) {
+                          scoreLabel = `${effType} ${rawPlannedVal} (Target)`;
+                        }
+
+                        return (
+                          <tr className="hover:bg-white transition-colors">
+                            <td className="p-4 md:p-5 font-bold text-slate-800">
+                              💬 Language Score ({effType})
+                            </td>
+                            <td className="p-4 md:p-5 font-extrabold text-slate-700">
+                              {scoreLabel}
+                            </td>
+                            <td className="p-4 md:p-5 font-semibold text-slate-500">
+                              {selectedMatch.englishReq ? `IELTS Equivalent: ${selectedMatch.englishReq.toFixed(1)}` : "IELTS Equivalent: 6.5"}
+                            </td>
+                            <td className="p-4 md:p-5 text-center">
+                              {meetsLang ? (
+                                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm">
+                                  Meets / Exceeds
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-100 shadow-sm">
+                                  Below Target
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })()}
 
                       {/* Backlog Row */}
                       <tr className="hover:bg-white transition-colors">

@@ -169,8 +169,11 @@ export async function GET(req: NextRequest) {
   const field = searchParams.get("field") || "";
   const program = searchParams.get("program") || "";
   const userGpa = Number.parseFloat(searchParams.get("gpa") || "0");
-  const testType = (searchParams.get("testType") || "").toUpperCase();
-  const rawTestScore = Number.parseFloat(searchParams.get("testScore") || "0");
+  const rawTestType = searchParams.get("testType") || searchParams.get("plannedTestType") || "";
+  const testType = rawTestType.toUpperCase();
+  const rawTestScoreVal = Number.parseFloat(searchParams.get("testScore") || "0");
+  const rawPlannedScoreVal = Number.parseFloat(searchParams.get("plannedTestScore") || "0");
+  const rawTestScore = rawTestScoreVal > 0 ? rawTestScoreVal : rawPlannedScoreVal;
   const intake = searchParams.get("intake") || "";
   const intakeYear = searchParams.get("intakeYear") || "";
 

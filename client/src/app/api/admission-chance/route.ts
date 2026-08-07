@@ -16,6 +16,9 @@ type FormPayload = {
   gpa?: string;
   testType?: string;
   testScore?: string;
+  hasEnglishTest?: boolean | null;
+  plannedTestType?: string;
+  plannedTestScore?: string;
   backlogs?: string;
   studyGap?: string;
 };
@@ -111,10 +114,14 @@ export async function POST(req: NextRequest) {
     const match = body.match || {};
 
     // ─── STEP 1: CHECK MINIMUM ELIGIBILITY ─────────────────────────────────────
-    
-    // 1. English Score Normalization
-    const actualEnglishRaw = parseNumber(form.testScore, 0);
-    const actIelts = convertToIelts(actualEnglishRaw, form.testType || "IELTS");
+
+    // 1. English Score Normalization (Use actual testScore or target plannedTestScore)
+    const rawScore = parseNumber(form.testScore, 0);
+    const rawPlannedScore = parseNumber(form.plannedTestScore, 0);
+    const effectiveScore = rawScore > 0 ? rawScore : rawPlannedScore;
+    const effectiveType = rawScore > 0 ? (form.testType || "IELTS") : (form.plannedTestType || form.testType || "IELTS");
+
+    const actIelts = convertToIelts(effectiveScore, effectiveType);
     const reqIelts = match.englishReq ?? 6.0; // College minimum IELTS
 
     // 2. CGPA Normalization & Scale Alignment
@@ -133,7 +140,7 @@ export async function POST(req: NextRequest) {
     const fullGpa = collegeScale;
 
     // Check baseline eligibility rules
-    const meetsEnglish = actIelts >= reqIelts;
+    const meetsEnglish = effectiveScore > 0 ? actIelts >= reqIelts : !form.hasEnglishTest;
     const meetsGpa = actGpa >= reqGpa;
     const isEligible = meetsEnglish && meetsGpa;
 
