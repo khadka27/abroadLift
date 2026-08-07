@@ -12,6 +12,7 @@ import {
   normalizePhoneNumber,
   toE164,
 } from "@/lib/phoneVerification";
+import { validatePhoneByCountry, getPhonePlaceholder } from "@/lib/phone-validation";
 
 const COUNTRY_CODES = [
   { label: "Nepal", dialCode: "+977" },
@@ -120,6 +121,12 @@ function LoginForm() {
   }
 
   const handleSendOtp = async () => {
+    const phoneValid = validatePhoneByCountry(phoneNumber, countryDialCode);
+    if (!phoneValid.isValid) {
+      setError(phoneValid.errorMsg);
+      return;
+    }
+
     const normalizedPhoneNumber = normalizePhoneNumber(phoneNumber);
     const normalizedDialCode = normalizeDialCode(countryDialCode);
     const phoneE164 = toE164(normalizedDialCode, normalizedPhoneNumber);
@@ -271,7 +278,7 @@ function LoginForm() {
 
                   <div className="flex-1">
                     <InputField
-                      placeholder="9812345678"
+                      placeholder={getPhonePlaceholder(countryDialCode)}
                       value={phoneNumber}
                       onChange={(v) => setPhoneNumber(v)}
                     />

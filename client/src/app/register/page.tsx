@@ -7,6 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { AlertCircle } from "lucide-react";
 import { sections } from "@/lib/terms-data";
+import { validatePhoneByCountry, getPhonePlaceholder } from "@/lib/phone-validation";
 
 type CountryCodeOption = {
   code: string;
@@ -177,12 +178,12 @@ function RegisterForm() {
   // Debounced phone DB check
   useEffect(() => {
     if (phoneDebounceRef.current) clearTimeout(phoneDebounceRef.current);
-    const digits = form.phone.replace(/\D/g, "");
-    const validFormat = /^\d{6,15}$/.test(digits);
-    if (!digits || !validFormat) {
+    const valid = validatePhoneByCountry(form.phone, form.countryDialCode);
+    if (!form.phone.trim() || !valid.isValid) {
       setPhoneDbStatus("idle");
       return;
     }
+    const digits = form.phone.replace(/\D/g, "");
     setPhoneDbStatus("checking");
     phoneDebounceRef.current = setTimeout(async () => {
       try {
@@ -221,8 +222,8 @@ function RegisterForm() {
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return "Enter a valid email address.";
     }
     if (k === "phone") {
-      if (!v.trim()) return "Phone number is required.";
-      if (!/^\d{6,15}$/.test(v.replaceAll(/\D/g, ""))) return "Enter a valid phone number (6–15 digits).";
+      const res = validatePhoneByCountry(v, form.countryDialCode);
+      if (!res.isValid) return res.errorMsg;
     }
     return "";
   };
@@ -236,6 +237,17 @@ function RegisterForm() {
       setServerError("");
       return;
     }
+
+    if (k === "countryDialCode") {
+      setForm((p) => ({ ...p, countryDialCode: v }));
+      if (form.phone.trim()) {
+        const phoneErr = validatePhoneByCountry(form.phone, v).errorMsg;
+        setErrors((p) => ({ ...p, phone: phoneErr }));
+      }
+      setServerError("");
+      return;
+    }
+
     setForm((p) => ({ ...p, [k]: v }));
     setErrors((p) => ({ ...p, [k]: validateField(k, v) }));
     setServerError("");
@@ -503,7 +515,7 @@ function RegisterForm() {
 
                   <div className="flex-1">
                     <InputField
-                      placeholder="9812345678"
+                      placeholder={getPhonePlaceholder(form.countryDialCode)}
                       type="tel"
                       value={form.phone}
                       error={errors.phone}
