@@ -19,6 +19,8 @@ import {
   Building2,
   Award,
   Users,
+  LayoutGrid,
+  List,
 } from "lucide-react";
 import { Match, Form } from "@/types/matches";
 import { User } from "next-auth";
@@ -155,6 +157,7 @@ export function UniversitySelection({
   const [activeTab, setActiveTab] = useState<DetailsTab>("estimates");
   const [searchQuery, setSearchQuery] = useState("");
   const [visibleLimit, setVisibleLimit] = useState(20);
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   const closeDetails = () => {
     setDetailsMatch(null);
@@ -302,23 +305,76 @@ export function UniversitySelection({
             className="w-full h-12 md:h-16 pl-12 md:pl-14 pr-6 bg-slate-50/50 rounded-[18px] md:rounded-2xl text-[14px] md:text-[15px] font-regular text-slate-900 outline-none focus:bg-white focus:ring-4 ring-blue-500/5 focus:border-blue-200 transition-all placeholder:text-slate-400"
           />
         </div>
-        <div className="flex items-center gap-2 w-full md:w-auto">
-          <button className="flex-1 md:flex-none h-12 md:h-16 px-6 md:px-10 rounded-[18px] md:rounded-2xl bg-white border border-slate-100 flex items-center justify-center gap-2 text-slate-900 font-semibold text-[12px] md:text-sm tracking-tight shadow-sm hover:bg-slate-50 transition-all">
+        <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+          {/* View Toggle */}
+          <div className="flex items-center bg-slate-100/90 p-1 rounded-[18px] md:rounded-2xl border border-slate-200/60 shrink-0">
+            <button
+              onClick={() => setViewMode("grid")}
+              title="Grid View"
+              className={`h-10 md:h-14 px-3.5 md:px-4 rounded-[14px] md:rounded-xl flex items-center gap-2 text-xs font-black transition-all ${
+                viewMode === "grid"
+                  ? "bg-white text-blue-600 shadow-sm"
+                  : "text-slate-500 hover:text-slate-800"
+              }`}
+            >
+              <LayoutGrid className="w-4 h-4" />
+              <span className="hidden sm:inline">Grid</span>
+            </button>
+            <button
+              onClick={() => setViewMode("list")}
+              title="List View"
+              className={`h-10 md:h-14 px-3.5 md:px-4 rounded-[14px] md:rounded-xl flex items-center gap-2 text-xs font-black transition-all ${
+                viewMode === "list"
+                  ? "bg-white text-blue-600 shadow-sm"
+                  : "text-slate-500 hover:text-slate-800"
+              }`}
+            >
+              <List className="w-4 h-4" />
+              <span className="hidden sm:inline">List</span>
+            </button>
+          </div>
+
+          <button className="flex-1 md:flex-none h-12 md:h-16 px-5 md:px-8 rounded-[18px] md:rounded-2xl bg-white border border-slate-100 flex items-center justify-center gap-2 text-slate-900 font-semibold text-[12px] md:text-sm tracking-tight shadow-sm hover:bg-slate-50 transition-all shrink-0">
             <ArrowUpDown className="w-[14px] h-[14px] md:w-[16px] md:h-[16px] text-slate-400" />
             Sort by Match
           </button>
-          <button className="flex-1 md:flex-none h-12 md:h-16 px-6 md:px-10 rounded-[18px] md:rounded-2xl bg-white border border-slate-100 flex items-center justify-center gap-2 text-slate-900 font-semibold text-[12px] md:text-sm tracking-tight shadow-sm hover:bg-slate-50 transition-all">
+          <button className="flex-1 md:flex-none h-12 md:h-16 px-5 md:px-8 rounded-[18px] md:rounded-2xl bg-white border border-slate-100 flex items-center justify-center gap-2 text-slate-900 font-semibold text-[12px] md:text-sm tracking-tight shadow-sm hover:bg-slate-50 transition-all shrink-0">
             <SlidersHorizontal className="w-[14px] h-[14px] md:w-[16px] md:h-[16px] text-slate-400" />
             Filters
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 pb-6 md:pb-8">
-        {displayedMatches.length > 0 ? (
-          displayedMatches.map((m) => (
-            <div key={m.id} className="relative h-full">
-              <MatchCard
+      {viewMode === "grid" ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 pb-6 md:pb-8">
+          {displayedMatches.length > 0 ? (
+            displayedMatches.map((m) => (
+              <div key={m.id} className="relative h-full">
+                <MatchCard
+                  match={m}
+                  currency={form.currency}
+                  selected={selectedMatch?.id === m.id}
+                  usdToNpr={usdToNpr}
+                  onSelect={() => onSelect(m)}
+                  onOpenDetails={() => {
+                    setDetailsMatch(m);
+                    setActiveTab("estimates");
+                  }}
+                />
+              </div>
+            ))
+          ) : (
+            <div className="col-span-full py-12 text-center text-slate-500 font-medium">
+              No universities found matching &quot;{searchQuery}&quot;
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="flex flex-col space-y-4 pb-6 md:pb-8">
+          {displayedMatches.length > 0 ? (
+            displayedMatches.map((m) => (
+              <MatchListItem
+                key={m.id}
                 match={m}
                 currency={form.currency}
                 selected={selectedMatch?.id === m.id}
@@ -329,14 +385,14 @@ export function UniversitySelection({
                   setActiveTab("estimates");
                 }}
               />
+            ))
+          ) : (
+            <div className="py-12 text-center text-slate-500 font-medium">
+              No universities found matching &quot;{searchQuery}&quot;
             </div>
-          ))
-        ) : (
-          <div className="col-span-full py-12 text-center text-slate-500 font-medium">
-            No universities found matching &quot;{searchQuery}&quot;
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
 
       {/* Load More Pagination */}
       {filteredMatches.length > visibleLimit && (
@@ -552,6 +608,158 @@ function MatchCard({
             className="w-full h-9 rounded-[12px] border border-transparent text-slate-500 hover:text-[#3686FF] hover:bg-slate-50 font-semibold text-[11px] md:text-[12px] transition-colors"
           >
             View Details
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MatchListItem({
+  match: m,
+  currency: c,
+  selected,
+  usdToNpr = 134.5,
+  onSelect,
+  onOpenDetails,
+}: {
+  match: Match;
+  currency: string;
+  selected?: boolean;
+  usdToNpr?: number;
+  onSelect?: () => void;
+  onOpenDetails?: () => void;
+}) {
+  const acceptanceRate = getRelevantAcceptanceRate(m);
+  const acceptanceMeta = getAcceptanceMeta(acceptanceRate);
+
+  return (
+    <div
+      onClick={() => onSelect?.()}
+      className={`bg-white border rounded-[24px] p-4 md:p-6 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 group relative ${
+        selected
+          ? "border-blue-500 ring-2 ring-blue-500/20 bg-blue-50/10"
+          : "border-slate-100 hover:border-blue-200"
+      }`}
+    >
+      {/* Left: Logo & Uni Info */}
+      <div className="flex items-start gap-4 min-w-0 flex-1">
+        <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-white border border-slate-100 flex items-center justify-center overflow-hidden shrink-0 shadow-sm relative p-2">
+          {m.logo ? (
+            <Image
+              src={m.logo}
+              alt={m.name}
+              fill
+              className="object-contain p-2"
+            />
+          ) : (
+            <span className="text-blue-600 font-black text-xl">
+              {m.name.charAt(0)}
+            </span>
+          )}
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2 mb-1">
+            <h3 className="text-base md:text-lg font-black text-slate-900 leading-tight group-hover:text-blue-600 transition-colors">
+              {m.name}
+            </h3>
+            <div className="px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-black uppercase tracking-wider">
+              {m.matchScore || 85}% Match
+            </div>
+            <div className="px-2.5 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+              <Trophy className="w-3 h-3 text-blue-500" />
+              #{m.rankingWorld || 1} Global
+            </div>
+          </div>
+
+          <p className="text-indigo-600 font-bold text-xs md:text-sm mb-2 truncate">
+            {m.popularPrograms?.[0] || "Program details available"}
+          </p>
+
+          <div className="flex flex-wrap items-center gap-3 text-slate-500 text-xs font-semibold">
+            <span className="flex items-center gap-1">
+              <MapPin className="w-3.5 h-3.5 text-slate-400" />
+              {m.location || "Location TBD"}
+            </span>
+            <span>•</span>
+            <span className="flex items-center gap-1">
+              <Calendar className="w-3.5 h-3.5 text-slate-400" />
+              {m.durationYears ? `${m.durationYears} Years` : "1-4 Years"}
+            </span>
+          </div>
+
+          {/* Match Reasons Badges */}
+          {m.matchReasons && m.matchReasons.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {m.matchReasons.slice(0, 3).map((reason, idx) => (
+                <span
+                  key={idx}
+                  className="px-2.5 py-0.5 bg-slate-50 border border-slate-200/60 text-slate-600 text-[10px] font-bold rounded-md"
+                >
+                  ✓ {reason}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Middle: Metrics (Tuition & Acceptance Rate) */}
+      <div className="flex items-center justify-between lg:justify-end gap-6 w-full lg:w-auto pt-3 lg:pt-0 border-t lg:border-t-0 border-slate-100">
+        <div className="text-left lg:text-right">
+          <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-0.5">
+            Annual Tuition
+          </p>
+          <p className="text-sm md:text-base font-black text-slate-900">
+            {m.tuitionFee
+              ? `${formatCurrencyRange(m.tuitionFee, c, 0.1, usdToNpr)}`
+              : "TBD"}
+          </p>
+        </div>
+
+        <div className="text-left lg:text-right min-w-[110px]">
+          <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-0.5">
+            Acceptance Rate
+          </p>
+          <p className={`text-sm md:text-base font-black ${acceptanceMeta.textClass}`}>
+            {acceptanceRate}% ({acceptanceMeta.label})
+          </p>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenDetails?.();
+            }}
+            className="px-4 py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-700 font-extrabold text-xs rounded-xl border border-slate-200 transition-all"
+          >
+            Details
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelect?.();
+            }}
+            className={`px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-sm ${
+              selected
+                ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                : "bg-blue-600 text-white hover:bg-blue-700"
+            }`}
+          >
+            {selected ? (
+              <>
+                <CheckCircle2 className="w-4 h-4" />
+                Selected
+              </>
+            ) : (
+              <>
+                Select
+                <ArrowRight className="w-3.5 h-3.5" />
+              </>
+            )}
           </button>
         </div>
       </div>
