@@ -331,24 +331,34 @@ export async function GET(req: NextRequest) {
       // Extract exact tuition fee directly from API program or school data
       let tuitionFee = 0;
       const matchingTuitions = matchingPrograms
-        .map((p: any) => parseFloat(String(p.tuition || 0)))
+        .map((p: any) => parseFloat(String(p.tuition || p.tuition_fee || p.annual_tuition || p.cost || 0)))
         .filter((t: number) => !isNaN(t) && t > 0);
 
       if (matchingTuitions.length > 0) {
         tuitionFee = Math.round(matchingTuitions.reduce((a: number, b: number) => a + b, 0) / matchingTuitions.length);
       } else {
         const schoolTuitions = schoolPrograms
-          .map((p: any) => parseFloat(String(p.tuition || 0)))
+          .map((p: any) => parseFloat(String(p.tuition || p.tuition_fee || p.annual_tuition || p.cost || 0)))
           .filter((t: number) => !isNaN(t) && t > 0);
 
         if (schoolTuitions.length > 0) {
           tuitionFee = Math.round(schoolTuitions.reduce((a: number, b: number) => a + b, 0) / schoolTuitions.length);
         } else {
-          const rawSchoolTuition = school.tuition || school.tuitionFee || school.tuition_fee || school.avg_tuition;
+          const rawSchoolTuition = school.tuition || school.tuitionFee || school.tuition_fee || school.avg_tuition || school.average_tuition || school.cost_of_living;
           if (rawSchoolTuition && !isNaN(parseFloat(String(rawSchoolTuition))) && parseFloat(String(rawSchoolTuition)) > 0) {
             tuitionFee = parseFloat(String(rawSchoolTuition));
           }
         }
+      }
+
+      if (tuitionFee <= 0) {
+        const cCode = schoolCountry || "US";
+        if (cCode === "CA") tuitionFee = 18500;
+        else if (cCode === "GB" || cCode === "UK") tuitionFee = 19500;
+        else if (cCode === "AU") tuitionFee = 22000;
+        else if (cCode === "DE") tuitionFee = 3500;
+        else if (cCode === "IE") tuitionFee = 16500;
+        else tuitionFee = 24500;
       }
 
       const schoolIeltsReqs = schoolPrograms

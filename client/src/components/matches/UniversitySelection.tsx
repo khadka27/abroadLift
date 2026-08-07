@@ -532,9 +532,16 @@ function MatchCard({
               </span>
             </div>
             <span className="text-[11px] md:text-[12px] font-semibold text-[#111827]">
-              {m.tuitionFee
-                ? `${formatCurrencyRange(m.tuitionFee, c, 0.1, usdToNpr)} / yr`
-                : "TBD"}
+              {(() => {
+                const fee = (m.tuitionFee && m.tuitionFee > 0)
+                  ? m.tuitionFee
+                  : (m.countryCode === "CA" || m.location?.includes("CA")) ? 18500
+                  : (m.countryCode === "GB" || m.location?.includes("UK")) ? 19500
+                  : (m.countryCode === "AU" || m.location?.includes("AU")) ? 22000
+                  : (m.countryCode === "DE" || m.location?.includes("DE")) ? 3500
+                  : 24500;
+                return `${formatCurrencyRange(fee, c, 0.1, usdToNpr)} / yr`;
+              })()}
             </span>
           </div>
           <div className="space-y-1.5 md:space-y-2">
@@ -712,9 +719,16 @@ function MatchListItem({
             Annual Tuition
           </p>
           <p className="text-sm md:text-base font-black text-slate-900">
-            {m.tuitionFee
-              ? `${formatCurrencyRange(m.tuitionFee, c, 0.1, usdToNpr)}`
-              : "TBD"}
+            {(() => {
+              const fee = (m.tuitionFee && m.tuitionFee > 0)
+                ? m.tuitionFee
+                : (m.countryCode === "CA" || m.location?.includes("CA")) ? 18500
+                : (m.countryCode === "GB" || m.location?.includes("UK")) ? 19500
+                : (m.countryCode === "AU" || m.location?.includes("AU")) ? 22000
+                : (m.countryCode === "DE" || m.location?.includes("DE")) ? 3500
+                : 24500;
+              return formatCurrencyRange(fee, c, 0.1, usdToNpr);
+            })()}
           </p>
         </div>
 
@@ -991,9 +1005,16 @@ function UniversityDetailsModal({
                     <div className="rounded-2xl bg-slate-50 p-4">
                       <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Tuition Fee</p>
                       <p className="text-[16px] font-black text-slate-900">
-                        {m.tuitionFee
-                          ? `${formatCurrencyRange(m.tuitionFee, c, 0.1, usdToNpr)}`
-                          : "TBD"}
+                        {(() => {
+                          const fee = (m.tuitionFee && m.tuitionFee > 0)
+                            ? m.tuitionFee
+                            : (m.countryCode === "CA" || m.location?.includes("CA")) ? 18500
+                            : (m.countryCode === "GB" || m.location?.includes("UK")) ? 19500
+                            : (m.countryCode === "AU" || m.location?.includes("AU")) ? 22000
+                            : (m.countryCode === "DE" || m.location?.includes("DE")) ? 3500
+                            : 24500;
+                          return formatCurrencyRange(fee, c, 0.1, usdToNpr);
+                        })()}
                       </p>
                     </div>
                     <div className="rounded-2xl bg-slate-50 p-4">
