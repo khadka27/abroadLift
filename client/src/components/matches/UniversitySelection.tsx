@@ -451,7 +451,7 @@ function MatchCard({
               {m.name}
             </h3>
             <p className="text-[#4F46E5] font-medium text-[12px] md:text-[13px] tracking-tight truncate">
-              {m.popularPrograms?.[0] || "MSc Computer Science"}
+              {m.popularPrograms?.[0] || "Program details available"}
             </p>
           </div>
         </div>
@@ -848,7 +848,9 @@ function UniversityDetailsModal({
                   </div>
                   <div>
                     <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest mb-1">Minimum GPA</p>
-                    <p className="text-[18px] font-black text-slate-800">{m.gpaRequirement || "3.0"}/4.0</p>
+                    <p className="text-[18px] font-black text-slate-800">
+                      {(m.gpaRequirement ? (m.gpaRequirement > 4.0 ? Math.round(((m.gpaRequirement / 100) * 4.0) * 10) / 10 : m.gpaRequirement) : 3.0).toFixed(1)}/4.0
+                    </p>
                   </div>
                   <div>
                     <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest mb-1">Intl. Students</p>

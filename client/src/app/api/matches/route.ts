@@ -72,6 +72,39 @@ function getProgramField(prog: any): string {
   return "Liberal Arts & General";
 }
 
+function cleanProgramTitle(rawProg: string, field: string, degreeLevel: string): string {
+  const cleaned = (rawProg || "").trim();
+
+  if (cleaned) {
+    // e.g. "Master of Accountancy - Accountancy" -> "Master of Accountancy"
+    const parts = cleaned.split(/\s*-\s*/);
+    if (parts.length > 1) {
+      const firstPart = parts[0].trim();
+      const lastPart = parts[parts.length - 1].trim();
+
+      if (firstPart.toLowerCase().includes(lastPart.toLowerCase()) || lastPart.toLowerCase().includes(firstPart.toLowerCase())) {
+        return firstPart;
+      }
+    }
+    return cleaned;
+  }
+
+  // Fallback title from degreeLevel and field
+  let levelPrefix = "Degree in";
+  const dlLower = (degreeLevel || "").toLowerCase();
+  if (dlLower.includes("bachelor")) levelPrefix = "Bachelor of";
+  else if (dlLower.includes("master")) levelPrefix = "Master of";
+  else if (dlLower.includes("diploma")) levelPrefix = "Diploma in";
+  else if (dlLower.includes("cert")) levelPrefix = "Certificate in";
+  else if (dlLower.includes("doctor") || dlLower.includes("phd")) levelPrefix = "PhD in";
+
+  if (field) {
+    return `${levelPrefix} ${field}`;
+  }
+
+  return "Academic Degree Program";
+}
+
 
 const COUNTRY_ALIAS_TO_CODE: Record<string, string> = {
   US: "USA",
@@ -162,7 +195,7 @@ export async function GET(req: NextRequest) {
   try {
     // 1. Fetch remote cached schools/programs
     const schools = await getAllSchoolsCached();
-    const programs = await getProgramsMultiPageCached(15);
+    const programs = await getProgramsMultiPageCached(35);
 
     const programsBySchool = new Map<number, any[]>();
     for (const prog of programs) {
@@ -183,16 +216,17 @@ export async function GET(req: NextRequest) {
 
       // Filter programs by criteria
       const matchingPrograms = schoolPrograms.filter((prog: any) => {
+        const pNameLower = prog.name?.toLowerCase() || "";
+        const pLevelLower = prog.level?.toLowerCase() || "";
+        const pLevelTextLower = prog.level_text?.toLowerCase() || "";
+
         if (degreeLevel) {
           const dlLower = degreeLevel.toLowerCase();
-          const pNameLower = prog.name?.toLowerCase() || "";
-          const pLevelLower = prog.level?.toLowerCase() || "";
-          const pLevelTextLower = prog.level_text?.toLowerCase() || "";
 
           let matchesLevel = false;
-          if (dlLower.includes("bachelor") && (pNameLower.includes("bachelor") || pLevelLower.includes("bachelor") || pLevelTextLower.includes("bachelor"))) {
+          if (dlLower.includes("bachelor") && (pNameLower.includes("bachelor") || pLevelLower.includes("bachelor") || pLevelTextLower.includes("bachelor") || pLevelLower.includes("undergraduate"))) {
             matchesLevel = true;
-          } else if (dlLower.includes("master") && (pNameLower.includes("master") || pLevelLower.includes("master") || pLevelTextLower.includes("master"))) {
+          } else if ((dlLower.includes("master") || dlLower.includes("pg") || dlLower.includes("postgraduate")) && (pNameLower.includes("master") || pNameLower.includes("msc") || pNameLower.includes("mba") || pNameLower.includes("ma ") || pNameLower.includes("m.s.") || pLevelLower.includes("master") || pLevelLower.includes("postgraduate") || pLevelTextLower.includes("master") || pLevelTextLower.includes("postgraduate"))) {
             matchesLevel = true;
           } else if ((dlLower.includes("doctor") || dlLower.includes("phd")) && (pNameLower.includes("doctor") || pNameLower.includes("phd") || pLevelLower.includes("doctor") || pLevelLower.includes("phd") || pLevelTextLower.includes("doctor") || pLevelTextLower.includes("phd"))) {
             matchesLevel = true;
@@ -215,9 +249,24 @@ export async function GET(req: NextRequest) {
         }
 
         if (program) {
-          const pNameLower = prog.name?.toLowerCase() || "";
           const targetProgLower = program.toLowerCase();
-          if (!pNameLower.includes(targetProgLower) && !targetProgLower.includes(pNameLower)) {
+          const cleanTarget = program.replace(/\s*-\s*[A-Za-z0-9\s]+$/, "").toLowerCase().trim();
+
+          const matchDirect = pNameLower.includes(targetProgLower) || targetProgLower.includes(pNameLower);
+          const matchClean = cleanTarget.length > 2 && (pNameLower.includes(cleanTarget) || cleanTarget.includes(pNameLower));
+
+          // Fuzzy keyword match: e.g. "accountancy" <-> "accounting"
+          const keywords = targetProgLower.split(/[\s,/-]+/).filter((w) => w.length > 3 && !["master", "bachelor", "degree", "diploma", "science", "arts", "study", "program"].includes(w));
+          const matchKeyword = keywords.length > 0 && keywords.some((kw) => {
+            if (pNameLower.includes(kw)) return true;
+            if (kw.startsWith("account") && pNameLower.includes("account")) return true;
+            if (kw.startsWith("financ") && pNameLower.includes("financ")) return true;
+            if (kw.startsWith("manag") && pNameLower.includes("manag")) return true;
+            if (kw.startsWith("softwar") && pNameLower.includes("softwar")) return true;
+            return false;
+          });
+
+          if (!matchDirect && !matchClean && !matchKeyword) {
             return false;
           }
         }
@@ -232,9 +281,49 @@ export async function GET(req: NextRequest) {
         return true;
       });
 
+      // Build relevant display programs list
+      let displayPrograms: string[] = [];
+      if (matchingPrograms.length > 0) {
+        displayPrograms = matchingPrograms.slice(0, 3).map((p: any) => p.name);
+      } else {
+        // Fallback 1: Programs in schoolPrograms matching field or degreeLevel (excluding ESL)
+        const fieldOrLevelPrograms = schoolPrograms.filter((prog: any) => {
+          const pNameLower = prog.name?.toLowerCase() || "";
+          const pLevelLower = prog.level?.toLowerCase() || "";
+
+          if ((field || degreeLevel) && (pLevelLower.includes("english") || pNameLower.includes("english academic preparation") || pNameLower.includes("english language"))) {
+            return false;
+          }
+
+          if (field) {
+            const progField = getProgramField(prog);
+            if (progField.toLowerCase() === field.toLowerCase()) return true;
+          }
+          if (degreeLevel) {
+            const dlLower = degreeLevel.toLowerCase();
+            if (dlLower.includes("master") && (pNameLower.includes("master") || pLevelLower.includes("master") || pNameLower.includes("msc") || pNameLower.includes("mba"))) return true;
+            if (dlLower.includes("bachelor") && (pNameLower.includes("bachelor") || pLevelLower.includes("bachelor"))) return true;
+          }
+          return false;
+        });
+
+        if (fieldOrLevelPrograms.length > 0) {
+          displayPrograms = fieldOrLevelPrograms.slice(0, 3).map((p: any) => p.name);
+        } else {
+          // Fallback 2: Display user's target program/field cleanly instead of irrelevant ESL course
+          const userTargetTitle = cleanProgramTitle(program, field, degreeLevel);
+          if (hasCriteria && (program || field || degreeLevel)) {
+            displayPrograms = [userTargetTitle];
+          } else {
+            const nonEsl = schoolPrograms.filter((p: any) => !(p.name?.toLowerCase().includes("english academic") || p.level === "english"));
+            displayPrograms = (nonEsl.length > 0 ? nonEsl : schoolPrograms).slice(0, 3).map((p: any) => p.name);
+          }
+        }
+      }
+
       const rank = school.school_rank || 500;
       const admissionRate = Math.min(95, Math.max(25, 98 - Math.round(Math.log10(rank + 1) * 15)));
-      const primaryProgram = matchingPrograms[0] || schoolPrograms[0];
+      const primaryProgram = matchingPrograms[0] || schoolPrograms.find((p: any) => displayPrograms.includes(p.name)) || schoolPrograms[0];
 
       // Extract exact tuition fee directly from API program or school data
       let tuitionFee = 0;
@@ -310,12 +399,13 @@ export async function GET(req: NextRequest) {
       if (userGpa > 0) {
         // Dynamic scaling: +4 pts per 0.5 GPA surplus, down to min 10 pts
         gpaPts = Math.min(30, Math.max(10, 24 + gpaDiff * 6));
+        const reqDisp = `${normalizedGpaReq}`;
         if (gpaDiff >= 0.3) {
-          matchReasons.push(`GPA (${userGpa}) exceeds min requirement (${normalizedGpaReq})`);
+          matchReasons.push(`GPA (${userGpa}) exceeds min requirement (${reqDisp})`);
         } else if (gpaDiff >= 0) {
-          matchReasons.push(`GPA (${userGpa}) meets requirement (${normalizedGpaReq})`);
+          matchReasons.push(`GPA (${userGpa}) meets requirement (${reqDisp})`);
         } else {
-          matchReasons.push(`GPA (${userGpa}) near threshold (${normalizedGpaReq})`);
+          matchReasons.push(`GPA (${userGpa}) near threshold (${reqDisp})`);
         }
       } else {
         matchReasons.push("Academic background eligible");
@@ -392,7 +482,7 @@ export async function GET(req: NextRequest) {
         feeBand: tuitionFee > 30000 ? "high" : tuitionFee > 15000 ? "medium" : "low",
         englishReq,
         admissionRate,
-        gpaRequirement,
+        gpaRequirement: normalizedGpaReq,
         internationalPercentage:
           school.number_of_international_students && school.total_number_of_students
             ? Math.round((school.number_of_international_students / school.total_number_of_students) * 100)
@@ -414,9 +504,9 @@ export async function GET(req: NextRequest) {
         banner: school.banner?.url || (school.photos && school.photos[0]?.url) || "/uni-default.webp",
         website: school.website || "",
         popularPrograms:
-          matchingPrograms.length > 0
-            ? matchingPrograms.slice(0, 3).map((p: any) => p.name)
-            : schoolPrograms.slice(0, 3).map((p: any) => p.name),
+          displayPrograms.length > 0
+            ? displayPrograms
+            : [cleanProgramTitle(program, field, degreeLevel)],
         matchType: matchScore >= 85 ? "exact" : "recommended",
         matchScore,
         matchReasons,

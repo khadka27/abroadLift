@@ -663,6 +663,15 @@ function InputField({
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.defaultPrevented) {
+              const formEl = (e.target as HTMLElement).closest("form");
+              if (formEl) {
+                e.preventDefault();
+                formEl.requestSubmit();
+              }
+            }
+          }}
           className={`w-full h-[60px] bg-white border border-slate-200 rounded-[20px] px-5 text-[15px] font-bold text-slate-900 placeholder:text-slate-400 placeholder:font-medium outline-none focus:border-[#3686FF] focus:ring-4 focus:ring-[#3686FF]/10 transition-all shadow-sm ${error ? "border-rose-300 focus:border-rose-400 focus:ring-rose-400/20" : ""}`}
         />
         {suffix && (

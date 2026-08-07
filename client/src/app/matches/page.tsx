@@ -1454,13 +1454,13 @@ function MatchCard({
                 <p className="text-[14px] font-bold text-slate-900">
                   {typeof m.gpaRequirement === "number" ? (
                     <>
-                      {m.gpaRequirement}
+                      {(m.gpaRequirement > 4.0 ? Math.round(((m.gpaRequirement / 100) * 4.0) * 10) / 10 : m.gpaRequirement).toFixed(1)}
                       <span className="text-slate-400 text-[11px] font-bold">
                         /4.0
                       </span>
                     </>
                   ) : (
-                    "N/A"
+                    "3.0/4.0"
                   )}
                 </p>
               </div>

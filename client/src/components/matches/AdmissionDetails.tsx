@@ -705,28 +705,41 @@ export function AdmissionDetails({
                     </thead>
                     <tbody className="divide-y divide-slate-100 text-[14px]">
                       {/* GPA / Academic Row */}
-                      <tr className="hover:bg-white transition-colors">
-                        <td className="p-4 md:p-5 font-bold text-slate-800">
-                          🎓 Academic GPA (CGPA)
-                        </td>
-                        <td className="p-4 md:p-5 font-extrabold text-slate-700">
-                          {gpa.toFixed(2)} / 4.0
-                        </td>
-                        <td className="p-4 md:p-5 font-semibold text-slate-500">
-                          {selectedMatch.gpaRequirement ? `${selectedMatch.gpaRequirement.toFixed(1)} / 4.0` : "3.0 / 4.0"}
-                        </td>
-                        <td className="p-4 md:p-5 text-center">
-                          {gpa >= (selectedMatch.gpaRequirement || 3.0) ? (
-                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm">
-                              Meets / Exceeds
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-100 shadow-sm">
-                              Below Target
-                            </span>
-                          )}
-                        </td>
-                      </tr>
+                      {(() => {
+                        const userGpaVal = parseFloat(String(gpa)) || 0;
+                        const normUserGpa = userGpaVal > 4.0 ? (userGpaVal / 100) * 4.0 : userGpaVal;
+                        const rawReq = selectedMatch.gpaRequirement || 3.0;
+                        const normReqGpa = rawReq > 4.0 ? Math.round(((rawReq / 100) * 4.0) * 10) / 10 : rawReq;
+
+                        const meetsGpa = normUserGpa >= normReqGpa;
+                        const userGpaDisplay = userGpaVal > 4.0 ? `${normUserGpa.toFixed(2)} / 4.0` : `${userGpaVal.toFixed(2)} / 4.0`;
+                        const reqGpaDisplay = `${normReqGpa.toFixed(1)} / 4.0`;
+
+                        return (
+                          <tr className="hover:bg-white transition-colors">
+                            <td className="p-4 md:p-5 font-bold text-slate-800">
+                              🎓 Academic GPA (CGPA)
+                            </td>
+                            <td className="p-4 md:p-5 font-extrabold text-slate-700">
+                              {userGpaDisplay}
+                            </td>
+                            <td className="p-4 md:p-5 font-semibold text-slate-500">
+                              {reqGpaDisplay}
+                            </td>
+                            <td className="p-4 md:p-5 text-center">
+                              {meetsGpa ? (
+                                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm">
+                                  Meets / Exceeds
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-100 shadow-sm">
+                                  Below Target
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })()}
 
                       {/* Language Score Row */}
                       <tr className="hover:bg-white transition-colors">

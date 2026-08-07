@@ -2117,7 +2117,7 @@ function DashboardInner() {
                                         </div>
                                         <div className="flex justify-between text-xs font-semibold">
                                           <span className="text-slate-400">Min. Requirements:</span>
-                                          <span className="text-slate-700 font-black">IELTS {m.englishReq || "6.5"} / GPA {m.gpaRequirement || "3.0"}</span>
+                                          <span className="text-slate-700 font-black">IELTS {m.englishReq || "6.5"} / GPA {(m.gpaRequirement ? (m.gpaRequirement > 4.0 ? Math.round(((m.gpaRequirement / 100) * 4.0) * 10) / 10 : m.gpaRequirement) : 3.0).toFixed(1)}</span>
                                         </div>
                                       </div>
                                     </div>

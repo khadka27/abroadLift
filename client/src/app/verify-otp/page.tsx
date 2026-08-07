@@ -222,21 +222,29 @@ function OTPInput({
     e: React.KeyboardEvent<HTMLInputElement>,
   ) => {
     if (e.key === "Backspace") {
-      e.preventDefault(); // Prevent double deletion since we're handling state manually
-      if (index > 0) {
+      e.preventDefault();
+      if (otpArray[index]) {
+        // Clear current box and stay here
         const newOtpArray = [...otpArray];
         newOtpArray[index] = "";
+        onChange(newOtpArray.join(""));
+      } else if (index > 0) {
+        // If current box is already empty, clear previous box and focus it
+        const newOtpArray = [...otpArray];
+        newOtpArray[index - 1] = "";
         onChange(newOtpArray.join(""));
         inputRefs.current[index - 1]?.focus();
-      } else {
-        const newOtpArray = [...otpArray];
-        newOtpArray[index] = "";
-        onChange(newOtpArray.join(""));
       }
     } else if (e.key === "ArrowLeft" && index > 0) {
       inputRefs.current[index - 1]?.focus();
     } else if (e.key === "ArrowRight" && index < 5) {
       inputRefs.current[index + 1]?.focus();
+    } else if (e.key === "Enter") {
+      const formEl = (e.target as HTMLElement).closest("form");
+      if (formEl) {
+        e.preventDefault();
+        formEl.requestSubmit();
+      }
     }
   };
 
@@ -247,8 +255,9 @@ function OTPInput({
     const clipboard = e.clipboardData;
     if (!clipboard) return;
 
-    const pastedData = clipboard.getData("text").slice(0, 6).split("");
-    if (pastedData.some((char) => !/^\d$/.test(char))) return;
+    const pastedData = clipboard.getData("text").replace(/\D/g, "").slice(0, 6).split("");
+    if (pastedData.length === 0) return;
+    e.preventDefault();
 
     const newOtpArray = [...otpArray];
     pastedData.forEach((char, i) => {
@@ -259,7 +268,6 @@ function OTPInput({
 
     onChange(newOtpArray.join(""));
 
-    // Focus the last filled box or the next one
     const lastFocusedIndex = Math.min(index + pastedData.length, 5);
     inputRefs.current[lastFocusedIndex]?.focus();
   };

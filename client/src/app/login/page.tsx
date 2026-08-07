@@ -157,9 +157,13 @@ function LoginForm() {
     }
   };
 
-  const handleSubmit = async (e: { preventDefault: () => void }) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await performLogin(otp);
+    if (!otpSent) {
+      await handleSendOtp();
+    } else {
+      await performLogin(otp);
+    }
   };
 
   return (
@@ -345,6 +349,7 @@ function InputField({
   type = "text",
   error,
   suffix,
+  onKeyDown,
 }: {
   placeholder: string;
   value: string;
@@ -352,6 +357,7 @@ function InputField({
   type?: string;
   error?: string;
   suffix?: React.ReactNode;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 }) {
   return (
     <div className="w-full">
@@ -361,6 +367,16 @@ function InputField({
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          onKeyDown={(e) => {
+            if (onKeyDown) onKeyDown(e);
+            if (e.key === "Enter" && !e.defaultPrevented) {
+              const formEl = (e.target as HTMLElement).closest("form");
+              if (formEl) {
+                e.preventDefault();
+                formEl.requestSubmit();
+              }
+            }
+          }}
           className="w-full h-[60px] bg-white border border-slate-200 rounded-[20px] px-5 text-[15px] font-bold text-slate-900 placeholder:text-slate-400 placeholder:font-medium outline-none focus:border-[#3686FF] focus:ring-4 focus:ring-[#3686FF]/10 transition-all shadow-sm"
         />
         {suffix && (
@@ -418,20 +434,28 @@ function OTPInput({
   ) => {
     if (e.key === "Backspace") {
       e.preventDefault();
-      if (index > 0) {
+      if (otpArray[index]) {
+        // Clear current box and stay here
         const newOtpArray = [...otpArray];
         newOtpArray[index] = "";
+        onChange(newOtpArray.join(""));
+      } else if (index > 0) {
+        // If current box is already empty, clear previous box and focus it
+        const newOtpArray = [...otpArray];
+        newOtpArray[index - 1] = "";
         onChange(newOtpArray.join(""));
         inputRefs.current[index - 1]?.focus();
-      } else {
-        const newOtpArray = [...otpArray];
-        newOtpArray[index] = "";
-        onChange(newOtpArray.join(""));
       }
     } else if (e.key === "ArrowLeft" && index > 0) {
       inputRefs.current[index - 1]?.focus();
     } else if (e.key === "ArrowRight" && index < 5) {
       inputRefs.current[index + 1]?.focus();
+    } else if (e.key === "Enter") {
+      const formEl = (e.target as HTMLElement).closest("form");
+      if (formEl) {
+        e.preventDefault();
+        formEl.requestSubmit();
+      }
     }
   };
 
@@ -442,8 +466,9 @@ function OTPInput({
     const clipboard = e.clipboardData;
     if (!clipboard) return;
 
-    const pastedData = clipboard.getData("text").slice(0, 6).split("");
-    if (pastedData.some((char) => !/^\d$/.test(char))) return;
+    const pastedData = clipboard.getData("text").replace(/\D/g, "").slice(0, 6).split("");
+    if (pastedData.length === 0) return;
+    e.preventDefault();
 
     const newOtpArray = [...otpArray];
     pastedData.forEach((char, i) => {

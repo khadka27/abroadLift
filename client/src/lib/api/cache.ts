@@ -162,7 +162,7 @@ export async function getProgramsCached(): Promise<any[]> {
  * Returns programs across multiple pages (up to maxPages).
  * Used for study-level extraction. Sequential to avoid rate limits.
  */
-export async function getProgramsMultiPageCached(maxPages = 25): Promise<any[]> {
+export async function getProgramsMultiPageCached(maxPages = 35): Promise<any[]> {
   const now = Date.now();
 
   if (cache.allPrograms && now - cache.allPrograms.ts < CACHE_TTL) {
@@ -179,7 +179,7 @@ export async function getProgramsMultiPageCached(maxPages = 25): Promise<any[]> 
       const totalPages = Math.min(firstPage.pagination?.totalPages || 1, maxPages);
       const programs: any[] = [...(firstPage.data || [])];
 
-      const batchSize = 4;
+      const batchSize = 8;
       for (let p = 2; p <= totalPages; p += batchSize) {
         const pagePromises = [];
         for (let i = p; i < p + batchSize && i <= totalPages; i++) {
@@ -191,7 +191,7 @@ export async function getProgramsMultiPageCached(maxPages = 25): Promise<any[]> 
             programs.push(...res.data);
           }
         }
-        await new Promise((r) => setTimeout(r, 100));
+        await new Promise((r) => setTimeout(r, 50));
       }
 
       cache.allPrograms = { data: programs, ts: Date.now() };
