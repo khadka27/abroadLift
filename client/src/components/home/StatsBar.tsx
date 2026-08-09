@@ -10,21 +10,20 @@ const stats = [
 ];
 
 const containerVariants: Variants = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    y: 0,
     transition: {
-      duration: 0.8,
-      staggerChildren: 0.1,
+      duration: 0.4,
+      staggerChildren: 0.05,
       ease: "easeOut"
     }
   }
 };
 
 const itemVariants: Variants = {
-  hidden: { opacity: 0, scale: 0.8 },
-  visible: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: "easeOut" } }
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.3, ease: "easeOut" } }
 };
 
 const StatsBar = () => (

@@ -1,9 +1,22 @@
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
+import { Inter, Quicksand } from "next/font/google";
 import "./globals.css";
 import ClientWrapper from "@/components/ClientWrapper";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import { absoluteUrl, siteConfig } from "@/lib/seo";
+
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+});
+
+const quicksand = Quicksand({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-quicksand",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -98,25 +111,15 @@ export default function RootLayout({
   ];
 
   return (
-    <html lang="en" className="overflow-x-clip">
+    <html lang="en" className={`${inter.variable} ${quicksand.variable} overflow-x-clip`} suppressHydrationWarning={true}>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Quicksand:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
       </head>
       <body
-        className="bg-white text-[#0f172a] antialiased overflow-x-clip font-sans"
+        className={`${inter.className} bg-white text-[#0f172a] antialiased overflow-x-clip font-sans`}
         suppressHydrationWarning={true}
       >
         <Suspense fallback={null}>

@@ -121,20 +121,17 @@ const HeroSection = () => {
           
           {/* Left content */}
           <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
             className="flex flex-col justify-center w-full mt-6 lg:mt-0 xl:translate-x-8"
           >
             {/* Tagline */}
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.4 }}
+            <div 
               className="inline-flex items-center gap-2 bg-blue-100/80 backdrop-blur-sm border border-blue-200 text-blue-700 px-4 py-2 rounded-full font-bold text-sm mx-auto lg:mx-0 mb-6 sm:mb-8"
             >
               <span>#1 AI Platform for Study Abroad</span>
-            </motion.div>
+            </div>
 
             <h1 className="text-[40px] sm:text-[50px] lg:text-[56px] xl:text-[64px] font-extrabold text-[#0f172a] leading-[1.05] mb-6 tracking-tight text-center lg:text-left drop-shadow-sm">
               Match, Plan and <br className="hidden sm:block" />
@@ -147,10 +144,7 @@ const HeroSection = () => {
               admission chances, and track your visa readiness.
             </p>
             
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.6 }}
+            <div 
               className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-8"
             >
               <div className="flex items-center gap-2 bg-white/80 backdrop-blur-md px-4 py-2 rounded-full border border-gray-100 shadow-sm w-full sm:w-auto justify-center">
@@ -171,11 +165,9 @@ const HeroSection = () => {
                   1000+ Universities
                 </span>
               </div>
-            </motion.div>
+            </div>
             
-            <motion.div 
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+            <div 
               className="flex justify-center lg:justify-start w-full sm:w-auto"
             >
               <Link href="/matches" className="w-full sm:w-auto">
@@ -183,22 +175,17 @@ const HeroSection = () => {
                   Get Started Free <ArrowRight className="w-6 h-6 ml-1" />
                 </Button>
               </Link>
-            </motion.div>
+            </div>
           </motion.div>
 
           {/* Right content - Graduate image with circle */}
           <div className="relative flex items-center justify-center lg:justify-end w-full lg:h-full perspective-1000">
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9, rotateY: -10 }}
-              animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-              transition={{ duration: 1, ease: "easeOut" }}
+            <div 
               className="relative w-full max-w-[320px] sm:max-w-[450px] lg:max-w-[600px] aspect-square flex items-end justify-center"
             >
               {/* Thick Blue Circle */}
-              <motion.div 
-                animate={{ rotate: 360 }}
-                transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-                className="absolute top-[5%] left-[50%] -translate-x-1/2 w-[70%] sm:w-[65%] lg:w-[60%] aspect-square rounded-full border-[6px] lg:border-[8px] border-dashed border-[#3366FF]/40 pointer-events-none" 
+              <div 
+                className="absolute top-[5%] left-[50%] -translate-x-1/2 w-[70%] sm:w-[65%] lg:w-[60%] aspect-square rounded-full border-[6px] lg:border-[8px] border-dashed border-[#3366FF]/40 pointer-events-none animate-[spin_40s_linear_infinite]" 
               />
               <div className="absolute top-[7%] left-[50%] -translate-x-1/2 w-[66%] sm:w-[61%] lg:w-[56%] aspect-square rounded-full border-[3px] lg:border-[4px] border-[#3366FF]/60 pointer-events-none backdrop-blur-[2px]" />
               
@@ -206,14 +193,16 @@ const HeroSection = () => {
               <Image
                 src="/image.png"
                 alt="Happy graduate student"
-                width={800}
-                height={1000}
+                width={600}
+                height={750}
+                sizes="(max-width: 640px) 320px, (max-width: 1024px) 450px, 600px"
                 priority
+                fetchPriority="high"
                 className="relative z-10 w-full h-auto object-contain object-bottom drop-shadow-[0_20px_50px_rgba(0,0,0,0.2)] hover:scale-[1.02] transition-transform duration-500"
               />
 
 
-            </motion.div>
+            </div>
           </div>
         </div>
       </div>

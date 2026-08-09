@@ -1,3 +1,4 @@
+"use client";
 import { useState, useEffect, useMemo } from "react";
 import { formatNPRDevanagari, getRateToNpr } from "@/lib/currency";
 import { ArrowRight, MapPin, Calendar, Award } from "lucide-react";

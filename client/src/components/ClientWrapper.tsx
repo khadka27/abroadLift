@@ -19,12 +19,28 @@ export default function ClientWrapper({
 
   useEffect(() => {
     if (!projectId || clarityInitializedRef.current) return;
-    Clarity.init(projectId);
-    clarityInitializedRef.current = true;
+    
+    const initClarity = () => {
+      if (clarityInitializedRef.current) return;
+      Clarity.init(projectId);
+      clarityInitializedRef.current = true;
+    };
+
+    if ("requestIdleCallback" in window) {
+      const handle = (window as unknown as { requestIdleCallback: (cb: () => void, opts?: { timeout: number }) => number }).requestIdleCallback(initClarity, { timeout: 3500 });
+      return () => {
+        if ("cancelIdleCallback" in window) {
+          (window as unknown as { cancelIdleCallback: (id: number) => void }).cancelIdleCallback(handle);
+        }
+      };
+    } else {
+      const timer = setTimeout(initClarity, 3000);
+      return () => clearTimeout(timer);
+    }
   }, [projectId]);
 
   useEffect(() => {
-    if (!pathname) return;
+    if (!pathname || !clarityInitializedRef.current) return;
     Clarity.setTag("pagePath", pathname);
   }, [pathname]);
 

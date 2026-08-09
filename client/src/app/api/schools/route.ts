@@ -57,7 +57,10 @@ export async function GET(req: NextRequest) {
         name,
       }));
 
-      return NextResponse.json({ success: true, data: countriesList });
+      return NextResponse.json(
+        { success: true, data: countriesList },
+        { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } }
+      );
     } catch (error: any) {
       console.error("Proxy Schools GET all countries error:", error);
       return NextResponse.json(
@@ -76,33 +79,41 @@ export async function GET(req: NextRequest) {
     if (search || countryCode) {
       // Fetch matching schools directly from the AbroadLift API
       const data = await abroadliftApi.getSchools(page, limit, search, countryCode);
-      return NextResponse.json(data);
+      return NextResponse.json(data, {
+        headers: { "Cache-Control": "public, s-maxage=1800, stale-while-revalidate=3600" },
+      });
     }
 
     if (page === 1) {
       // Serve page 1 from the fast single-page cache
       const data = await getSchoolsCached();
-      return NextResponse.json({
-        success: true,
-        data,
-        pagination: { page: 1, limit: 100, total: data.length, totalPages: 1 },
-      });
+      return NextResponse.json(
+        {
+          success: true,
+          data,
+          pagination: { page: 1, limit: 100, total: data.length, totalPages: 1 },
+        },
+        { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } }
+      );
     }
 
     // For other pages, use the all-schools cache (falls back to single-page if throttled)
     const allData = await getAllSchoolsCached();
     const start = (page - 1) * limit;
     const pageData = allData.slice(start, start + limit);
-    return NextResponse.json({
-      success: true,
-      data: pageData,
-      pagination: {
-        page,
-        limit,
-        total: allData.length,
-        totalPages: Math.ceil(allData.length / limit),
+    return NextResponse.json(
+      {
+        success: true,
+        data: pageData,
+        pagination: {
+          page,
+          limit,
+          total: allData.length,
+          totalPages: Math.ceil(allData.length / limit),
+        },
       },
-    });
+      { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } }
+    );
   } catch (error: any) {
     console.error("Proxy Schools GET error:", error);
     return NextResponse.json(

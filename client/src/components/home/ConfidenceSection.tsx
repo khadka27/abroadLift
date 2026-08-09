@@ -1,3 +1,4 @@
+"use client";
 import { Wrench, ListChecks, ShieldCheck, Smartphone } from "lucide-react";
 import Image from "next/image";
 

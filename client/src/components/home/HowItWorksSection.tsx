@@ -1,3 +1,4 @@
+"use client";
 const steps = [
   { num: "1", title: "Create Profile", desc: "Add your academic background, study preferences, and budget.", active: true },
   { num: "2", title: "Get Matched", desc: "Explore colleges and universities that fit your profile.", active: true },
