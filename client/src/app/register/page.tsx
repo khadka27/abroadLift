@@ -359,15 +359,15 @@ function RegisterForm() {
 
           {/* Top Welcome Text */}
           <div className="relative z-20">
-            <p className="text-[18px] sm:text-[22px] font-semibold text-white/95 tracking-wide">
+            <h2 className="text-[22px] sm:text-[26px] font-bold text-white tracking-tight">
               Welcome to
-            </p>
+            </h2>
           </div>
 
-          {/* Center Brand Identity Badge */}
-          <div className="relative z-20 my-auto flex flex-col items-center text-center py-6">
-            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-white flex items-center justify-center shadow-[0_12px_35px_rgba(0,0,0,0.2)] mb-4 p-4 border-4 border-white/20 hover:scale-105 transition-transform duration-300">
-              <div className="relative w-full h-full">
+          {/* Lifted Brand Identity Badge */}
+          <div className="relative z-20 mt-4 sm:mt-6 mb-auto flex flex-col items-center text-center py-2">
+            <div className="bg-white/95 px-7 py-4 rounded-[24px] shadow-[0_15px_40px_rgba(0,0,0,0.25)] border-4 border-white/20 hover:scale-105 transition-transform duration-300 mb-4 flex items-center justify-center">
+              <div className="relative w-[160px] sm:w-[180px] h-[45px] sm:h-[50px]">
                 <Image
                   src="/logo.png"
                   alt="AbroadLift Logo"
@@ -377,10 +377,7 @@ function RegisterForm() {
                 />
               </div>
             </div>
-            <h2 className="text-[28px] sm:text-[34px] font-extrabold text-white tracking-tight leading-tight">
-              AbroadLift
-            </h2>
-            <p className="text-[13px] text-blue-100 font-medium leading-relaxed max-w-[250px] mt-2 opacity-90">
+            <p className="text-[13px] text-blue-100 font-medium leading-relaxed max-w-[260px] opacity-90">
               Discover top global universities, compare programs, and apply with confidence.
             </p>
           </div>
