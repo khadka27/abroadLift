@@ -290,6 +290,12 @@ function DashboardInner() {
   const [savedNotify, setSavedNotify] = useState(false);
   const [profile, setProfile] = useState<ProfileState>(DEFAULT_PROFILE);
   const [errorMsg, setErrorMsg] = useState("");
+
+  const isNegativeVal = (val: string | number | undefined | null): boolean => {
+    if (val === undefined || val === null || val === "") return false;
+    const num = typeof val === "number" ? val : parseFloat(val.toString());
+    return !isNaN(num) && num < 0;
+  };
   
   const [applications, setApplications] = useState<Application[]>([
     {
@@ -831,6 +837,40 @@ function DashboardInner() {
   const handleSaveProfile = async (exitEditMode = false) => {
     setSaving(true);
     setErrorMsg("");
+
+    // Validate non-negative numbers
+    const budgetVal = editForm.yearlyBudget ? parseFloat(editForm.yearlyBudget) : NaN;
+    const bankVal = editForm.bankBalance ? parseFloat(editForm.bankBalance) : NaN;
+    const incomeVal = editForm.sponsorIncome ? parseFloat(editForm.sponsorIncome) : NaN;
+    const gpaVal = editForm.gpa ? parseFloat(editForm.gpa) : NaN;
+    const engVal = editForm.englishScore ? parseFloat(editForm.englishScore) : NaN;
+    const backlogsVal = editForm.backlogs ? parseInt(editForm.backlogs, 10) : NaN;
+    const gapVal = editForm.studyGap ? parseInt(editForm.studyGap, 10) : NaN;
+    const workExpVal = editForm.workExperience ? parseInt(editForm.workExperience, 10) : NaN;
+
+    // Validate DOB non-future
+    const todayStr = new Date().toISOString().slice(0, 10);
+    if (editForm.dateOfBirth && editForm.dateOfBirth > todayStr) {
+      setErrorMsg("Date of birth cannot be in the future.");
+      setSaving(false);
+      return;
+    }
+
+    if (
+      (!isNaN(budgetVal) && budgetVal < 0) ||
+      (!isNaN(bankVal) && bankVal < 0) ||
+      (!isNaN(incomeVal) && incomeVal < 0) ||
+      (!isNaN(gpaVal) && gpaVal < 0) ||
+      (!isNaN(engVal) && engVal < 0) ||
+      (!isNaN(backlogsVal) && backlogsVal < 0) ||
+      (!isNaN(gapVal) && gapVal < 0) ||
+      (!isNaN(workExpVal) && workExpVal < 0)
+    ) {
+      setErrorMsg("Amount, budget, bank balance, GPA, scores, and experience values cannot be negative numbers.");
+      setSaving(false);
+      return;
+    }
+
     try {
       const res = await fetch("/api/profile", {
         method: "PUT",
@@ -1261,73 +1301,171 @@ function DashboardInner() {
                 transition={{ duration: 0.25 }}
               >
                 
-                {/* 1. DASHBOARD OVERVIEW TAB */}
+                {/* 1. DASHBOARD OVERVIEW TAB (Clean, Minimal & User-Friendly) */}
                 {activeTab === "dashboard" && (
-                  <div className="space-y-6">
+                  <div className="space-y-8">
 
-                    {/* Enhanced Hero Banner */}
-                    <div className="rounded-[32px] border border-blue-100 bg-[#3686FF]/5 p-6 md:p-8 relative overflow-hidden shadow-sm group">
-                      <div className="absolute right-0 top-0 w-80 h-80 bg-blue-500/5 rounded-full blur-[80px] pointer-events-none transition-transform duration-1000 group-hover:scale-110" />
-                      
+                    {/* Hero Banner Card */}
+                    <div className="bg-white rounded-[28px] border border-slate-200/80 p-6 sm:p-8 shadow-sm relative overflow-hidden">
                       <div className="relative z-10">
-                        <div className="flex flex-wrap items-start justify-between gap-4 mb-5">
-                          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-50 text-[#3686FF] text-[11px] font-black tracking-wider uppercase rounded-full border border-blue-100 shadow-sm">
+                        <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+                          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-[#3686FF] text-[11px] font-bold tracking-wide uppercase rounded-full border border-blue-100">
                             <Compass className="w-3.5 h-3.5 text-[#3686FF]" />
-                            Goal: {profile.preferredCountry || "Canada"} · {profile.intake || "Fall 2026"}
+                            <span>Target: {profile.preferredCountry || "Canada"} · {profile.intake || "Fall 2026"}</span>
                           </div>
                           <div className="flex gap-2">
                             {profile.gpa && (
-                              <span className="px-2.5 py-1 rounded-xl bg-white text-[10px] font-black text-slate-700 border border-slate-200 shadow-xs">GPA {profile.gpa}</span>
+                              <span className="px-3 py-1 rounded-xl bg-slate-100 text-xs font-bold text-slate-700 border border-slate-200/60">GPA {profile.gpa}</span>
                             )}
                             {profile.englishScore && (
-                              <span className="px-2.5 py-1 rounded-xl bg-emerald-50 text-[10px] font-black text-emerald-700 border border-emerald-150 shadow-xs">{profile.testType || "IELTS"} {profile.englishScore}</span>
+                              <span className="px-3 py-1 rounded-xl bg-emerald-50 text-xs font-bold text-emerald-700 border border-emerald-100">{profile.testType || "IELTS"} {profile.englishScore}</span>
                             )}
                           </div>
                         </div>
 
-                        <h2 className="text-2xl md:text-3xl font-black tracking-tight leading-snug text-slate-900">Welcome back, {firstName}!</h2>
-                        <p className="text-slate-500 text-xs sm:text-sm mt-3 max-w-xl font-semibold leading-relaxed">
-                          Your academic credentials match <strong className="text-[#3686FF] font-black">{matches.length || "12"} global institutions</strong>. {profileCompleteness < 80 ? "Complete your profile to unlock personalized recommendations." : "Your visa success probability is strong. Let's finish your SOP this week!"}
+                        <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">Welcome back, {firstName}!</h2>
+                        <p className="text-slate-500 text-xs sm:text-sm mt-2 max-w-xl font-medium leading-relaxed">
+                          Your academic credentials match <strong className="text-[#3686FF] font-bold">{matches.length || "12"} global institutions</strong>. {profileCompleteness < 80 ? "Complete your profile to unlock personalized recommendations." : "Your visa success probability is strong. Let's finish your SOP this week!"}
                         </p>
                         
                         <div className="flex flex-wrap gap-3 mt-6">
                           <button
                             onClick={() => setActiveTab("matches")}
-                            className="bg-[#3686FF] hover:bg-blue-600 text-white font-black px-5 py-3 rounded-2xl text-xs shadow-lg shadow-blue-500/25 transition-all active:scale-95 hover:shadow-blue-500/35 hover:-translate-y-0.5 flex items-center gap-1.5 cursor-pointer"
+                            className="bg-[#3686FF] hover:bg-blue-600 text-white font-extrabold px-5 py-3 rounded-2xl text-xs shadow-md shadow-blue-500/20 transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
                           >
                             <Compass className="w-4 h-4" /> Explore Matches
                           </button>
                           <button
                             onClick={() => setActiveTab("profile")}
-                            className="bg-white hover:bg-slate-50 text-slate-700 font-black px-5 py-3 rounded-2xl text-xs border border-slate-200 transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer shadow-sm"
+                            className="bg-slate-100 hover:bg-slate-200/70 text-slate-700 font-bold px-5 py-3 rounded-2xl text-xs border border-slate-200 transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
                           >
                             <Pencil className="w-4 h-4 text-slate-400" /> Refine Profile
                           </button>
                           <button
                             onClick={() => router.push("/costing")}
-                            className="bg-amber-50 hover:bg-amber-100/80 text-amber-700 font-black px-5 py-3 rounded-2xl text-xs border border-amber-100/60 transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
+                            className="bg-amber-50 hover:bg-amber-100/80 text-amber-700 font-bold px-5 py-3 rounded-2xl text-xs border border-amber-100 transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
                           >
                             <DollarSign className="w-4 h-4 text-amber-600" /> Cost Estimator
                           </button>
                           <button
                             onClick={() => router.push("/matches?new=true")}
-                            className="bg-violet-50 hover:bg-violet-100/80 text-violet-700 font-black px-5 py-3 rounded-2xl text-xs border border-violet-200/60 transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer shadow-sm"
+                            className="bg-purple-50 hover:bg-purple-100/80 text-purple-700 font-bold px-5 py-3 rounded-2xl text-xs border border-purple-100 transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
                           >
-                            <Plus className="w-4 h-4 text-violet-600" /> Start New Session
+                            <Plus className="w-4 h-4 text-purple-600" /> New Search
                           </button>
                         </div>
                       </div>
                     </div>
 
+                    {/* KPI Stats Grid */}
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                      {[
+                        {
+                          label: "Profile Completion",
+                          value: `${profileCompleteness}%`,
+                          sub: profileCompleteness >= 80 ? "Strong profile" : "Needs attention",
+                          bg: "bg-blue-50",
+                          textColor: "text-[#3686FF]",
+                          icon: User,
+                        },
+                        {
+                          label: "Admission Odds",
+                          value: profile.admissionProb ? `${profile.admissionProb}%` : "78%",
+                          sub: "Based on GPA & score",
+                          bg: "bg-emerald-50",
+                          textColor: "text-emerald-600",
+                          icon: GraduationCap,
+                        },
+                        {
+                          label: "Visa Readiness",
+                          value: profile.visaSuccessProb ? `${profile.visaSuccessProb}%` : "85%",
+                          sub: "Financial strength score",
+                          bg: "bg-purple-50",
+                          textColor: "text-purple-600",
+                          icon: Shield,
+                        },
+                        {
+                          label: "Tasks Completed",
+                          value: `${tasks.filter(t => t.completed).length}/${tasks.length}`,
+                          sub: `${taskCompletion}% done`,
+                          bg: "bg-amber-50",
+                          textColor: "text-amber-600",
+                          icon: CheckSquare,
+                        },
+                      ].map((stat, i) => {
+                        const Icon = stat.icon;
+                        return (
+                          <div
+                            key={i}
+                            className="rounded-2xl bg-white border border-slate-150 p-4 shadow-xs flex items-center gap-3.5"
+                          >
+                            <div className={`w-10 h-10 rounded-xl ${stat.bg} flex items-center justify-center shrink-0`}>
+                              <Icon className={`w-5 h-5 ${stat.textColor}`} />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate">{stat.label}</p>
+                              <p className={`text-xl font-extrabold leading-none mt-0.5 ${stat.textColor}`}>{stat.value}</p>
+                              <p className="text-[11px] text-slate-500 font-medium mt-0.5 truncate">{stat.sub}</p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Recommended Next Step Banner */}
+                    {(() => {
+                      const StepIcon = nextRecommendedStep.icon;
+                      return (
+                        <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-xs flex flex-col sm:flex-row gap-5 items-start justify-between">
+                          <div className="flex gap-4 items-start">
+                            <div className="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center shrink-0 border border-blue-100">
+                              <StepIcon className="w-5 h-5 text-[#3686FF]" />
+                            </div>
+                            <div className="space-y-1 min-w-0">
+                              <span className="text-[10px] font-extrabold tracking-wider uppercase text-[#3686FF] bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-100">
+                                Next Recommended Step
+                              </span>
+                              <h3 className="text-base font-extrabold text-slate-900 tracking-tight mt-1">
+                                {nextRecommendedStep.title}
+                              </h3>
+                              <p className="text-slate-500 font-medium text-xs leading-relaxed max-w-xl">
+                                {nextRecommendedStep.description}
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => {
+                              setActiveTab(nextRecommendedStep.tab);
+                              setIsEditingProfile(nextRecommendedStep.tab === "profile");
+                            }}
+                            className="w-full sm:w-auto shrink-0 font-extrabold text-white bg-[#3686FF] hover:bg-blue-600 px-5 py-3 rounded-2xl text-xs transition-all active:scale-95 cursor-pointer shadow-sm"
+                          >
+                            {nextRecommendedStep.cta}
+                          </button>
+                        </div>
+                      );
+                    })()}
+
                     {/* Recent Matches Section */}
-                    <div className="space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-75">
-                      <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] px-1">
-                        Recent Matches
-                      </h3>
-                      <Card className="rounded-[32px] p-6 border border-slate-100 bg-white shadow-xl shadow-slate-100/50 relative overflow-hidden">
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between px-1">
+                        <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">
+                          Recent Matches
+                        </h3>
+                        {savedMatches.length > 0 && (
+                          <button
+                            onClick={() => setActiveTab("matches")}
+                            className="text-xs font-bold text-[#3686FF] hover:underline"
+                          >
+                            View All Matches →
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs">
                         {loading ? (
                           <div className="flex py-10 justify-center items-center">
-                            <Loader2 className="w-6 h-6 text-blue-600 animate-spin mr-3" />
+                            <Loader2 className="w-6 h-6 text-[#3686FF] animate-spin mr-3" />
                             <span className="font-bold text-slate-500 animate-pulse text-xs">Loading saved matches...</span>
                           </div>
                         ) : savedMatches.length === 0 ? (
@@ -1335,7 +1473,7 @@ function DashboardInner() {
                             <span className="font-semibold text-xs">No saved matches yet. Use the Matching Wizard to find and save your evaluations!</span>
                             <button
                               onClick={() => router.push("/matches")}
-                              className="rounded-xl bg-[#3686FF] hover:bg-blue-600 px-4 py-2 text-[10px] font-bold text-white shadow-md transition-all active:scale-95 cursor-pointer"
+                              className="rounded-xl bg-[#3686FF] hover:bg-blue-600 px-5 py-2.5 text-xs font-bold text-white shadow-sm transition-all active:scale-95 cursor-pointer"
                             >
                               Start Matching Wizard
                             </button>
@@ -1358,282 +1496,50 @@ function DashboardInner() {
                                 <div
                                   key={m.id}
                                   onClick={() => handleLoadSavedProfile(m)}
-                                  className="rounded-[24px] p-5 border border-slate-100 bg-slate-50/20 hover:bg-white hover:shadow-lg hover:border-blue-200 transition-all duration-300 flex flex-col justify-between group cursor-pointer"
+                                  className="rounded-2xl p-5 border border-slate-200/80 bg-slate-50/50 hover:bg-white hover:shadow-md hover:border-blue-200 transition-all flex flex-col justify-between group cursor-pointer"
                                 >
                                   <div>
                                     <div className="flex justify-between items-center mb-3">
-                                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[9px] font-black tracking-widest uppercase bg-blue-50 text-blue-600 truncate max-w-[110px]" title={degree}>
+                                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-blue-50 text-[#3686FF] truncate max-w-[120px]" title={degree}>
                                         {degree}
                                       </span>
-                                      <div className="flex items-center gap-1.5 shrink-0">
-                                        <div className={`w-1.5 h-1.5 rounded-full ${
-                                          admissionChance && admissionChance >= 80
-                                            ? "bg-emerald-500 animate-pulse"
-                                            : admissionChance && admissionChance >= 50
-                                            ? "bg-amber-500"
-                                            : "bg-rose-500"
-                                        }`} />
-                                        <span className={`text-[10px] font-black tracking-wide uppercase ${
-                                          admissionChance && admissionChance >= 80
-                                            ? "text-emerald-600"
-                                            : admissionChance && admissionChance >= 50
-                                            ? "text-amber-600"
-                                            : "text-rose-600"
-                                        }`}>
-                                          {admissionChance ?? "—"}% Odds
-                                        </span>
-                                      </div>
+                                      <span className="text-xs font-extrabold text-emerald-600">
+                                        {admissionChance ?? "78"}% Match
+                                      </span>
                                     </div>
-                                    <h4 className="font-extrabold text-slate-800 text-sm tracking-tight group-hover:text-[#3686FF] transition-colors leading-tight" title={univName}>
+                                    <h4 className="font-extrabold text-slate-900 text-sm tracking-tight group-hover:text-[#3686FF] transition-colors leading-snug truncate" title={univName}>
                                       {univName}
                                     </h4>
-                                    <p className="text-[10px] text-slate-400 font-semibold flex items-center gap-1 mt-1.5">
-                                      <MapPin className="w-3.5 h-3.5 shrink-0 text-slate-400" />
+                                    <p className="text-xs text-slate-500 font-medium flex items-center gap-1 mt-1">
+                                      <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                                       {city ? `${city}, ` : ""}{countryCode}
                                     </p>
                                     
-                                    <div className="grid grid-cols-2 gap-3 border-t border-slate-100 pt-3.5 mt-4 text-left">
+                                    <div className="grid grid-cols-2 gap-2 border-t border-slate-200/60 pt-3 mt-4 text-xs font-semibold text-slate-600">
                                       <div>
-                                        <span className="block text-[10px] font-black text-slate-400 uppercase tracking-wider">GPA & Test Score</span>
-                                        <span className="block text-xs font-extrabold text-slate-750 mt-1 truncate" title={`GPA ${gpa} · ${testType ? `${formatTestType(testType)} ${testScore}` : "No Test"}`}>
-                                          GPA {gpa} · {testType ? `${formatTestType(testType)} ${testScore}` : "No Test"}
+                                        <span className="block text-[9px] font-bold text-slate-400 uppercase">GPA & Score</span>
+                                        <span className="block font-bold text-slate-900 mt-0.5 truncate">
+                                          GPA {gpa}
                                         </span>
                                       </div>
-                                      <div className="border-l border-slate-100 pl-4">
-                                        <span className="block text-[10px] font-black text-slate-400 uppercase tracking-wider">Yearly Tuition</span>
-                                        <span className="block text-xs font-black text-slate-800 mt-1">
+                                      <div>
+                                        <span className="block text-[9px] font-bold text-slate-400 uppercase">Tuition</span>
+                                        <span className="block font-bold text-slate-900 mt-0.5">
                                           ${Number(tuitionFee).toLocaleString()}/yr
                                         </span>
                                       </div>
                                     </div>
                                   </div>
-                                  <div className="pt-4 mt-3">
+                                  <div className="pt-4 mt-2">
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         handleLoadSavedProfile(m);
                                       }}
-                                      className="w-full bg-[#3686FF] hover:bg-blue-600 text-white font-black py-2.5 rounded-xl text-xs shadow-sm hover:shadow-md transition-all active:scale-95 cursor-pointer text-center flex items-center justify-center gap-1.5"
+                                      className="w-full bg-[#3686FF] hover:bg-blue-600 text-white font-extrabold py-2.5 rounded-xl text-xs shadow-xs transition-all active:scale-95 cursor-pointer text-center flex items-center justify-center gap-1"
                                     >
-                                      Check Full Evaluation <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-                                    </button>
-                                  </div>
-                                </div>
-                              );
-                            })}
-                            {savedMatches.length > 3 && (
-                              <div className="col-span-full flex justify-center pt-4 border-t border-slate-100/50 mt-2">
-                                <button
-                                  onClick={() => setActiveTab("saved-universities")}
-                                  className="text-xs font-black text-[#3686FF] hover:text-blue-700 transition-colors flex items-center gap-1 cursor-pointer"
-                                >
-                                  View All {savedMatches.length} Shortlisted Campuses →
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </Card>
-                    </div>
-
-                    {/* ── KPI Stats Row ── */}
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                      {[
-                        {
-                          label: "Profile Complete",
-                          value: `${profileCompleteness}%`,
-                          sub: profileCompleteness >= 80 ? "Strong profile" : "Needs attention",
-                          color: "from-blue-500 to-indigo-600",
-                          bg: "bg-blue-50",
-                          textColor: "text-blue-600",
-                          icon: User,
-                        },
-                        {
-                          label: "Admission Odds",
-                          value: profile.admissionProb ? `${profile.admissionProb}%` : "—",
-                          sub: "Based on your GPA & score",
-                          color: "from-emerald-500 to-teal-600",
-                          bg: "bg-emerald-50",
-                          textColor: "text-emerald-600",
-                          icon: GraduationCap,
-                        },
-                        {
-                          label: "Visa Success",
-                          value: profile.visaSuccessProb ? `${profile.visaSuccessProb}%` : "—",
-                          sub: "Financial strength score",
-                          color: "from-violet-500 to-purple-600",
-                          bg: "bg-violet-50",
-                          textColor: "text-violet-600",
-                          icon: Shield,
-                        },
-                        {
-                          label: "Tasks Done",
-                          value: `${tasks.filter(t => t.completed).length}/${tasks.length}`,
-                          sub: `${taskCompletion}% complete`,
-                          color: "from-amber-500 to-orange-500",
-                          bg: "bg-amber-50",
-                          textColor: "text-amber-600",
-                          icon: CheckSquare,
-                        },
-                      ].map((stat, i) => {
-                        const Icon = stat.icon;
-                        return (
-                          <motion.div
-                            key={i}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: i * 0.08 }}
-                            className="rounded-2xl bg-white border border-slate-100 shadow-md shadow-slate-200/40 p-4 flex items-center gap-3 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
-                          >
-                            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center shrink-0 shadow-sm`}>
-                              <Icon className="w-4.5 h-4.5 text-white" />
-                            </div>
-                            <div className="min-w-0">
-                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider truncate">{stat.label}</p>
-                              <p className={`text-xl font-black leading-none mt-0.5 ${stat.textColor}`}>{stat.value}</p>
-                              <p className="text-[10px] text-slate-400 font-semibold mt-0.5 truncate">{stat.sub}</p>
-                            </div>
-                          </motion.div>
-                        );
-                      })}
-                    </div>
-
-                      {/* Dynamic Recommended Onboarding Step Banner */}
-                      {(() => {
-                        const StepIcon = nextRecommendedStep.icon;
-                        return (
-                          <motion.div
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className={`rounded-[32px] border bg-gradient-to-br ${nextRecommendedStep.color} p-6 shadow-sm flex flex-col sm:flex-row gap-5 items-start justify-between relative overflow-hidden group`}
-                          >
-                            <div className="flex gap-4 items-start relative z-10">
-                              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-sm ${nextRecommendedStep.iconColor}`}>
-                                <StepIcon className="w-6 h-6" />
-                              </div>
-                              <div className="space-y-1.5 min-w-0">
-                                <span className="text-[10px] font-black tracking-widest uppercase text-[#3686FF] bg-blue-50 px-2.5 py-0.5 rounded-full">
-                                  Your Next Recommended Step
-                                </span>
-                                <h3 className="text-base font-black text-slate-800 tracking-tight leading-snug mt-1">
-                                  {nextRecommendedStep.title}
-                                </h3>
-                                <p className="text-slate-500 font-semibold text-xs leading-relaxed max-w-lg">
-                                  {nextRecommendedStep.description}
-                                </p>
-                              </div>
-                            </div>
-                            <button
-                              onClick={() => {
-                                setActiveTab(nextRecommendedStep.tab);
-                                setIsEditingProfile(nextRecommendedStep.tab === "profile");
-                              }}
-                              className={`w-full sm:w-auto shrink-0 font-black text-white px-5 py-3 rounded-2xl text-xs transition-all active:scale-95 hover:-translate-y-0.5 cursor-pointer shadow-md ${nextRecommendedStep.btnColor}`}
-                            >
-                              {nextRecommendedStep.cta}
-                            </button>
-                          </motion.div>
-                        );
-                      })()}
-
-
-                      {/* Saved Matching Profiles Section */}
-                      <Card className="rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 bg-white">
-                        <div className="flex justify-between items-center mb-6">
-                          <div>
-                            <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Saved Matching Profiles</h3>
-                            <p className="text-xs text-slate-400 font-semibold mt-1">{"Your personalized study abroad search histories and analytical evaluations."}</p>
-                          </div>
-                          {savedMatches.length > 0 && (
-                            <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-xl">
-                              {savedMatches.length} Profile{savedMatches.length === 1 ? "" : "s"}
-                            </span>
-                          )}
-                        </div>
-
-                        {savedMatches.length === 0 ? (
-                          <div className="flex flex-col items-center justify-center gap-3 py-10 text-center">
-                            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-50 text-slate-400">
-                              <Compass className="h-7 w-7" />
-                            </div>
-                            <div>
-                              <p className="text-sm font-bold text-slate-700">No saved profiles yet</p>
-                              <p className="text-xs text-slate-400 max-w-md mx-auto">Run a university match query to build and save your study abroad evaluations.</p>
-                            </div>
-                            <button
-                              onClick={() => router.push("/matches")}
-                              className="mt-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-md transition-all active:scale-95"
-                            >
-                              Start Matching Wizard
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="space-y-4">
-                            {savedMatches.map((item) => {
-                              const degree = item.formData?.degree || "Bachelor";
-                              const gpa = item.formData?.gpa || "—";
-                              const testType = item.formData?.testType && item.formData?.testType !== "NONE" ? item.formData.testType : null;
-                              const testScore = item.formData?.testScore || "";
-                              const country = item.formData?.countries?.[0] || item.matchData?.countryCode || "CA";
-                              const intake = item.formData?.intake || "Fall 2026";
-                              const univName = item.matchData?.name || "University Match";
-                              const admissionChance = item.admissionChance;
-                              const visaSuccess = item.visaSuccess;
-
-                              return (
-                                <div
-                                  key={item.id}
-                                  className="rounded-2xl border border-slate-100 bg-slate-50/35 p-4 hover:border-blue-100 hover:bg-blue-50/10 transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-4 group"
-                                >
-                                  <div className="min-w-0 flex-1">
-                                    <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                                      <span className="inline-flex px-2 py-0.5 text-[9px] font-black tracking-widest uppercase bg-blue-50 text-blue-600 rounded-full">
-                                        {degree}
-                                      </span>
-                                      <span className="text-[11px] font-bold text-slate-400">
-                                        GPA: {gpa} • {testType ? `${testType} ${testScore}` : "No language test"}
-                                      </span>
-                                      <span className="text-[11px] font-bold text-slate-400">• Intake: {intake}</span>
-                                    </div>
-                                    <h4 className="font-extrabold text-slate-800 text-sm truncate group-hover:text-[#3686FF] transition-colors">
-                                      {univName}
-                                    </h4>
-                                    <p className="text-xs text-slate-400 font-semibold mt-0.5">Target Destination: {country}</p>
-                                  </div>
-
-                                  <div className="flex items-center gap-4 shrink-0 justify-between md:justify-end">
-                                    <div className="flex gap-3">
-                                      <div className="text-center">
-                                        <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Admission</p>
-                                        <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold mt-0.5 ${
-                                          admissionChance && admissionChance >= 80
-                                            ? "bg-emerald-50 text-emerald-700"
-                                            : admissionChance && admissionChance >= 50
-                                            ? "bg-amber-50 text-amber-700"
-                                            : "bg-rose-50 text-rose-700"
-                                        }`}>
-                                          {admissionChance ?? "—"}%
-                                        </span>
-                                      </div>
-                                      <div className="text-center">
-                                        <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Visa Odds</p>
-                                        <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold mt-0.5 ${
-                                          visaSuccess && visaSuccess >= 80
-                                            ? "bg-emerald-50 text-emerald-700"
-                                            : visaSuccess && visaSuccess >= 50
-                                            ? "bg-amber-50 text-amber-700"
-                                            : "bg-rose-50 text-rose-700"
-                                        }`}>
-                                          {visaSuccess ?? "—"}%
-                                        </span>
-                                      </div>
-                                    </div>
-
-                                    <button
-                                      onClick={() => handleLoadSavedProfile(item)}
-                                      className="bg-white border border-slate-200 hover:border-[#3686FF] hover:bg-[#3686FF] hover:text-white text-slate-600 font-bold px-3.5 py-2 rounded-xl text-[11px] shadow-sm transition-all flex items-center gap-1 shrink-0 active:scale-95"
-                                    >
-                                      Launch Analytics (Step 8)
+                                      <span>Check Evaluation</span>
+                                      <ChevronRight className="w-4 h-4" />
                                     </button>
                                   </div>
                                 </div>
@@ -1641,309 +1547,123 @@ function DashboardInner() {
                             })}
                           </div>
                         )}
-                      </Card>
-
-                      {/* Enhanced Application Progress Roadmap */}
-                      <Card className="rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 bg-white relative overflow-hidden">
-                        <div className="flex items-center justify-between mb-6">
-                          <div>
-                            <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Application Progress Roadmap</h3>
-                            <p className="text-[11px] text-slate-400 font-semibold mt-1">Your study-abroad journey at a glance</p>
-                          </div>
-                          <span className="text-xs font-black text-blue-600 bg-blue-50 px-2.5 py-1 rounded-xl">
-                            {[
-                              profileCompleteness >= 65,
-                              documents.filter(d => d.status === "Uploaded").length >= 3,
-                              savedMatches.length > 0,
-                              applications.some(a => a.stage === "Submitted" || a.stage === "Under Review"),
-                              applications.some(a => a.stage === "Offer Received" || a.stage === "Accepted"),
-                              false
-                            ].filter(Boolean).length} / 6 Steps
-                          </span>
-                        </div>
-                        
-                        <div className="relative">
-                          {/* Track line */}
-                          <div className="absolute top-[20px] left-[8%] right-[8%] h-[3px] bg-slate-100 rounded-full z-0 hidden md:block" />
-                          {/* Filled progress */}
-                          <div
-                            className="absolute top-[20px] left-[8%] h-[3px] bg-gradient-to-r from-emerald-500 to-blue-500 rounded-full z-0 hidden md:block transition-all duration-1000"
-                            style={{
-                              width: `${([
-                                profileCompleteness >= 65,
-                                documents.filter(d => d.status === "Uploaded").length >= 3,
-                                savedMatches.length > 0,
-                                applications.some(a => a.stage === "Submitted" || a.stage === "Under Review"),
-                                applications.some(a => a.stage === "Offer Received" || a.stage === "Accepted"),
-                                false
-                              ].filter(Boolean).length / 6) * 84}%`
-                            }}
-                          />
-                          
-                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 relative z-10">
-                             {[
-                               { label: "Profile", icon: User, done: profileCompleteness >= 65, tab: "profile" as TabKey },
-                               { label: "Documents", icon: FileText, done: documents.filter(d => d.status === "Uploaded").length >= 3, tab: "documents" as TabKey },
-                               { label: "Shortlisted", icon: Bookmark, done: savedMatches.length > 0, tab: "saved-universities" as TabKey },
-                               { label: "Applied", icon: Send, done: applications.some(a => a.stage === "Submitted" || a.stage === "Under Review"), tab: "applications" as TabKey },
-                               { label: "Offer", icon: Award, done: applications.some(a => a.stage === "Offer Received" || a.stage === "Accepted"), tab: "applications" as TabKey },
-                               { label: "Visa", icon: Globe, done: false, tab: "visa-assistance" as TabKey },
-                             ].map((stepItem, idx) => {
-                               const prevsDone = [
-                                 profileCompleteness >= 65,
-                                 documents.filter(d => d.status === "Uploaded").length >= 3,
-                                 savedMatches.length > 0,
-                                 applications.some(a => a.stage === "Submitted" || a.stage === "Under Review"),
-                                 applications.some(a => a.stage === "Offer Received" || a.stage === "Accepted")
-                               ];
-                               const isActiveStep = !stepItem.done && (idx === 0 || prevsDone.slice(0, idx).every(Boolean));
-                               const StepIcon = stepItem.icon;
-
-                               return (
-                                 <button
-                                   key={idx}
-                                   onClick={() => setActiveTab(stepItem.tab)}
-                                   className="flex flex-col items-center text-center group cursor-pointer"
-                                 >
-                                   <div className="relative mb-2.5">
-                                     {isActiveStep && (
-                                       <div className="absolute -inset-2 rounded-full bg-blue-500/20 animate-ping" />
-                                     )}
-                                     <div className={`w-10 h-10 rounded-full flex items-center justify-center border-[3px] border-white shadow-md relative z-10 transition-all text-lg ${
-                                       stepItem.done
-                                         ? "bg-emerald-500 shadow-emerald-500/25"
-                                         : isActiveStep
-                                         ? "bg-[#3686FF] shadow-blue-500/25 text-white"
-                                         : "bg-slate-100 text-slate-400"
-                                     }`}>
-                                       {stepItem.done ? (
-                                         <Check className="w-4 h-4 stroke-[3] text-white" />
-                                       ) : (
-                                         <StepIcon className="w-4 h-4" />
-                                       )}
-                                     </div>
-                                     {isActiveStep && (
-                                       <span className="absolute -top-5 left-1/2 -translate-x-1/2 text-[8px] font-black text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-full whitespace-nowrap">NEXT</span>
-                                     )}
-                                   </div>
-                                   <span className={`text-[10px] font-bold leading-tight ${
-                                     stepItem.done ? "text-emerald-600" : isActiveStep ? "text-[#3686FF]" : "text-slate-400"
-                                   }`}>
-                                     {stepItem.label}
-                                   </span>
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </Card>
-
-                      {/* Quick Action Buttons - Enhanced */}
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                        {[
-                          { label: "Complete Profile", tab: "profile" as TabKey, icon: User, gradient: "from-blue-500 to-indigo-600", shadow: "shadow-blue-500/20" },
-                          { label: "Upload Documents", tab: "documents" as TabKey, icon: Paperclip, gradient: "from-violet-500 to-purple-600", shadow: "shadow-violet-500/20" },
-                          { label: "Find Universities", tab: "matches" as TabKey, icon: Compass, gradient: "from-emerald-500 to-teal-600", shadow: "shadow-emerald-500/20" },
-                          { label: "Apply Now", tab: "applications" as TabKey, icon: Rocket, gradient: "from-amber-500 to-orange-500", shadow: "shadow-amber-500/20" },
-                        ].map((act, i) => {
-                          const ActionIcon = act.icon;
-                          return (
-                            <motion.button
-                              key={i}
-                              whileHover={{ y: -4, scale: 1.02 }}
-                              whileTap={{ scale: 0.97 }}
-                              onClick={() => setActiveTab(act.tab)}
-                              className={`p-4 rounded-2xl bg-gradient-to-br ${act.gradient} text-white flex flex-col items-center justify-center text-center font-black text-xs shadow-lg ${act.shadow} transition-shadow cursor-pointer`}
-                            >
-                              <ActionIcon className="w-6 h-6 mb-2 text-white" />
-                              {act.label}
-                            </motion.button>
-                          );
-                        })}
                       </div>
-
-                      {/* Logical Explore Portal Features Directory */}
-                      <Card className="rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 bg-white">
-                        <div className="mb-6">
-                          <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Explore Portal Features</h3>
-                          <p className="text-[11px] text-slate-400 font-semibold mt-1">{"A beginner's index to all the tools and resources available in your portal"}</p>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                          {/* Group 1: Discovery */}
-                          <div className="space-y-4">
-                            <div className="flex items-center gap-2 pb-2.5 border-b border-slate-100/60">
-                              <Compass className="w-4 h-4 text-blue-500 animate-pulse" />
-                              <h4 className="font-extrabold text-slate-700 text-xs uppercase tracking-wider">1. Find & Match</h4>
-                            </div>
-                            <ul className="space-y-3.5 list-none p-0 m-0">
-                              {[
-                                { key: "matches" as TabKey, label: "College Matching", desc: "Check admissibility odds based on GPA & tests" },
-                                { key: "scholarships" as TabKey, label: "Scholarship Finder", desc: "Explore institutional & country awards" },
-                                { key: "saved-universities" as TabKey, label: "Saved Universities", desc: "Shortlist campuses for your applications" },
-                              ].map((item) => (
-                                <li key={item.key}>
-                                  <button
-                                    onClick={() => setActiveTab(item.key)}
-                                    className="w-full text-left group hover:bg-slate-50 p-2 -mx-2 rounded-xl transition-all cursor-pointer"
-                                  >
-                                    <span className="block text-xs font-bold text-slate-800 group-hover:text-blue-600 transition-colors">{item.label}</span>
-                                    <span className="block text-[10px] text-slate-400 font-medium leading-normal mt-0.5">{item.desc}</span>
-                                  </button>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                          
-                          {/* Group 2: Admissions */}
-                          <div className="space-y-4">
-                            <div className="flex items-center gap-2 pb-2.5 border-b border-slate-100/60">
-                              <Briefcase className="w-4 h-4 text-violet-500" />
-                              <h4 className="font-extrabold text-slate-700 text-xs uppercase tracking-wider">2. Prep & Apply</h4>
-                            </div>
-                            <ul className="space-y-3.5 list-none p-0 m-0">
-                              {[
-                                { key: "profile" as TabKey, label: "Profile Credentials", desc: "Set up and sync your educational qualifications" },
-                                { key: "documents" as TabKey, label: "Document Locker", desc: "Securely upload and store academic transcripts" },
-                                { key: "applications" as TabKey, label: "Application Tracker", desc: "Track admission stages from Draft to Offer" },
-                              ].map((item) => (
-                                <li key={item.key}>
-                                  <button
-                                    onClick={() => {
-                                      setActiveTab(item.key);
-                                      if (item.key === "profile") setIsEditingProfile(false);
-                                    }}
-                                    className="w-full text-left group hover:bg-slate-50 p-2 -mx-2 rounded-xl transition-all cursor-pointer"
-                                  >
-                                    <span className="block text-xs font-bold text-slate-800 group-hover:text-violet-600 transition-colors">{item.label}</span>
-                                    <span className="block text-[10px] text-slate-400 font-medium leading-normal mt-0.5">{item.desc}</span>
-                                  </button>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                          
-                          {/* Group 3: Support */}
-                          <div className="space-y-4">
-                            <div className="flex items-center gap-2 pb-2.5 border-b border-slate-100/60">
-                              <MessageSquare className="w-4 h-4 text-emerald-500" />
-                              <h4 className="font-extrabold text-slate-700 text-xs uppercase tracking-wider">3. Expert Support</h4>
-                            </div>
-                            <ul className="space-y-3.5 list-none p-0 m-0">
-                              {[
-                                { key: "messages" as TabKey, label: "Counselor Chat", desc: "Direct messaging with your personal counselor" },
-                                { key: "tasks" as TabKey, label: "Roadmap Checklist", desc: "To-do lists to track visa & financial tasks" },
-                                { key: "visa-assistance" as TabKey, label: "Visa Success Odds", desc: "Process checklist and success probability scores" },
-                              ].map((item) => (
-                                <li key={item.key}>
-                                  <button
-                                    onClick={() => setActiveTab(item.key)}
-                                    className="w-full text-left group hover:bg-slate-50 p-2 -mx-2 rounded-xl transition-all cursor-pointer"
-                                  >
-                                    <span className="block text-xs font-bold text-slate-800 group-hover:text-emerald-600 transition-colors">{item.label}</span>
-                                    <span className="block text-[10px] text-slate-400 font-medium leading-normal mt-0.5">{item.desc}</span>
-                                  </button>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        </div>
-                      </Card>
+                    </div>
                   </div>
                 )}
 
-                {/* 2. MY MATCHES TAB (Polished Credentials Header, Saved shortlists, and DB-backed direct Step 8 launch!) */}
+                {/* 2. MY MATCHES TAB (Clean, Minimal & User-Friendly Design) */}
                 {activeTab === "matches" && (
-                  <div className="space-y-6 animate-in fade-in slide-in-from-bottom-3 duration-300">
+                  <div className="space-y-8 animate-in fade-in duration-300">
                     
-                    {/* Active Apply Country Profile Credentials Banner */}
-                    <Card className="rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 bg-gradient-to-r from-blue-500/10 via-indigo-500/5 to-slate-50 relative overflow-hidden">
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl pointer-events-none" />
-                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-                        <div>
-                          <span className="inline-flex px-2.5 py-1 rounded-full text-[9px] font-black tracking-widest uppercase bg-[#3686FF] text-white shadow-sm mb-3">
-                            Your Evaluation Profile (Steps 1-6)
-                          </span>
-                          <h3 className="font-extrabold text-slate-800 text-lg leading-snug">
-                            {profile.degreeLevel ? `${profile.degreeLevel.toUpperCase()} in ${profile.field || "your field"}` : "Study Abroad Matching Profile"}
-                          </h3>
-                          <div className="flex flex-wrap gap-x-4 gap-y-2 mt-3 text-xs font-semibold text-slate-500">
-                            <span className="flex items-center gap-1">
-                              <MapPin className="w-4 h-4 text-slate-300" /> Country: <strong className="text-slate-700">{profile.preferredCountry || "Canada"}</strong>
+                    {/* Header & Academic Profile Summary Banner (Clean Solid Light Theme) */}
+                    <div className="bg-white rounded-[28px] p-6 sm:p-8 border border-slate-200/80 shadow-sm relative overflow-hidden">
+                      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
+                        <div className="space-y-3">
+                          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-[11px] font-bold text-[#3686FF]">
+                            <Sparkles className="w-3.5 h-3.5 text-[#3686FF]" />
+                            <span>Smart College Matching Profile</span>
+                          </div>
+                          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                            {profile.degreeLevel ? `${formatDegree(profile.degreeLevel)} in ${profile.field || "General Field"}` : "Study Abroad Recommendations"}
+                          </h2>
+                          {/* Active Credentials Pills */}
+                          <div className="flex flex-wrap items-center gap-2 pt-1 text-xs font-semibold">
+                            <span className="bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200/60 flex items-center gap-1.5 text-slate-700">
+                              <MapPin className="w-3.5 h-3.5 text-[#3686FF]" />
+                              {profile.preferredCountry || "Canada"}
                             </span>
-                            <span>•</span>
-                            <span>GPA: <strong className="text-slate-700">{profile.gpa || "3.5"}</strong></span>
-                            <span>•</span>
-                            <span>Test: <strong className="text-slate-700">{profile.testType || "IELTS"}: {profile.englishScore || "7.0"}</strong></span>
-                            <span>•</span>
-                            <span>Budget: <strong className="text-slate-700">{formatNPRDevanagari((profile.currency === "USD" || !profile.currency) ? parseInt(profile.yearlyBudget || "30000") * 134.5 : parseInt(profile.yearlyBudget || "0"))}/yr</strong></span>
-                            <span>•</span>
-                            <span>Intake: <strong className="text-slate-700">{profile.intake || "Fall 2026"}</strong></span>
+                            <span className="bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200/60 text-slate-700">
+                              GPA {profile.gpa || "3.5"}
+                            </span>
+                            <span className="bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200/60 text-slate-700">
+                              {profile.testType || "IELTS"} {profile.englishScore || "7.0"}
+                            </span>
+                            <span className="bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200/60 text-slate-700">
+                              Budget: ${parseInt(profile.yearlyBudget || "30000").toLocaleString()}/yr
+                            </span>
+                            {profile.intake && (
+                              <span className="bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200/60 text-slate-700">
+                                {profile.intake}
+                              </span>
+                            )}
                           </div>
                         </div>
-                        <div className="flex gap-3 shrink-0">
+
+                        <div className="flex flex-wrap sm:flex-nowrap gap-3 shrink-0">
                           <button
                             onClick={() => setActiveTab("profile")}
-                            className="bg-white border border-slate-200 hover:border-[#3686FF] hover:text-[#3686FF] text-slate-600 font-bold px-4 py-3 rounded-2xl text-xs shadow-sm transition-all active:scale-95 cursor-pointer"
+                            className="bg-slate-100 hover:bg-slate-200/70 text-slate-700 font-bold px-5 py-3 rounded-2xl text-xs border border-slate-200 transition-all active:scale-95 cursor-pointer"
                           >
-                            Adjust Qualifications
+                            Edit Profile
                           </button>
                           <button
                             onClick={() => router.push("/matches?new=true")}
-                            className="bg-[#3686FF] hover:bg-blue-600 text-white font-bold px-4 py-3 rounded-2xl text-xs shadow-sm shadow-blue-500/10 transition-all active:scale-95 cursor-pointer"
+                            className="bg-[#3686FF] hover:bg-blue-600 text-white font-extrabold px-6 py-3 rounded-2xl text-xs shadow-md shadow-blue-500/20 transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
                           >
-                            Start New Search
+                            <Sparkles className="w-4 h-4" />
+                            <span>New Search</span>
                           </button>
                         </div>
                       </div>
-                    </Card>
+                    </div>
 
-                    {/* Premium Unified Filters Bar at the Top */}
-                    <Card className="rounded-2xl p-4 border border-slate-100 shadow-sm bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                      <div className="flex items-center gap-2 text-slate-400 font-bold text-xs">
-                        <Filter className="w-3.5 h-3.5 text-[#3686FF]" />
-                        FILTER MATCHES & RECOMMENDATIONS:
+                    {/* Filter Bar */}
+                    <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div className="flex items-center gap-2 text-slate-500 font-bold text-xs uppercase tracking-wider">
+                        <Filter className="w-4 h-4 text-[#3686FF]" />
+                        <span>Filter Institutions</span>
                       </div>
                       <div className="flex flex-wrap gap-3">
-                        <div className="relative">
-                          <select
-                            value={filterCountry}
-                            onChange={(e) => setFilterCountry(e.target.value)}
-                            className="bg-slate-50 border border-slate-200/80 rounded-xl px-4 py-2 text-xs font-black text-slate-705 outline-none hover:border-[#3686FF] transition-all cursor-pointer shadow-2xs appearance-none pr-8 relative bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%2522%20fill%3D%22none%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:10px] bg-[right_10px_center] bg-no-repeat"
+                        <select
+                          value={filterCountry}
+                          onChange={(e) => setFilterCountry(e.target.value)}
+                          className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-800 outline-none hover:border-[#3686FF] transition-all cursor-pointer shadow-xs"
+                        >
+                          <option value="">All Countries</option>
+                          <option value="CA">Canada</option>
+                          <option value="US">United States</option>
+                          <option value="GB">United Kingdom</option>
+                          <option value="AU">Australia</option>
+                          <option value="DE">Germany</option>
+                          <option value="IE">Ireland</option>
+                          <option value="MT">Malta</option>
+                        </select>
+                        <select
+                          value={filterDegree}
+                          onChange={(e) => setFilterDegree(e.target.value)}
+                          className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-800 outline-none hover:border-[#3686FF] transition-all cursor-pointer shadow-xs"
+                        >
+                          <option value="">All Degrees</option>
+                          <option value="bachelor">Bachelor</option>
+                          <option value="master">Master / Graduate</option>
+                          <option value="diploma">Diploma</option>
+                        </select>
+                        {(filterCountry || filterDegree) && (
+                          <button
+                            onClick={() => {
+                              setFilterCountry("");
+                              setFilterDegree("");
+                            }}
+                            className="text-xs font-bold text-rose-500 hover:text-rose-600 px-3 py-2 rounded-xl border border-rose-100 bg-rose-50/50 hover:bg-rose-50 transition-all cursor-pointer"
                           >
-                            <option value="">All Countries</option>
-                            <option value="CA">Canada</option>
-                            <option value="US">United States</option>
-                            <option value="GB">United Kingdom</option>
-                            <option value="AU">Australia</option>
-                            <option value="DE">Germany</option>
-                            <option value="IE">Ireland</option>
-                            <option value="MT">Malta</option>
-                          </select>
-                        </div>
-                        <div className="relative">
-                          <select
-                            value={filterDegree}
-                            onChange={(e) => setFilterDegree(e.target.value)}
-                            className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-black text-slate-705 outline-none hover:border-[#3686FF] transition-all cursor-pointer shadow-2xs appearance-none pr-8 relative bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%2522%20fill%3D%22none%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:10px] bg-[right_10px_center] bg-no-repeat"
-                          >
-                            <option value="">All Degrees</option>
-                            <option value="bachelor">Bachelor</option>
-                            <option value="master">Master / Graduate</option>
-                            <option value="diploma">Diploma</option>
-                          </select>
-                        </div>
+                            Reset Filters
+                          </button>
+                        )}
                       </div>
-                    </Card>
+                    </div>
 
-                    {/* Section 1: User's Saved Match Profiles (Direct Step 8) */}
+                    {/* Section 1: User's Shortlisted Saved Matches */}
                     {savedMatches.length > 0 && (
                       <div className="space-y-4">
-                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] px-1">Your Shortlisted Match Profiles</h3>
+                        <div className="flex items-center justify-between px-1">
+                          <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">Your Shortlisted Matches</h3>
+                          <span className="text-xs font-bold text-[#3686FF]">{filteredShortlists.length} Saved</span>
+                        </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                           {filteredShortlists.length === 0 ? (
-                            <div className="col-span-full py-12 text-center bg-white rounded-[28px] border border-slate-100 text-slate-400 font-semibold text-xs flex flex-col items-center justify-center gap-2">
+                            <div className="col-span-full py-12 text-center bg-white rounded-3xl border border-slate-100 text-slate-400 font-semibold text-xs">
                               No match profiles found matching selected filters.
                             </div>
                           ) : (
@@ -1958,103 +1678,98 @@ function DashboardInner() {
                               const isExpanded = expandedProfileId === item.id;
 
                               return (
-                                <Card key={item.id} className="rounded-[28px] p-5 border border-slate-100 bg-white shadow-md hover:border-blue-100 transition-all duration-300 flex flex-col justify-between gap-4">
+                                <Card key={item.id} className="rounded-3xl p-6 border border-slate-150/80 bg-white shadow-sm hover:shadow-md hover:border-blue-200 transition-all flex flex-col justify-between">
                                   <div>
-                                    <div className="flex justify-between items-start mb-2 gap-2">
+                                    <div className="flex items-center justify-between mb-3">
                                       <div className="flex items-center gap-2">
-                                        <FlagIcon countryCode={countryCode} className="w-5 h-3.5 rounded-[3px] object-cover shrink-0 shadow-xs" />
-                                        <span className="inline-flex px-2.5 py-0.5 text-[9px] font-black tracking-widest uppercase bg-blue-50 text-blue-650 rounded-full border border-blue-100/50">
+                                        <FlagIcon countryCode={countryCode} className="w-5 h-3.5 rounded object-cover shadow-2xs" />
+                                        <span className="px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider bg-blue-50 text-[#3686FF] rounded-full">
                                           {formatDegree(degree)}
                                         </span>
                                       </div>
-                                      <div className="flex items-center gap-2">
-                                        <button
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            setDeleteProfileId(item.id);
-                                          }}
-                                          className="text-slate-300 hover:text-red-500 transition-colors p-1 rounded-md hover:bg-red-50 cursor-pointer"
-                                          title="Delete saved match"
-                                        >
-                                          <Trash2 className="w-3.5 h-3.5" />
-                                        </button>
-                                      </div>
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setDeleteProfileId(item.id);
+                                        }}
+                                        className="text-slate-300 hover:text-rose-500 transition-colors p-1.5 rounded-lg hover:bg-rose-50 cursor-pointer"
+                                        title="Delete saved match"
+                                      >
+                                        <Trash2 className="w-4 h-4" />
+                                      </button>
                                     </div>
-                                    <h4 className="font-extrabold text-slate-800 text-[15px] leading-tight hover:text-[#3686FF] transition-colors truncate mt-3" title={univName}>{univName}</h4>
-                                    
-                                    <div className="space-y-2 mt-4 mb-3 text-[11px] font-bold text-slate-500">
-                                      <div className="flex justify-between items-center bg-slate-50 px-3 py-2 rounded-xl border border-slate-100/50">
-                                        <span className="text-slate-400 font-medium">GPA / Test</span>
-                                        <span className="text-slate-800 font-extrabold truncate max-w-[140px]" title={`GPA ${gpa} · ${testType ? `${testType} ${testScore}` : "No Test"}`}>
-                                          GPA {gpa} · {testType ? `${formatTestType(testType)} ${testScore}` : "No Test"}
+
+                                    <h4 className="font-extrabold text-slate-900 text-base leading-snug hover:text-[#3686FF] transition-colors truncate mt-2" title={univName}>
+                                      {univName}
+                                    </h4>
+
+                                    <div className="grid grid-cols-2 gap-2 mt-4 text-xs font-semibold text-slate-600">
+                                      <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                                        <span className="text-[10px] font-bold text-slate-400 block uppercase">GPA / Test</span>
+                                        <span className="text-slate-900 font-extrabold truncate block">
+                                          GPA {gpa} {testType ? `· ${formatTestType(testType)} ${testScore}` : ""}
+                                        </span>
+                                      </div>
+                                      <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                                        <span className="text-[10px] font-bold text-slate-400 block uppercase">Admit Odds</span>
+                                        <span className="text-emerald-600 font-extrabold block">
+                                          {admissionChance ?? "78"}% High Match
                                         </span>
                                       </div>
                                     </div>
 
-                                    {/* Expander Button */}
+                                    {/* Collapsible Expander Button */}
                                     <button
                                       onClick={() => setExpandedProfileId(isExpanded ? null : item.id)}
-                                      className="flex items-center gap-1 text-[11px] font-bold text-blue-500 hover:text-blue-600 transition-colors mt-3 cursor-pointer"
+                                      className="flex items-center gap-1 text-xs font-bold text-[#3686FF] hover:underline mt-4 cursor-pointer"
                                     >
                                       {isExpanded ? (
-                                        <>Hide Details <ChevronUp className="w-3.5 h-3.5" /></>
+                                        <>Hide Full Evaluation <ChevronUp className="w-4 h-4" /></>
                                       ) : (
-                                        <>View Step Details <ChevronDown className="w-3.5 h-3.5" /></>
+                                        <>View Detailed Criteria <ChevronDown className="w-4 h-4" /></>
                                       )}
                                     </button>
 
-                                    {/* Collapsible Details Grid */}
+                                    {/* Collapsible Details */}
                                     <AnimatePresence>
                                       {isExpanded && (
                                         <motion.div
                                           initial={{ opacity: 0, height: 0 }}
                                           animate={{ opacity: 1, height: "auto" }}
                                           exit={{ opacity: 0, height: 0 }}
-                                          transition={{ duration: 0.25 }}
+                                          transition={{ duration: 0.2 }}
                                           className="overflow-hidden"
                                         >
-                                          <div className="mt-4 pt-4 border-t border-slate-100 grid grid-cols-2 gap-3 text-[11px] font-bold text-slate-500">
-                                            <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100/50">
-                                              <span className="text-slate-400 block text-[8px] font-black uppercase tracking-wider mb-0.5">Target Countries</span>
-                                              <strong className="text-slate-800 truncate block">{item.formData?.countries?.join(", ") || item.formData?.preferredCountry || "Canada"}</strong>
+                                          <div className="mt-4 pt-4 border-t border-slate-100 grid grid-cols-2 gap-2.5 text-xs">
+                                            <div className="bg-slate-50 p-2.5 rounded-xl">
+                                              <span className="text-[9px] font-bold text-slate-400 block uppercase">Target Intake</span>
+                                              <span className="font-bold text-slate-800">{item.formData?.intake || "Fall 2026"}</span>
                                             </div>
-                                            <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100/50">
-                                              <span className="text-slate-400 block text-[8px] font-black uppercase tracking-wider mb-0.5">Course Preference</span>
-                                              <strong className="text-slate-800 truncate block" title={item.formData?.program || item.formData?.field || "General"}>
-                                                {item.formData?.program || item.formData?.field || "General"}
-                                              </strong>
+                                            <div className="bg-slate-50 p-2.5 rounded-xl">
+                                              <span className="text-[9px] font-bold text-slate-400 block uppercase">Budget Limit</span>
+                                              <span className="font-bold text-slate-800">${parseInt(item.formData?.budget || "30000").toLocaleString()} USD/yr</span>
                                             </div>
-                                            <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100/50">
-                                              <span className="text-slate-400 block text-[8px] font-black uppercase tracking-wider mb-0.5">Target Intake</span>
-                                              <strong className="text-slate-800 block">{item.formData?.intake || "Fall 2026"}</strong>
+                                            <div className="bg-slate-50 p-2.5 rounded-xl">
+                                              <span className="text-[9px] font-bold text-slate-400 block uppercase">Backlogs & Gap</span>
+                                              <span className="font-bold text-slate-800">{item.formData?.backlogs || "0"} backlogs · {item.formData?.studyGap || "0"} yr gap</span>
                                             </div>
-                                            <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100/50">
-                                              <span className="text-slate-400 block text-[8px] font-black uppercase tracking-wider mb-0.5">Yearly Budget</span>
-                                              <strong className="text-slate-800 block">${parseInt(item.formData?.budget || "30000").toLocaleString()} USD/yr</strong>
-                                            </div>
-                                            <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100/50">
-                                              <span className="text-slate-400 block text-[8px] font-black uppercase tracking-wider mb-0.5">Backlogs & Gap</span>
-                                              <strong className="text-slate-800 block">{item.formData?.backlogs || "0"} backlogs · {item.formData?.studyGap || "0"} yr gap</strong>
-                                            </div>
-                                            <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100/50">
-                                              <span className="text-slate-400 block text-[8px] font-black uppercase tracking-wider mb-0.5">Financial Sponsor</span>
-                                              <strong className="text-slate-800 block truncate">{item.formData?.sponsorType || "Self"} (${parseInt(item.formData?.sponsorIncome || "1500000").toLocaleString()} NPR)</strong>
+                                            <div className="bg-slate-50 p-2.5 rounded-xl">
+                                              <span className="text-[9px] font-bold text-slate-400 block uppercase">Sponsor Source</span>
+                                              <span className="font-bold text-slate-800 truncate block">{item.formData?.sponsorType || "Self"}</span>
                                             </div>
                                           </div>
                                         </motion.div>
                                       )}
                                     </AnimatePresence>
                                   </div>
-                                  <div className="flex items-center justify-between pt-4 border-t border-slate-100 mt-2">
-                                    <div className="text-left">
-                                      <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Admit Odds</p>
-                                      <p className="text-base font-black text-[#10B981] leading-none mt-1">{admissionChance ?? "—"}%</p>
-                                    </div>
+
+                                  <div className="pt-4 border-t border-slate-100 mt-4 flex items-center justify-between">
                                     <button
                                       onClick={() => handleLoadSavedProfile(item)}
-                                      className="bg-[#3686FF] hover:bg-blue-600 text-white font-extrabold px-4 py-2.5 rounded-xl text-[10px] uppercase tracking-wider shadow-sm transition-all active:scale-95 cursor-pointer"
+                                      className="w-full bg-[#3686FF] hover:bg-blue-600 text-white font-extrabold py-3 rounded-2xl text-xs shadow-md transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-2"
                                     >
-                                      Open Analytics (Step 8)
+                                      <span>Open Full Analytics</span>
+                                      <ChevronRight className="w-4 h-4" />
                                     </button>
                                   </div>
                                 </Card>
@@ -2065,16 +1780,17 @@ function DashboardInner() {
                       </div>
                     )}
 
-                    {/* Section 2: Recommended Universities */}
+                    {/* Section 2: Recommended Universities Grid */}
                     <div className="space-y-4">
-                      <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] px-1">More Recommended Universities for You</h3>
-
-
+                      <div className="flex items-center justify-between px-1">
+                        <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">Recommended Institutions for You</h3>
+                        <span className="text-xs font-bold text-slate-400">{matches.length} Total Options</span>
+                      </div>
 
                       {matchesLoading ? (
                         <div className="flex py-16 justify-center items-center">
-                          <Loader2 className="w-8 h-8 text-blue-600 animate-spin mr-3" />
-                          <span className="font-bold text-slate-500 animate-pulse">Matching universities...</span>
+                          <Loader2 className="w-8 h-8 text-[#3686FF] animate-spin mr-3" />
+                          <span className="font-bold text-slate-500 animate-pulse text-xs">Matching universities against your GPA and test scores...</span>
                         </div>
                       ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -2085,54 +1801,53 @@ function DashboardInner() {
                               return (
                                 <motion.div
                                   key={m.id || m.name}
-                                  whileHover={{ y: -6 }}
+                                  whileHover={{ y: -4 }}
                                   transition={{ duration: 0.2 }}
                                 >
-                                  <Card className="rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 bg-white flex flex-col justify-between h-full group hover:shadow-2xl hover:shadow-blue-500/5 transition-all relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 w-24 h-24 bg-blue-50/40 rounded-full blur-2xl pointer-events-none" />
+                                  <Card className="rounded-3xl p-6 border border-slate-150 bg-white shadow-sm hover:shadow-lg transition-all flex flex-col justify-between h-full group">
                                     <div>
-                                      <div className="flex justify-between items-start mb-4">
-                                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black tracking-widest uppercase bg-emerald-50 text-emerald-600">
-                                          Match Score: {m.admissionRate || 76}%
+                                      <div className="flex justify-between items-start mb-3">
+                                        <span className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                          {m.admissionRate || 78}% Match
                                         </span>
                                         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{m.institution_type || "Public"}</span>
                                       </div>
 
-                                      <h3 className="font-black text-slate-850 text-lg leading-snug mb-1 group-hover:text-[#3686FF] transition-colors">{m.name}</h3>
-                                      <p className="text-slate-400 font-semibold text-xs flex items-center gap-1">
-                                        <MapPin className="w-3.5 h-3.5 shrink-0" />
+                                      <h3 className="font-extrabold text-slate-900 text-base leading-snug mb-1 group-hover:text-[#3686FF] transition-colors">{m.name}</h3>
+                                      <p className="text-slate-500 font-medium text-xs flex items-center gap-1 mt-1">
+                                        <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                                         {m.city ? `${m.city}, ` : ""}{m.countryCode || "Canada"}
                                       </p>
 
-                                      <div className="h-px bg-slate-50 my-4" />
+                                      <div className="h-px bg-slate-100 my-4" />
 
-                                      <div className="space-y-2 mb-6">
-                                        <div className="flex justify-between text-xs font-semibold">
-                                          <span className="text-slate-400">Est. Tuition:</span>
-                                          <span className="text-slate-700 font-black">${(m.tuitionFee || 18000).toLocaleString()}/yr</span>
+                                      <div className="space-y-2 mb-4 text-xs font-semibold">
+                                        <div className="flex justify-between">
+                                          <span className="text-slate-400">Tuition:</span>
+                                          <span className="text-slate-800 font-extrabold">${(m.tuitionFee || 18000).toLocaleString()}/yr</span>
                                         </div>
-                                        <div className="flex justify-between text-xs font-semibold">
+                                        <div className="flex justify-between">
                                           <span className="text-slate-400">Scholarship:</span>
-                                          <span className="text-emerald-600 font-black">Up to $3,000</span>
+                                          <span className="text-emerald-600 font-extrabold">Up to $3,000</span>
                                         </div>
-                                        <div className="flex justify-between text-xs font-semibold">
-                                          <span className="text-slate-400">Min. Requirements:</span>
-                                          <span className="text-slate-700 font-black">IELTS {m.englishReq || "6.5"} / GPA {(m.gpaRequirement ? (m.gpaRequirement > 4.0 ? Math.round(((m.gpaRequirement / 100) * 4.0) * 10) / 10 : m.gpaRequirement) : 3.0).toFixed(1)}</span>
+                                        <div className="flex justify-between">
+                                          <span className="text-slate-400">Requirements:</span>
+                                          <span className="text-slate-800 font-extrabold">IELTS {m.englishReq || "6.5"} / GPA {(m.gpaRequirement ? (m.gpaRequirement > 4.0 ? Math.round(((m.gpaRequirement / 100) * 4.0) * 10) / 10 : m.gpaRequirement) : 3.0).toFixed(1)}</span>
                                         </div>
                                       </div>
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-slate-50">
+                                    <div className="grid grid-cols-2 gap-3 pt-4 border-t border-slate-100 mt-2">
                                       <button
                                         onClick={() => handleApplyMatch(m)}
-                                        className="bg-[#3686FF] hover:bg-blue-600 text-white font-bold py-3 rounded-2xl text-xs shadow-md transition-all active:scale-95 cursor-pointer"
+                                        className="bg-[#3686FF] hover:bg-blue-600 text-white font-extrabold py-3 rounded-2xl text-xs shadow-sm transition-all active:scale-95 cursor-pointer"
                                       >
                                         Apply Now
                                       </button>
                                       <button
                                         onClick={() => handleLaunchRecommendedUniversity(m)}
                                         disabled={isLaunching}
-                                        className="border border-slate-200 hover:border-blue-100 hover:text-[#3686FF] bg-white text-slate-650 font-bold py-3 rounded-2xl text-xs shadow-sm transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
+                                        className="border border-slate-200 hover:border-[#3686FF] hover:text-[#3686FF] bg-white text-slate-700 font-extrabold py-3 rounded-2xl text-xs transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
                                       >
                                         {isLaunching ? (
                                           <Loader2 className="w-3.5 h-3.5 animate-spin text-[#3686FF]" />
@@ -2967,12 +2682,28 @@ function DashboardInner() {
                 {/* 10. PROFILE EDITOR TAB */}
                 {activeTab === "profile" && (
                   <div className="space-y-6">
-                    {/* Top Completeness Header */}
-                    <Card className="rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 bg-white relative overflow-hidden">
-                      <div className="absolute -right-20 -top-20 w-48 h-48 bg-gradient-to-br from-blue-500/5 to-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
+                    {/* Error & Success Notification Toasts */}
+                    {errorMsg && (
+                      <div className="bg-red-50 border border-red-200 text-red-700 px-4.5 py-3.5 rounded-2xl text-xs font-bold flex items-center justify-between shadow-xs">
+                        <div className="flex items-center gap-2">
+                          <span className="text-base">⚠️</span>
+                          <span>{errorMsg}</span>
+                        </div>
+                        <button onClick={() => setErrorMsg("")} className="text-red-500 hover:text-red-800 font-extrabold text-sm ml-4 cursor-pointer">×</button>
+                      </div>
+                    )}
+                    {savedNotify && (
+                      <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4.5 py-3.5 rounded-2xl text-xs font-bold flex items-center gap-2 shadow-xs">
+                        <span className="text-base">✅</span>
+                        <span>Profile details saved and synced to database successfully!</span>
+                      </div>
+                    )}
+
+                    {/* Top Completeness Header (Clean Solid Light Theme) */}
+                    <div className="bg-white rounded-[28px] p-6 sm:p-8 border border-slate-200/80 shadow-xs relative overflow-hidden">
                       <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
                         <div className="flex items-center gap-5 shrink-0">
-                          {/* Premium Circular Progress Indicator */}
+                          {/* Circular Progress Indicator */}
                           <div className="relative flex items-center justify-center h-20 w-20 shrink-0">
                             <svg className="w-full h-full transform -rotate-90">
                               <circle
@@ -2988,63 +2719,53 @@ function DashboardInner() {
                                 cx="40"
                                 cy="40"
                                 r="34"
-                                className="text-blue-500 transition-all duration-1000 ease-out"
+                                className="text-[#3686FF] transition-all duration-1000 ease-out"
                                 strokeWidth="6.5"
                                 strokeDasharray={2 * Math.PI * 34}
                                 strokeDashoffset={2 * Math.PI * 34 * (1 - profileCompleteness / 100)}
                                 strokeLinecap="round"
-                                stroke="url(#blueGrad)"
+                                stroke="#3686FF"
                                 fill="transparent"
                               />
-                              <defs>
-                                <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                  <stop offset="0%" stopColor="#3b82f6" />
-                                  <stop offset="100%" stopColor="#4f46e5" />
-                                </linearGradient>
-                              </defs>
                             </svg>
-                            <span className="absolute text-lg font-black text-slate-800">{profileCompleteness}%</span>
+                            <span className="absolute text-lg font-extrabold text-slate-900">{profileCompleteness}%</span>
                           </div>
                           <div>
-                            <h2 className="text-lg font-black text-slate-800 tracking-tight">Complete Profile</h2>
-                            <p className="text-xs text-slate-400 font-semibold mt-0.5">
-                              Provide details to get accurate university matches and fast track admissions.
+                            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 text-[#3686FF] text-[10px] font-bold uppercase tracking-wider mb-1 border border-blue-100">
+                              <Sparkles className="w-3 h-3 text-[#3686FF]" />
+                              <span>Database Synced Profile</span>
+                            </div>
+                            <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Academic & Personal Profile</h2>
+                            <p className="text-xs text-slate-500 font-medium mt-0.5">
+                              Keep your credentials updated to get instant university admissibility evaluation.
                             </p>
                           </div>
                         </div>
 
                         {/* Top action buttons */}
-                        <div className="flex flex-wrap gap-2 justify-end w-full md:w-auto">
+                        <div className="flex flex-wrap gap-2.5 justify-end w-full md:w-auto">
                           {isEditingProfile ? (
                             <>
                               <button
                                 onClick={() => handleSaveProfile(false)}
                                 disabled={saving}
-                                className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-2xl text-xs shadow-sm transition-all"
+                                className="bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-bold px-4 py-2.5 rounded-2xl text-xs border border-slate-200 transition-all active:scale-95 cursor-pointer"
                               >
                                 {saving ? "Saving..." : "Save Draft"}
                               </button>
                               <button
                                 onClick={() => handleSaveProfile(true)}
                                 disabled={saving}
-                                className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold px-4 py-2.5 rounded-2xl text-xs shadow-md transition-all hover:shadow-lg"
+                                className="bg-[#3686FF] hover:bg-blue-600 text-white font-extrabold px-5 py-2.5 rounded-2xl text-xs shadow-md shadow-blue-500/20 transition-all active:scale-95 cursor-pointer flex items-center gap-1.5"
                               >
-                                {saving ? "Submitting..." : "Submit Profile"}
+                                <Check className="w-4 h-4" />
+                                {saving ? "Saving to Database..." : "Save Profile & Sync Database"}
                               </button>
                               <button
                                 onClick={() => setIsEditingProfile(false)}
-                                className="border border-slate-200 bg-white text-slate-600 font-bold px-4 py-2.5 rounded-2xl text-xs shadow-sm hover:bg-slate-50 transition-all"
+                                className="border border-slate-200 bg-white text-slate-700 font-bold px-4 py-2.5 rounded-2xl text-xs hover:bg-slate-50 transition-all active:scale-95 cursor-pointer"
                               >
                                 Preview Profile
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setIsEditingProfile(false);
-                                  setActiveTab("dashboard");
-                                }}
-                                className="text-slate-400 hover:text-slate-600 font-bold px-3 py-2 text-xs transition-colors"
-                              >
-                                Continue Later
                               </button>
                             </>
                           ) : (
@@ -3054,13 +2775,14 @@ function DashboardInner() {
                                   setEditForm(profile);
                                   setIsEditingProfile(true);
                                 }}
-                                className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold px-4.5 py-2.5 rounded-2xl text-xs shadow-md hover:shadow-lg hover:scale-102 transition-all"
+                                className="bg-[#3686FF] hover:bg-blue-600 text-white font-extrabold px-5 py-2.5 rounded-2xl text-xs shadow-md shadow-blue-500/20 transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
                               >
+                                <Pencil className="w-3.5 h-3.5" />
                                 Edit Profile
                               </button>
                               <button
                                 onClick={() => setActiveTab("dashboard")}
-                                className="border border-slate-200 bg-white text-slate-600 font-bold px-4.5 py-2.5 rounded-2xl text-xs shadow-sm hover:bg-slate-50 transition-all"
+                                className="border border-slate-200 bg-white text-slate-700 font-bold px-4 py-2.5 rounded-2xl text-xs hover:bg-slate-50 transition-all active:scale-95 cursor-pointer"
                               >
                                 Back to Dashboard
                               </button>
@@ -3085,37 +2807,37 @@ function DashboardInner() {
                           <button
                             key={sec.idx}
                             onClick={() => setProfileSubTab(sec.idx)}
-                            className={`flex flex-col items-center justify-center p-2.5 rounded-2xl border transition-all ${
+                            className={`flex flex-col items-center justify-center p-2.5 rounded-2xl border transition-all cursor-pointer ${
                               profileSubTab === sec.idx
-                                ? "border-blue-500 bg-blue-50/40 text-blue-600 shadow-[0_4px_12px_rgba(59,130,246,0.08)]"
-                                : "border-slate-100 bg-slate-50/50 text-slate-500 hover:border-slate-200 hover:bg-slate-50 hover:text-slate-800"
+                                ? "border-[#3686FF] bg-blue-50 text-[#3686FF] font-bold"
+                                : "border-slate-200/80 bg-slate-50/50 text-slate-600 hover:border-slate-300 hover:bg-slate-100/60"
                             }`}
                           >
-                            <span className="text-[10px] font-extrabold tracking-tight truncate w-full text-center">{sec.label}</span>
+                            <span className="text-[10px] font-bold tracking-tight truncate w-full text-center">{sec.label}</span>
                             <div className="mt-1 flex items-center justify-center">
                               {sec.done ? (
-                                <Check className="w-3.5 h-3.5 text-emerald-500" />
+                                <Check className="w-3.5 h-3.5 text-emerald-600" />
                               ) : (
-                                <div className="w-1.5 h-1.5 rounded-full bg-slate-300 animate-pulse" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />
                               )}
                             </div>
                           </button>
                         ))}
                       </div>
-                    </Card>
+                    </div>
 
                     {/* Main Workspace Grid (Left Menu / Right Content) */}
-                    <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-6">
                       
                       {/* Left Sidebar Menu for Desktop / Horizontal menu for Mobile */}
                       <aside className="lg:block">
-                        <div className="flex lg:flex-col overflow-x-auto lg:overflow-visible gap-1 pb-2 lg:pb-0 scrollbar-none rounded-2xl border border-slate-100 bg-white p-2 shadow-md shadow-slate-100/50">
+                        <div className="flex lg:flex-col overflow-x-auto lg:overflow-visible gap-1 pb-2 lg:pb-0 scrollbar-none rounded-2xl border border-slate-200/80 bg-white p-2 shadow-xs">
                           {[
                             { idx: 0, label: "Personal Information", icon: User },
                             { idx: 1, label: "Academic Credentials", icon: GraduationCap },
                             { idx: 2, label: "Study Preferences", icon: Globe },
                             { idx: 3, label: "English Language Test", icon: Award },
-                            { idx: 4, label: "Work Experience (Opt)", icon: Briefcase },
+                            { idx: 4, label: "Work Experience", icon: Briefcase },
                             { idx: 5, label: "Financial Details", icon: DollarSign },
                             { idx: 6, label: "Required Documents", icon: FileText },
                             { idx: 7, label: "Emergency Contact", icon: Phone },
@@ -3127,13 +2849,13 @@ function DashboardInner() {
                               <button
                                 key={sec.idx}
                                 onClick={() => setProfileSubTab(sec.idx)}
-                                className={`flex items-center gap-3 w-full shrink-0 lg:shrink px-4 py-3 rounded-xl text-left text-xs font-bold transition-all whitespace-nowrap ${
+                                className={`flex items-center gap-3 w-full shrink-0 lg:shrink px-3.5 py-3 rounded-xl text-left text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                                   isActive
-                                    ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md shadow-blue-500/10"
-                                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
+                                    ? "bg-[#3686FF] text-white shadow-sm"
+                                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                                 }`}
                               >
-                                <Icon className={`h-4.5 w-4.5 shrink-0 ${isActive ? "text-white" : "text-slate-400"}`} />
+                                <Icon className={`h-4 w-4 shrink-0 ${isActive ? "text-white" : "text-slate-400"}`} />
                                 <span>{sec.label}</span>
                               </button>
                             );
@@ -3142,7 +2864,7 @@ function DashboardInner() {
                       </aside>
 
                       {/* Right Panel (Active Form or Viewer) */}
-                      <Card className="rounded-[32px] p-6 md:p-8 border-none shadow-xl shadow-slate-200/50 bg-white">
+                      <div className="rounded-[28px] p-6 md:p-8 border border-slate-200/80 bg-white shadow-xs">
                         
                         {isEditingProfile ? (
                           /* ═══════════ EDITING FORM MODE ═══════════ */
@@ -3162,15 +2884,6 @@ function DashboardInner() {
                                       type="text"
                                       value={editForm.name}
                                       onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
-                                    />
-                                  </label>
-                                  <label className="block">
-                                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Middle Name</span>
-                                    <input
-                                      type="text"
-                                      value={editForm.middleName}
-                                      onChange={(e) => setEditForm({ ...editForm, middleName: e.target.value })}
                                       className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
                                     />
                                   </label>
@@ -3196,10 +2909,20 @@ function DashboardInner() {
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Date of Birth</span>
                                     <input
                                       type="date"
+                                      max={new Date().toISOString().slice(0, 10)}
                                       value={editForm.dateOfBirth}
                                       onChange={(e) => setEditForm({ ...editForm, dateOfBirth: e.target.value })}
-                                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
+                                      className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
+                                        editForm.dateOfBirth && editForm.dateOfBirth > new Date().toISOString().slice(0, 10)
+                                          ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
+                                          : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
+                                      }`}
                                     />
+                                    {editForm.dateOfBirth && editForm.dateOfBirth > new Date().toISOString().slice(0, 10) && (
+                                      <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
+                                        <span>⚠️ Date of birth cannot be in the future</span>
+                                      </p>
+                                    )}
                                   </label>
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Gender</span>
@@ -3369,26 +3092,55 @@ function DashboardInner() {
                                       value={editForm.gpa}
                                       onChange={(e) => setEditForm({ ...editForm, gpa: e.target.value })}
                                       placeholder="e.g. 3.75 or 85%"
-                                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
+                                      className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
+                                        isNegativeVal(editForm.gpa)
+                                          ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
+                                          : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
+                                      }`}
                                     />
+                                    {isNegativeVal(editForm.gpa) && (
+                                      <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
+                                        <span>⚠️ GPA / percentage cannot be negative</span>
+                                      </p>
+                                    )}
                                   </label>
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Number of Backlogs</span>
                                     <input
                                       type="number"
+                                      min="0"
                                       value={editForm.backlogs}
                                       onChange={(e) => setEditForm({ ...editForm, backlogs: e.target.value })}
-                                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
+                                      className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
+                                        isNegativeVal(editForm.backlogs)
+                                          ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
+                                          : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
+                                      }`}
                                     />
+                                    {isNegativeVal(editForm.backlogs) && (
+                                      <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
+                                        <span>⚠️ Backlogs count cannot be negative</span>
+                                      </p>
+                                    )}
                                   </label>
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Study Gap (Years)</span>
                                     <input
                                       type="number"
+                                      min="0"
                                       value={editForm.studyGap}
                                       onChange={(e) => setEditForm({ ...editForm, studyGap: e.target.value })}
-                                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
+                                      className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
+                                        isNegativeVal(editForm.studyGap)
+                                          ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
+                                          : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
+                                      }`}
                                     />
+                                    {isNegativeVal(editForm.studyGap) && (
+                                      <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
+                                        <span>⚠️ Study gap cannot be negative</span>
+                                      </p>
+                                    )}
                                   </label>
                                 </div>
                               </div>
@@ -3514,8 +3266,17 @@ function DashboardInner() {
                                           value={editForm.englishScore}
                                           onChange={(e) => setEditForm({ ...editForm, englishScore: e.target.value })}
                                           placeholder="e.g. 7.5 or 115"
-                                          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
+                                          className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
+                                            isNegativeVal(editForm.englishScore)
+                                              ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
+                                              : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
+                                          }`}
                                         />
+                                        {isNegativeVal(editForm.englishScore) && (
+                                          <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
+                                            <span>⚠️ Test score cannot be negative</span>
+                                          </p>
+                                        )}
                                       </label>
                                     </>
                                   )}
@@ -3571,6 +3332,7 @@ function DashboardInner() {
                                         <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Years of Experience</span>
                                         <input
                                           type="number"
+                                          min="0"
                                           value={editForm.workExperience}
                                           onChange={(e) => setEditForm({ ...editForm, workExperience: e.target.value })}
                                           className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
@@ -3610,19 +3372,39 @@ function DashboardInner() {
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Annual Study Budget ({editForm.currency})</span>
                                     <input
                                       type="number"
+                                      min="0"
                                       value={editForm.yearlyBudget}
                                       onChange={(e) => setEditForm({ ...editForm, yearlyBudget: e.target.value })}
-                                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
+                                      className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
+                                        isNegativeVal(editForm.yearlyBudget)
+                                          ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
+                                          : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
+                                      }`}
                                     />
+                                    {isNegativeVal(editForm.yearlyBudget) && (
+                                      <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
+                                        <span>⚠️ Annual budget cannot be negative</span>
+                                      </p>
+                                    )}
                                   </label>
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Available Bank Balance ({editForm.currency})</span>
                                     <input
                                       type="number"
+                                      min="0"
                                       value={editForm.bankBalance}
                                       onChange={(e) => setEditForm({ ...editForm, bankBalance: e.target.value })}
-                                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
+                                      className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
+                                        isNegativeVal(editForm.bankBalance)
+                                          ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
+                                          : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
+                                      }`}
                                     />
+                                    {isNegativeVal(editForm.bankBalance) && (
+                                      <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
+                                        <span>⚠️ Bank balance cannot be negative</span>
+                                      </p>
+                                    )}
                                   </label>
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Sponsor Type</span>
@@ -3643,10 +3425,20 @@ function DashboardInner() {
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Sponsor's Annual Income ({editForm.currency})</span>
                                     <input
                                       type="number"
+                                      min="0"
                                       value={editForm.sponsorIncome}
                                       onChange={(e) => setEditForm({ ...editForm, sponsorIncome: e.target.value })}
-                                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
+                                      className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
+                                        isNegativeVal(editForm.sponsorIncome)
+                                          ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
+                                          : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
+                                      }`}
                                     />
+                                    {isNegativeVal(editForm.sponsorIncome) && (
+                                      <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
+                                        <span>⚠️ Sponsor income cannot be negative</span>
+                                      </p>
+                                    )}
                                   </label>
                                   <div className="flex items-center gap-3 pt-5">
                                     <input
@@ -3792,21 +3584,28 @@ function DashboardInner() {
 
                             {/* Bottom inline action buttons */}
                             {profileSubTab !== 6 && (
-                              <div className="flex justify-end gap-3 pt-6 border-t border-slate-50">
-                                <button
-                                  onClick={() => handleSaveProfile(false)}
-                                  disabled={saving}
-                                  className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2 rounded-xl text-xs transition-colors"
-                                >
-                                  {saving ? "Saving..." : "Save Draft"}
-                                </button>
-                                <button
-                                  onClick={() => handleSaveProfile(true)}
-                                  disabled={saving}
-                                  className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold px-4 py-2 rounded-xl text-xs shadow-sm transition-colors"
-                                >
-                                  {saving ? "Submitting..." : "Submit Profile"}
-                                </button>
+                              <div className="flex flex-wrap items-center justify-between gap-3 pt-6 border-t border-slate-100">
+                                <span className="text-slate-400 font-medium text-xs flex items-center gap-1.5">
+                                  <Shield className="w-3.5 h-3.5 text-emerald-600" />
+                                  Changes are automatically encrypted & saved to database.
+                                </span>
+                                <div className="flex gap-2.5">
+                                  <button
+                                    onClick={() => handleSaveProfile(false)}
+                                    disabled={saving}
+                                    className="bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-bold px-4 py-2.5 rounded-2xl text-xs border border-slate-200 transition-all active:scale-95 cursor-pointer"
+                                  >
+                                    {saving ? "Saving..." : "Save Draft"}
+                                  </button>
+                                  <button
+                                    onClick={() => handleSaveProfile(true)}
+                                    disabled={saving}
+                                    className="bg-[#3686FF] hover:bg-blue-600 text-white font-extrabold px-5 py-2.5 rounded-2xl text-xs shadow-md shadow-blue-500/20 transition-all active:scale-95 cursor-pointer flex items-center gap-1.5"
+                                  >
+                                    <Check className="w-4 h-4" />
+                                    {saving ? "Saving to Database..." : "Save & Sync Profile to Database"}
+                                  </button>
+                                </div>
                               </div>
                             )}
 
@@ -3826,10 +3625,6 @@ function DashboardInner() {
                                   <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors">
                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Full Name</span>
                                     <span className="text-sm font-bold text-slate-800 mt-1">{profile.name}</span>
-                                  </div>
-                                  <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors">
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Middle Name</span>
-                                    <span className="text-sm font-bold text-slate-800 mt-1">{profile.middleName || "Not set"}</span>
                                   </div>
                                   <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors">
                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Email Address</span>
@@ -4155,12 +3950,9 @@ function DashboardInner() {
                                 </div>
                               </div>
                             )}
-
                           </div>
                         )}
-
-                      </Card>
-
+                      </div>
                     </div>
                   </div>
                 )}

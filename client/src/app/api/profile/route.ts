@@ -135,6 +135,7 @@ export async function PUT(req: Request) {
     name,
     username,
     email,
+    phoneNumber,
     nationality,
     currentCountry,
     highestEducation,
@@ -175,6 +176,7 @@ export async function PUT(req: Request) {
     docsReady,
     middleName,
     dob,
+    dateOfBirth,
     firstLanguage,
     citizenshipCountry,
     passportNumber,
@@ -205,6 +207,41 @@ export async function PUT(req: Request) {
   const finalYearlyBudget = yearlyBudget || budget;
   const finalEnglishScore = englishScore ?? testScore;
   const finalScholarshipNeeded = scholarshipNeeded ?? scholarship;
+  const finalDob = dob || dateOfBirth || null;
+
+  // Validation: Numeric amounts and scores cannot be negative
+  const gpaNum = toFloat(gpa);
+  const budgetNum = toFloat(finalYearlyBudget);
+  const bankNum = toFloat(bankBalance);
+  const incomeNum = toFloat(sponsorIncome);
+  const engNum = toFloat(finalEnglishScore);
+  const backlogsNum = toInt(backlogs, 0);
+  const gapNum = toInt(studyGap, 0);
+  const workExpNum = toInt(workExperience, 0);
+  const greVerbalNum = toFloat(greVerbal);
+  const greQuantNum = toFloat(greQuant);
+  const greAwaNum = toFloat(greAwa);
+  const gmatNum = toFloat(gmatTotal);
+
+  if (
+    (gpaNum !== null && gpaNum < 0) ||
+    (budgetNum !== null && budgetNum < 0) ||
+    (bankNum !== null && bankNum < 0) ||
+    (incomeNum !== null && incomeNum < 0) ||
+    (engNum !== null && engNum < 0) ||
+    (backlogsNum < 0) ||
+    (gapNum < 0) ||
+    (workExpNum < 0) ||
+    (greVerbalNum !== null && greVerbalNum < 0) ||
+    (greQuantNum !== null && greQuantNum < 0) ||
+    (greAwaNum !== null && greAwaNum < 0) ||
+    (gmatNum !== null && gmatNum < 0)
+  ) {
+    return NextResponse.json(
+      { error: "Amounts, budgets, balances, GPA, scores, and experience cannot be negative numbers." },
+      { status: 400 }
+    );
+  }
 
   const uniquenessError = await ensureUniqueFields({
     userId: userIdSource,
@@ -214,12 +251,12 @@ export async function PUT(req: Request) {
   if (uniquenessError) return uniquenessError;
 
   const scoreBundle = computeProfileScores({
-    gpaVal: toFloat(gpa) ?? 3,
-    testScoreVal: toFloat(finalEnglishScore) ?? 0,
-    bankBalanceVal: toFloat(bankBalance) ?? 0,
+    gpaVal: gpaNum ?? 3,
+    testScoreVal: engNum ?? 0,
+    bankBalanceVal: bankNum ?? 0,
     passportReady,
     docsReady,
-    yearlyBudgetVal: toFloat(finalYearlyBudget) ?? 20000,
+    yearlyBudgetVal: budgetNum ?? 20000,
   });
 
   const profileData = {
@@ -227,27 +264,27 @@ export async function PUT(req: Request) {
     currentCountry: currentCountry || null,
     highestEducation: highestEducation || null,
     passingYear: passingYear || null,
-    gpa: toFloat(gpa),
-    backlogs: toInt(backlogs, 0),
-    studyGap: toInt(studyGap, 0),
+    gpa: gpaNum,
+    backlogs: Math.max(0, backlogsNum),
+    studyGap: Math.max(0, gapNum),
     hasEnglishTest: hasEnglishTest ?? null,
     testType: testType || null,
-    englishScore: toFloat(finalEnglishScore),
+    englishScore: engNum,
     aptitudeTest: aptitudeTest || null,
-    greVerbal: toFloat(greVerbal),
-    greQuant: toFloat(greQuant),
-    greAwa: toFloat(greAwa),
-    gmatTotal: toFloat(gmatTotal),
+    greVerbal: greVerbalNum,
+    greQuant: greQuantNum,
+    greAwa: greAwaNum,
+    gmatTotal: gmatNum,
     degreeLevel: finalDegreeLevel || null,
     field: field || null,
     program: program || null,
     preferredCountry: finalPreferredCountry || null,
     intake: intake || null,
-    yearlyBudget: toFloat(finalYearlyBudget),
+    yearlyBudget: budgetNum,
     currency: currency || "USD",
-    bankBalance: toFloat(bankBalance),
+    bankBalance: bankNum,
     sponsorType: sponsorType || null,
-    sponsorIncome: toFloat(sponsorIncome),
+    sponsorIncome: incomeNum,
     univType: univType || null,
     cityType: cityType || null,
     duration: toInt(duration, 0) || null,
@@ -257,7 +294,7 @@ export async function PUT(req: Request) {
     testDone: testDone ?? false,
     docsReady: docsReady ?? false,
     middleName: middleName || null,
-    dob: dob || null,
+    dob: finalDob,
     firstLanguage: firstLanguage || null,
     citizenshipCountry: citizenshipCountry || null,
     passportNumber: passportNumber || null,
@@ -274,7 +311,7 @@ export async function PUT(req: Request) {
     workStatus: workStatus || null,
     companyName: companyName || null,
     jobTitle: jobTitle || null,
-    workExperience: toInt(workExperience, 0),
+    workExperience: Math.max(0, workExpNum),
     emergencyName: emergencyName || null,
     emergencyRelation: emergencyRelation || null,
     emergencyPhone: emergencyPhone || null,
@@ -292,6 +329,7 @@ export async function PUT(req: Request) {
       ...(name && { name }),
       ...(username && { username: username.toLowerCase().trim() }),
       ...(email && { email: email.toLowerCase().trim() }),
+      ...(phoneNumber && { phoneNumber: phoneNumber.trim(), phoneE164: phoneNumber.trim() }),
       profile: {
         upsert: {
           create: profileData,
@@ -304,6 +342,7 @@ export async function PUT(req: Request) {
       name: true,
       username: true,
       email: true,
+      phoneNumber: true,
       profile: true,
     },
   });
