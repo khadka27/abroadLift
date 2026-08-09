@@ -6,7 +6,7 @@ import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { AlertCircle, CheckCircle2, Phone, Lock } from "lucide-react";
 import {
   normalizeDialCode,
   normalizePhoneNumber,
@@ -42,20 +42,15 @@ function LoginForm() {
       : "";
 
   useEffect(() => {
-    if (status !== "authenticated") {
-      return;
-    }
-
+    if (status !== "authenticated") return;
     if (session?.user?.role === "ADMIN") {
       router.replace("/admin/dashboard");
       return;
     }
-
     if (safeCallbackUrl && safeCallbackUrl !== "/") {
       router.replace(safeCallbackUrl);
       return;
     }
-
     router.replace("/dashboard");
   }, [status, session, router, safeCallbackUrl]);
 
@@ -69,46 +64,47 @@ function LoginForm() {
     if (dialCodeFromQuery) {
       setCountryDialCode(normalizeDialCode(dialCodeFromQuery));
     }
-
     if (phoneFromQuery) {
       setPhoneNumber(normalizePhoneNumber(phoneFromQuery));
     }
-
     if (searchParams.get("otp") === "1") {
       setOtpSent(true);
     }
   }, [searchParams]);
 
-  const performLogin = useCallback(async (otpValue: string) => {
-    const normalizedPhoneNumber = normalizePhoneNumber(phoneNumber);
-    const normalizedDialCode = normalizeDialCode(countryDialCode);
-    const phoneE164 = toE164(normalizedDialCode, normalizedPhoneNumber);
+  const performLogin = useCallback(
+    async (otpValue: string) => {
+      const normalizedPhoneNumber = normalizePhoneNumber(phoneNumber);
+      const normalizedDialCode = normalizeDialCode(countryDialCode);
+      const phoneE164 = toE164(normalizedDialCode, normalizedPhoneNumber);
 
-    if (!phoneE164 || !otpValue.trim()) {
-      setError("Please enter your phone number and OTP.");
-      return;
-    }
-
-    setLoading(true);
-    setError("");
-
-    try {
-      const result = await signIn("credentials", {
-        phone: phoneE164,
-        otp: otpValue.trim(),
-        redirect: false,
-      });
-
-      if (result?.error) {
-        setError(result.error);
+      if (!phoneE164 || !otpValue.trim()) {
+        setError("Please enter your phone number and OTP.");
         return;
       }
-    } catch {
-      setError("Something went wrong. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  }, [phoneNumber, countryDialCode]);
+
+      setLoading(true);
+      setError("");
+
+      try {
+        const result = await signIn("credentials", {
+          phone: phoneE164,
+          otp: otpValue.trim(),
+          redirect: false,
+        });
+
+        if (result?.error) {
+          setError(result.error);
+          return;
+        }
+      } catch {
+        setError("Something went wrong. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [phoneNumber, countryDialCode]
+  );
 
   useEffect(() => {
     if (otp.trim().length === 6) {
@@ -116,9 +112,7 @@ function LoginForm() {
     }
   }, [otp, performLogin]);
 
-  if (status === "loading" || status === "authenticated") {
-    return null;
-  }
+  if (status === "loading" || status === "authenticated") return null;
 
   const handleSendOtp = async () => {
     const phoneValid = validatePhoneByCountry(phoneNumber, countryDialCode);
@@ -174,30 +168,39 @@ function LoginForm() {
   };
 
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center p-4 sm:p-6 font-sans selection:bg-[#3686FF]/20 selection:text-[#3686FF] overflow-hidden">
-      {/* Background Image with Blur */}
-      <div className="absolute inset-0 z-0">
+    <div className="relative min-h-screen w-full flex items-center justify-center p-4 sm:p-6 lg:p-10 font-sans selection:bg-[#3366FF]/20 selection:text-[#3366FF] overflow-hidden">
+      {/* Blurred Background Image */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
         <Image
           src="/abroad.jpg"
-          alt="Abroad Background"
+          alt="Background"
           fill
           priority
-          className="object-cover"
+          className="object-cover scale-105 filter blur-lg brightness-[0.85]"
         />
-        {/* Dark blur overlay */}
-        <div className="absolute inset-0 bg-[#0A192F]/65 backdrop-blur-[12px]" />
-        {/* Animated subtle ambient glow shapes */}
-        <div className="absolute -top-[20%] -left-[10%] w-[60%] h-[60%] bg-[#3686FF]/15 rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute -bottom-[20%] -right-[10%] w-[50%] h-[50%] bg-indigo-500/15 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '3s' }} />
+        <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-md" />
       </div>
 
-      {/* Floating Centered Card */}
-      <div className="relative z-10 w-full max-w-[460px] bg-white/90 backdrop-blur-xl border border-white/50 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] rounded-[32px] p-6 sm:p-10 flex flex-col">
-        {/* Header with Logo Capsule */}
-        <div className="flex flex-col items-center mb-8">
-          <Link href="/" className="mb-6 hover:scale-105 active:scale-95 transition-all duration-300">
-            <div className="bg-white px-6 py-3 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-slate-100 flex items-center justify-center">
-              <div className="relative w-[130px] h-[36px]">
+      {/* Outer Card Container */}
+      <div className="w-full max-w-[980px] bg-white rounded-[32px] sm:rounded-[40px] shadow-[0_25px_70px_rgba(0,0,0,0.35)] flex flex-col md:flex-row overflow-hidden border border-slate-100 relative min-h-[580px] z-10">
+        
+        {/* ── LEFT PANEL (BRAND HERO WITH SCALLOPED CLOUD CURVE) ── */}
+        <div className="w-full md:w-[44%] lg:w-[42%] bg-gradient-to-br from-[#1E40AF] via-[#3366FF] to-[#2563EB] relative flex flex-col justify-between p-8 sm:p-12 text-white overflow-hidden shrink-0 min-h-[300px] md:min-h-full">
+          {/* Subtle Ambient Background Orbs */}
+          <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-white/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-[-20%] right-[-20%] w-[80%] h-[80%] bg-blue-400/20 rounded-full blur-3xl pointer-events-none" />
+
+          {/* Top Welcome Text */}
+          <div className="relative z-20">
+            <p className="text-[18px] sm:text-[22px] font-semibold text-white/95 tracking-wide">
+              Welcome to
+            </p>
+          </div>
+
+          {/* Center Brand Identity Badge */}
+          <div className="relative z-20 my-auto flex flex-col items-center text-center py-6">
+            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-white flex items-center justify-center shadow-[0_12px_35px_rgba(0,0,0,0.2)] mb-4 p-4 border-4 border-white/20 hover:scale-105 transition-transform duration-300">
+              <div className="relative w-full h-full">
                 <Image
                   src="/logo.png"
                   alt="AbroadLift Logo"
@@ -207,194 +210,190 @@ function LoginForm() {
                 />
               </div>
             </div>
-          </Link>
-          <h1 className="text-[30px] font-black text-slate-900 mb-2 tracking-tight">
-            Login
-          </h1>
-          <p className="text-slate-505 font-medium text-[14px] text-center max-w-[320px]">
-            Sign in with your phone number to access your account.
-          </p>
+            <h2 className="text-[28px] sm:text-[34px] font-extrabold text-white tracking-tight leading-tight">
+              AbroadLift
+            </h2>
+            <p className="text-[13px] text-blue-100 font-medium leading-relaxed max-w-[250px] mt-2 opacity-90">
+              Access your saved programs, admission insights, and application tracker.
+            </p>
+          </div>
+
+          {/* Bottom Footer Links */}
+          <div className="relative z-20 flex items-center justify-center gap-3 text-[11px] font-bold text-white/70 tracking-widest uppercase">
+            <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
+            <span>•</span>
+            <Link href="/privacy-policy" className="hover:text-white transition-colors">Privacy</Link>
+          </div>
+
+          {/* ── SCALLOPED / BUBBLE CLOUD CURVE TRANSITION (RIGHT EDGE) ── */}
+          <div className="hidden md:block absolute top-0 bottom-0 right-[-1px] w-[50px] lg:w-[65px] pointer-events-none z-20 h-full">
+            <svg
+              className="h-full w-full fill-white drop-shadow-[-6px_0_12px_rgba(0,0,0,0.06)]"
+              viewBox="0 0 100 800"
+              preserveAspectRatio="none"
+            >
+              <path d="M 100,0 L 100,800 L 0,800 C 45,750 45,700 0,650 C 45,600 45,550 0,500 C 45,450 45,400 0,350 C 45,300 45,250 0,200 C 45,150 45,100 0,50 C 45,20 25,0 0,0 Z" />
+            </svg>
+          </div>
+
+          {/* Secondary Translucent Cloud Layer for Depth */}
+          <div className="hidden md:block absolute top-0 bottom-0 right-[20px] w-[45px] pointer-events-none z-10 h-full opacity-30">
+            <svg
+              className="h-full w-full fill-[#93C5FD]"
+              viewBox="0 0 100 800"
+              preserveAspectRatio="none"
+            >
+              <path d="M 100,0 L 100,800 L 0,800 C 50,740 50,680 0,630 C 50,580 50,520 0,470 C 50,420 50,360 0,310 C 50,260 50,200 0,150 C 50,100 50,40 0,0 Z" />
+            </svg>
+          </div>
         </div>
 
-        {justRegistered && (
-          <div className="w-full mb-6 bg-emerald-50 border border-emerald-100 text-emerald-700 p-4 rounded-[20px] flex items-start gap-3 shadow-sm">
-            <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <p className="font-bold text-[13px]">Account Created!</p>
-              <p className="text-[12px] opacity-90 mt-0.5 font-medium">Please verify your OTP to sign in.</p>
+        {/* ── RIGHT PANEL (FORM CONTAINER) ── */}
+        <div className="flex-1 bg-white p-8 sm:p-12 flex flex-col justify-center relative z-10">
+          <div className="max-w-[420px] w-full mx-auto">
+            
+            {/* Header */}
+            <div className="mb-8 text-left">
+              <h1 className="text-[26px] sm:text-[32px] font-extrabold text-slate-900 tracking-tight">
+                Welcome Back
+              </h1>
+              <p className="text-slate-500 font-medium text-[14px] mt-1">
+                Sign in with your phone number to continue.
+              </p>
             </div>
-          </div>
-        )}
 
-        {existingAccountOtp && (
-          <div className="w-full mb-6 bg-blue-50 border border-blue-100 text-blue-700 p-4 rounded-[20px] flex items-start gap-3 shadow-sm">
-            <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <p className="font-bold text-[13px]">Account Found</p>
-              <p className="text-[12px] opacity-90 mt-0.5 font-medium">Use the OTP sent to your phone to login.</p>
-            </div>
-          </div>
-        )}
-
-        {otpSent && !justRegistered && !existingAccountOtp && (
-          <div className="w-full mb-6 bg-indigo-50 border border-indigo-100 text-indigo-700 p-4 rounded-[20px] flex items-start gap-3 shadow-sm">
-            <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" />
-            <p className="font-bold text-[13px] mt-0.5">OTP sent via SMS successfully.</p>
-          </div>
-        )}
-
-        {error && (
-          <div className="w-full mb-6 bg-rose-50 border border-rose-100 text-rose-600 p-4 rounded-[20px] flex items-start gap-3 shadow-sm">
-            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
-            <p className="font-bold text-[13px] mt-0.5">{error}</p>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="w-full space-y-6">
-          {!otpSent && (
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest pl-2">Phone Number</label>
-                <div className="flex gap-3">
-                  <div className="relative">
-                    <select
-                      value={countryDialCode}
-                      onChange={(e) => setCountryDialCode(e.target.value)}
-                      disabled={otpSent}
-                      className="h-[60px] w-[110px] rounded-[20px] border border-slate-200 bg-white pl-4 pr-8 text-[15px] font-bold text-slate-900 outline-none transition-all focus:border-[#3686FF] focus:ring-4 focus:ring-[#3686FF]/10 shadow-sm disabled:opacity-50 appearance-none cursor-pointer"
-                    >
-                      {COUNTRY_CODES.map((country) => (
-                        <option key={country.dialCode} value={country.dialCode}>
-                          {country.dialCode}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                      </svg>
-                    </div>
-                  </div>
-
-                  <div className="flex-1">
-                    <InputField
-                      placeholder={getPhonePlaceholder(countryDialCode)}
-                      value={phoneNumber}
-                      onChange={(v) => setPhoneNumber(v)}
-                    />
-                  </div>
+            {/* Success Notifications */}
+            {justRegistered && (
+              <div className="w-full mb-6 bg-emerald-50 border border-emerald-100 text-emerald-700 p-4 rounded-2xl flex items-start gap-3 text-[13px] font-semibold">
+                <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold">Account Created!</p>
+                  <p className="text-[12px] opacity-90 mt-0.5">Please enter the 6-digit OTP sent to your phone to sign in.</p>
                 </div>
               </div>
+            )}
 
-              <button
-                type="button"
-                onClick={handleSendOtp}
-                disabled={sendingOtp || !phoneNumber.trim()}
-                className="w-full h-[60px] bg-[#3686FF] text-white font-extrabold rounded-[20px] text-[14px] shadow-[0_8px_20px_rgba(54,134,255,0.2)] hover:shadow-[0_12px_25px_rgba(54,134,255,0.3)] hover:-translate-y-0.5 hover:bg-[#2970E6] transition-all disabled:opacity-50 disabled:hover:translate-y-0 active:translate-y-0 uppercase tracking-widest"
-              >
-                {sendingOtp ? "Sending OTP..." : "Continue"}
-              </button>
-            </div>
-          )}
-
-          {otpSent && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="space-y-3">
-                <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest pl-2 flex justify-between">
-                  <span>Enter 6-Digit Code</span>
-                </label>
-                <OTPInput value={otp} onChange={(v) => setOtp(v)} />
+            {existingAccountOtp && (
+              <div className="w-full mb-6 bg-blue-50 border border-blue-100 text-blue-700 p-4 rounded-2xl flex items-start gap-3 text-[13px] font-semibold">
+                <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold">Account Found</p>
+                  <p className="text-[12px] opacity-90 mt-0.5">Use the OTP sent to your phone to sign in.</p>
+                </div>
               </div>
+            )}
 
-              <div className="space-y-3">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full h-[60px] bg-[#3686FF] text-white font-extrabold rounded-[20px] text-[14px] shadow-[0_8px_20px_rgba(54,134,255,0.2)] hover:shadow-[0_12px_25px_rgba(54,134,255,0.3)] hover:-translate-y-0.5 hover:bg-[#2970E6] transition-all disabled:opacity-50 active:translate-y-0 uppercase tracking-widest"
-                >
-                  {loading ? "Authenticating..." : "Login Now"}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setOtpSent(false);
-                    setOtp("");
-                    setError("");
-                  }}
-                  className="w-full h-[60px] bg-white border border-slate-200 text-slate-600 font-bold rounded-[20px] text-[13px] hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 transition-all shadow-sm"
-                >
-                  Change Phone Number
-                </button>
+            {otpSent && !justRegistered && !existingAccountOtp && (
+              <div className="w-full mb-6 bg-indigo-50 border border-indigo-100 text-indigo-700 p-4 rounded-2xl flex items-start gap-3 text-[13px] font-semibold">
+                <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" />
+                <p>OTP sent via SMS successfully.</p>
               </div>
-            </div>
-          )}
-        </form>
+            )}
 
-        <p className="mt-8 text-center text-[13px] font-semibold text-slate-500">
-          Don&apos;t have an account?{" "}
-          <Link
-            href={
-              safeCallbackUrl
-                ? `/register?callbackUrl=${encodeURIComponent(safeCallbackUrl)}`
-                : "/register"
-            }
-            className="text-[#3686FF] font-black hover:underline ml-1"
-          >
-            Sign Up
-          </Link>
-        </p>
-      </div>
-    </div>
-  );
-}
+            {/* Error Notification */}
+            {error && (
+              <div className="w-full mb-6 bg-rose-50 border border-rose-100 text-rose-600 p-4 rounded-2xl flex items-start gap-3 text-[13px] font-semibold">
+                <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                <p>{error}</p>
+              </div>
+            )}
 
-function InputField({
-  placeholder,
-  value,
-  onChange,
-  type = "text",
-  error,
-  suffix,
-  onKeyDown,
-}: {
-  placeholder: string;
-  value: string;
-  onChange: (v: string) => void;
-  type?: string;
-  error?: string;
-  suffix?: React.ReactNode;
-  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
-}) {
-  return (
-    <div className="w-full">
-      <div className="relative">
-        <input
-          type={type}
-          placeholder={placeholder}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onKeyDown={(e) => {
-            if (onKeyDown) onKeyDown(e);
-            if (e.key === "Enter" && !e.defaultPrevented) {
-              const formEl = (e.target as HTMLElement).closest("form");
-              if (formEl) {
-                e.preventDefault();
-                formEl.requestSubmit();
-              }
-            }
-          }}
-          className="w-full h-[60px] bg-white border border-slate-200 rounded-[20px] px-5 text-[15px] font-bold text-slate-900 placeholder:text-slate-400 placeholder:font-medium outline-none focus:border-[#3686FF] focus:ring-4 focus:ring-[#3686FF]/10 transition-all shadow-sm"
-        />
-        {suffix && (
-          <div className="absolute right-5 top-1/2 -translate-y-1/2">
-            {suffix}
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {!otpSent ? (
+                <>
+                  {/* Phone Number Field */}
+                  <div className="space-y-1">
+                    <label className="text-[13px] font-bold text-slate-700 block">Phone Number</label>
+                    <div className="flex gap-3 border-b-2 border-slate-200 focus-within:border-[#3366FF] transition-colors pb-1">
+                      <select
+                        value={countryDialCode}
+                        onChange={(e) => setCountryDialCode(e.target.value)}
+                        disabled={otpSent}
+                        className="bg-transparent text-[14px] font-bold text-slate-800 outline-none cursor-pointer pr-1"
+                      >
+                        {COUNTRY_CODES.map((country) => (
+                          <option key={country.dialCode} value={country.dialCode}>
+                            {country.dialCode} ({country.label})
+                          </option>
+                        ))}
+                      </select>
+                      <div className="relative flex-1 flex items-center">
+                        <input
+                          type="tel"
+                          placeholder={getPhonePlaceholder(countryDialCode)}
+                          value={phoneNumber}
+                          onChange={(e) => setPhoneNumber(e.target.value)}
+                          className="w-full bg-transparent text-[15px] font-medium text-slate-900 placeholder:text-slate-400 outline-none pr-8 py-2"
+                        />
+                        <Phone className="w-5 h-5 text-slate-400 absolute right-1 pointer-events-none" />
+                      </div>
+                    </div>
+                  </div>
+                  {/* Action Pill Button */}
+                  <div className="pt-4">
+                    <button
+                      type="button"
+                      onClick={handleSendOtp}
+                      disabled={sendingOtp || !phoneNumber.trim()}
+                      className="w-full bg-[#3366FF] hover:bg-[#254bdb] text-white font-extrabold py-3.5 rounded-full text-[15px] shadow-lg shadow-blue-500/25 transition-all hover:scale-[1.01] active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
+                    >
+                      {sendingOtp ? "Sending..." : "Continue"}
+                    </button>
+                  </div>
+
+                  {/* Don't Have Account Text Link */}
+                  <p className="mt-5 text-center text-[13px] font-medium text-slate-600">
+                    Don&apos;t have an account?{" "}
+                    <Link
+                      href={
+                        safeCallbackUrl
+                          ? `/register?callbackUrl=${encodeURIComponent(safeCallbackUrl)}`
+                          : "/register"
+                      }
+                      className="text-[#3366FF] font-bold hover:underline ml-1"
+                    >
+                      Sign Up
+                    </Link>
+                  </p>
+                </>
+              ) : (
+                /* OTP Verification View */
+                <div className="space-y-6 animate-in fade-in duration-300">
+                  <div className="space-y-2">
+                    <label className="text-[13px] font-bold text-slate-700 block">
+                      Enter 6-Digit Verification Code
+                    </label>
+                    <OTPInput value={otp} onChange={(v) => setOtp(v)} />
+                  </div>
+
+                  <div className="space-y-3 pt-2">
+                    <button
+                      type="submit"
+                      disabled={loading || otp.trim().length !== 6}
+                      className="w-full bg-[#3366FF] hover:bg-[#254bdb] text-white font-extrabold py-3.5 rounded-full text-[15px] shadow-lg shadow-blue-500/25 transition-all hover:scale-[1.01] active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
+                    >
+                      {loading ? "Authenticating..." : "Sign In"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOtpSent(false);
+                        setOtp("");
+                        setError("");
+                      }}
+                      className="w-full text-center text-[13px] font-bold text-slate-500 hover:text-[#3366FF] transition-colors py-1"
+                    >
+                      Change Phone Number
+                    </button>
+                  </div>
+                </div>
+              )}
+            </form>
+
           </div>
-        )}
+        </div>
+
       </div>
-      {error && (
-        <p className="mt-2 text-[11px] text-rose-500 font-bold px-4">{error}</p>
-      )}
     </div>
   );
 }
@@ -407,8 +406,6 @@ function OTPInput({
   onChange: (v: string) => void;
 }) {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-
-  // Initialize value to 6 digits
   const otpArray = value.split("").slice(0, 6);
   while (otpArray.length < 6) otpArray.push("");
 
@@ -437,17 +434,15 @@ function OTPInput({
 
   const handleKeyDown = (
     index: number,
-    e: React.KeyboardEvent<HTMLInputElement>,
+    e: React.KeyboardEvent<HTMLInputElement>
   ) => {
     if (e.key === "Backspace") {
       e.preventDefault();
       if (otpArray[index]) {
-        // Clear current box and stay here
         const newOtpArray = [...otpArray];
         newOtpArray[index] = "";
         onChange(newOtpArray.join(""));
       } else if (index > 0) {
-        // If current box is already empty, clear previous box and focus it
         const newOtpArray = [...otpArray];
         newOtpArray[index - 1] = "";
         onChange(newOtpArray.join(""));
@@ -468,12 +463,16 @@ function OTPInput({
 
   const handlePaste = (
     index: number,
-    e: React.ClipboardEvent<HTMLInputElement>,
+    e: React.ClipboardEvent<HTMLInputElement>
   ) => {
     const clipboard = e.clipboardData;
     if (!clipboard) return;
 
-    const pastedData = clipboard.getData("text").replace(/\D/g, "").slice(0, 6).split("");
+    const pastedData = clipboard
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, 6)
+      .split("");
     if (pastedData.length === 0) return;
     e.preventDefault();
 
@@ -485,7 +484,6 @@ function OTPInput({
     });
 
     onChange(newOtpArray.join(""));
-
     const lastFocusedIndex = Math.min(index + pastedData.length, 5);
     inputRefs.current[lastFocusedIndex]?.focus();
   };
@@ -505,7 +503,7 @@ function OTPInput({
           onChange={(e) => handleChange(index, e.target.value)}
           onKeyDown={(e) => handleKeyDown(index, e)}
           onPaste={(e) => handlePaste(index, e)}
-          className="w-full aspect-square text-center text-[22px] sm:text-[24px] font-black border border-slate-200 rounded-[16px] bg-white text-slate-900 shadow-sm outline-none transition-all focus:border-[#3686FF] focus:ring-4 focus:ring-[#3686FF]/10 focus:-translate-y-0.5"
+          className="w-full aspect-square text-center text-[20px] font-extrabold border-b-2 border-slate-300 focus:border-[#3366FF] bg-slate-50 text-slate-900 outline-none transition-all focus:bg-white rounded-xl shadow-sm"
         />
       ))}
     </div>
@@ -516,8 +514,8 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
-          <div className="w-12 h-12 border-[4px] border-[#3686FF]/20 border-t-[#3686FF] rounded-full animate-spin" />
+        <div className="min-h-screen bg-slate-100 flex items-center justify-center">
+          <div className="w-10 h-10 border-4 border-[#3366FF]/20 border-t-[#3366FF] rounded-full animate-spin" />
         </div>
       }
     >
