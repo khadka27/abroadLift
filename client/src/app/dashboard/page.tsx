@@ -4,6 +4,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+import { CustomSelect } from "@/components/ui/CustomSelect";
+
 import { useEffect, useMemo, useState, useRef, Suspense } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -123,7 +125,14 @@ interface Application {
   programName: string;
   stage: ApplicationStage;
   appliedDate: string;
-  logoUrl?: string;
+  intake?: string;
+  fee?: string;
+  feePaid?: boolean;
+  applicationDeadline?: string;
+  documentsAttached?: number;
+  totalDocumentsRequired?: number;
+  scholarshipApplied?: boolean;
+  notes?: string;
 }
 
 interface DocumentSlot {
@@ -309,6 +318,14 @@ function DashboardInner() {
       programName: "Bachelor of Applied Health Information Science",
       stage: "Under Review",
       appliedDate: "2026-05-15",
+      intake: "Fall 2026",
+      fee: "$100 CAD",
+      feePaid: true,
+      applicationDeadline: "2026-07-01",
+      documentsAttached: 4,
+      totalDocumentsRequired: 4,
+      scholarshipApplied: true,
+      notes: "Documents verified by admissions team. Awaiting official offer decision.",
     },
     {
       id: "app-2",
@@ -317,8 +334,58 @@ function DashboardInner() {
       programName: "Advanced Diploma in Computer Programming & Analysis",
       stage: "Offer Received",
       appliedDate: "2026-06-01",
+      intake: "Fall 2026",
+      fee: "$90 CAD",
+      feePaid: true,
+      applicationDeadline: "2026-06-30",
+      documentsAttached: 4,
+      totalDocumentsRequired: 4,
+      scholarshipApplied: true,
+      notes: "Official Letter of Acceptance (LOA) issued! Tuition deposit due by July 15.",
+    },
+    {
+      id: "app-3",
+      universityName: "University of Hertfordshire",
+      country: "United Kingdom",
+      programName: "MSc Computer Science with Placement",
+      stage: "Draft",
+      appliedDate: "2026-08-01",
+      intake: "September 2026",
+      fee: "Free Waiver",
+      feePaid: true,
+      applicationDeadline: "2026-08-25",
+      documentsAttached: 2,
+      totalDocumentsRequired: 4,
+      scholarshipApplied: false,
+      notes: "Upload SOP & Passport copy before submitting.",
     }
   ]);
+
+  const [appSearchQuery, setAppSearchQuery] = useState("");
+  const [appStageFilter, setAppStageFilter] = useState<string>("All");
+  const [showNewAppModal, setShowNewAppModal] = useState(false);
+  const [selectedAppDetail, setSelectedAppDetail] = useState<Application | null>(null);
+
+  const [newAppForm, setNewAppForm] = useState({
+    universityName: "",
+    country: "Canada",
+    programName: "",
+    intake: "Fall 2026",
+    fee: "$100 CAD",
+    stage: "Draft" as ApplicationStage,
+  });
+
+  const filteredApplications = useMemo(() => {
+    return applications.filter((app) => {
+      const matchesStage = appStageFilter === "All" || app.stage === appStageFilter;
+      const q = appSearchQuery.toLowerCase().trim();
+      const matchesQuery = !q ||
+        app.universityName.toLowerCase().includes(q) ||
+        app.programName.toLowerCase().includes(q) ||
+        app.country.toLowerCase().includes(q);
+      return matchesStage && matchesQuery;
+    });
+  }, [applications, appStageFilter, appSearchQuery]);
 
   const [documents, setDocuments] = useState<DocumentSlot[]>([]);
   const [docsLoading, setDocsLoading] = useState(false);
@@ -1043,6 +1110,40 @@ function DashboardInner() {
     } catch (e) {
       console.error("Failed to delete saved match profile:", e);
     }
+  };
+
+  const handleCreateNewApplication = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newAppForm.universityName || !newAppForm.programName) {
+      alert("Please fill in university and program name.");
+      return;
+    }
+
+    const newApp: Application = {
+      id: `app-${Date.now()}`,
+      universityName: newAppForm.universityName,
+      country: newAppForm.country,
+      programName: newAppForm.programName,
+      stage: newAppForm.stage,
+      appliedDate: new Date().toISOString().split("T")[0],
+      intake: newAppForm.intake,
+      fee: newAppForm.fee,
+      feePaid: false,
+      documentsAttached: 2,
+      totalDocumentsRequired: 4,
+      notes: "Newly created application draft.",
+    };
+
+    setApplications([newApp, ...applications]);
+    setShowNewAppModal(false);
+    setNewAppForm({
+      universityName: "",
+      country: "Canada",
+      programName: "",
+      intake: "Fall 2026",
+      fee: "$100 CAD",
+      stage: "Draft",
+    });
   };
 
   // Dynamic launch helper: saves directly to database, then redirects to step 8
@@ -2166,89 +2267,250 @@ function DashboardInner() {
                   </div>
                 )}
 
-                {/* 3. APPLICATIONS TAB - Enhanced with Kanban pipeline */}
+                {/* 3. APPLICATIONS TAB - Enhanced Ultra-Premium Pipeline */}
                 {activeTab === "applications" && (
-                  <div className="space-y-6">
-                    {/* Pipeline stage bar */}
-                    <div className="grid grid-cols-3 lg:grid-cols-6 gap-3">
+                  <div className="space-y-6 animate-in fade-in zoom-in-95 duration-300">
+                    {/* Header & Quick Action Bar */}
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-white border border-slate-200/80 rounded-[28px] shadow-xs">
+                      <div className="space-y-1">
+                        <h2 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
+                          <Briefcase className="w-5 h-5 text-[#3366FF]" />
+                          <span>College Applications Hub</span>
+                          <span className="px-2.5 py-0.5 rounded-full text-xs font-black bg-blue-50 text-[#3366FF] border border-blue-100">
+                            {applications.length} Total
+                          </span>
+                        </h2>
+                        <p className="text-xs font-semibold text-slate-500">
+                          Track your university submissions, document statuses, and admission offers in real-time.
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setShowNewAppModal(true)}
+                          className="px-4 py-2.5 rounded-xl bg-[#3366FF] hover:bg-blue-600 text-white font-bold text-xs shadow-xs transition-all flex items-center gap-2 shrink-0 active:scale-95 cursor-pointer"
+                        >
+                          <Plus className="w-4 h-4 stroke-[2.5]" /> Start New Application
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Pipeline Interactive Stage Counters */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
                       {([
-                        { stage: "Draft", color: "bg-slate-100 text-slate-600", dot: "bg-slate-400" },
-                        { stage: "Submitted", color: "bg-blue-50 text-blue-700", dot: "bg-blue-500" },
-                        { stage: "Under Review", color: "bg-amber-50 text-amber-700", dot: "bg-amber-500" },
-                        { stage: "Offer Received", color: "bg-emerald-50 text-emerald-700", dot: "bg-emerald-500" },
-                        { stage: "Rejected", color: "bg-rose-50 text-rose-700", dot: "bg-rose-500" },
-                        { stage: "Accepted", color: "bg-violet-50 text-violet-700", dot: "bg-violet-500" },
-                      ] as { stage: ApplicationStage; color: string; dot: string }[]).map(({ stage, color, dot }) => {
-                        const count = applications.filter((a) => a.stage === stage).length;
+                        { stage: "All", label: "All Applications", color: "bg-slate-100 text-slate-700", dot: "bg-slate-500" },
+                        { stage: "Draft", label: "Drafts", color: "bg-slate-100 text-slate-600", dot: "bg-slate-400" },
+                        { stage: "Submitted", label: "Submitted", color: "bg-blue-50 text-blue-700", dot: "bg-blue-500" },
+                        { stage: "Under Review", label: "Under Review", color: "bg-amber-50 text-amber-700", dot: "bg-amber-500" },
+                        { stage: "Offer Received", label: "Offer (LOA)", color: "bg-emerald-50 text-emerald-700", dot: "bg-emerald-500" },
+                        { stage: "Accepted", label: "Accepted", color: "bg-violet-50 text-violet-700", dot: "bg-violet-500" },
+                      ] as const).map(({ stage, label, color, dot }) => {
+                        const count = stage === "All" ? applications.length : applications.filter((a) => a.stage === stage).length;
+                        const isActive = appStageFilter === stage;
                         return (
-                          <div key={stage} className={`rounded-2xl p-3.5 ${color} flex flex-col gap-1`}>
-                            <div className="flex items-center gap-1.5">
-                              <span className={`w-2 h-2 rounded-full ${dot} shrink-0`} />
-                              <span className="text-[9px] font-black uppercase tracking-wider truncate">{stage}</span>
+                          <button
+                            key={stage}
+                            type="button"
+                            onClick={() => setAppStageFilter(stage)}
+                            className={`rounded-2xl p-3.5 ${color} flex flex-col justify-between text-left transition-all cursor-pointer border-2 ${
+                              isActive ? "border-[#3366FF] shadow-xs scale-[1.02]" : "border-transparent hover:opacity-90"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between gap-1">
+                              <span className="flex items-center gap-1.5 truncate">
+                                <span className={`w-2 h-2 rounded-full ${dot} shrink-0`} />
+                                <span className="text-[10px] font-black uppercase tracking-wider truncate">{label}</span>
+                              </span>
                             </div>
-                            <p className="text-2xl font-black leading-none">{count}</p>
-                          </div>
+                            <p className="text-2xl font-black leading-none mt-2">{count}</p>
+                          </button>
                         );
                       })}
+                    </div>
+
+                    {/* Search & Filter Inputs */}
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50 p-2.5 rounded-2xl border border-slate-200/80">
+                      <div className="relative w-full sm:w-80">
+                        <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <input
+                          type="text"
+                          placeholder="Search university, course, or country..."
+                          value={appSearchQuery}
+                          onChange={(e) => setAppSearchQuery(e.target.value)}
+                          className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 outline-none focus:border-[#3366FF] transition-all"
+                        />
+                      </div>
+                      <span className="text-xs font-bold text-slate-500 px-2">
+                        Showing {filteredApplications.length} of {applications.length} applications
+                      </span>
                     </div>
 
                     {/* Applications List */}
-                    <div className="space-y-4">
-                      {applications.map((app) => {
-                        const stageConfig: Record<ApplicationStage, { border: string; badge: string; dot: string }> = {
-                          Draft:          { border: "border-l-slate-400",  badge: "bg-slate-100 text-slate-600",  dot: "bg-slate-400" },
-                          Submitted:      { border: "border-l-blue-500",   badge: "bg-blue-50 text-blue-700",    dot: "bg-blue-500" },
-                          "Under Review": { border: "border-l-amber-500",  badge: "bg-amber-50 text-amber-700",  dot: "bg-amber-500" },
-                          "Offer Received":{ border: "border-l-emerald-500",badge: "bg-emerald-50 text-emerald-700",dot: "bg-emerald-500" },
-                          Rejected:       { border: "border-l-rose-500",   badge: "bg-rose-50 text-rose-700",    dot: "bg-rose-500" },
-                          Accepted:       { border: "border-l-violet-500", badge: "bg-violet-50 text-violet-700",dot: "bg-violet-500" },
-                        };
-                        const cfg = stageConfig[app.stage];
-                        return (
-                          <Card key={app.id} className={`rounded-3xl p-5 border-l-4 ${cfg.border} shadow-lg shadow-slate-200/40 bg-white flex flex-col md:flex-row md:items-center justify-between gap-5 hover:shadow-xl transition-all`}>
-                            <div className="flex items-center gap-4">
-                              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500/10 to-indigo-500/10 flex items-center justify-center font-black text-blue-700 text-xl shrink-0 border border-blue-100">
-                                {app.universityName[0]}
-                              </div>
-                              <div>
-                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[9px] font-black tracking-widest uppercase ${cfg.badge} rounded-full mb-1.5`}>
-                                  <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot} ${app.stage === "Under Review" ? "animate-pulse" : ""}`} />
-                                  {app.stage}
-                                </span>
-                                <h3 className="font-extrabold text-slate-800 text-base leading-snug">{app.universityName}</h3>
-                                <p className="text-xs font-semibold text-slate-500 mt-0.5">{app.programName} · {app.country}</p>
-                              </div>
-                            </div>
+                    {filteredApplications.length === 0 ? (
+                      <div className="text-center p-12 bg-white rounded-[28px] border border-slate-200/80 space-y-4">
+                        <div className="w-16 h-16 rounded-full bg-blue-50 text-[#3366FF] flex items-center justify-center mx-auto">
+                          <Briefcase className="w-8 h-8" />
+                        </div>
+                        <div>
+                          <h3 className="text-base font-extrabold text-slate-800">No applications match your filter</h3>
+                          <p className="text-xs text-slate-500 font-medium mt-1">Start a new application or search for university programs.</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setShowNewAppModal(true)}
+                          className="px-5 py-2.5 bg-[#3366FF] text-white font-bold text-xs rounded-xl hover:bg-blue-600 transition-all shadow-xs"
+                        >
+                          + Create New Application
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {filteredApplications.map((app) => {
+                          const stageConfig: Record<ApplicationStage, { border: string; badge: string; dot: string; stepIndex: number }> = {
+                            Draft:            { border: "border-l-slate-400",  badge: "bg-slate-100 text-slate-600",  dot: "bg-slate-400", stepIndex: 1 },
+                            Submitted:        { border: "border-l-blue-500",   badge: "bg-blue-50 text-blue-700",    dot: "bg-blue-500", stepIndex: 2 },
+                            "Under Review":   { border: "border-l-amber-500",  badge: "bg-amber-50 text-amber-700",  dot: "bg-amber-500", stepIndex: 3 },
+                            "Offer Received": { border: "border-l-emerald-500",badge: "bg-emerald-50 text-emerald-700",dot: "bg-emerald-500", stepIndex: 4 },
+                            Accepted:         { border: "border-l-violet-500", badge: "bg-violet-50 text-violet-700",dot: "bg-violet-500", stepIndex: 4 },
+                            Rejected:         { border: "border-l-rose-500",   badge: "bg-rose-50 text-rose-700",    dot: "bg-rose-500", stepIndex: 0 },
+                          };
+                          const cfg = stageConfig[app.stage];
+                          
+                          const countryCodeMap: Record<string, string> = {
+                            Canada: "CA",
+                            "United States": "US",
+                            USA: "US",
+                            "United Kingdom": "GB",
+                            UK: "GB",
+                            Australia: "AU",
+                            Germany: "DE",
+                            Ireland: "IE",
+                            Netherlands: "NL"
+                          };
+                          const cCode = countryCodeMap[app.country] || "CA";
 
-                            <div className="flex flex-wrap items-center gap-3 md:gap-6 justify-between md:justify-end">
-                              <div className="text-left md:text-right">
-                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Initiated</p>
-                                <p className="text-xs font-bold text-slate-700 mt-0.5">{app.appliedDate}</p>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                {app.stage === "Draft" && (
+                          return (
+                            <Card key={app.id} className={`rounded-[28px] p-6 border-l-4 ${cfg.border} border-slate-200/80 shadow-xs bg-white space-y-5 hover:shadow-md transition-all`}>
+                              {/* Top Bar: Uni Info & Action Status */}
+                              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div className="flex items-start gap-4">
+                                  <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center font-black text-[#3366FF] text-xl shrink-0 shadow-xs relative">
+                                    {app.universityName[0]}
+                                    <div className="absolute -bottom-1 -right-1">
+                                      <FlagIcon countryCode={cCode} className="w-4 h-3 rounded-xs border border-white shadow-xs" />
+                                    </div>
+                                  </div>
+                                  <div className="space-y-1">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[10px] font-black tracking-widest uppercase ${cfg.badge} rounded-full`}>
+                                        <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot} ${app.stage === "Under Review" ? "animate-pulse" : ""}`} />
+                                        {app.stage}
+                                      </span>
+                                      {app.intake && (
+                                        <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold">
+                                          🎯 {app.intake}
+                                        </span>
+                                      )}
+                                      {app.fee && (
+                                        <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold">
+                                          💳 Fee: {app.fee}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <h3 className="font-extrabold text-slate-900 text-base leading-snug">{app.universityName}</h3>
+                                    <p className="text-xs font-semibold text-slate-500">{app.programName} · {app.country}</p>
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center gap-2 self-start md:self-center">
+                                  {app.stage === "Draft" && (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setApplications(applications.map(a => a.id === app.id ? { ...a, stage: "Submitted" as ApplicationStage } : a));
+                                      }}
+                                      className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
+                                    >
+                                      <Send className="w-3.5 h-3.5" /> Submit Application
+                                    </button>
+                                  )}
+                                  {app.stage === "Offer Received" && (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setApplications(applications.map(a => a.id === app.id ? { ...a, stage: "Accepted" as ApplicationStage } : a));
+                                      }}
+                                      className="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold text-xs shadow-xs transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
+                                    >
+                                      <CheckCircle className="w-3.5 h-3.5" /> Accept Offer
+                                    </button>
+                                  )}
                                   <button
-                                    onClick={() => {
-                                      setApplications(applications.map(a => a.id === app.id ? { ...a, stage: "Submitted" as ApplicationStage } : a));
-                                      setTasks(tasks.map(t => t.id === "task-4" ? { ...t, completed: true } : t));
-                                    }}
-                                    className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow-md transition-all active:scale-95"
+                                    type="button"
+                                    onClick={() => setSelectedAppDetail(app)}
+                                    className="px-3.5 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs transition-all flex items-center gap-1.5 cursor-pointer"
                                   >
-                                    Submit Now
+                                    <FileText className="w-3.5 h-3.5 text-blue-500" /> Details & Notes
                                   </button>
-                                )}
-                                <button
-                                  onClick={() => setActiveTab("documents")}
-                                  className="border border-slate-200 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 bg-white text-slate-600 font-bold px-4 py-2.5 rounded-xl text-xs transition-all flex items-center gap-1.5"
-                                >
-                                  <Paperclip className="w-3.5 h-3.5" /> Documents
-                                </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => setActiveTab("documents")}
+                                    className="px-3.5 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                                  >
+                                    <Paperclip className="w-3.5 h-3.5 text-slate-400" /> Docs
+                                  </button>
+                                  <button
+                                    type="button"
+                                    title="Delete Application"
+                                    onClick={() => setApplications(applications.filter(a => a.id !== app.id))}
+                                    className="p-2 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all cursor-pointer"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </div>
                               </div>
-                            </div>
-                          </Card>
-                        );
-                      })}
-                    </div>
+
+                              {/* Progress Stepper Line */}
+                              <div className="pt-3 border-t border-slate-100 space-y-2">
+                                <div className="flex items-center justify-between text-[11px] font-bold text-slate-500">
+                                  <span className="flex items-center gap-1">
+                                    <Clock className="w-3.5 h-3.5 text-slate-400" /> Applied: {app.appliedDate}
+                                  </span>
+                                  <span>Milestone Progress: Step {cfg.stepIndex} of 4</span>
+                                </div>
+
+                                <div className="grid grid-cols-4 gap-2 pt-1">
+                                  {[
+                                    { step: 1, title: "1. Draft Prepared" },
+                                    { step: 2, title: "2. Application Submitted" },
+                                    { step: 3, title: "3. Under University Review" },
+                                    { step: 4, title: "4. Offer Issued (LOA)" },
+                                  ].map((m) => {
+                                    const isDone = cfg.stepIndex >= m.step;
+                                    const isCurrent = cfg.stepIndex === m.step;
+                                    return (
+                                      <div key={m.step} className="space-y-1">
+                                        <div className={`h-2 rounded-full transition-all ${
+                                          isDone
+                                            ? "bg-[#3366FF]"
+                                            : "bg-slate-100"
+                                        } ${isCurrent ? "ring-2 ring-blue-400/30 animate-pulse" : ""}`} />
+                                        <p className={`text-[10px] font-extrabold truncate ${
+                                          isDone ? "text-slate-800" : "text-slate-400"
+                                        }`}>
+                                          {m.title}
+                                        </p>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            </Card>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -3061,30 +3323,24 @@ function DashboardInner() {
                             <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-2">
                               Select Profile A (Baseline)
                             </label>
-                            <select
+                            <CustomSelect
+                              options={allCompareProfiles.map((p) => ({ value: p.id, label: p.name }))}
                               value={selectedProfile1Id}
-                              onChange={(e) => setSelectedProfile1Id(e.target.value)}
-                              className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 text-xs font-extrabold text-slate-800 focus:outline-none focus:border-[#3366FF]"
-                            >
-                              {allCompareProfiles.map((p) => (
-                                <option key={p.id} value={p.id}>{p.name}</option>
-                              ))}
-                            </select>
+                              onChange={(val) => setSelectedProfile1Id(val)}
+                              placeholder="Select Profile A"
+                            />
                           </Card>
 
                           <Card className="p-5 rounded-[28px] border border-slate-200/80 bg-white shadow-xs">
                             <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-2">
                               Select Profile B (Comparison Target)
                             </label>
-                            <select
+                            <CustomSelect
+                              options={allCompareProfiles.map((p) => ({ value: p.id, label: p.name }))}
                               value={selectedProfile2Id}
-                              onChange={(e) => setSelectedProfile2Id(e.target.value)}
-                              className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 text-xs font-extrabold text-slate-800 focus:outline-none focus:border-[#3366FF]"
-                            >
-                              {allCompareProfiles.map((p) => (
-                                <option key={p.id} value={p.id}>{p.name}</option>
-                              ))}
-                            </select>
+                              onChange={(val) => setSelectedProfile2Id(val)}
+                              placeholder="Select Profile B"
+                            />
                           </Card>
                         </div>
 
@@ -3233,30 +3489,26 @@ function DashboardInner() {
                             <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-2">
                               Select Target University A
                             </label>
-                            <select
+                            <CustomSelect
+                              options={allCompareUniversities.map((u) => ({ value: u.id, label: `${u.name} (${u.location})` }))}
                               value={selectedUni1Id}
-                              onChange={(e) => setSelectedUni1Id(e.target.value)}
-                              className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 text-xs font-extrabold text-slate-800 focus:outline-none focus:border-[#3366FF]"
-                            >
-                              {allCompareUniversities.map((u) => (
-                                <option key={u.id} value={u.id}>{u.name} ({u.location})</option>
-                              ))}
-                            </select>
+                              onChange={(val) => setSelectedUni1Id(val)}
+                              placeholder="Select University A"
+                              showSearch
+                            />
                           </Card>
 
                           <Card className="p-5 rounded-[28px] border border-slate-200/80 bg-white shadow-xs">
                             <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-2">
                               Select Target University B
                             </label>
-                            <select
+                            <CustomSelect
+                              options={allCompareUniversities.map((u) => ({ value: u.id, label: `${u.name} (${u.location})` }))}
                               value={selectedUni2Id}
-                              onChange={(e) => setSelectedUni2Id(e.target.value)}
-                              className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 text-xs font-extrabold text-slate-800 focus:outline-none focus:border-[#3366FF]"
-                            >
-                              {allCompareUniversities.map((u) => (
-                                <option key={u.id} value={u.id}>{u.name} ({u.location})</option>
-                              ))}
-                            </select>
+                              onChange={(val) => setSelectedUni2Id(val)}
+                              placeholder="Select University B"
+                              showSearch
+                            />
                           </Card>
                         </div>
 
@@ -3771,17 +4023,17 @@ function DashboardInner() {
                                   </label>
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Gender</span>
-                                    <select
+                                    <CustomSelect
+                                      options={[
+                                        { value: "Male", label: "Male" },
+                                        { value: "Female", label: "Female" },
+                                        { value: "Other", label: "Other" },
+                                        { value: "Prefer not to say", label: "Prefer not to say" },
+                                      ]}
                                       value={editForm.gender}
-                                      onChange={(e) => setEditForm({ ...editForm, gender: e.target.value })}
-                                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
-                                    >
-                                      <option value="">Select Gender</option>
-                                      <option value="Male">Male</option>
-                                      <option value="Female">Female</option>
-                                      <option value="Other">Other</option>
-                                      <option value="Prefer not to say">Prefer not to say</option>
-                                    </select>
+                                      onChange={(val) => setEditForm({ ...editForm, gender: val })}
+                                      placeholder="Select Gender"
+                                    />
                                   </label>
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Nationality</span>
@@ -3789,6 +4041,7 @@ function DashboardInner() {
                                       type="text"
                                       value={editForm.nationality}
                                       onChange={(e) => setEditForm({ ...editForm, nationality: e.target.value })}
+                                      placeholder="e.g. Nepali"
                                       className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
                                     />
                                   </label>
@@ -3798,6 +4051,17 @@ function DashboardInner() {
                                       type="text"
                                       value={editForm.currentCountry}
                                       onChange={(e) => setEditForm({ ...editForm, currentCountry: e.target.value })}
+                                      placeholder="e.g. Nepal"
+                                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
+                                    />
+                                  </label>
+                                  <label className="block">
+                                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">First / Native Language</span>
+                                    <input
+                                      type="text"
+                                      value={editForm.firstLanguage}
+                                      onChange={(e) => setEditForm({ ...editForm, firstLanguage: e.target.value })}
+                                      placeholder="e.g. Nepali, English"
                                       className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
                                     />
                                   </label>
@@ -3807,6 +4071,7 @@ function DashboardInner() {
                                       type="text"
                                       value={editForm.passportNumber}
                                       onChange={(e) => setEditForm({ ...editForm, passportNumber: e.target.value })}
+                                      placeholder="e.g. N01234567"
                                       className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
                                     />
                                   </label>
@@ -3888,18 +4153,18 @@ function DashboardInner() {
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Highest Education Level</span>
-                                    <select
+                                    <CustomSelect
+                                      options={[
+                                        { value: "High School", label: "High School (Grade 12)" },
+                                        { value: "Diploma", label: "Diploma / Vocational" },
+                                        { value: "Bachelor's Degree", label: "Bachelor's Degree" },
+                                        { value: "Master's Degree", label: "Master's Degree" },
+                                        { value: "Doctorate", label: "Doctorate / PhD" },
+                                      ]}
                                       value={editForm.highestEducation}
-                                      onChange={(e) => setEditForm({ ...editForm, highestEducation: e.target.value })}
-                                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
-                                    >
-                                      <option value="">Select Level</option>
-                                      <option value="High School">High School (Grade 12)</option>
-                                      <option value="Diploma">Diploma / Vocational</option>
-                                      <option value="Bachelor's Degree">Bachelor&apos;s Degree</option>
-                                      <option value="Master's Degree">Master&apos;s Degree</option>
-                                      <option value="Doctorate">Doctorate / PhD</option>
-                                    </select>
+                                      onChange={(val) => setEditForm({ ...editForm, highestEducation: val })}
+                                      placeholder="Select Level"
+                                    />
                                   </label>
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Country of Education</span>
@@ -3912,14 +4177,15 @@ function DashboardInner() {
                                   </label>
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Graduation Status</span>
-                                    <select
+                                    <CustomSelect
+                                      options={[
+                                        { value: "true", label: "Graduated (Degree Awarded)" },
+                                        { value: "false", label: "Currently Studying / Incomplete" },
+                                      ]}
                                       value={editForm.graduatedInstitution ? "true" : "false"}
-                                      onChange={(e) => setEditForm({ ...editForm, graduatedInstitution: e.target.value === "true" })}
-                                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
-                                    >
-                                      <option value="true">Graduated (Degree Awarded)</option>
-                                      <option value="false">Currently Studying / Incomplete</option>
-                                    </select>
+                                      onChange={(val) => setEditForm({ ...editForm, graduatedInstitution: val === "true" })}
+                                      placeholder="Select Status"
+                                    />
                                   </label>
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Passing / Graduation Year</span>
@@ -4011,18 +4277,18 @@ function DashboardInner() {
                                   </label>
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Preferred Degree Level</span>
-                                    <select
+                                    <CustomSelect
+                                      options={[
+                                        { value: "Bachelor's", label: "Bachelor's Degree" },
+                                        { value: "Master's", label: "Master's Degree" },
+                                        { value: "Doctorate", label: "Doctorate / PhD" },
+                                        { value: "Diploma", label: "Post-Graduate Diploma" },
+                                        { value: "Certificate", label: "Certificate / Foundation" },
+                                      ]}
                                       value={editForm.degreeLevel}
-                                      onChange={(e) => setEditForm({ ...editForm, degreeLevel: e.target.value })}
-                                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
-                                    >
-                                      <option value="">Select Degree</option>
-                                      <option value="Bachelor's">Bachelor's Degree</option>
-                                      <option value="Master's">Master's Degree</option>
-                                      <option value="Doctorate">Doctorate / PhD</option>
-                                      <option value="Diploma">Post-Graduate Diploma</option>
-                                      <option value="Certificate">Certificate / Foundation</option>
-                                    </select>
+                                      onChange={(val) => setEditForm({ ...editForm, degreeLevel: val })}
+                                      placeholder="Select Degree"
+                                    />
                                   </label>
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Preferred Field of Study</span>
@@ -4064,24 +4330,19 @@ function DashboardInner() {
                                       const validIntakeOptions = allIntakeOptions.filter((opt) => {
                                         if (opt.year > currentYear) return true;
                                         return opt.month >= currentMonth;
-                                      });
+                                      }).map(opt => opt.val);
 
                                       return (
-                                        <select
+                                        <CustomSelect
+                                          options={validIntakeOptions}
                                           value={editForm.intake}
-                                          onChange={(e) => setEditForm({ ...editForm, intake: e.target.value })}
-                                          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
-                                        >
-                                          <option value="">Select Intake</option>
-                                          {validIntakeOptions.map((opt) => (
-                                            <option key={opt.val} value={opt.val}>
-                                              {opt.val}
-                                            </option>
-                                          ))}
-                                        </select>
+                                          onChange={(val) => setEditForm({ ...editForm, intake: val })}
+                                          placeholder="Select Intake"
+                                        />
                                       );
                                     })()}
                                   </label>
+
                                 </div>
                               </div>
                             )}
@@ -4096,37 +4357,37 @@ function DashboardInner() {
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Taken English Test?</span>
-                                    <select
+                                    <CustomSelect
+                                      options={[
+                                        { value: "true", label: "Yes, I have taken a test" },
+                                        { value: "false", label: "No, I have not taken a test / plan to take" },
+                                      ]}
                                       value={editForm.hasEnglishTest === null ? "" : editForm.hasEnglishTest ? "true" : "false"}
-                                      onChange={(e) => {
-                                        const val = e.target.value;
+                                      onChange={(val) => {
                                         setEditForm({
                                           ...editForm,
                                           hasEnglishTest: val === "" ? null : val === "true",
                                         });
                                       }}
-                                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
-                                    >
-                                      <option value="">Select Option</option>
-                                      <option value="true">Yes, I have taken a test</option>
-                                      <option value="false">No, I have not taken a test / plan to take</option>
-                                    </select>
+                                      placeholder="Select Option"
+                                    />
                                   </label>
                                   
                                   {editForm.hasEnglishTest && (
                                     <>
                                       <label className="block">
                                         <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Test Type</span>
-                                        <select
+                                        <CustomSelect
+                                          options={[
+                                            { value: "IELTS", label: "IELTS Academic" },
+                                            { value: "TOEFL", label: "TOEFL iBT" },
+                                            { value: "PTE", label: "PTE Academic" },
+                                            { value: "Duolingo", label: "Duolingo English Test" },
+                                          ]}
                                           value={editForm.testType}
-                                          onChange={(e) => setEditForm({ ...editForm, testType: e.target.value })}
-                                          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
-                                        >
-                                          <option value="IELTS">IELTS Academic</option>
-                                          <option value="TOEFL">TOEFL iBT</option>
-                                          <option value="PTE">PTE Academic</option>
-                                          <option value="Duolingo">Duolingo English Test</option>
-                                        </select>
+                                          onChange={(val) => setEditForm({ ...editForm, testType: val })}
+                                          placeholder="Select Test Type"
+                                        />
                                       </label>
                                       <label className="block">
                                         <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Overall Band / Score</span>
@@ -4191,18 +4452,18 @@ function DashboardInner() {
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Employment Status</span>
-                                    <select
+                                    <CustomSelect
+                                      options={[
+                                        { value: "Employed", label: "Employed (Full-time)" },
+                                        { value: "Self-Employed", label: "Self-Employed / Business" },
+                                        { value: "Intern", label: "Intern / Part-time" },
+                                        { value: "Unemployed", label: "Unemployed" },
+                                        { value: "Student", label: "Student" },
+                                      ]}
                                       value={editForm.workStatus}
-                                      onChange={(e) => setEditForm({ ...editForm, workStatus: e.target.value })}
-                                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
-                                    >
-                                      <option value="">Select Status</option>
-                                      <option value="Employed">Employed (Full-time)</option>
-                                      <option value="Self-Employed">Self-Employed / Business</option>
-                                      <option value="Intern">Intern / Part-time</option>
-                                      <option value="Unemployed">Unemployed</option>
-                                      <option value="Student">Student</option>
-                                    </select>
+                                      onChange={(val) => setEditForm({ ...editForm, workStatus: val })}
+                                      placeholder="Select Status"
+                                    />
                                   </label>
                                   
                                   {["Employed", "Self-Employed", "Intern"].includes(editForm.workStatus) && (
@@ -4251,19 +4512,20 @@ function DashboardInner() {
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Preferred Currency</span>
-                                    <select
+                                    <CustomSelect
+                                      options={[
+                                        { value: "USD", label: "USD ($)" },
+                                        { value: "CAD", label: "CAD (C$)" },
+                                        { value: "GBP", label: "GBP (£)" },
+                                        { value: "AUD", label: "AUD (A$)" },
+                                        { value: "EUR", label: "EUR (€)" },
+                                        { value: "INR", label: "INR (₹)" },
+                                        { value: "NPR", label: "NPR (Rs)" },
+                                      ]}
                                       value={editForm.currency}
-                                      onChange={(e) => setEditForm({ ...editForm, currency: e.target.value })}
-                                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
-                                    >
-                                      <option value="USD">USD ($)</option>
-                                      <option value="CAD">CAD (C$)</option>
-                                      <option value="GBP">GBP (£)</option>
-                                      <option value="AUD">AUD (A$)</option>
-                                      <option value="EUR">EUR (€)</option>
-                                      <option value="INR">INR (₹)</option>
-                                      <option value="NPR">NPR (Rs)</option>
-                                    </select>
+                                      onChange={(val) => setEditForm({ ...editForm, currency: val })}
+                                      placeholder="Select Currency"
+                                    />
                                   </label>
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Annual Study Budget ({editForm.currency})</span>
@@ -4305,19 +4567,20 @@ function DashboardInner() {
                                   </label>
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Sponsor Type</span>
-                                    <select
+                                    <CustomSelect
+                                      options={[
+                                        { value: "Self", label: "Self-Funded" },
+                                        { value: "Parents", label: "Parents / Immediate Family" },
+                                        { value: "Relative", label: "Other Relative" },
+                                        { value: "Government", label: "Government / Company Scholarship" },
+                                        { value: "Loan", label: "Bank Educational Loan" },
+                                      ]}
                                       value={editForm.sponsorType}
-                                      onChange={(e) => setEditForm({ ...editForm, sponsorType: e.target.value })}
-                                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
-                                    >
-                                      <option value="">Select Sponsor</option>
-                                      <option value="Self">Self-Funded</option>
-                                      <option value="Parents">Parents / Immediate Family</option>
-                                      <option value="Relative">Other Relative</option>
-                                      <option value="Government">Government / Company Scholarship</option>
-                                      <option value="Loan">Bank Educational Loan</option>
-                                    </select>
+                                      onChange={(val) => setEditForm({ ...editForm, sponsorType: val })}
+                                      placeholder="Select Sponsor"
+                                    />
                                   </label>
+
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Sponsor's Annual Income ({editForm.currency})</span>
                                     <input
@@ -5180,31 +5443,33 @@ function DashboardInner() {
                               {/* Language dropdown */}
                               <div className="space-y-1">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Portal Language</label>
-                                <select
+                                <CustomSelect
+                                  options={[
+                                    { value: "English", label: "English (United States)" },
+                                    { value: "French", label: "Français (French)" },
+                                    { value: "Spanish", label: "Español (Spanish)" },
+                                    { value: "Nepali", label: "नेपाली (Nepali)" },
+                                  ]}
                                   value={selectedLanguage}
-                                  onChange={(e) => setSelectedLanguage(e.target.value)}
-                                  className={`w-full rounded-xl border px-3.5 py-2.5 text-xs font-semibold outline-none transition-colors ${darkModeSimulated ? "bg-slate-800 border-slate-750 text-white focus:border-blue-550" : "bg-white border-slate-200 text-slate-850 focus:border-blue-500"}`}
-                                >
-                                  <option value="English">English (United States)</option>
-                                  <option value="French">Français (French)</option>
-                                  <option value="Spanish">Español (Spanish)</option>
-                                  <option value="Nepali">नेपाली (Nepali)</option>
-                                </select>
+                                  onChange={(val) => setSelectedLanguage(val)}
+                                  placeholder="Select Language"
+                                />
                               </div>
 
                               {/* Currency dropdown */}
                               <div className="space-y-1">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Preferred Display Currency</label>
-                                <select
+                                <CustomSelect
+                                  options={[
+                                    { value: "USD", label: "USD ($) - US Dollar" },
+                                    { value: "CAD", label: "CAD ($) - Canadian Dollar" },
+                                    { value: "NPR", label: "NPR (Rs.) - Nepalese Rupee" },
+                                    { value: "INR", label: "INR (₹) - Indian Rupee" },
+                                  ]}
                                   value={selectedCurrency}
-                                  onChange={(e) => setSelectedCurrency(e.target.value)}
-                                  className={`w-full rounded-xl border px-3.5 py-2.5 text-xs font-semibold outline-none transition-colors ${darkModeSimulated ? "bg-slate-800 border-slate-750 text-white focus:border-blue-550" : "bg-white border-slate-200 text-slate-850 focus:border-blue-500"}`}
-                                >
-                                  <option value="USD">USD ($) - US Dollar</option>
-                                  <option value="CAD">CAD ($) - Canadian Dollar</option>
-                                  <option value="NPR">NPR (Rs.) - Nepalese Rupee</option>
-                                  <option value="INR">INR (₹) - Indian Rupee</option>
-                                </select>
+                                  onChange={(val) => setSelectedCurrency(val)}
+                                  placeholder="Select Currency"
+                                />
                               </div>
 
                               {/* Dark Mode Simulator Toggle */}
@@ -5365,6 +5630,187 @@ function DashboardInner() {
                 className="flex-1 py-3 bg-slate-150 hover:bg-slate-200 text-slate-700 font-black text-xs rounded-xl transition-all cursor-pointer"
               >
                 Cancel
+              </button>
+            </div>
+          </Card>
+        </div>
+      {/* Start New Application Modal */}
+      {showNewAppModal && (
+        <div className="fixed inset-0 z-[250] flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4 animate-in fade-in duration-200">
+          <Card className="bg-white border border-slate-100 rounded-[32px] p-6 max-w-lg w-full shadow-2xl space-y-6 transform animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                <Plus className="w-5 h-5 text-[#3366FF]" /> Start New University Application
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowNewAppModal(false)}
+                className="p-1.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-all cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateNewApplication} className="space-y-4">
+              <label className="block space-y-1">
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">University Name</span>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. University of Toronto"
+                  value={newAppForm.universityName}
+                  onChange={(e) => setNewAppForm({ ...newAppForm, universityName: e.target.value })}
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-semibold text-slate-800 outline-none focus:border-[#3366FF] focus:bg-white"
+                />
+              </label>
+
+              <div className="grid grid-cols-2 gap-3">
+                <label className="block space-y-1">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Destination Country</span>
+                  <CustomSelect
+                    options={["Canada", "United States", "United Kingdom", "Australia", "Germany", "Ireland", "Netherlands"]}
+                    value={newAppForm.country}
+                    onChange={(val) => setNewAppForm({ ...newAppForm, country: val })}
+                  />
+                </label>
+
+                <label className="block space-y-1">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Target Intake</span>
+                  <CustomSelect
+                    options={["Fall 2026", "Spring 2027", "Summer 2026", "Fall 2027"]}
+                    value={newAppForm.intake}
+                    onChange={(val) => setNewAppForm({ ...newAppForm, intake: val })}
+                  />
+                </label>
+              </div>
+
+              <label className="block space-y-1">
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Program / Degree Course</span>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. MSc Data Science & Artificial Intelligence"
+                  value={newAppForm.programName}
+                  onChange={(e) => setNewAppForm({ ...newAppForm, programName: e.target.value })}
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-semibold text-slate-800 outline-none focus:border-[#3366FF] focus:bg-white"
+                />
+              </label>
+
+              <div className="grid grid-cols-2 gap-3">
+                <label className="block space-y-1">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Application Fee</span>
+                  <input
+                    type="text"
+                    placeholder="e.g. $100 CAD or Free Waiver"
+                    value={newAppForm.fee}
+                    onChange={(e) => setNewAppForm({ ...newAppForm, fee: e.target.value })}
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-semibold text-slate-800 outline-none focus:border-[#3366FF] focus:bg-white"
+                  />
+                </label>
+
+                <label className="block space-y-1">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Initial Status</span>
+                  <CustomSelect
+                    options={[
+                      { value: "Draft", label: "Draft (Preparing Docs)" },
+                      { value: "Submitted", label: "Submitted to College" },
+                    ]}
+                    value={newAppForm.stage}
+                    onChange={(val) => setNewAppForm({ ...newAppForm, stage: val as ApplicationStage })}
+                  />
+                </label>
+              </div>
+
+              <div className="flex gap-3 pt-3">
+                <button
+                  type="submit"
+                  className="flex-1 py-3 bg-[#3366FF] hover:bg-blue-600 text-white font-extrabold text-xs rounded-xl transition-all shadow-xs cursor-pointer"
+                >
+                  Create Application
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowNewAppModal(false)}
+                  className="px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-xs rounded-xl transition-all cursor-pointer"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </Card>
+        </div>
+      )}
+
+      {/* Application Details Modal */}
+      {selectedAppDetail && (
+        <div className="fixed inset-0 z-[250] flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4 animate-in fade-in duration-200">
+          <Card className="bg-white border border-slate-100 rounded-[32px] p-6 max-w-lg w-full shadow-2xl space-y-5 transform animate-in zoom-in-95 duration-200">
+            <div className="flex items-start justify-between border-b border-slate-100 pb-3">
+              <div>
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black tracking-widest uppercase bg-blue-50 text-[#3366FF] border border-blue-100">
+                  {selectedAppDetail.stage}
+                </span>
+                <h3 className="text-lg font-black text-slate-900 mt-1">{selectedAppDetail.universityName}</h3>
+                <p className="text-xs font-semibold text-slate-500">{selectedAppDetail.programName} · {selectedAppDetail.country}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedAppDetail(null)}
+                className="p-1.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-all cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-200/80">
+                <div>
+                  <p className="text-[10px] font-black uppercase text-slate-400">Target Intake</p>
+                  <p className="text-xs font-extrabold text-slate-800 mt-0.5">{selectedAppDetail.intake || "Fall 2026"}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-black uppercase text-slate-400">Application Fee</p>
+                  <p className="text-xs font-extrabold text-slate-800 mt-0.5">{selectedAppDetail.fee || "$100 USD"}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-black uppercase text-slate-400">Submission Date</p>
+                  <p className="text-xs font-extrabold text-slate-800 mt-0.5">{selectedAppDetail.appliedDate}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-black uppercase text-slate-400">Documents Attached</p>
+                  <p className="text-xs font-extrabold text-slate-800 mt-0.5">{selectedAppDetail.documentsAttached || 3} of {selectedAppDetail.totalDocumentsRequired || 4} Files</p>
+                </div>
+              </div>
+
+              {selectedAppDetail.notes && (
+                <div className="p-4 bg-blue-50/50 rounded-2xl border border-blue-100 space-y-1">
+                  <p className="text-xs font-bold text-blue-900 flex items-center gap-1.5">
+                    <FileText className="w-4 h-4 text-[#3366FF]" /> Counselor Notes & Instructions:
+                  </p>
+                  <p className="text-xs font-medium text-blue-800/90 leading-relaxed pl-5">
+                    {selectedAppDetail.notes}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedAppDetail(null);
+                  setActiveTab("documents");
+                }}
+                className="flex-1 py-3 bg-[#3366FF] hover:bg-blue-600 text-white font-extrabold text-xs rounded-xl transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <Paperclip className="w-4 h-4" /> Go to Document Locker
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedAppDetail(null)}
+                className="px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-xs rounded-xl transition-all cursor-pointer"
+              >
+                Close
               </button>
             </div>
           </Card>

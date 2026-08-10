@@ -1,5 +1,6 @@
 "use client";
 
+import { CustomSelect } from "@/components/ui/CustomSelect";
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import {
@@ -382,13 +383,12 @@ export default function EligibilityHub() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Study Level</label>
-                    <select 
+                    <CustomSelect 
+                      options={DEGREES}
                       value={form.degree}
-                      onChange={(e) => setForm({...form, degree: e.target.value})}
-                      className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3.5 text-slate-900 font-bold outline-none focus:ring-2 focus:ring-teal-500/20"
-                    >
-                      {DEGREES.map(d => <option key={d} value={d}>{d}</option>)}
-                    </select>
+                      onChange={(val) => setForm({...form, degree: val})}
+                      placeholder="Select Level"
+                    />
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Graduation Year</label>
