@@ -6027,7 +6027,7 @@ export default function AbroadLiftMatchesPage() {
             <div>
               <p className="text-[10px] font-bold text-slate-400 uppercase">Matched Institution</p>
               <p className="font-black text-slate-900 text-sm mt-0.5">{selectedMatch?.name || "Target University"}</p>
-              <p className="text-[11px] text-slate-500">{selectedMatch?.city}, {selectedMatch?.countryCode}</p>
+              <p className="text-[11px] text-slate-500">{selectedMatch?.countryCode}</p>
             </div>
             <div className="grid grid-cols-2 gap-2 text-center">
               <div className="p-2 bg-white rounded-lg border border-slate-200">
@@ -6065,14 +6065,14 @@ export default function AbroadLiftMatchesPage() {
               </tr>
               <tr>
                 <td className="p-2.5">Living Expenses & Housing</td>
-                <td className="p-2.5 font-bold">{formatNPRDevanagari(financialMetrics?.totalLivingCostNpr || 1600000)}</td>
-                <td className="p-2.5">{formatNPRDevanagari((financialMetrics?.totalLivingCostNpr || 1600000) * (financialMetrics?.graduationDuration || 2))}</td>
+                <td className="p-2.5 font-bold">{formatNPRDevanagari(financialMetrics?.totalLivingNpr || 1600000)}</td>
+                <td className="p-2.5">{formatNPRDevanagari((financialMetrics?.totalLivingNpr || 1600000) * (financialMetrics?.graduationDuration || 2))}</td>
                 <td className="p-2.5 text-emerald-700 font-extrabold">Consulate Standard</td>
               </tr>
               <tr className="bg-blue-50/50 font-black text-slate-900 text-sm">
                 <td className="p-2.5">Total Required Investment</td>
                 <td className="p-2.5 text-[#3366FF]">{formatNPRDevanagari(decisionSignals?.yearOneNeedNpr || 4100000)}</td>
-                <td className="p-2.5">{formatNPRDevanagari(financialMetrics?.totalInvestmentNpr || 8200000)}</td>
+                <td className="p-2.5">{formatNPRDevanagari(financialMetrics?.totalDegreeCostNpr || 8200000)}</td>
                 <td className="p-2.5 text-emerald-700">Budget Covered ({decisionSignals?.budgetCoverage || 115}%)</td>
               </tr>
             </tbody>
