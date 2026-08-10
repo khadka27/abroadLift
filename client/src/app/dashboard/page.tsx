@@ -3901,11 +3901,11 @@ function DashboardInner() {
                   </div>
                 )}
 
-                {/* 9. VISA ASSISTANCE TAB - Ultra-Premium Consulate & AI Hub */}
+                {/* 9. VISA ASSISTANCE TAB - Clean Light Theme Consulate & AI Hub */}
                 {activeTab === "visa-assistance" && (
                   <div className="space-y-6 animate-in fade-in zoom-in-95 duration-300">
                     {/* Header & Country Selector */}
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-white border border-slate-200/80 rounded-[28px] shadow-xs">
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-6 bg-white border border-slate-200/80 rounded-[28px] shadow-xs">
                       <div>
                         <h2 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
                           <Globe className="w-5 h-5 text-[#3366FF]" />
@@ -3916,7 +3916,7 @@ function DashboardInner() {
                         </p>
                       </div>
 
-                      <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
+                      <div className="flex items-center gap-2 flex-wrap">
                         {[
                           { id: "Canada", flag: "CA", label: "Canada (SDS)" },
                           { id: "United Kingdom", flag: "GB", label: "UK (CAS)" },
@@ -3943,60 +3943,62 @@ function DashboardInner() {
 
                     {/* Top Grid: Odds Card + Roadmap Card */}
                     <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                      {/* Left: Visa Odds AI Estimator */}
-                      <Card className="rounded-[28px] p-6 border border-slate-200/80 shadow-xs bg-slate-900 text-white xl:col-span-1 space-y-5">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                            {visaSelectedCountry} Visa Success AI
-                          </span>
-                          <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                            HIGH APPROVAL
-                          </span>
-                        </div>
+                      {/* Left: Visa Odds AI Estimator (Clean White Light Theme) */}
+                      <Card className="rounded-[28px] p-6 border border-slate-200/80 shadow-xs bg-white text-slate-900 xl:col-span-1 space-y-5 flex flex-col justify-between">
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                            <span className="text-xs font-extrabold uppercase tracking-wider text-slate-700">
+                              {visaSelectedCountry} Visa Success AI
+                            </span>
+                            <span className="px-2.5 py-0.5 rounded-full text-[9px] font-black bg-emerald-50 text-emerald-700 border border-emerald-100">
+                              HIGH APPROVAL
+                            </span>
+                          </div>
 
-                        {/* Animated Ring */}
-                        <div className="flex justify-center my-2">
-                          <div className="relative w-36 h-36">
-                            <svg className="w-full h-full -rotate-90">
-                              <circle cx="72" cy="72" r="58" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="9" />
-                              <circle
-                                cx="72" cy="72" r="58" fill="none"
-                                stroke="#10b981" strokeWidth="9"
-                                strokeDasharray={2 * Math.PI * 58}
-                                strokeDashoffset={2 * Math.PI * 58 * (1 - (profile.visaSuccessProb || 92) / 100)}
-                                strokeLinecap="round"
-                                className="transition-all duration-1000"
-                              />
-                            </svg>
-                            <div className="absolute inset-0 flex flex-col items-center justify-center">
-                              <span className="text-3xl font-black text-emerald-400">{profile.visaSuccessProb || 92}%</span>
-                              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Calculated Odds</span>
+                          {/* Clean Progress Ring */}
+                          <div className="flex justify-center my-2">
+                            <div className="relative w-36 h-36">
+                              <svg className="w-full h-full -rotate-90">
+                                <circle cx="72" cy="72" r="58" fill="none" stroke="#E2E8F0" strokeWidth="9" />
+                                <circle
+                                  cx="72" cy="72" r="58" fill="none"
+                                  stroke="#10B981" strokeWidth="9"
+                                  strokeDasharray={2 * Math.PI * 58}
+                                  strokeDashoffset={2 * Math.PI * 58 * (1 - (profile.visaSuccessProb || 92) / 100)}
+                                  strokeLinecap="round"
+                                  className="transition-all duration-1000"
+                                />
+                              </svg>
+                              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                <span className="text-3xl font-black text-emerald-600">{profile.visaSuccessProb || 92}%</span>
+                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Calculated Odds</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
 
-                        {/* 4 Factor Breakdown */}
-                        <div className="space-y-2.5 pt-2 border-t border-slate-800 text-xs">
-                          {[
-                            { label: "Financial Proof", val: editForm.bankBalance ? `NPR ${editForm.bankBalance}` : "GIC / Liquid Funds Set", ok: true },
-                            { label: "Language Test", val: profile.englishScore ? `${profile.testType} ${profile.englishScore}` : "Test Complete", ok: true },
-                            { label: "Academic Continuity", val: profile.studyGap ? `${profile.studyGap}yr Study Gap` : "No Unexplained Gaps", ok: true },
-                            { label: "Passport Status", val: profile.passportReady ? "Passport Verified" : "Ready for Stamp", ok: true },
-                          ].map((item, idx) => (
-                            <div key={idx} className="flex items-center justify-between py-1 border-b border-slate-800/60 last:border-none">
-                              <span className="text-slate-400 text-[11px] font-semibold">{item.label}</span>
-                              <span className="text-emerald-400 text-[11px] font-bold flex items-center gap-1">
-                                <Check className="w-3 h-3 text-emerald-400" />
-                                {item.val}
-                              </span>
-                            </div>
-                          ))}
+                          {/* 4 Factor Breakdown */}
+                          <div className="space-y-2.5 pt-2 border-t border-slate-100 text-xs">
+                            {[
+                              { label: "Financial Proof", val: editForm.bankBalance ? `NPR ${editForm.bankBalance}` : "GIC / Liquid Funds Set" },
+                              { label: "Language Test", val: profile.englishScore ? `${profile.testType} ${profile.englishScore}` : "Test Complete" },
+                              { label: "Academic Continuity", val: profile.studyGap ? `${profile.studyGap}yr Study Gap` : "No Unexplained Gaps" },
+                              { label: "Passport Status", val: profile.passportReady ? "Passport Verified" : "Ready for Stamp" },
+                            ].map((item, idx) => (
+                              <div key={idx} className="flex items-center justify-between py-1.5 border-b border-slate-100 last:border-none">
+                                <span className="text-slate-500 text-[11px] font-bold">{item.label}</span>
+                                <span className="text-emerald-700 text-[11px] font-extrabold flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
+                                  <Check className="w-3 h-3 text-emerald-600" />
+                                  {item.val}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
                         </div>
 
                         <button
                           type="button"
                           onClick={() => setShowVisaMockModal(true)}
-                          className="w-full py-3 rounded-xl bg-[#3366FF] hover:bg-blue-600 text-white font-extrabold text-xs shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+                          className="w-full py-3 rounded-xl bg-[#3366FF] hover:bg-blue-600 text-white font-extrabold text-xs shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer mt-2"
                         >
                           <ShieldCheck className="w-4 h-4" /> Book Mock Visa Interview
                         </button>
@@ -4038,7 +4040,7 @@ function DashboardInner() {
                                 <div className={`w-7 h-7 rounded-xl flex items-center justify-center font-black text-xs shrink-0 mt-0.5 ${
                                   step.done ? "bg-emerald-500 text-white" : idx === 1 ? "bg-[#3366FF] text-white" : "bg-slate-200 text-slate-600"
                                 }`}>
-                                  {step.done ? <Check className="w-4 h-4" /> : idx + 1}
+                                  {step.done ? <Check className="w-4 h-4 stroke-[3]" /> : idx + 1}
                                 </div>
                                 <div className="space-y-0.5">
                                   <h4 className="font-extrabold text-slate-900 text-sm">{step.title}</h4>
@@ -4047,7 +4049,7 @@ function DashboardInner() {
                               </div>
 
                               <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider shrink-0 ${
-                                step.done ? "bg-emerald-100 text-emerald-700" : idx === 1 ? "bg-blue-100 text-[#3366FF]" : "bg-slate-200 text-slate-600"
+                                step.done ? "bg-emerald-100 text-emerald-700 border border-emerald-200" : idx === 1 ? "bg-blue-100 text-[#3366FF] border border-blue-200" : "bg-slate-200 text-slate-600"
                               }`}>
                                 {step.tag}
                               </span>
@@ -4094,7 +4096,7 @@ function DashboardInner() {
                                 <div className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 ${
                                   isUploaded ? "bg-emerald-500 text-white" : "border-2 border-slate-300 bg-white"
                                 }`}>
-                                  {isUploaded && <Check className="w-3.5 h-3.5" />}
+                                  {isUploaded && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                                 </div>
                                 <span className="text-xs font-bold text-slate-800 truncate">{chk.name}</span>
                               </div>
