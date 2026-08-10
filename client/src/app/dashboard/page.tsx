@@ -46,6 +46,7 @@ import {
   Mail,
   Calendar,
   Shield,
+  ShieldCheck,
   Loader2,
   ChevronLeft,
   Circle,
@@ -6504,7 +6505,7 @@ function DashboardInner() {
                 onClick={() => {
                   setShowVisaMockModal(false);
                   handleSendMessage(undefined, `Hi Abby! I would like to schedule a 1-on-1 mock visa interview for ${visaSelectedCountry}. Please confirm my session booking.`);
-                  setActiveTab("counselor");
+                  setActiveTab("messages");
                 }}
                 className="flex-1 py-3 bg-[#3366FF] hover:bg-blue-600 text-white font-extrabold text-xs rounded-xl transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1.5"
               >
