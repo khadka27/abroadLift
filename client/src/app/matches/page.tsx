@@ -4910,7 +4910,7 @@ export default function AbroadLiftMatchesPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-semibold text-slate-600">
                   <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
                     <span className="font-extrabold text-slate-900 block mb-0.5">1. Lock Target College</span>
-                    Confirm program details for {selectedMatch.schoolName}.
+                    Confirm program details for {selectedMatch.name}.
                   </div>
                   <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
                     <span className="font-extrabold text-slate-900 block mb-0.5">2. Prepare Entrance Awards</span>
