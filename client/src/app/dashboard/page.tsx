@@ -1131,12 +1131,26 @@ function DashboardInner() {
     const gapVal = editForm.studyGap ? parseInt(editForm.studyGap, 10) : NaN;
     const workExpVal = editForm.workExperience ? parseInt(editForm.workExperience, 10) : NaN;
 
-    // Validate DOB non-future
+    // Validate DOB (non-future and age 16+)
     const todayStr = new Date().toISOString().slice(0, 10);
-    if (editForm.dateOfBirth && editForm.dateOfBirth > todayStr) {
-      setErrorMsg("Date of birth cannot be in the future.");
-      setSaving(false);
-      return;
+    if (editForm.dateOfBirth) {
+      if (editForm.dateOfBirth > todayStr) {
+        setErrorMsg("Date of birth cannot be in the future.");
+        setSaving(false);
+        return;
+      }
+      const dobDate = new Date(editForm.dateOfBirth);
+      const today = new Date();
+      let age = today.getFullYear() - dobDate.getFullYear();
+      const monthDiff = today.getMonth() - dobDate.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dobDate.getDate())) {
+        age--;
+      }
+      if (isNaN(dobDate.getTime()) || age < 16) {
+        setErrorMsg("Date of birth is invalid. Applicants must be at least 16 years old (Age 16+).");
+        setSaving(false);
+        return;
+      }
     }
 
     if (
@@ -3701,23 +3715,59 @@ function DashboardInner() {
                                     />
                                   </label>
                                   <label className="block">
-                                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Date of Birth</span>
-                                    <input
-                                      type="date"
-                                      max={new Date().toISOString().slice(0, 10)}
-                                      value={editForm.dateOfBirth}
-                                      onChange={(e) => setEditForm({ ...editForm, dateOfBirth: e.target.value })}
-                                      className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
-                                        editForm.dateOfBirth && editForm.dateOfBirth > new Date().toISOString().slice(0, 10)
-                                          ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
-                                          : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
-                                      }`}
-                                    />
-                                    {editForm.dateOfBirth && editForm.dateOfBirth > new Date().toISOString().slice(0, 10) && (
-                                      <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
-                                        <span>⚠️ Date of birth cannot be in the future</span>
-                                      </p>
-                                    )}
+                                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">
+                                      Date of Birth (Must be 16+)
+                                    </span>
+                                    {(() => {
+                                      const maxDob16Str = (() => {
+                                        const d = new Date();
+                                        d.setFullYear(d.getFullYear() - 16);
+                                        return d.toISOString().slice(0, 10);
+                                      })();
+
+                                      const isFuture = editForm.dateOfBirth && editForm.dateOfBirth > new Date().toISOString().slice(0, 10);
+                                      
+                                      const isUnder16 = (() => {
+                                        if (!editForm.dateOfBirth) return false;
+                                        const dobDate = new Date(editForm.dateOfBirth);
+                                        if (isNaN(dobDate.getTime())) return true;
+                                        const today = new Date();
+                                        let age = today.getFullYear() - dobDate.getFullYear();
+                                        const monthDiff = today.getMonth() - dobDate.getMonth();
+                                        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dobDate.getDate())) {
+                                          age--;
+                                        }
+                                        return age < 16;
+                                      })();
+
+                                      const isInvalid = isFuture || isUnder16;
+
+                                      return (
+                                        <>
+                                          <input
+                                            type="date"
+                                            max={maxDob16Str}
+                                            value={editForm.dateOfBirth}
+                                            onChange={(e) => setEditForm({ ...editForm, dateOfBirth: e.target.value })}
+                                            className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
+                                              isInvalid
+                                                ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
+                                                : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
+                                            }`}
+                                          />
+                                          {isFuture && (
+                                            <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
+                                              <span>⚠️ Date of birth cannot be in the future</span>
+                                            </p>
+                                          )}
+                                          {!isFuture && isUnder16 && (
+                                            <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
+                                              <span>⚠️ Invalid DOB: You must be at least 16 years old (Age 16+)</span>
+                                            </p>
+                                          )}
+                                        </>
+                                      );
+                                    })()}
                                   </label>
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Gender</span>
@@ -3996,17 +4046,41 @@ function DashboardInner() {
                                   </label>
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Target Intake</span>
-                                    <select
-                                      value={editForm.intake}
-                                      onChange={(e) => setEditForm({ ...editForm, intake: e.target.value })}
-                                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
-                                    >
-                                      <option value="">Select Intake</option>
-                                      <option value="Fall 2026">Fall 2026</option>
-                                      <option value="Spring 2027">Spring 2027</option>
-                                      <option value="Summer 2026">Summer 2026</option>
-                                      <option value="Fall 2027">Fall 2027</option>
-                                    </select>
+                                    {(() => {
+                                      const currentYear = new Date().getFullYear();
+                                      const currentMonth = new Date().getMonth() + 1;
+
+                                      const allIntakeOptions = [
+                                        { val: `Spring ${currentYear}`, month: 1, year: currentYear },
+                                        { val: `Summer ${currentYear}`, month: 5, year: currentYear },
+                                        { val: `Fall ${currentYear}`, month: 9, year: currentYear },
+                                        { val: `Spring ${currentYear + 1}`, month: 1, year: currentYear + 1 },
+                                        { val: `Summer ${currentYear + 1}`, month: 5, year: currentYear + 1 },
+                                        { val: `Fall ${currentYear + 1}`, month: 9, year: currentYear + 1 },
+                                        { val: `Spring ${currentYear + 2}`, month: 1, year: currentYear + 2 },
+                                        { val: `Fall ${currentYear + 2}`, month: 9, year: currentYear + 2 },
+                                      ];
+
+                                      const validIntakeOptions = allIntakeOptions.filter((opt) => {
+                                        if (opt.year > currentYear) return true;
+                                        return opt.month >= currentMonth;
+                                      });
+
+                                      return (
+                                        <select
+                                          value={editForm.intake}
+                                          onChange={(e) => setEditForm({ ...editForm, intake: e.target.value })}
+                                          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
+                                        >
+                                          <option value="">Select Intake</option>
+                                          {validIntakeOptions.map((opt) => (
+                                            <option key={opt.val} value={opt.val}>
+                                              {opt.val}
+                                            </option>
+                                          ))}
+                                        </select>
+                                      );
+                                    })()}
                                   </label>
                                 </div>
                               </div>

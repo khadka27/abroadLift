@@ -209,6 +209,32 @@ export async function PUT(req: Request) {
   const finalScholarshipNeeded = scholarshipNeeded ?? scholarship;
   const finalDob = dob || dateOfBirth || null;
 
+  if (finalDob) {
+    const dobDate = new Date(finalDob);
+    const today = new Date();
+    const todayStr = today.toISOString().slice(0, 10);
+
+    if (isNaN(dobDate.getTime()) || finalDob > todayStr) {
+      return NextResponse.json(
+        { error: "Date of birth cannot be in the future or invalid." },
+        { status: 400 }
+      );
+    }
+
+    let age = today.getFullYear() - dobDate.getFullYear();
+    const monthDiff = today.getMonth() - dobDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dobDate.getDate())) {
+      age--;
+    }
+
+    if (age < 16) {
+      return NextResponse.json(
+        { error: "Date of birth is invalid: Applicants must be at least 16 years old (Age 16+)." },
+        { status: 400 }
+      );
+    }
+  }
+
   // Validation: Numeric amounts and scores cannot be negative
   const gpaNum = toFloat(gpa);
   const budgetNum = toFloat(finalYearlyBudget);

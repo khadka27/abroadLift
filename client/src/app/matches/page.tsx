@@ -4385,8 +4385,46 @@ export default function AbroadLiftMatchesPage() {
       const selectedCountryCode = form.countries[0] || "USA";
       const countryGuide =
         COUNTRY_INTAKE_GUIDE[selectedCountryCode] || COUNTRY_INTAKE_GUIDE.USA;
+
+      const currentYear = new Date().getFullYear();
+      const currentMonth = new Date().getMonth() + 1; // 1-12
+      const baseYear = form.passingYear ? parseInt(form.passingYear) : currentYear;
+      const startYear = Math.max(currentYear, baseYear);
+      const YEARS = [
+        startYear.toString(),
+        (startYear + 1).toString(),
+        (startYear + 2).toString(),
+        (startYear + 3).toString(),
+      ];
+
+      const selectedYearInt = parseInt(form.intakeYear) || startYear;
+      const isCurrentYear = selectedYearInt === currentYear;
+
+      const getIntakeEndMonth = (monthsStr: string, label: string): number => {
+        const text = (monthsStr + " " + label).toLowerCase();
+        if (text.includes("dec")) return 12;
+        if (text.includes("nov")) return 11;
+        if (text.includes("oct")) return 10;
+        if (text.includes("sep") || text.includes("fall")) return 9;
+        if (text.includes("aug")) return 8;
+        if (text.includes("jul")) return 7;
+        if (text.includes("jun")) return 6;
+        if (text.includes("may") || text.includes("summer")) return 5;
+        if (text.includes("apr")) return 4;
+        if (text.includes("mar")) return 3;
+        if (text.includes("feb")) return 2;
+        if (text.includes("jan") || text.includes("spring") || text.includes("winter")) return 1;
+        return 12;
+      };
+
+      const validIntakes = countryGuide.intakes.filter((item) => {
+        if (!isCurrentYear) return true;
+        const endMonth = getIntakeEndMonth(item.months, item.label);
+        return endMonth >= currentMonth;
+      });
+
       const INTAKE_OPTIONS = [
-        ...countryGuide.intakes.map((item) => ({
+        ...validIntakes.map((item) => ({
           main: `${item.label} Intake`,
           sub: `${item.months} | Apply: ${item.applyWindow}`,
           meta: item.isMain ? "Main" : item.isLimited ? "Limited" : "Regular",
@@ -4396,16 +4434,6 @@ export default function AbroadLiftMatchesPage() {
           sub: "We will suggest based on your profile",
           meta: "Recommended",
         },
-      ];
-
-      const currentYear = new Date().getFullYear();
-      const baseYear = form.passingYear ? parseInt(form.passingYear) : currentYear;
-      const startYear = Math.max(currentYear, baseYear);
-      const YEARS = [
-        startYear.toString(),
-        (startYear + 1).toString(),
-        (startYear + 2).toString(),
-        (startYear + 3).toString(),
       ];
       
       const INTAKE_LABELS = INTAKE_OPTIONS.map(opt => `${opt.main} (${opt.meta}) - ${opt.sub}`);
