@@ -4947,7 +4947,6 @@ export default function AbroadLiftMatchesPage() {
           </div>
         );
       }
-    }
 
     // 13: Final Phase Financial Oracle & Roadmap
     if (step === 13 && selectedMatch && financialMetrics) {
@@ -5591,6 +5590,7 @@ export default function AbroadLiftMatchesPage() {
           </Card>
         </div>
       );
+    }
     }
 
     return null;
