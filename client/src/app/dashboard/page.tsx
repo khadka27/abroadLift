@@ -443,6 +443,9 @@ function DashboardInner() {
     });
   }, [tasks, taskFilterStatus]);
 
+  const [visaSelectedCountry, setVisaSelectedCountry] = useState("Canada");
+  const [showVisaMockModal, setShowVisaMockModal] = useState(false);
+
   const [messages, setMessages] = useState<Message[]>([
     { id: "msg-1", sender: "counselor", text: "Hello! Welcome to AbroadLift. I am your study-abroad counselor.", timestamp: "10:30 AM" },
     { id: "msg-2", sender: "student", text: "Hi! Thanks. I am interested in computer and health informatics programs in Canada.", timestamp: "10:32 AM" },
@@ -3896,96 +3899,211 @@ function DashboardInner() {
                   </div>
                 )}
 
-                {/* 9. VISA ASSISTANCE TAB - Enhanced with animated steps */}
+                {/* 9. VISA ASSISTANCE TAB - Ultra-Premium Consulate & AI Hub */}
                 {activeTab === "visa-assistance" && (
-                  <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                    {/* Visa success odds card */}
-                    <Card className="rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white xl:col-span-1 relative overflow-hidden">
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/20 rounded-full blur-[50px] pointer-events-none" />
-                      <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-500/10 rounded-full blur-[40px] pointer-events-none" />
-                      <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-5 relative z-10">Visa Success Odds</h3>
-                      {/* Big animated ring */}
-                      <div className="flex justify-center my-4 relative z-10">
-                        <div className="relative w-32 h-32">
-                          <svg className="w-full h-full -rotate-90">
-                            <circle cx="64" cy="64" r="52" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="8" />
-                            <circle
-                              cx="64" cy="64" r="52" fill="none"
-                              stroke="#10b981" strokeWidth="8"
-                              strokeDasharray={2 * Math.PI * 52}
-                              strokeDashoffset={2 * Math.PI * 52 * (1 - (profile.visaSuccessProb || 92) / 100)}
-                              strokeLinecap="round"
-                              className="transition-all duration-1000"
-                            />
-                          </svg>
-                          <div className="absolute inset-0 flex flex-col items-center justify-center">
-                            <span className="text-3xl font-black text-emerald-400">{profile.visaSuccessProb || "92"}%</span>
-                            <span className="text-[9px] font-bold text-slate-400 uppercase">Success</span>
-                          </div>
-                        </div>
+                  <div className="space-y-6 animate-in fade-in zoom-in-95 duration-300">
+                    {/* Header & Country Selector */}
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-white border border-slate-200/80 rounded-[28px] shadow-xs">
+                      <div>
+                        <h2 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
+                          <Globe className="w-5 h-5 text-[#3366FF]" />
+                          <span>Visa Approval & Consulate Hub</span>
+                        </h2>
+                        <p className="text-xs font-semibold text-slate-500 mt-0.5">
+                          Consulate guidelines, financial proof rules, and live visa success odds tailored for your destination.
+                        </p>
                       </div>
-                      <div className="mt-4 pt-4 border-t border-white/10 text-xs text-slate-300 font-semibold space-y-3 relative z-10">
-                        {[
-                          { label: "Sponsor Income", value: "Sufficient", ok: true },
-                          { label: "Study Gap", value: profile.studyGap ? `${profile.studyGap}yr gap` : "Clean Timeline", ok: true },
-                          { label: "Financial Liquidity", value: "Strong Match", ok: true },
-                          { label: "English Score", value: profile.englishScore ? `${profile.testType} ${profile.englishScore}` : "Pending", ok: !!profile.englishScore },
-                        ].map((item) => (
-                          <div key={item.label} className="flex justify-between items-center">
-                            <span className="text-slate-400">{item.label}:</span>
-                            <span className={`font-bold flex items-center gap-1 ${item.ok ? "text-emerald-400" : "text-amber-400"}`}>
-                              {item.ok ? (
-                                <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                              ) : (
-                                <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                              )}
-                              <span>{item.value}</span>
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </Card>
 
-                    {/* Enhanced step-by-step visa process */}
-                    <Card className="rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 bg-white xl:col-span-2">
-                      <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Visa Process Roadmap</h3>
-                        <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-xl">1 / 5 Complete</span>
-                      </div>
-                      <div className="space-y-4">
+                      <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
                         {[
-                          { title: "Receive Offer Letter (LOA/CAS/CoE)", desc: "Receive official acceptance certificate from your chosen institution.", done: applications.some(a => a.stage === "Offer Received" || a.stage === "Accepted"), emoji: "📄" },
-                          { title: "Pay First-Semester Tuition Deposit", desc: "Pay deposit to secure your seat and receive confirmation receipt.", done: false, emoji: "💳" },
-                          { title: "Open GIC Account / Financial Escrow", desc: "Transfer necessary funds for cost-of-living proof to the consulate.", done: false, emoji: "🏦" },
-                          { title: "Undergo Medical Examination", desc: "Visit an approved panel clinic for visa-compliant physical exams.", done: false, emoji: "🏥" },
-                          { title: "Complete Online Visa Application (IRCC/VFS)", desc: "Fill out official forms, upload transcripts, SOP, and passport scans.", done: false, emoji: "🌐" },
-                        ].map((stepItem, idx) => (
-                          <motion.div
-                            key={idx}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: idx * 0.06 }}
-                            className={`flex gap-4 items-start p-4 rounded-2xl border transition-all ${
-                              stepItem.done
-                                ? "bg-emerald-50/60 border-emerald-200"
-                                : "bg-slate-50/40 border-slate-100 hover:bg-slate-50"
+                          { id: "Canada", flag: "CA", label: "Canada (SDS)" },
+                          { id: "United Kingdom", flag: "GB", label: "UK (CAS)" },
+                          { id: "United States", flag: "US", label: "USA (F1)" },
+                          { id: "Australia", flag: "AU", label: "Australia (Subclass 500)" },
+                          { id: "Germany", flag: "DE", label: "Germany (Blocked Acc)" },
+                        ].map((c) => (
+                          <button
+                            key={c.id}
+                            type="button"
+                            onClick={() => setVisaSelectedCountry(c.id)}
+                            className={`px-3 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
+                              visaSelectedCountry === c.id
+                                ? "bg-[#3366FF] text-white shadow-xs"
+                                : "bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200"
                             }`}
                           >
-                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-lg border-2 ${
-                              stepItem.done ? "bg-emerald-500 border-emerald-500" : "bg-white border-slate-200"
-                            }`}>
-                              {stepItem.done ? <Check className="w-5 h-5 text-white" /> : stepItem.emoji}
-                            </div>
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <h4 className={`text-sm font-bold ${stepItem.done ? "text-emerald-700" : "text-slate-800"}`}>{stepItem.title}</h4>
-                                {stepItem.done && <span className="text-[9px] font-black text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">DONE</span>}
-                                {!stepItem.done && idx === 1 && <span className="text-[9px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full animate-pulse">NEXT STEP</span>}
-                              </div>
-                              <p className="text-xs text-slate-400 mt-1 font-semibold leading-relaxed">{stepItem.desc}</p>
-                            </div>
-                          </motion.div>
+                            <FlagIcon countryCode={c.flag} className="w-4 h-3 rounded-xs border border-white" />
+                            <span>{c.label}</span>
+                          </button>
                         ))}
+                      </div>
+                    </div>
+
+                    {/* Top Grid: Odds Card + Roadmap Card */}
+                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                      {/* Left: Visa Odds AI Estimator */}
+                      <Card className="rounded-[28px] p-6 border border-slate-200/80 shadow-xs bg-slate-900 text-white xl:col-span-1 space-y-5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                            {visaSelectedCountry} Visa Success AI
+                          </span>
+                          <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                            HIGH APPROVAL
+                          </span>
+                        </div>
+
+                        {/* Animated Ring */}
+                        <div className="flex justify-center my-2">
+                          <div className="relative w-36 h-36">
+                            <svg className="w-full h-full -rotate-90">
+                              <circle cx="72" cy="72" r="58" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="9" />
+                              <circle
+                                cx="72" cy="72" r="58" fill="none"
+                                stroke="#10b981" strokeWidth="9"
+                                strokeDasharray={2 * Math.PI * 58}
+                                strokeDashoffset={2 * Math.PI * 58 * (1 - (profile.visaSuccessProb || 92) / 100)}
+                                strokeLinecap="round"
+                                className="transition-all duration-1000"
+                              />
+                            </svg>
+                            <div className="absolute inset-0 flex flex-col items-center justify-center">
+                              <span className="text-3xl font-black text-emerald-400">{profile.visaSuccessProb || 92}%</span>
+                              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Calculated Odds</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* 4 Factor Breakdown */}
+                        <div className="space-y-2.5 pt-2 border-t border-slate-800 text-xs">
+                          {[
+                            { label: "Financial Proof", val: editForm.bankBalance ? `NPR ${editForm.bankBalance}` : "GIC / Liquid Funds Set", ok: true },
+                            { label: "Language Test", val: profile.englishScore ? `${profile.testType} ${profile.englishScore}` : "Test Complete", ok: true },
+                            { label: "Academic Continuity", val: profile.studyGap ? `${profile.studyGap}yr Study Gap` : "No Unexplained Gaps", ok: true },
+                            { label: "Passport Status", val: profile.passportReady ? "Passport Verified" : "Ready for Stamp", ok: true },
+                          ].map((item, idx) => (
+                            <div key={idx} className="flex items-center justify-between py-1 border-b border-slate-800/60 last:border-none">
+                              <span className="text-slate-400 text-[11px] font-semibold">{item.label}</span>
+                              <span className="text-emerald-400 text-[11px] font-bold flex items-center gap-1">
+                                <Check className="w-3 h-3 text-emerald-400" />
+                                {item.val}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => setShowVisaMockModal(true)}
+                          className="w-full py-3 rounded-xl bg-[#3366FF] hover:bg-blue-600 text-white font-extrabold text-xs shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+                        >
+                          <ShieldCheck className="w-4 h-4" /> Book Mock Visa Interview
+                        </button>
+                      </Card>
+
+                      {/* Right: Country Visa Roadmap */}
+                      <Card className="rounded-[28px] p-6 border border-slate-200/80 shadow-xs bg-white xl:col-span-2 space-y-5">
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                          <div>
+                            <h3 className="font-extrabold text-slate-900 text-base flex items-center gap-2">
+                              <span>Official {visaSelectedCountry} Study Permit Process</span>
+                            </h3>
+                            <p className="text-xs font-semibold text-slate-500 mt-0.5">Follow these sequential milestones to ensure zero visa rejection risk.</p>
+                          </div>
+                          <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-blue-50 text-[#3366FF] border border-blue-100 shrink-0">
+                            Milestone Step 2 of 5
+                          </span>
+                        </div>
+
+                        <div className="space-y-3">
+                          {[
+                            { title: "1. Receive Official Letter of Acceptance (LOA)", desc: "Secure official unconditional offer letter from your designated learning institution.", done: true, tag: "Completed" },
+                            { title: "2. Pay First Semester Tuition Deposit", desc: "Transfer tuition deposit directly to university account and obtain official payment receipt.", done: applications.some(a => a.stage === "Submitted" || a.stage === "Offer Received"), tag: "In Progress" },
+                            { title: "3. Open GIC / Financial Escrow Account", desc: "Deposit minimum $20,635 CAD or equivalent living expense guarantee into consulate-approved bank.", done: false, tag: "Required" },
+                            { title: "4. Panel Medical Exam & Biometrics Clearance", desc: "Undergo medical check-up at approved panel physician and schedule VFS biometrics appointment.", done: false, tag: "Pending" },
+                            { title: "5. Submit Online Study Permit Application", desc: "Submit complete IRCC / High Commission application folder with SOP, CA Report & Transcripts.", done: false, tag: "Final Submission" },
+                          ].map((step, idx) => (
+                            <div
+                              key={idx}
+                              className={`p-4 rounded-2xl border transition-all flex items-start justify-between gap-4 ${
+                                step.done
+                                  ? "bg-emerald-50/50 border-emerald-200"
+                                  : idx === 1
+                                  ? "bg-blue-50/40 border-blue-200 ring-2 ring-blue-400/20"
+                                  : "bg-slate-50/50 border-slate-200/80"
+                              }`}
+                            >
+                              <div className="flex items-start gap-3">
+                                <div className={`w-7 h-7 rounded-xl flex items-center justify-center font-black text-xs shrink-0 mt-0.5 ${
+                                  step.done ? "bg-emerald-500 text-white" : idx === 1 ? "bg-[#3366FF] text-white" : "bg-slate-200 text-slate-600"
+                                }`}>
+                                  {step.done ? <Check className="w-4 h-4" /> : idx + 1}
+                                </div>
+                                <div className="space-y-0.5">
+                                  <h4 className="font-extrabold text-slate-900 text-sm">{step.title}</h4>
+                                  <p className="text-xs font-semibold text-slate-500 leading-relaxed">{step.desc}</p>
+                                </div>
+                              </div>
+
+                              <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider shrink-0 ${
+                                step.done ? "bg-emerald-100 text-emerald-700" : idx === 1 ? "bg-blue-100 text-[#3366FF]" : "bg-slate-200 text-slate-600"
+                              }`}>
+                                {step.tag}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </Card>
+                    </div>
+
+                    {/* Consulate Document Checklist Card */}
+                    <Card className="rounded-[28px] p-6 border border-slate-200/80 shadow-xs bg-white space-y-4">
+                      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <div>
+                          <h3 className="font-extrabold text-slate-900 text-base flex items-center gap-2">
+                            <ShieldCheck className="w-5 h-5 text-emerald-600" />
+                            <span>Consulate Mandatory Document Readiness Checklist</span>
+                          </h3>
+                          <p className="text-xs font-semibold text-slate-500 mt-0.5">Verification status of files stored in your Document Locker.</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setActiveTab("documents")}
+                          className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
+                        >
+                          <Paperclip className="w-3.5 h-3.5" /> Manage in Document Locker
+                        </button>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {[
+                          { name: "Valid Passport (6+ Months Expiry)", docMatch: "Passport" },
+                          { name: "Academic Transcripts & Degree Scans", docMatch: "Academic Transcript" },
+                          { name: "Official Letter of Acceptance (LOA)", docMatch: "Degree Certificate" },
+                          { name: "English Language Scorecard", docMatch: "English Language Test Report" },
+                          { name: "Statement of Purpose (SOP)", docMatch: "Statement of Purpose (SOP)" },
+                          { name: "Proof of Financial Funds / GIC", docMatch: "Bank Balance Certificate" },
+                        ].map((chk, i) => {
+                          const docObj = documents.find(d => d.name.toLowerCase().includes(chk.docMatch.toLowerCase()));
+                          const isUploaded = docObj?.status === "Uploaded";
+
+                          return (
+                            <div key={i} className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-3">
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <div className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 ${
+                                  isUploaded ? "bg-emerald-500 text-white" : "border-2 border-slate-300 bg-white"
+                                }`}>
+                                  {isUploaded && <Check className="w-3.5 h-3.5" />}
+                                </div>
+                                <span className="text-xs font-bold text-slate-800 truncate">{chk.name}</span>
+                              </div>
+                              <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider shrink-0 ${
+                                isUploaded ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : "bg-amber-50 text-amber-600 border border-amber-100"
+                              }`}>
+                                {isUploaded ? "Ready" : "Pending"}
+                              </span>
+                            </div>
+                          );
+                        })}
                       </div>
                     </Card>
                   </div>
@@ -6329,6 +6447,77 @@ function DashboardInner() {
                 </button>
               </div>
             </form>
+          </Card>
+        </div>
+      )}
+
+      {/* 1-on-1 Visa Mock Interview Modal */}
+      {showVisaMockModal && (
+        <div className="fixed inset-0 z-[250] flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4 animate-in fade-in duration-200">
+          <Card className="bg-white border border-slate-100 rounded-[32px] p-6 max-w-md w-full shadow-2xl space-y-5 transform animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 text-[#3366FF]" /> Schedule Mock Visa Interview
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowVisaMockModal(false)}
+                className="p-1.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-all cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div className="p-4 bg-blue-50/60 rounded-2xl border border-blue-100 space-y-1">
+                <p className="text-xs font-bold text-blue-900 flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-[#3366FF]" /> 1-on-1 Certified Counselor Session
+                </p>
+                <p className="text-xs font-semibold text-blue-800/90 leading-relaxed pl-5">
+                  Prepare for consulate questions on study intent, financial funding, post-graduation ties, and university choice for {visaSelectedCountry}.
+                </p>
+              </div>
+
+              <label className="block space-y-1">
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Target Visa Destination</span>
+                <input
+                  type="text"
+                  disabled
+                  value={`${visaSelectedCountry} Embassy / VFS Screening`}
+                  className="w-full rounded-xl border border-slate-200 bg-slate-100 px-3.5 py-2.5 text-xs font-bold text-slate-700"
+                />
+              </label>
+
+              <label className="block space-y-1">
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Preferred Date & Time</span>
+                <input
+                  type="datetime-local"
+                  defaultValue={new Date(Date.now() + 86400000).toISOString().slice(0, 16)}
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs font-semibold text-slate-800 outline-none focus:border-[#3366FF] focus:bg-white"
+                />
+              </label>
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowVisaMockModal(false);
+                  handleSendMessage(undefined, `Hi Abby! I would like to schedule a 1-on-1 mock visa interview for ${visaSelectedCountry}. Please confirm my session booking.`);
+                  setActiveTab("counselor");
+                }}
+                className="flex-1 py-3 bg-[#3366FF] hover:bg-blue-600 text-white font-extrabold text-xs rounded-xl transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <Calendar className="w-4 h-4" /> Confirm Mock Booking
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowVisaMockModal(false)}
+                className="px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-xs rounded-xl transition-all cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
           </Card>
         </div>
       )}
