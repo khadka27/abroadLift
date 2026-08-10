@@ -3104,13 +3104,14 @@ export default function AbroadLiftMatchesPage() {
         if (isNaN(pScore)) return false;
         switch (form.plannedTestType) {
           case "IELTS":
-            return pScore >= 1 && pScore <= 9;
+            return pScore >= 1 && pScore <= 9 && (pScore * 10) % 5 === 0;
           case "PTE":
+          case "PTE Academic":
             return pScore >= 10 && pScore <= 90;
           case "TOEFL":
             return pScore >= 0 && pScore <= 120;
           case "Duolingo":
-            return pScore >= 10 && pScore <= 160;
+            return pScore >= 10 && pScore <= 160 && pScore % 5 === 0;
           default:
             return true;
         }
@@ -3122,12 +3123,20 @@ export default function AbroadLiftMatchesPage() {
         if (isNaN(score)) return false;
         switch (form.testType) {
           case "IELTS":
-            return score >= 1 && score <= 9;
+            return score >= 1 && score <= 9 && (score * 10) % 5 === 0;
+          case "PTE Academic":
+          case "PTE":
+            return score >= 10 && score <= 90;
+          case "TOEFL":
+            return score >= 0 && score <= 120;
+          case "Duolingo":
+            return score >= 10 && score <= 160 && score % 5 === 0;
+          case "Cambridge":
+            return score >= 120 && score <= 230;
           case "SAT":
             return score >= 400 && score <= 1600;
           case "GRE":
             return score >= 260 && score <= 340;
-          case "Duolingo":
             return score >= 10 && score <= 160;
           case "PTE Academic":
             return score >= 10 && score <= 90;
@@ -4133,20 +4142,43 @@ export default function AbroadLiftMatchesPage() {
         ? Math.round(((scoreVal - selectedTest.min) / (selectedTest.max - selectedTest.min)) * 100)
         : 0;
 
+      // Score validation for currently selected test
+      let scoreError = "";
+      if (selectedTest && form.testScore && form.testScore !== "0") {
+        const score = parseFloat(form.testScore);
+        if (isNaN(score)) {
+          scoreError = "Please enter a valid number";
+        } else if (score < selectedTest.min || score > selectedTest.max) {
+          scoreError = `${selectedTest.name} score must be between ${selectedTest.min} and ${selectedTest.max}`;
+        } else if (selectedTest.id === "IELTS" && (score * 10) % 5 !== 0) {
+          scoreError = "IELTS score must be in half-band increments (e.g. 6.0, 6.5, 7.0)";
+        } else if (selectedTest.id === "Duolingo" && score % 5 !== 0) {
+          scoreError = "Duolingo score must be in increments of 5 (e.g. 105, 110, 115)";
+        }
+      }
+
       // Planned Test Score Validation
       let plannedScoreError = "";
       if (form.plannedTestType && form.plannedTestScore) {
         const pScore = parseFloat(form.plannedTestScore);
         if (isNaN(pScore)) {
           plannedScoreError = "Please enter a valid number";
-        } else if (form.plannedTestType === "IELTS" && (pScore < 1 || pScore > 9)) {
-          plannedScoreError = "IELTS score must be between 1 and 9";
+        } else if (form.plannedTestType === "IELTS") {
+          if (pScore < 1 || pScore > 9) {
+            plannedScoreError = "IELTS score must be between 1 and 9";
+          } else if ((pScore * 10) % 5 !== 0) {
+            plannedScoreError = "IELTS score must be in half-band increments (e.g. 6.5, 7.0)";
+          }
         } else if (form.plannedTestType === "PTE" && (pScore < 10 || pScore > 90)) {
           plannedScoreError = "PTE score must be between 10 and 90";
         } else if (form.plannedTestType === "TOEFL" && (pScore < 0 || pScore > 120)) {
           plannedScoreError = "TOEFL score must be between 0 and 120";
-        } else if (form.plannedTestType === "Duolingo" && (pScore < 10 || pScore > 160)) {
-          plannedScoreError = "Duolingo score must be between 10 and 160";
+        } else if (form.plannedTestType === "Duolingo") {
+          if (pScore < 10 || pScore > 160) {
+            plannedScoreError = "Duolingo score must be between 10 and 160";
+          } else if (pScore % 5 !== 0) {
+            plannedScoreError = "Duolingo score must be in increments of 5 (e.g. 115, 120)";
+          }
         }
       }
 
@@ -4254,12 +4286,20 @@ export default function AbroadLiftMatchesPage() {
                     max={selectedTest.max}
                     step={selectedTest.step}
                     placeholder={selectedTest.placeholder}
-                    className="w-full h-[50px] px-5 bg-white border border-slate-200 rounded-2xl text-[16px] font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all shadow-sm"
+                    className={`w-full h-[50px] px-5 bg-white border rounded-2xl text-[16px] font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/5 transition-all shadow-sm ${
+                      scoreError ? "border-red-400 focus:border-red-500 bg-red-50/20" : "border-slate-200 focus:border-blue-500"
+                    }`}
                     value={form.testScore === "0" ? "" : form.testScore}
                     onChange={(e) => updateForm("testScore", e.target.value)}
                   />
+                  {scoreError && (
+                    <p className="text-red-500 text-[11px] font-bold mt-1 pl-1">
+                      ⚠️ {scoreError}
+                    </p>
+                  )}
                 </div>
               </div>
+
 
               {/* Country Specific English Test Acceptance Warning/Info */}
               {(() => {

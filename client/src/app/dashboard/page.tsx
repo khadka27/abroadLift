@@ -4130,22 +4130,50 @@ function DashboardInner() {
                                       </label>
                                       <label className="block">
                                         <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Overall Band / Score</span>
-                                        <input
-                                          type="text"
-                                          value={editForm.englishScore}
-                                          onChange={(e) => setEditForm({ ...editForm, englishScore: e.target.value })}
-                                          placeholder="e.g. 7.5 or 115"
-                                          className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
-                                            isNegativeVal(editForm.englishScore)
-                                              ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
-                                              : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
-                                          }`}
-                                        />
-                                        {isNegativeVal(editForm.englishScore) && (
-                                          <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
-                                            <span>⚠️ Test score cannot be negative</span>
-                                          </p>
-                                        )}
+                                        {(() => {
+                                          const getScoreError = () => {
+                                            if (!editForm.englishScore) return "";
+                                            const score = parseFloat(editForm.englishScore);
+                                            if (isNaN(score)) return "Please enter a valid numeric score.";
+                                            if (score < 0) return "Test score cannot be negative.";
+
+                                            const type = (editForm.testType || "IELTS").toUpperCase();
+                                            if (type.includes("IELTS")) {
+                                              if (score < 1 || score > 9) return "IELTS band score must be between 1.0 and 9.0.";
+                                              if ((score * 10) % 5 !== 0) return "IELTS score must be in half-band increments (e.g. 6.5, 7.0).";
+                                            } else if (type.includes("PTE")) {
+                                              if (score < 10 || score > 90) return "PTE score must be between 10 and 90.";
+                                            } else if (type.includes("TOEFL")) {
+                                              if (score < 0 || score > 120) return "TOEFL score must be between 0 and 120.";
+                                            } else if (type.includes("DUOLINGO")) {
+                                              if (score < 10 || score > 160) return "Duolingo score must be between 10 and 160.";
+                                              if (score % 5 !== 0) return "Duolingo score must be in increments of 5 (e.g. 105, 115).";
+                                            }
+                                            return "";
+                                          };
+                                          const engError = getScoreError();
+
+                                          return (
+                                            <>
+                                              <input
+                                                type="text"
+                                                value={editForm.englishScore}
+                                                onChange={(e) => setEditForm({ ...editForm, englishScore: e.target.value })}
+                                                placeholder="e.g. 7.5 or 115"
+                                                className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
+                                                  engError
+                                                    ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
+                                                    : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
+                                                }`}
+                                              />
+                                              {engError && (
+                                                <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
+                                                  <span>⚠️ {engError}</span>
+                                                </p>
+                                              )}
+                                            </>
+                                          );
+                                        })()}
                                       </label>
                                     </>
                                   )}
