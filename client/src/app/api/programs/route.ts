@@ -15,8 +15,29 @@ export async function GET(req: NextRequest) {
       // Fetch programs from multi-page cache (up to 5 pages = 500 programs max)
       const programs = await getProgramsMultiPageCached(5);
 
+      const isLevelMatch = (pLevel: string, filter: string) => {
+        if (!filter) return true;
+        const pL = (pLevel || "").toLowerCase();
+        const fL = filter.toLowerCase();
+        if (pL === fL) return true;
+
+        if (fL.includes("master") || fL === "masters_degree" || fL === "masters") {
+          return pL.includes("master") || pL.includes("pg") || pL.includes("post_graduate") || pL === "masters_degree";
+        }
+        if (fL.includes("bachelor") || fL === "bachelors" || fL === "bachelor-4" || fL === "3_year_bachelors") {
+          return pL.includes("bachelor") || pL.includes("undergrad");
+        }
+        if (fL.includes("doctor") || fL.includes("phd") || fL === "doctoral_phd" || fL === "doctorate") {
+          return pL.includes("doctor") || pL.includes("phd");
+        }
+        if (fL.includes("diploma") || fL === "undergrad-dip-2" || fL === "post_graduate_diploma") {
+          return pL.includes("diploma");
+        }
+        return pL.includes(fL) || fL.includes(pL);
+      };
+
       const filteredPrograms = levelFilter
-        ? programs.filter((p: any) => p.level === levelFilter)
+        ? programs.filter((p: any) => isLevelMatch(p.level, levelFilter))
         : programs;
 
       const fields = [

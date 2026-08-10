@@ -3616,12 +3616,77 @@ export default function AbroadLiftMatchesPage() {
     }
 
     if (step === 3) {
+      const degreeVal = (form.degree || "").toLowerCase();
+      const levelKey =
+        degreeVal.includes("bachelor") || degreeVal.includes("undergrad")
+          ? "bachelor-4"
+          : degreeVal.includes("doctor") || degreeVal.includes("phd")
+            ? "doctorate"
+            : degreeVal.includes("associate") || degreeVal.includes("foundation")
+              ? "associate-foundation"
+              : degreeVal.includes("diploma")
+                ? "undergrad-dip-2"
+                : "masters";
+
+      const levelFallbackMap = LEVEL_PROGRAMS[levelKey] || LEVEL_PROGRAMS.masters || PROGRAMS;
+      const rawProgramsMap =
+        Object.keys(availableProgramsByField).length > 0 ? availableProgramsByField : levelFallbackMap;
+
+      const filterByDegreeLevel = (list: string[]) => {
+        if (degreeVal.includes("master") || degreeVal === "masters" || degreeVal === "masters_degree") {
+          return list.filter((p) => {
+            const pl = p.toLowerCase();
+            if (
+              pl.startsWith("bachelor") ||
+              pl.startsWith("bsc") ||
+              pl.startsWith("bba") ||
+              pl.startsWith("llb") ||
+              pl.startsWith("mbbs") ||
+              pl.startsWith("associate") ||
+              pl.startsWith("foundation") ||
+              pl.startsWith("diploma in")
+            ) {
+              return false;
+            }
+            return true;
+          });
+        }
+        if (degreeVal.includes("bachelor") || degreeVal === "bachelor-4" || degreeVal === "bachelors") {
+          return list.filter((p) => {
+            const pl = p.toLowerCase();
+            if (
+              pl.startsWith("master") ||
+              pl.startsWith("msc") ||
+              pl.startsWith("mba") ||
+              pl.startsWith("llm") ||
+              pl.startsWith("phd") ||
+              pl.startsWith("doctor")
+            ) {
+              return false;
+            }
+            return true;
+          });
+        }
+        if (degreeVal.includes("doctor") || degreeVal.includes("phd") || degreeVal === "doctorate") {
+          return list.filter((p) => {
+            const pl = p.toLowerCase();
+            return pl.includes("phd") || pl.includes("doctor") || pl.includes("research");
+          });
+        }
+        return list;
+      };
+
+      const getFieldPrograms = (field: string): string[] => {
+        const raw = rawProgramsMap[field] || levelFallbackMap[field] || PROGRAMS[field] || [];
+        const filtered = filterByDegreeLevel(raw);
+        return filtered.length > 0 ? filtered : levelFallbackMap[field] || PROGRAMS[field] || [];
+      };
+
       const fieldsToDisplay = availableFields.length > 0 ? availableFields : FIELDS.map((f) => f.v);
-      const programsMapToUse = Object.keys(availableProgramsByField).length > 0 ? availableProgramsByField : PROGRAMS;
 
       const filteredFields = fieldsToDisplay.filter((f) => {
         const matchesField = f.toLowerCase().includes(searchQuery.toLowerCase());
-        const programs = programsMapToUse[f] || [];
+        const programs = getFieldPrograms(f);
         const matchesProgram = programs.some((p) => p.toLowerCase().includes(searchQuery.toLowerCase()));
         return matchesField || matchesProgram;
       });
@@ -3632,6 +3697,18 @@ export default function AbroadLiftMatchesPage() {
             <h2 className="text-[18px] md:text-[20px] lg:text-[24px] font-bold text-[#111827] tracking-tight">
               What do you want to study?
             </h2>
+            <p className="text-xs font-semibold text-slate-500 mt-1">
+              Showing courses tailored for your{" "}
+              <strong className="text-blue-600 font-extrabold uppercase">
+                {levelKey === "masters"
+                  ? "Master's Degree"
+                  : levelKey === "bachelor-4"
+                    ? "Bachelor's Degree"
+                    : levelKey === "doctorate"
+                      ? "PhD / Doctorate"
+                      : "Program Selection"}
+              </strong>
+            </p>
           </div>
 
           <div className="w-full mb-6 md:mb-8 overflow-hidden rounded-[24px] shadow-sm border border-slate-50 lg:hidden">
@@ -3676,6 +3753,7 @@ export default function AbroadLiftMatchesPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 md:gap-4 w-full">
               {filteredFields.map((f) => {
                 const isSel = form.field === f;
+                const fieldPrograms = getFieldPrograms(f);
                 return (
                   <div
                     key={f}
@@ -3704,9 +3782,7 @@ export default function AbroadLiftMatchesPage() {
 
                     {isSel && (
                       <div className="mt-2 md:mt-3 p-2 md:p-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1.5 md:gap-2 animate-in fade-in slide-in-from-top-2 duration-300 bg-slate-50/50 rounded-[18px] md:rounded-[24px] border border-slate-100">
-                        {(
-                          (programsMapToUse[f] || []) as string[]
-                        ).map((p) => (
+                        {fieldPrograms.map((p) => (
                           <button
                             key={p}
                             onClick={() => updateForm("program", p)}
@@ -3728,6 +3804,7 @@ export default function AbroadLiftMatchesPage() {
           )}
         </div>
       );
+
     }
     if (step === 4) {
       const isPostGrad = [
