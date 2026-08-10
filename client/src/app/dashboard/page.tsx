@@ -110,7 +110,6 @@ type TabKey =
   | "compare"
   | "applications"
   | "documents"
-  | "messages"
   | "tasks"
   | "scholarships"
   | "saved-universities"
@@ -1512,7 +1511,6 @@ function DashboardInner() {
     {
       title: "Support & Settings",
       items: [
-        { key: "messages" as TabKey, label: "Messages", icon: MessageSquare },
         { key: "profile" as TabKey, label: "Profile", icon: User },
         { key: "settings" as TabKey, label: "Settings", icon: Settings },
       ]
@@ -1789,7 +1787,6 @@ function DashboardInner() {
                   {activeTab === "compare" && "Side-by-side evaluation of 2 student profiles or 2 target universities."}
                   {activeTab === "applications" && "Track and submit your university applications."}
                   {activeTab === "documents" && "Securely manage and upload your required academic files."}
-                  {activeTab === "messages" && "Chat directly with your dedicated study-abroad counselor."}
                   {activeTab === "tasks" && "Track and complete your visa and admission roadmap."}
                   {activeTab === "scholarships" && "Browse institutional and country awards matched to your profile."}
                   {activeTab === "saved-universities" && "Shortlisted universities you've saved for application."}
