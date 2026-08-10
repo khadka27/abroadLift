@@ -781,6 +781,7 @@ function DashboardInner() {
       void fetchProfileData();
       void fetchRecommendedMatches();
       void fetchDocuments();
+      void fetchTasks();
     }
   }, [status]);
 
