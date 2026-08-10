@@ -111,8 +111,8 @@ export function VisaEligibility({
       id: "admissionLetter",
       title: "Official Acceptance Letter / I-20",
       category: "Academic Entry",
-      description: `Unconditional offer letter from ${selectedMatch.schoolName}.`,
-      requiredFor: selectedMatch.schoolName,
+      description: `Unconditional offer letter from ${selectedMatch.name}.`,
+      requiredFor: selectedMatch.name,
       icon: BookOpen,
     },
     {
@@ -128,7 +128,7 @@ export function VisaEligibility({
       title: "Official Transcripts & Certificates",
       category: "Academic Records",
       description: "Verified academic marksheets and degree certificates.",
-      requiredFor: selectedMatch.schoolName,
+      requiredFor: selectedMatch.name,
       icon: FileCheck,
     },
     {
@@ -167,7 +167,7 @@ export function VisaEligibility({
               Visa Readiness Assessment
             </h1>
             <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
-              Verify your documentation portfolio to maximize approval probability for {selectedMatch.schoolName}
+              Verify your documentation portfolio to maximize approval probability for {selectedMatch.name}
             </p>
           </div>
 
@@ -372,7 +372,7 @@ export function VisaEligibility({
             <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1.5">
               <span className="font-extrabold text-slate-900 text-sm">1. Genuine Student Intent</span>
               <p className="text-slate-500 leading-relaxed">
-                Clearly articulate why you selected {selectedMatch.schoolName} and how the degree advances your career goals back home.
+                Clearly articulate why you selected {selectedMatch.name} and how the degree advances your career goals back home.
               </p>
             </div>
 

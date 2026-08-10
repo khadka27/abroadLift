@@ -5390,7 +5390,7 @@ export default function AbroadLiftMatchesPage() {
                   </button>
 
                   <button
-                    onClick={handleExportPdf}
+                    onClick={() => window.print()}
                     className="w-full h-12 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-black uppercase tracking-wider shadow-xs transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <Download className="w-4 h-4" /> Export Financial PDF
