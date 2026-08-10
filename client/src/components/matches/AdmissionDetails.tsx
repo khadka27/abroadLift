@@ -10,10 +10,16 @@ import {
   ArrowRight,
   TrendingUp,
   XCircle,
+  Award,
+  Sparkles,
+  Coins,
+  ExternalLink,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Match, Form } from "@/types/matches";
 import { motion, animate } from "framer-motion";
+import { Scholarship } from "@/lib/api/abroadlift";
+import { evaluateScholarship } from "@/lib/scholarship-evaluator";
 
 function AnimatedPercentRange({ lower, upper }: { lower: number; upper: number }) {
   const nodeRef = useRef<HTMLSpanElement>(null);
@@ -92,6 +98,28 @@ export function AdmissionDetails({
   const testScore = Number.parseFloat(form.testScore) || 0;
   const backlogs = Number.parseInt(form.backlogs || "0", 10) || 0;
   const studyGap = Number.parseInt(form.studyGap || "0", 10) || 0;
+
+  const [scholarships, setScholarships] = React.useState<Scholarship[]>([]);
+  const [loadingSchol, setLoadingSchol] = React.useState(true);
+
+  useEffect(() => {
+    async function loadLiveScholarships() {
+      try {
+        const res = await fetch("/api/scholarships?limit=4");
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && Array.isArray(json.data)) {
+            setScholarships(json.data);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load active scholarships:", err);
+      } finally {
+        setLoadingSchol(false);
+      }
+    }
+    loadLiveScholarships();
+  }, []);
 
   const isGpaStrong = gpa >= 3.2;
   const isGpaModerate = gpa >= 2.8;
@@ -228,23 +256,40 @@ export function AdmissionDetails({
     );
   }
 
-  const trendYears = [2021, 2022, 2023, 2024, 2025];
+  const trendYears = [2021, 2022, 2023, 2024, 2025, 2026];
   const trendValues = trendYears.map((_, index) => {
-    const adjustment = 6 - index * 2;
-    return Math.max(12, Math.min(95, Math.round(admissionPct + adjustment)));
+    const wave = Math.sin(index * 1.2) * 4;
+    const base = admissionPct + (4 - index * 1.5);
+    return Math.max(10, Math.min(95, Math.round(base + wave)));
   });
 
-  const maxTrend = Math.max(...trendValues) + 5;
-  const minTrend = Math.max(0, Math.min(...trendValues) - 5);
-  const spanTrend = Math.max(1, maxTrend - minTrend);
-  const chartWidth = 380;
-  const chartHeight = 120;
+  const rawMin = Math.min(...trendValues);
+  const rawMax = Math.max(...trendValues);
+  const yTickMin = Math.max(0, Math.floor((rawMin - 6) / 10) * 10);
+  const yTickMax = Math.min(100, Math.ceil((rawMax + 6) / 10) * 10);
+  const ySpan = Math.max(10, yTickMax - yTickMin);
 
-  const trendPointsArr = trendValues.map((value, index) => {
-    const x = (index / (trendValues.length - 1)) * chartWidth;
-    const y =
-      chartHeight - ((value - minTrend) / spanTrend) * (chartHeight - 12) - 6;
-    return { x, y };
+  const yTicks = [
+    yTickMax,
+    Math.round(yTickMin + ySpan * 0.75),
+    Math.round(yTickMin + ySpan * 0.50),
+    Math.round(yTickMin + ySpan * 0.25),
+    yTickMin,
+  ];
+
+  const svgWidth = 560;
+  const svgHeight = 220;
+  const plotLeft = 50;
+  const plotRight = 525;
+  const plotTop = 35;
+  const plotBottom = 175;
+  const plotWidth = plotRight - plotLeft;
+  const plotHeight = plotBottom - plotTop;
+
+  const trendPointsArr = trendValues.map((val, index) => {
+    const x = plotLeft + (index / (trendValues.length - 1)) * plotWidth;
+    const y = plotBottom - ((val - yTickMin) / ySpan) * plotHeight;
+    return { x, y, val };
   });
 
   const getBezierPath = (pts: { x: number; y: number }[]) => {
@@ -255,7 +300,7 @@ export function AdmissionDetails({
       const p1 = pts[i + 1];
       const cpX1 = p0.x + (p1.x - p0.x) / 3;
       const cpY1 = p0.y;
-      const cpX2 = p0.x + 2 * (p1.x - p0.x) / 3;
+      const cpX2 = p0.x + (2 * (p1.x - p0.x)) / 3;
       const cpY2 = p1.y;
       d += ` C ${cpX1} ${cpY1}, ${cpX2} ${cpY2}, ${p1.x} ${p1.y}`;
     }
@@ -299,88 +344,114 @@ export function AdmissionDetails({
   const profileScoreOffset = profileScoreCircumference - (profileScore / 100) * profileScoreCircumference;
 
   return (
-    <div className="relative min-h-screen text-slate-900 pb-24 md:pb-32 bg-gradient-to-br from-slate-50 via-indigo-50/20 to-slate-50 overflow-hidden">
-      {/* Background Glowing Mesh Blobs */}
-      <div className="absolute top-20 left-10 w-96 h-96 bg-blue-200/30 rounded-full blur-3xl pointer-events-none animate-pulse-ring" />
-      <div className="absolute bottom-40 right-20 w-[450px] h-[450px] bg-indigo-100/40 rounded-full blur-3xl pointer-events-none animate-float" />
+    <div className="relative min-h-screen text-slate-900 pb-24 md:pb-32 bg-[#F8FAFC] overflow-hidden font-sans">
+      {/* Background Dot Texture */}
+      <div
+        className="absolute inset-0 opacity-[0.035] pointer-events-none -z-0"
+        style={{
+          backgroundImage: "radial-gradient(#000 1px, transparent 1px)",
+          backgroundSize: "24px 24px",
+        }}
+      />
 
       <div className="max-w-[1400px] mx-auto px-4 md:px-8 pt-6 md:pt-10 space-y-6 md:space-y-8 relative z-10">
         
-        {/* Header Navigation */}
+        {/* Header Navigation & Institution Context Bar */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="flex flex-col xl:flex-row xl:items-end justify-between gap-6"
+          transition={{ duration: 0.5 }}
+          className="space-y-4"
         >
-          <div className="space-y-4 max-w-3xl">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <button
               onClick={onBack}
-              className="flex items-center gap-2 text-slate-500 hover:text-blue-600 transition-colors text-sm font-semibold group"
+              className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-wider text-slate-500 hover:text-[#3366FF] transition-colors group cursor-pointer"
             >
-              <div className="w-8 h-8 rounded-full border border-slate-200 bg-white flex items-center justify-center shadow-sm group-hover:border-blue-200 group-hover:bg-blue-50 transition-all">
-                <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+              <div className="w-8 h-8 rounded-xl border border-slate-200 bg-white flex items-center justify-center shadow-xs group-hover:border-[#3366FF]/30 group-hover:bg-blue-50 transition-all">
+                <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform text-slate-700 group-hover:text-[#3366FF]" />
               </div>
               Back to Dashboard
             </button>
-            <h1 className="text-[32px] sm:text-[40px] md:text-[46px] font-extrabold text-slate-900 tracking-tight leading-[1.1]">
-              Admission Chances Analysis
+
+            {/* Quick Context Pills */}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-700 text-[11px] font-bold shadow-xs">
+                GPA: <strong className="text-slate-900">{form.gpa}</strong>
+              </span>
+              <span className="px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-700 text-[11px] font-bold shadow-xs">
+                {form.testType || "Language"}: <strong className="text-slate-900">{form.testScore || "Not specified"}</strong>
+              </span>
+              <span className="px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-[#3366FF] text-[11px] font-black uppercase tracking-wider">
+                {selectedMatch.countryCode || "Canada"}
+              </span>
+            </div>
+          </div>
+
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-[#3366FF] text-[10px] font-black uppercase tracking-widest mb-3">
+              <Sparkles className="w-3.5 h-3.5" /> Admissions Evaluation Engine
+            </div>
+            <h1 className="text-[34px] sm:text-[44px] md:text-[52px] font-black text-slate-900 tracking-tight leading-[1.05]">
+              Admission Chances{" "}
+              <span
+                className="relative inline-block"
+                style={{ WebkitTextStroke: "2px #3366FF", color: "transparent" }}
+              >
+                Analysis.
+              </span>
             </h1>
-            <p className="text-slate-500 text-[15px] md:text-[17px] leading-relaxed font-medium">
-              A deep dive into your profile competitiveness for{" "}
-              <span className="text-slate-700 font-bold">{selectedMatch.name}</span>. 
-              Based on historical acceptance data, cohort trends, and program-specific criteria.
+            <p className="text-slate-500 text-[15px] md:text-[17px] leading-relaxed font-medium max-w-3xl mt-2">
+              Comprehensive profile evaluation for{" "}
+              <strong className="text-slate-900 font-extrabold">{selectedMatch.name}</strong>{" "}
+              ({selectedMatch.popularPrograms?.[0] || form.program || "Target Program"}). Based on academic benchmarks, language thresholds, and cohort trends.
             </p>
           </div>
         </motion.div>
 
-        {/* Main Probability Card */}
+        {/* Main Probability Spotlight Card */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 25 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="rounded-[36px] border border-white/60 bg-white/70 backdrop-blur-xl shadow-[0_12px_40px_rgba(31,41,55,0.04)] relative overflow-hidden p-6 md:p-10"
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="rounded-[32px] border border-slate-200/80 bg-white shadow-[0_16px_50px_rgba(0,0,0,0.03)] relative overflow-hidden p-6 md:p-10"
         >
-          {isEligible ? (
-            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50/50 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none" />
-          ) : (
-            <div className="absolute top-0 right-0 w-64 h-64 bg-rose-50/50 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none" />
-          )}
-          
+          {/* Top border accent line */}
+          <div className={`absolute top-0 left-0 right-0 h-1.5 ${isEligible ? "bg-[#3366FF]" : "bg-rose-500"}`} />
+
           {!isEligible && admissionAnalysis?.factors ? (
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 relative z-10">
               <div className="flex-1">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-xs font-black uppercase tracking-wider mb-4 shadow-sm">
-                  <AlertTriangle className="w-4 h-4 text-rose-500 animate-pulse" />
-                  Ineligible - Below Minimum Requirement
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-xs font-black uppercase tracking-wider mb-4 shadow-xs">
+                  <AlertTriangle className="w-4 h-4 text-rose-500" />
+                  Ineligible - Below Minimum Entry Benchmark
                 </div>
-                <h2 className="text-[32px] sm:text-[38px] md:text-[44px] font-black text-rose-600 tracking-tight leading-none mb-4 drop-shadow-sm">
-                  Below Minimums
+                <h2 className="text-[32px] sm:text-[38px] md:text-[44px] font-black text-rose-600 tracking-tight leading-none mb-4">
+                  Below Requirements
                 </h2>
-                <div className="text-slate-600 text-[15px] md:text-[16px] max-w-2xl font-semibold leading-relaxed space-y-4">
+                <div className="text-slate-600 text-[14px] md:text-[15px] max-w-2xl font-medium leading-relaxed space-y-4">
                   <p>
-                    Your profile credentials do not meet the minimum entry requirements set by{" "}
-                    <span className="text-slate-900 font-bold">{selectedMatch.name}</span>. Under our academic evaluation model, this results in an ineligible status.
+                    Your current credentials do not meet the minimum entry requirements set by{" "}
+                    <strong className="text-slate-900 font-bold">{selectedMatch.name}</strong>.
                   </p>
-                  <div className="p-5 rounded-2xl bg-rose-50/50 border border-rose-100/50 space-y-3 text-sm text-rose-950">
+                  <div className="p-5 rounded-2xl bg-rose-50/60 border border-rose-100 space-y-3 text-sm">
                     <h4 className="font-bold text-rose-900 flex items-center gap-2">
-                      <XCircle className="w-4.5 h-4.5 text-rose-500" />
+                      <XCircle className="w-4 h-4 text-rose-500" />
                       Required vs. Actual Credentials:
                     </h4>
-                    <ul className="list-disc list-inside space-y-2 pl-1">
+                    <ul className="list-disc list-inside space-y-1.5 text-xs text-rose-900/90 font-medium">
                       {admissionAnalysis.factors.actualIelts < admissionAnalysis.factors.requiredIelts && (
                         <li>
-                          <strong>Language Requirement:</strong> College requires a minimum IELTS equivalent of{" "}
-                          <span className="font-extrabold text-rose-700">{admissionAnalysis.factors.requiredIelts}</span>. Your converted score is{" "}
-                          <span className="font-extrabold text-rose-700">{admissionAnalysis.factors.actualIelts}</span>.
+                          <strong>Language Threshold:</strong> College requires minimum IELTS equivalent of{" "}
+                          <span className="font-black text-rose-700">{admissionAnalysis.factors.requiredIelts}</span> (Your score:{" "}
+                          <span className="font-black text-rose-700">{admissionAnalysis.factors.actualIelts}</span>).
                         </li>
                       )}
                       {admissionAnalysis.factors.actualGpa < admissionAnalysis.factors.requiredGpa && (
                         <li>
-                          <strong>Academic GPA:</strong> College requires a minimum GPA equivalent of{" "}
-                          <span className="font-extrabold text-rose-700">{admissionAnalysis.factors.requiredGpa}</span> (on a{" "}
-                          {admissionAnalysis.factors.fullGpa}.0 scale). Your GPA is{" "}
-                          <span className="font-extrabold text-rose-700">{admissionAnalysis.factors.actualGpa.toFixed(2)}</span>.
+                          <strong>GPA Threshold:</strong> College requires minimum GPA equivalent of{" "}
+                          <span className="font-black text-rose-700">{admissionAnalysis.factors.requiredGpa}</span> (Your GPA:{" "}
+                          <span className="font-black text-rose-700">{admissionAnalysis.factors.actualGpa.toFixed(2)}</span>).
                         </li>
                       )}
                     </ul>
@@ -388,157 +459,125 @@ export function AdmissionDetails({
                 </div>
               </div>
 
-              <div className="relative h-[130px] w-[130px] md:h-[170px] md:w-[170px] shrink-0 mx-auto md:mx-0 flex items-center justify-center">
-                <div className="absolute inset-0 rounded-full bg-rose-500/5 animate-pulse pointer-events-none" />
-                <svg
-                  viewBox="0 0 36 36"
-                  className="h-full w-full -rotate-90 transform filter drop-shadow-[0_4px_12px_rgba(239,68,68,0.15)]"
-                >
-                  <circle
-                    cx="18"
-                    cy="18"
-                    r="16"
-                    fill="transparent"
-                    stroke="#f1f5f9"
-                    strokeWidth="3"
-                  />
-                  <circle
-                    cx="18"
-                    cy="18"
-                    r="16"
-                    fill="transparent"
-                    stroke="#ef4444"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    strokeDasharray={profileScoreCircumference}
-                    strokeDashoffset={profileScoreCircumference}
-                  />
+              <div className="relative h-[150px] w-[150px] shrink-0 mx-auto md:mx-0 flex items-center justify-center">
+                <svg viewBox="0 0 36 36" className="h-full w-full -rotate-90">
+                  <circle cx="18" cy="18" r="16" fill="transparent" stroke="#f1f5f9" strokeWidth="3" />
+                  <circle cx="18" cy="18" r="16" fill="transparent" stroke="#ef4444" strokeWidth="3" strokeDasharray={profileScoreCircumference} strokeDashoffset={profileScoreCircumference} />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <XCircle className="w-9 h-9 text-rose-500" />
-                  <span className="text-[10px] md:text-[11px] font-black text-rose-400 uppercase tracking-widest mt-1">Ineligible</span>
+                  <XCircle className="w-8 h-8 text-rose-500 mb-1" />
+                  <span className="text-xs font-black text-rose-600 uppercase tracking-wider">Ineligible</span>
                 </div>
               </div>
             </div>
           ) : (
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 relative z-10">
-              <div className="flex-1">
-                <p className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 mb-3">
-                  Estimated Acceptance Probability
-                </p>
-                <h2 className="text-[40px] md:text-[56px] font-black text-[#3686FF] tracking-tight leading-none mb-3 drop-shadow-sm">
+              <div className="flex-1 space-y-3">
+                <div className="flex items-center gap-3">
+                  <span className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">
+                    Acceptance Probability
+                  </span>
+                  <span className="px-3 py-1 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-700 text-[10px] font-black uppercase tracking-wider">
+                    {admissionBand.label}
+                  </span>
+                </div>
+
+                <h2 className="text-[44px] sm:text-[56px] md:text-[64px] font-black text-[#3366FF] tracking-tight leading-none">
                   <AnimatedPercentRange lower={lowerBand} upper={upperBand} />
                 </h2>
-                <p className="text-slate-500 text-[15px] md:text-[16px] max-w-2xl font-semibold leading-relaxed">
-                  <span className="text-slate-800 font-bold">{admissionBand.label}</span> range projected for your current profile. 
-                  Improving language score and supporting documents can move this band upward.
+
+                <p className="text-slate-600 text-[14px] md:text-[15px] max-w-2xl font-medium leading-relaxed">
+                  Calculated based on your <strong className="text-slate-900 font-bold">GPA {form.gpa}</strong>,{" "}
+                  <strong className="text-slate-900 font-bold">{form.testType || "Language"} {form.testScore}</strong>, and historical acceptance data for{" "}
+                  <strong className="text-slate-900 font-bold">{selectedMatch.name}</strong>.
                 </p>
+
+                {/* Sub-Pills */}
+                <div className="flex flex-wrap gap-2 pt-2">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> Academic Fit: {academicStatus}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> Language Fit: {englishStatus}
+                  </span>
+                </div>
               </div>
 
-              <div className="relative h-[130px] w-[130px] md:h-[170px] md:w-[170px] shrink-0 mx-auto md:mx-0 flex items-center justify-center">
-                {/* Outer pulsing ring */}
-                <div className="absolute inset-0 rounded-full bg-blue-500/5 animate-pulse-ring pointer-events-none animate-float" />
-                <svg
-                  viewBox="0 0 36 36"
-                  className="h-full w-full -rotate-90 transform filter drop-shadow-[0_4px_12px_rgba(54,134,255,0.15)]"
-                >
-                  <defs>
-                    <linearGradient id="circleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#60a5fa" />
-                      <stop offset="100%" stopColor="#2563eb" />
-                    </linearGradient>
-                  </defs>
-                  <circle
-                    cx="18"
-                    cy="18"
-                    r="16"
-                    fill="transparent"
-                    stroke="#f1f5f9"
-                    strokeWidth="3"
-                  />
+              {/* Concentric Progress Ring */}
+              <div className="relative h-[150px] w-[150px] md:h-[170px] md:w-[170px] shrink-0 mx-auto md:mx-0 flex items-center justify-center">
+                <svg viewBox="0 0 36 36" className="h-full w-full -rotate-90">
+                  <circle cx="18" cy="18" r="16" fill="transparent" stroke="#f1f5f9" strokeWidth="3" />
                   <motion.circle
-                    cx="18"
-                    cy="18"
-                    r="16"
+                    cx="18" cy="18" r="16"
                     fill="transparent"
-                    stroke="url(#circleGrad)"
-                    strokeWidth="3"
+                    stroke="#3366FF"
+                    strokeWidth="3.5"
                     strokeLinecap="round"
                     strokeDasharray={profileScoreCircumference}
                     initial={{ strokeDashoffset: profileScoreCircumference }}
                     whileInView={{ strokeDashoffset: profileScoreOffset }}
-                    transition={{ duration: 1.5, ease: "easeOut" }}
+                    transition={{ duration: 1.2, ease: "easeOut" }}
                     viewport={{ once: true }}
                   />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-[26px] md:text-[34px] font-black text-slate-900 leading-none">
+                  <span className="text-[32px] md:text-[38px] font-black text-slate-900 leading-none">
                     <AnimatedPercent val={profileScore} />
                   </span>
-                  <span className="text-[10px] md:text-[11px] font-black text-slate-400 uppercase tracking-widest mt-1">Match</span>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Profile Fit</span>
                 </div>
               </div>
             </div>
           )}
         </motion.div>
 
+        {/* 2-Column Balanced Analytical Grid */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-          {/* Middle Column (Graphs) */}
-          <div className="space-y-6 lg:col-span-8">
-            <Card className="rounded-[36px] border border-white/60 bg-white/70 backdrop-blur-xl shadow-[0_12px_40px_rgba(31,41,55,0.04)] p-6 md:p-8 h-full">
-              <h3 className="text-[20px] md:text-[22px] font-extrabold text-slate-900 mb-8 tracking-tight">
-                Competitiveness Map
+          
+          {/* Left Column (Radar Competitiveness Map & Historical Trends) */}
+          <div className="space-y-6 lg:col-span-7">
+            {/* Competitiveness Radar + Factors Card */}
+            <Card className="rounded-[32px] border border-slate-200/80 bg-white p-6 md:p-8 shadow-xs">
+              <h3 className="text-lg font-black text-slate-900 mb-6 tracking-tight">
+                Profile Competitiveness Breakdown
               </h3>
 
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                <div className="rounded-[28px] border border-slate-100 bg-slate-50/50 p-6 flex flex-col justify-center items-center group hover:bg-white hover:border-[#3686FF]/20 hover:shadow-lg transition-all duration-300">
-                  <p className="mb-2 text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] self-start w-full text-center">
-                    Visual Profile Snapshot
+                {/* Radar Visual */}
+                <div className="rounded-[24px] border border-slate-100 bg-slate-50/60 p-6 flex flex-col justify-center items-center">
+                  <p className="mb-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">
+                    Visual Balance Map
                   </p>
-                  <div className="mx-auto w-full max-w-[280px] h-[220px] flex items-center justify-center relative">
+                  <div className="w-full max-w-[260px] h-[210px] flex items-center justify-center relative">
                     <svg viewBox="-20 -10 140 120" className="w-full h-full overflow-visible">
-                      <defs>
-                        <radialGradient id="radarGlow" cx="50%" cy="50%" r="50%">
-                          <stop offset="0%" stopColor="#3686FF" stopOpacity="0.15" />
-                          <stop offset="100%" stopColor="#3686FF" stopOpacity="0" />
-                        </radialGradient>
-                      </defs>
-                      {/* Background glow circle */}
-                      <circle cx="50" cy="50" r="40" fill="url(#radarGlow)" />
-                      
-                      {/* Grid webs */}
-                      <polygon points="50,10 88,38 74,82 26,82 12,38" fill="rgba(248, 250, 252, 0.4)" stroke="#cbd5e1" strokeWidth="1" />
-                      <polygon points="50,23.3 75.3,42 66,71.3 34,71.3 24.7,42" fill="none" stroke="#cbd5e1" strokeWidth="1" strokeDasharray="2 2" opacity="0.6" />
-                      <polygon points="50,36.7 62.7,46 58,60.7 42,60.7 37.3,46" fill="none" stroke="#cbd5e1" strokeWidth="1" strokeDasharray="2 2" opacity="0.4" />
-                      
-                      {/* Radiating lines */}
-                      <line x1="50" y1="50" x2="50" y2="10" stroke="#cbd5e1" strokeWidth="1" strokeDasharray="1 1" opacity="0.8" />
-                      <line x1="50" y1="50" x2="88" y2="38" stroke="#cbd5e1" strokeWidth="1" strokeDasharray="1 1" opacity="0.8" />
-                      <line x1="50" y1="50" x2="74" y2="82" stroke="#cbd5e1" strokeWidth="1" strokeDasharray="1 1" opacity="0.8" />
-                      <line x1="50" y1="50" x2="26" y2="82" stroke="#cbd5e1" strokeWidth="1" strokeDasharray="1 1" opacity="0.8" />
-                      <line x1="50" y1="50" x2="12" y2="38" stroke="#cbd5e1" strokeWidth="1" strokeDasharray="1 1" opacity="0.8" />
+                      <polygon points="50,10 88,38 74,82 26,82 12,38" fill="rgba(241, 245, 249, 0.6)" stroke="#cbd5e1" strokeWidth="1" />
+                      <polygon points="50,23.3 75.3,42 66,71.3 34,71.3 24.7,42" fill="none" stroke="#e2e8f0" strokeWidth="1" strokeDasharray="2 2" />
+                      <polygon points="50,36.7 62.7,46 58,60.7 42,60.7 37.3,46" fill="none" stroke="#e2e8f0" strokeWidth="1" strokeDasharray="2 2" />
 
-                      {/* Labels */}
-                      <text x="50" y="-2" textAnchor="middle" fontSize="7" fontWeight="900" fill="#475569" letterSpacing="0.05em">ACADEMIC</text>
-                      <text x="93" y="40" textAnchor="start" fontSize="7" fontWeight="900" fill="#475569" letterSpacing="0.05em">TEST</text>
-                      <text x="74" y="93" textAnchor="middle" fontSize="7" fontWeight="900" fill="#475569" letterSpacing="0.05em">RECS</text>
-                      <text x="26" y="93" textAnchor="middle" fontSize="7" fontWeight="900" fill="#475569" letterSpacing="0.05em">EXTRA.</text>
-                      <text x="7" y="40" textAnchor="end" fontSize="7" fontWeight="900" fill="#475569" letterSpacing="0.05em">OVERALL</text>
+                      <line x1="50" y1="50" x2="50" y2="10" stroke="#cbd5e1" strokeWidth="1" strokeDasharray="1 1" />
+                      <line x1="50" y1="50" x2="88" y2="38" stroke="#cbd5e1" strokeWidth="1" strokeDasharray="1 1" />
+                      <line x1="50" y1="50" x2="74" y2="82" stroke="#cbd5e1" strokeWidth="1" strokeDasharray="1 1" />
+                      <line x1="50" y1="50" x2="26" y2="82" stroke="#cbd5e1" strokeWidth="1" strokeDasharray="1 1" />
+                      <line x1="50" y1="50" x2="12" y2="38" stroke="#cbd5e1" strokeWidth="1" strokeDasharray="1 1" />
 
-                      {/* Actual Data Polygon */}
+                      <text x="50" y="-2" textAnchor="middle" fontSize="7" fontWeight="900" fill="#475569">ACADEMIC</text>
+                      <text x="93" y="40" textAnchor="start" fontSize="7" fontWeight="900" fill="#475569">LANGUAGE</text>
+                      <text x="74" y="93" textAnchor="middle" fontSize="7" fontWeight="900" fill="#475569">RECS</text>
+                      <text x="26" y="93" textAnchor="middle" fontSize="7" fontWeight="900" fill="#475569">EXTRA</text>
+                      <text x="7" y="40" textAnchor="end" fontSize="7" fontWeight="900" fill="#475569">OVERALL</text>
+
                       <motion.polygon
                         points={`${50},${50 - 40 * (gpaFactor / 100)} ${50 + 40 * (testFactor / 100) * 0.951},${50 - 40 * (testFactor / 100) * 0.309} ${50 + 40 * (recommendationFactor / 100) * 0.588},${50 + 40 * (recommendationFactor / 100) * 0.809} ${50 - 40 * (extracurricularFactor / 100) * 0.588},${50 + 40 * (extracurricularFactor / 100) * 0.809} ${50 - 40 * (profileScore / 100) * 0.951},${50 - 40 * (profileScore / 100) * 0.309}`}
-                        fill="rgba(54, 134, 255, 0.25)"
-                        stroke="#3686FF"
-                        strokeWidth="2"
+                        fill="rgba(51, 102, 255, 0.2)"
+                        stroke="#3366FF"
+                        strokeWidth="2.5"
                         strokeLinejoin="round"
-                        initial={{ scale: 0, opacity: 0 }}
-                        whileInView={{ scale: 1, opacity: 1 }}
-                        transition={{ duration: 1.2, ease: "easeOut", delay: 0.2 }}
+                        initial={{ scale: 0 }}
+                        whileInView={{ scale: 1 }}
+                        transition={{ duration: 1, ease: "easeOut" }}
                         style={{ transformOrigin: "50px 50px" }}
                       />
 
-                      {/* Data Points */}
                       {[
                         `${50},${50 - 40 * (gpaFactor / 100)}`,
                         `${50 + 40 * (testFactor / 100) * 0.951},${50 - 40 * (testFactor / 100) * 0.309}`,
@@ -546,41 +585,30 @@ export function AdmissionDetails({
                         `${50 - 40 * (extracurricularFactor / 100) * 0.588},${50 + 40 * (extracurricularFactor / 100) * 0.809}`,
                         `${50 - 40 * (profileScore / 100) * 0.951},${50 - 40 * (profileScore / 100) * 0.309}`
                       ].map((pt, i) => (
-                        <motion.circle
-                          key={i}
-                          cx={pt.split(',')[0]}
-                          cy={pt.split(',')[1]}
-                          r="3"
-                          fill="#ffffff"
-                          stroke="#3686FF"
-                          strokeWidth="2"
-                          initial={{ scale: 0 }}
-                          whileInView={{ scale: 1 }}
-                          transition={{ delay: 0.5 + i * 0.1, type: "spring" }}
-                          viewport={{ once: true }}
-                        />
+                        <circle key={i} cx={pt.split(',')[0]} cy={pt.split(',')[1]} r="3" fill="#ffffff" stroke="#3366FF" strokeWidth="2" />
                       ))}
                     </svg>
                   </div>
                 </div>
 
-                <div className="rounded-[28px] border border-slate-100 bg-slate-50/50 p-6 group hover:bg-white hover:border-[#3686FF]/20 hover:shadow-lg transition-all duration-300">
-                  <p className="mb-6 text-[11px] font-black text-slate-400 uppercase tracking-[0.15em]">
-                    Detailed Factors
+                {/* Factor Bars */}
+                <div className="rounded-[24px] border border-slate-100 bg-slate-50/60 p-6 flex flex-col justify-between">
+                  <p className="mb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    Evaluation Weighting
                   </p>
-                  <div className="space-y-5">
+                  <div className="space-y-4">
                     {factorRows.map((item, i) => (
                       <div key={item.label}>
-                        <div className="mb-2 flex items-end justify-between">
-                          <span className="text-[13px] font-bold text-slate-800">{item.label}</span>
-                          <span className={`text-[12px] font-bold ${item.textColor}`}>{item.status}</span>
+                        <div className="mb-1.5 flex items-center justify-between">
+                          <span className="text-xs font-bold text-slate-800">{item.label}</span>
+                          <span className={`text-[11px] font-black ${item.textColor}`}>{item.status}</span>
                         </div>
-                        <div className="h-2 overflow-hidden rounded-full bg-slate-200/60 shadow-inner">
+                        <div className="h-2 overflow-hidden rounded-full bg-slate-200/70">
                           <motion.div
-                            className={`h-full ${item.bar} rounded-full`}
+                            className="h-full bg-[#3366FF] rounded-full"
                             initial={{ width: 0 }}
                             whileInView={{ width: `${item.value}%` }}
-                            transition={{ duration: 1.2, ease: "easeOut", delay: i * 0.1 }}
+                            transition={{ duration: 1, ease: "easeOut", delay: i * 0.08 }}
                             viewport={{ once: true }}
                           />
                         </div>
@@ -589,399 +617,393 @@ export function AdmissionDetails({
                   </div>
                 </div>
               </div>
+            </Card>
 
-              {/* Acceptance Rate Trends - Merged into the same card */}
-              <div className="mt-8 pt-8 border-t border-slate-100/60 relative">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-full blur-3xl pointer-events-none" />
-                <h3 className="text-[18px] md:text-[20px] font-extrabold text-slate-900 mb-6 tracking-tight relative z-10">
-                  Acceptance Rate Trends <span className="text-slate-400 font-semibold text-[14px]">({selectedMatch.popularPrograms?.[0] || "Program"})</span>
-                </h3>
-                <div className="overflow-x-auto relative z-10 py-4 scrollbar-hide">
-                  <div className="min-w-[400px]">
-                    <svg
-                      viewBox={`0 -10 ${chartWidth} ${chartHeight + 40}`}
-                      className="w-full h-auto drop-shadow-sm overflow-visible"
-                    >
-                      {/* Gradient Definition */}
-                      <defs>
-                        <linearGradient id="trendGradient" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#3686FF" stopOpacity="0.25" />
-                          <stop offset="100%" stopColor="#3686FF" stopOpacity="0" />
-                        </linearGradient>
-                      </defs>
+            {/* Historical Acceptance Rate Trends Card */}
+            <Card className="rounded-[32px] border border-slate-200/80 bg-white p-6 md:p-8 shadow-xs">
+              <h3 className="text-base font-black text-slate-900 mb-4 tracking-tight">
+                Acceptance Rate Trend ({selectedMatch.popularPrograms?.[0] || "Cohort"})
+              </h3>
+              <div className="overflow-x-auto py-2">
+                <div className="min-w-[420px]">
+                  <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="w-full h-auto overflow-visible select-none">
+                    {/* Top Legend inside SVG */}
+                    <g transform="translate(50, 16)">
+                      <circle cx="0" cy="0" r="4" fill="#3366FF" />
+                      <text x="12" y="4" fontSize="10" fontWeight="900" fill="#475569" className="uppercase tracking-widest">
+                        Acceptance Rate Benchmark Trend (%)
+                      </text>
+                    </g>
 
-                      {/* Background Grid Lines */}
-                      {[0, 0.25, 0.5, 0.75, 1].map((ratio) => (
-                        <line 
-                          key={ratio} 
-                          x1="0" 
-                          y1={chartHeight * ratio} 
-                          x2={chartWidth} 
-                          y2={chartHeight * ratio} 
-                          stroke="#f1f5f9" 
-                          strokeWidth="1" 
-                        />
-                      ))}
+                    {/* Y-axis Ticks & Horizontal Grid Lines */}
+                    {yTicks.map((tickVal) => {
+                      const y = plotBottom - ((tickVal - yTickMin) / ySpan) * plotHeight;
+                      return (
+                        <g key={tickVal}>
+                          <line x1={plotLeft} y1={y} x2={plotRight} y2={y} stroke="#e2e8f0" strokeWidth="1" strokeDasharray="3 3" />
+                          <line x1={plotLeft - 4} y1={y} x2={plotLeft} y2={y} stroke="#94a3b8" strokeWidth="1.5" />
+                          <text x={plotLeft - 8} y={y + 3.5} textAnchor="end" fontSize="10" fontWeight="700" fill="#64748b">
+                            {tickVal}%
+                          </text>
+                        </g>
+                      );
+                    })}
 
-                      {/* Area under curve */}
-                      <motion.path
-                        d={`${bezierPath} L ${chartWidth} ${chartHeight} L 0 ${chartHeight} Z`}
-                        fill="url(#trendGradient)"
-                        initial={{ opacity: 0 }}
-                        whileInView={{ opacity: 1 }}
-                        transition={{ duration: 1.2, ease: "easeOut", delay: 0.3 }}
-                        viewport={{ once: true }}
-                      />
+                    {/* Vertical Grid Lines & X-axis Ticks & Year Labels */}
+                    {trendYears.map((year, index) => {
+                      const x = plotLeft + (index / (trendYears.length - 1)) * plotWidth;
+                      return (
+                        <g key={year}>
+                          <line x1={x} y1={plotTop} x2={x} y2={plotBottom} stroke="#f1f5f9" strokeWidth="1" />
+                          <line x1={x} y1={plotBottom} x2={x} y2={plotBottom + 5} stroke="#94a3b8" strokeWidth="1.5" />
+                          <text x={x} y={plotBottom + 20} textAnchor="middle" fontSize="11" fontWeight="800" fill="#475569">
+                            {year}
+                          </text>
+                        </g>
+                      );
+                    })}
 
-                      {/* Trend Line */}
-                      <motion.path
-                        fill="none"
-                        stroke="#3686FF"
-                        strokeWidth="3.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d={bezierPath}
-                        initial={{ pathLength: 0, opacity: 0 }}
-                        whileInView={{ pathLength: 1, opacity: 1 }}
-                        transition={{ duration: 1.5, ease: "easeOut" }}
-                        viewport={{ once: true }}
-                      />
-                      
-                      {trendPointsArr.map((pt, index) => {
-                        return (
-                          <g key={`${trendYears[index]}-${trendValues[index]}`}>
-                            <motion.circle 
-                              cx={pt.x} 
-                              cy={pt.y} 
-                              r="6" 
-                              fill="#ffffff" 
-                              stroke="#3686FF"
-                              strokeWidth="3.5"
-                              initial={{ scale: 0, opacity: 0 }}
-                              whileInView={{ scale: 1, opacity: 1 }}
-                              transition={{ delay: 0.6 + index * 0.1, type: "spring" }}
-                              viewport={{ once: true }}
-                            />
-                            <text
-                              x={pt.x}
-                              y={chartHeight + 24}
-                              textAnchor="middle"
-                              fontSize="10"
-                              fontWeight="900"
-                              fill="#64748b"
-                            >
-                              {trendYears[index]}
-                            </text>
-                          </g>
-                        );
-                      })}
-                    </svg>
-                  </div>
-                </div>
-                <div className="mt-6 rounded-[20px] bg-blue-50/50 border border-blue-100/50 p-4 flex gap-3 relative z-10">
-                  <TrendingUp className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
-                  <p className="text-[13px] md:text-[14px] text-blue-900/80 font-semibold leading-relaxed">
-                    <strong>Trend insight:</strong> Acceptance has softened gradually. Submitting
-                    stronger SOP and test score can improve your final shortlist conversion.
-                  </p>
+                    {/* X-Axis Main Axis Line */}
+                    <line x1={plotLeft} y1={plotBottom} x2={plotRight} y2={plotBottom} stroke="#94a3b8" strokeWidth="1.5" />
+                    {/* Y-Axis Main Axis Line */}
+                    <line x1={plotLeft} y1={plotTop} x2={plotLeft} y2={plotBottom} stroke="#94a3b8" strokeWidth="1.5" />
+
+                    {/* Area fill under curve */}
+                    <motion.path
+                      d={`${bezierPath} L ${plotRight} ${plotBottom} L ${plotLeft} ${plotBottom} Z`}
+                      fill="rgba(51, 102, 255, 0.06)"
+                      initial={{ opacity: 0 }}
+                      whileInView={{ opacity: 1 }}
+                      transition={{ duration: 1 }}
+                      viewport={{ once: true }}
+                    />
+
+                    {/* Smooth Line Curve */}
+                    <motion.path
+                      fill="none"
+                      stroke="#3366FF"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      d={bezierPath}
+                      initial={{ pathLength: 0 }}
+                      whileInView={{ pathLength: 1 }}
+                      transition={{ duration: 1.2 }}
+                      viewport={{ once: true }}
+                    />
+
+                    {/* Data Nodes & Value Badges */}
+                    {trendPointsArr.map((pt, index) => (
+                      <g key={index} className="group cursor-pointer">
+                        <circle cx={pt.x} cy={pt.y} r="7" fill="rgba(51, 102, 255, 0.15)" />
+                        <circle cx={pt.x} cy={pt.y} r="4.5" fill="#ffffff" stroke="#3366FF" strokeWidth="2.5" />
+                        <g transform={`translate(${pt.x}, ${pt.y - 12})`}>
+                          <rect x="-14" y="-12" width="28" height="15" rx="4" fill="#0f172a" />
+                          <text textAnchor="middle" y="-1.5" fontSize="9" fontWeight="900" fill="#ffffff">
+                            {pt.val}%
+                          </text>
+                        </g>
+                      </g>
+                    ))}
+                  </svg>
                 </div>
               </div>
 
-              {/* Side-by-Side Profile vs University Requirements Table */}
-              <div className="mt-8 pt-8 border-t border-slate-100/60 relative">
-                <h3 className="text-[18px] md:text-[20px] font-extrabold text-slate-900 mb-6 tracking-tight">
-                  Admission Comparison: Profile vs. University Requirements
-                </h3>
-                
-                <div className="overflow-x-auto rounded-[28px] border border-slate-100 bg-slate-50/30">
-                  <table className="w-full text-left border-collapse min-w-[500px]">
-                    <thead>
-                      <tr className="bg-slate-100/80 text-slate-400 text-[11px] font-black uppercase tracking-widest border-b border-slate-200">
-                        <th className="p-4 md:p-5">Evaluation Criterion</th>
-                        <th className="p-4 md:p-5">Your Profile Credentials</th>
-                        <th className="p-4 md:p-5">University Minimum Criteria</th>
-                        <th className="p-4 md:p-5 text-center">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 text-[14px]">
-                      {/* GPA / Academic Row */}
-                      {(() => {
-                        const userGpaVal = parseFloat(String(gpa)) || 0;
-                        const normUserGpa = userGpaVal > 4.0 ? (userGpaVal / 100) * 4.0 : userGpaVal;
-                        const rawReq = selectedMatch.gpaRequirement || 3.0;
-                        const normReqGpa = rawReq > 4.0 ? Math.round(((rawReq / 100) * 4.0) * 10) / 10 : rawReq;
-
-                        const meetsGpa = normUserGpa >= normReqGpa;
-                        const userGpaDisplay = userGpaVal > 4.0 ? `${normUserGpa.toFixed(2)} / 4.0` : `${userGpaVal.toFixed(2)} / 4.0`;
-                        const reqGpaDisplay = `${normReqGpa.toFixed(1)} / 4.0`;
-
-                        return (
-                          <tr className="hover:bg-white transition-colors">
-                            <td className="p-4 md:p-5 font-bold text-slate-800">
-                              🎓 Academic GPA (CGPA)
-                            </td>
-                            <td className="p-4 md:p-5 font-extrabold text-slate-700">
-                              {userGpaDisplay}
-                            </td>
-                            <td className="p-4 md:p-5 font-semibold text-slate-500">
-                              {reqGpaDisplay}
-                            </td>
-                            <td className="p-4 md:p-5 text-center">
-                              {meetsGpa ? (
-                                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm">
-                                  Meets / Exceeds
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-100 shadow-sm">
-                                  Below Target
-                                </span>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })()}
-
-                      {/* Language Score Row */}
-                      {(() => {
-                        const rawScoreVal = parseFloat(String(form.testScore)) || 0;
-                        const rawPlannedVal = parseFloat(String(form.plannedTestScore)) || 0;
-                        const effScore = rawScoreVal > 0 ? rawScoreVal : rawPlannedVal;
-                        const effType = rawScoreVal > 0 ? (form.testType || "IELTS") : (form.plannedTestType || form.testType || "None");
-
-                        let effIelts = 0;
-                        if (effScore > 0) {
-                          const t = effType.toUpperCase();
-                          if (t.includes("IELTS")) effIelts = effScore;
-                          else if (t.includes("TOEFL")) effIelts = effScore >= 100 ? 8.0 : effScore >= 90 ? 7.0 : effScore >= 80 ? 6.5 : 6.0;
-                          else if (t.includes("PTE")) effIelts = effScore >= 76 ? 8.0 : effScore >= 65 ? 7.0 : effScore >= 58 ? 6.5 : 6.0;
-                          else if (t.includes("DUOLINGO") || t.includes("DET")) effIelts = effScore >= 135 ? 8.0 : effScore >= 120 ? 7.0 : effScore >= 110 ? 6.5 : 6.0;
-                          else effIelts = effScore;
-                        }
-
-                        const reqIelts = selectedMatch.englishReq || 6.5;
-                        const meetsLang = effScore > 0 ? effIelts >= reqIelts : !form.hasEnglishTest;
-
-                        let scoreLabel = "No Test Specified";
-                        if (rawScoreVal > 0) {
-                          scoreLabel = `${effType} ${rawScoreVal}`;
-                        } else if (rawPlannedVal > 0) {
-                          scoreLabel = `${effType} ${rawPlannedVal} (Target)`;
-                        }
-
-                        return (
-                          <tr className="hover:bg-white transition-colors">
-                            <td className="p-4 md:p-5 font-bold text-slate-800">
-                              💬 Language Score ({effType})
-                            </td>
-                            <td className="p-4 md:p-5 font-extrabold text-slate-700">
-                              {scoreLabel}
-                            </td>
-                            <td className="p-4 md:p-5 font-semibold text-slate-500">
-                              {selectedMatch.englishReq ? `IELTS Equivalent: ${selectedMatch.englishReq.toFixed(1)}` : "IELTS Equivalent: 6.5"}
-                            </td>
-                            <td className="p-4 md:p-5 text-center">
-                              {meetsLang ? (
-                                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm">
-                                  Meets / Exceeds
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-100 shadow-sm">
-                                  Below Target
-                                </span>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })()}
-
-                      {/* Backlog Row */}
-                      <tr className="hover:bg-white transition-colors">
-                        <td className="p-4 md:p-5 font-bold text-slate-800">
-                          ⚠️ Active Backlogs
-                        </td>
-                        <td className="p-4 md:p-5 font-extrabold text-slate-700">
-                          {backlogs} Backlogs
-                        </td>
-                        <td className="p-4 md:p-5 font-semibold text-slate-500">
-                          Maximum recommended: ≤ 2 backlogs
-                        </td>
-                        <td className="p-4 md:p-5 text-center">
-                          {backlogs <= 2 ? (
-                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm">
-                              Meets / Exceeds
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-100 shadow-sm">
-                              Warning
-                            </span>
-                          )}
-                        </td>
-                      </tr>
-
-                      {/* Study Gap Row */}
-                      <tr className="hover:bg-white transition-colors">
-                        <td className="p-4 md:p-5 font-bold text-slate-800">
-                          ⏳ Study Gap / Timeline
-                        </td>
-                        <td className="p-4 md:p-5 font-extrabold text-slate-700">
-                          {studyGap} Year(s) Gap
-                        </td>
-                        <td className="p-4 md:p-5 font-semibold text-slate-500">
-                          Maximum recommended: ≤ 2 years
-                        </td>
-                        <td className="p-4 md:p-5 text-center">
-                          {studyGap <= 2 ? (
-                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm">
-                              Meets / Exceeds
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-100 shadow-sm">
-                              Warning
-                            </span>
-                          )}
-                        </td>
-                      </tr>
-
-                      {/* Budget vs Tuition Row */}
-                      <tr className="hover:bg-white transition-colors">
-                        <td className="p-4 md:p-5 font-bold text-slate-800">
-                          💰 Annual Tuition Fee
-                        </td>
-                        <td className="p-4 md:p-5 font-extrabold text-slate-700">
-                          Budget Limit: {form.budget ? `$${Number(form.budget).toLocaleString()}` : "Not Specified"}
-                        </td>
-                        <td className="p-4 md:p-5 font-semibold text-rose-600 font-extrabold">
-                          ${selectedMatch.tuitionFee ? selectedMatch.tuitionFee.toLocaleString() : "18,000"} / yr
-                        </td>
-                        <td className="p-4 md:p-5 text-center">
-                          {!form.budget || Number(form.budget) >= (selectedMatch.tuitionFee || 18000) ? (
-                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm">
-                              Meets / Exceeds
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-100 shadow-sm">
-                              Over Budget
-                            </span>
-                          )}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
+              <div className="mt-4 rounded-2xl bg-blue-50/70 border border-blue-100 p-4 flex gap-3">
+                <TrendingUp className="w-5 h-5 text-[#3366FF] shrink-0 mt-0.5" />
+                <p className="text-xs text-blue-950 font-semibold leading-relaxed">
+                  <strong>Counselor Advice:</strong> Target program acceptance rates have tightened slightly. Submitting well-structured Statement of Purpose (SOP) and verified reference letters will significantly improve conversion.
+                </p>
               </div>
             </Card>
           </div>
 
-          {/* Right Column (Sidebars) */}
-          <div className="space-y-6 lg:col-span-4 flex flex-col">
-            <Card className="rounded-[36px] border border-emerald-100 bg-emerald-50/30 p-6 shadow-sm relative overflow-hidden group hover:border-emerald-200 transition-colors">
-              <div className="absolute -right-6 -top-6 w-24 h-24 bg-emerald-200/40 rounded-full blur-2xl pointer-events-none" />
-              <h3 className="mb-5 text-[14px] font-black uppercase tracking-widest text-emerald-800 flex items-center gap-2 relative z-10">
-                <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+          {/* Right Column (Strengths, Focus Areas, Matrix Table & Action Plan) */}
+          <div className="space-y-6 lg:col-span-5 flex flex-col">
+            
+            {/* Strengths Card */}
+            <Card className="rounded-[32px] border-l-4 border-l-emerald-500 border-y border-r border-slate-200/80 bg-white p-6 shadow-xs">
+              <h3 className="mb-4 text-xs font-black uppercase tracking-widest text-emerald-700 flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                 Profile Strengths
               </h3>
-              <div className="space-y-3 relative z-10">
+              <div className="space-y-2.5">
                 {strengths.slice(0, 3).map((item) => (
-                  <div key={item} className="flex gap-3 bg-white p-3.5 rounded-[20px] border border-emerald-50 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
-                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0 shadow-sm shadow-emerald-500/50" />
-                    <span className="text-[13px] font-medium text-emerald-900/80 leading-relaxed">{item}</span>
+                  <div key={item} className="flex gap-2.5 bg-emerald-50/50 p-3 rounded-xl border border-emerald-100/60">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+                    <span className="text-xs font-semibold text-emerald-950 leading-relaxed">{item}</span>
                   </div>
                 ))}
               </div>
             </Card>
 
-            <Card className="rounded-[36px] border border-rose-100 bg-rose-50/30 p-6 shadow-sm relative overflow-hidden group hover:border-rose-200 transition-colors">
-              <div className="absolute -right-6 -top-6 w-24 h-24 bg-rose-200/40 rounded-full blur-2xl pointer-events-none" />
-              <h3 className="mb-5 text-[14px] font-black uppercase tracking-widest text-rose-800 flex items-center gap-2 relative z-10">
-                <AlertTriangle className="w-5 h-5 text-rose-500" />
-                Potential Risks
+            {/* Risks / Focus Areas Card */}
+            <Card className="rounded-[32px] border-l-4 border-l-amber-500 border-y border-r border-slate-200/80 bg-white p-6 shadow-xs">
+              <h3 className="mb-4 text-xs font-black uppercase tracking-widest text-amber-700 flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-amber-500" />
+                Key Focus Areas
               </h3>
-              <div className="space-y-3 relative z-10">
+              <div className="space-y-2.5">
                 {risks.slice(0, 3).map((item) => (
-                  <div key={item} className="flex gap-3 bg-white p-3.5 rounded-[20px] border border-rose-50 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
-                    <div className="w-1.5 h-1.5 rounded-full bg-rose-500 mt-1.5 shrink-0 shadow-sm shadow-rose-500/50" />
-                    <span className="text-[13px] font-medium text-rose-900/80 leading-relaxed">{item}</span>
+                  <div key={item} className="flex gap-2.5 bg-amber-50/50 p-3 rounded-xl border border-amber-100/60">
+                    <div className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0" />
+                    <span className="text-xs font-semibold text-amber-950 leading-relaxed">{item}</span>
                   </div>
                 ))}
               </div>
             </Card>
 
-            <Card className={`rounded-[36px] border-none ${isEligible ? "bg-gradient-to-br from-[#3686FF] to-[#1e40af]" : "bg-gradient-to-br from-rose-600 to-rose-950"} p-8 text-white shadow-xl shadow-blue-900/20 relative overflow-hidden mt-auto`}>
-              <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.2),transparent_50%)] pointer-events-none" />
-              <h3 className="mb-6 text-[13px] font-black uppercase tracking-[0.2em] text-blue-100/90 relative z-10">
-                {isEligible ? "Action Plan to 90%+" : "Eligibility Action Plan"}
+            {/* Requirements Matrix Card */}
+            <Card className="rounded-[32px] border border-slate-200/80 bg-white p-6 shadow-xs">
+              <h3 className="text-base font-black text-slate-900 mb-4 tracking-tight">
+                Requirements Matrix
               </h3>
-              <div className="space-y-4 text-[14px] font-medium text-blue-50 relative z-10 mb-8">
+
+              <div className="overflow-x-auto rounded-2xl border border-slate-200/80 bg-white">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-slate-50 border-b border-slate-200 text-slate-400 text-[10px] font-black uppercase tracking-widest">
+                      <th className="p-3">Criterion</th>
+                      <th className="p-3">Your Data</th>
+                      <th className="p-3 text-center">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 text-xs font-semibold">
+                    {/* GPA */}
+                    {(() => {
+                      const userGpaVal = parseFloat(String(gpa)) || 0;
+                      const normUserGpa = userGpaVal > 4.0 ? (userGpaVal / 100) * 4.0 : userGpaVal;
+                      const rawReq = selectedMatch.gpaRequirement || 3.0;
+                      const normReqGpa = rawReq > 4.0 ? Math.round(((rawReq / 100) * 4.0) * 10) / 10 : rawReq;
+                      const meetsGpa = normUserGpa >= normReqGpa;
+                      return (
+                        <tr>
+                          <td className="p-3 font-bold text-slate-800">🎓 GPA</td>
+                          <td className="p-3 font-extrabold text-slate-900">{userGpaVal > 0 ? `${normUserGpa.toFixed(2)}` : "N/A"} <span className="text-[10px] font-normal text-slate-400">({normReqGpa.toFixed(1)} req)</span></td>
+                          <td className="p-3 text-center">
+                            {meetsGpa ? (
+                              <span className="inline-flex px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                Meets
+                              </span>
+                            ) : (
+                              <span className="inline-flex px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-rose-50 text-rose-700 border border-rose-100">
+                                Below
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })()}
+
+                    {/* Language */}
+                    {(() => {
+                      const rawScoreVal = parseFloat(String(form.testScore)) || 0;
+                      const reqIelts = selectedMatch.englishReq || 6.5;
+                      const meetsLang = rawScoreVal >= reqIelts || testScore >= reqIelts;
+                      return (
+                        <tr>
+                          <td className="p-3 font-bold text-slate-800">💬 {form.testType || "IELTS"}</td>
+                          <td className="p-3 font-extrabold text-slate-900">{form.testScore || "N/A"} <span className="text-[10px] font-normal text-slate-400">({reqIelts.toFixed(1)} req)</span></td>
+                          <td className="p-3 text-center">
+                            {meetsLang ? (
+                              <span className="inline-flex px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                Meets
+                              </span>
+                            ) : (
+                              <span className="inline-flex px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-rose-50 text-rose-700 border border-rose-100">
+                                Below
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })()}
+
+                    {/* Backlogs */}
+                    <tr>
+                      <td className="p-3 font-bold text-slate-800">⚠️ Backlogs</td>
+                      <td className="p-3 font-extrabold text-slate-900">{backlogs} <span className="text-[10px] font-normal text-slate-400">(≤ 2 max)</span></td>
+                      <td className="p-3 text-center">
+                        {backlogs <= 2 ? (
+                          <span className="inline-flex px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-emerald-50 text-emerald-700 border border-emerald-100">
+                            Low Risk
+                          </span>
+                        ) : (
+                          <span className="inline-flex px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-amber-50 text-amber-700 border border-amber-100">
+                            Warning
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+
+                    {/* Study Gap */}
+                    <tr>
+                      <td className="p-3 font-bold text-slate-800">⏳ Study Gap</td>
+                      <td className="p-3 font-extrabold text-slate-900">{studyGap} Yr <span className="text-[10px] font-normal text-slate-400">(≤ 2 max)</span></td>
+                      <td className="p-3 text-center">
+                        {studyGap <= 2 ? (
+                          <span className="inline-flex px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-emerald-50 text-emerald-700 border border-emerald-100">
+                            Ok
+                          </span>
+                        ) : (
+                          <span className="inline-flex px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-amber-50 text-amber-700 border border-amber-100">
+                            SOP Need
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+
+            {/* High-Impact Action Plan Banner (Solid Theme, No Gradients/Glows) */}
+            <Card className="rounded-[32px] border border-slate-800 bg-slate-900 p-6 text-white shadow-md">
+              <h3 className="mb-4 text-xs font-black uppercase tracking-[0.2em] text-[#3366FF]">
+                {isEligible ? "Action Plan to 90%+ Match" : "Recommended Roadmap"}
+              </h3>
+
+              <div className="space-y-3 text-xs font-medium text-slate-300 mb-6">
                 {!isEligible && admissionAnalysis?.factors ? (
                   <>
-                    {admissionAnalysis.factors.actualIelts < admissionAnalysis.factors.requiredIelts && (
-                      <div className="flex gap-3 items-start">
-                        <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center shrink-0 mt-0.5">
-                          <Circle className="h-2 w-2 fill-white text-white" />
-                        </div>
-                        <span className="leading-relaxed text-white">
-                          Achieve a score of at least <strong className="text-white">{admissionAnalysis.factors.requiredIelts}</strong> IELTS equivalent (or equivalent PTE/TOEFL).
-                        </span>
-                      </div>
-                    )}
-                    {admissionAnalysis.factors.actualGpa < admissionAnalysis.factors.requiredGpa && (
-                      <div className="flex gap-3 items-start">
-                        <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center shrink-0 mt-0.5">
-                          <Circle className="h-2 w-2 fill-white text-white" />
-                        </div>
-                        <span className="leading-relaxed text-white">
-                          Target other universities/programs accepting a GPA of <strong className="text-white">{form.gpa}</strong> or below.
-                        </span>
-                      </div>
-                    )}
-                    <div className="flex gap-3 items-start">
-                      <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center shrink-0 mt-0.5">
-                        <Circle className="h-2 w-2 fill-white text-white" />
-                      </div>
-                      <span className="leading-relaxed text-white">
-                        Consider academic bridging courses or pre-sessional English pathways.
+                    <div className="flex gap-2.5 items-start">
+                      <span className="w-5 h-5 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0 text-[10px] font-black text-white">1</span>
+                      <span className="leading-relaxed">
+                        Achieve at least <strong className="text-white">{admissionAnalysis.factors.requiredIelts}</strong> IELTS score.
                       </span>
+                    </div>
+                    <div className="flex gap-2.5 items-start">
+                      <span className="w-5 h-5 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0 text-[10px] font-black text-white">2</span>
+                      <span className="leading-relaxed">Target colleges accepting GPA <strong className="text-white">{form.gpa}</strong>.</span>
                     </div>
                   </>
                 ) : (
                   <>
-                    <div className="flex gap-3 items-start">
-                      <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center shrink-0 mt-0.5">
-                        <Circle className="h-2 w-2 fill-white text-white" />
-                      </div>
+                    <div className="flex gap-2.5 items-start">
+                      <span className="w-5 h-5 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0 text-[10px] font-black text-white">1</span>
                       <span className="leading-relaxed">
-                        Raise <strong className="text-white">{form.testType || "English"}</strong> score by one benchmark band.
+                        Improve <strong className="text-white">{form.testType || "Language"}</strong> score by half a band.
                       </span>
                     </div>
-                    <div className="flex gap-3 items-start">
-                      <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center shrink-0 mt-0.5">
-                        <Circle className="h-2 w-2 fill-white text-white" />
-                      </div>
-                      <span className="leading-relaxed">
-                        Add two <strong className="text-white">safe-shortlist programs</strong> with higher acceptance rates.
-                      </span>
-                    </div>
-                    <div className="flex gap-3 items-start">
-                      <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center shrink-0 mt-0.5">
-                        <Circle className="h-2 w-2 fill-white text-white" />
-                      </div>
-                      <span className="leading-relaxed">
-                        Apply within <strong className="text-white">first deadline window</strong> for stronger conversion.
-                      </span>
+                    <div className="flex gap-2.5 items-start">
+                      <span className="w-5 h-5 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0 text-[10px] font-black text-white">2</span>
+                      <span className="leading-relaxed">Submit application early to qualify for entrance awards.</span>
                     </div>
                   </>
                 )}
               </div>
+
               <button
                 onClick={isEligible ? onAdvanceToVisa : onBack}
-                className={`relative z-10 flex w-full h-[60px] items-center justify-center gap-2 rounded-[20px] bg-white text-[15px] font-bold ${isEligible ? "text-blue-700" : "text-rose-700"} shadow-lg shadow-black/10 transition-transform hover:scale-[1.02] active:scale-95 cursor-pointer`}
+                className="flex w-full h-12 items-center justify-center gap-2 rounded-xl bg-[#3366FF] hover:bg-[#254bdb] text-white text-xs font-black uppercase tracking-wider transition-all active:scale-95 cursor-pointer"
               >
-                {isEligible ? "Start Application Now" : "Find Other Colleges"}
-                <ArrowRight className="h-5 w-5" />
+                {isEligible ? "Start Application Form" : "Explore Other Colleges"}
+                <ArrowRight className="h-4 w-4" />
               </button>
             </Card>
+
           </div>
         </div>
+
+        {/* Full-Width Active Financial Aid & Scholarship Eligibility Section */}
+        <div className="w-full">
+          <Card className="rounded-[32px] border border-slate-200/80 bg-white p-6 md:p-8 shadow-xs">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+              <div>
+                <h3 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
+                  <Award className="w-5 h-5 text-[#3366FF]" />
+                  Active Financial Aid & Scholarship Eligibility Evaluation
+                </h3>
+                <p className="text-xs font-semibold text-slate-400 mt-1">
+                  Evaluated against real active entrance awards from top institutions for your criteria
+                </p>
+              </div>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-[#3366FF] text-[11px] font-black uppercase tracking-wider self-start sm:self-auto">
+                <Sparkles className="w-3.5 h-3.5" /> Evaluated
+              </span>
+            </div>
+
+            {loadingSchol ? (
+              <div className="p-8 text-center text-slate-400 font-semibold text-xs animate-pulse bg-slate-50/80 rounded-2xl">
+                Evaluating profile against active scholarships...
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {scholarships.map((sch) => {
+                  const result = evaluateScholarship(
+                    {
+                      gpa,
+                      englishScore: testScore,
+                      testType: form.testType,
+                      degreeLevel: form.degree || form.highestEducation,
+                      nationality: form.nationality,
+                      backlogs,
+                      studyGap,
+                    },
+                    sch
+                  );
+                  const numAmt = parseFloat(String(sch.award_amount_from));
+                  const displayAmount = sch.award_amount_from && !isNaN(numAmt)
+                    ? `${sch.award_amount_currency_symbol || "$"}${numAmt.toLocaleString()}`
+                    : "Funding Available";
+
+                  return (
+                    <div
+                      key={sch._id}
+                      className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs flex flex-col justify-between hover:border-[#3366FF]/30 transition-all hover:shadow-md"
+                    >
+                      <div>
+                        <div className="flex items-start justify-between gap-2 mb-3">
+                          <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border ${result.badgeBg} ${result.badgeBorder}`}>
+                            {result.status} ({result.score}%)
+                          </span>
+                          <span className="text-xs font-black text-slate-900 flex items-center gap-1">
+                            <Coins className="w-3.5 h-3.5 text-amber-500" />
+                            {displayAmount}
+                          </span>
+                        </div>
+
+                        <h4 className="font-bold text-slate-900 text-sm mb-1 leading-snug line-clamp-1">
+                          {sch.title}
+                        </h4>
+                        <p className="text-[11px] font-bold text-[#3366FF] uppercase tracking-wider mb-3">
+                          {sch.school_group_name || "Institution Award"}
+                        </p>
+
+                        <div className="space-y-1.5 mb-4">
+                          {result.matchReasons.slice(0, 2).map((reason, idx) => (
+                            <div key={idx} className="flex items-center gap-1.5 text-[11px] text-emerald-700 font-medium">
+                              <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" />
+                              <span className="truncate">{reason}</span>
+                            </div>
+                          ))}
+                          {result.warningReasons.slice(0, 1).map((warning, idx) => (
+                            <div key={idx} className="flex items-center gap-1.5 text-[11px] text-amber-700 font-medium">
+                              <AlertTriangle className="w-3 h-3 text-amber-500 shrink-0" />
+                              <span className="truncate">{warning}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {sch.source_url && (
+                        <a
+                          href={sch.source_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-between w-full pt-3 border-t border-slate-100 text-[11px] font-black text-slate-600 hover:text-[#3366FF] transition-colors"
+                        >
+                          <span>Official Award Details</span>
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </Card>
+        </div>
+
       </div>
     </div>
   );

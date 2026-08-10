@@ -5,7 +5,7 @@ import {
   Award, Search, Filter, Loader2, Sparkles, AlertCircle, CheckCircle, 
   ChevronRight, ChevronLeft, Calendar, Coins, GraduationCap, Globe2, BookOpen
 } from "lucide-react";
-import Link from "next/link";
+import { evaluateScholarship } from "@/lib/scholarship-evaluator";
 
 interface Scholarship {
   _id: string;
@@ -42,6 +42,37 @@ export default function ScholarshipsPage() {
 
   // Description modal / expanded view
   const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  // User Profile criteria for eligibility checking
+  const [userProfile, setUserProfile] = useState({
+    gpa: 3.5,
+    englishScore: 7.0,
+    testType: "IELTS",
+    degreeLevel: "Master's Degree",
+    nationality: "Nepal",
+  });
+
+  useEffect(() => {
+    async function loadProfile() {
+      try {
+        const res = await fetch("/api/profile");
+        if (res.ok) {
+          const data = await res.json();
+          const p = data.profile || {};
+          setUserProfile({
+            gpa: p.gpa ? parseFloat(String(p.gpa)) : 3.5,
+            englishScore: p.englishScore ? parseFloat(String(p.englishScore)) : 7.0,
+            testType: p.testType || "IELTS",
+            degreeLevel: p.degreeLevel || "Master's Degree",
+            nationality: p.nationality || "Nepal",
+          });
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    loadProfile();
+  }, []);
 
   const fetchScholarships = useCallback(async () => {
     setLoading(true);
@@ -170,8 +201,84 @@ export default function ScholarshipsPage() {
         </div>
       </section>
 
-      {/* Filter Section */}
-      <section className="max-w-[1280px] mx-auto px-6 mb-12">
+      {/* Filter & User Profile Eligibility Section */}
+      <section className="max-w-[1280px] mx-auto px-6 mb-12 space-y-6">
+        {/* User Input Criteria Bar for Scholarship Evaluation */}
+        <div className="bg-slate-900 rounded-[24px] md:rounded-[32px] p-6 text-white shadow-md relative overflow-hidden">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 border-b border-white/10 pb-4">
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-[10px] font-black uppercase tracking-widest mb-2 border border-blue-400/20">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Instant Eligibility Checker
+              </div>
+              <h2 className="text-xl md:text-2xl font-black text-white tracking-tight">Your Academic Credentials</h2>
+              <p className="text-xs text-slate-300 font-medium">Adjust your criteria to see real-time eligibility scores for all active awards</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-300">Evaluating for:</span>
+              <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-black border border-emerald-500/30">
+                {userProfile.nationality || "International"} Student
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* GPA Input */}
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/10">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-300 block mb-1">Academic GPA (out of 4.0)</label>
+              <input
+                type="number"
+                step="0.1"
+                min="0"
+                max="4.0"
+                value={userProfile.gpa}
+                onChange={(e) => setUserProfile({ ...userProfile, gpa: parseFloat(e.target.value) || 0 })}
+                className="w-full bg-white/10 text-white font-black text-sm px-3 py-1.5 rounded-xl outline-none focus:ring-2 ring-blue-400"
+              />
+            </div>
+
+            {/* English Test Score Input */}
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/10">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-300 block mb-1">Language Score ({userProfile.testType})</label>
+              <input
+                type="number"
+                step="0.5"
+                min="0"
+                max="9.0"
+                value={userProfile.englishScore}
+                onChange={(e) => setUserProfile({ ...userProfile, englishScore: parseFloat(e.target.value) || 0 })}
+                className="w-full bg-white/10 text-white font-black text-sm px-3 py-1.5 rounded-xl outline-none focus:ring-2 ring-blue-400"
+              />
+            </div>
+
+            {/* Target Degree Level */}
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/10">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-300 block mb-1">Target Degree Level</label>
+              <select
+                value={userProfile.degreeLevel}
+                onChange={(e) => setUserProfile({ ...userProfile, degreeLevel: e.target.value })}
+                className="w-full bg-slate-900 text-white font-bold text-xs px-3 py-2 rounded-xl outline-none border border-white/10 focus:ring-2 ring-blue-400"
+              >
+                <option value="Master's Degree">Master's Degree / Postgrad</option>
+                <option value="4-Year Bachelor's Degree">Bachelor's Degree</option>
+                <option value="2-Year Undergraduate Diploma">Diploma / Certificate</option>
+                <option value="Doctoral / PhD">Doctoral / PhD</option>
+              </select>
+            </div>
+
+            {/* Country of Origin */}
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/10">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-300 block mb-1">Citizenship / Country</label>
+              <input
+                type="text"
+                value={userProfile.nationality}
+                onChange={(e) => setUserProfile({ ...userProfile, nationality: e.target.value })}
+                placeholder="e.g. Nepal"
+                className="w-full bg-white/10 text-white font-bold text-xs px-3 py-2 rounded-xl outline-none focus:ring-2 ring-blue-400 placeholder:text-slate-400"
+              />
+            </div>
+          </div>
+        </div>
+
         <div className="bg-white rounded-[24px] md:rounded-[32px] border border-slate-100 shadow-[0_10px_40px_rgba(0,0,0,0.02)] p-6 md:p-8 flex flex-col lg:flex-row items-center gap-6">
           
           {/* Search bar */}
@@ -187,52 +294,47 @@ export default function ScholarshipsPage() {
           </div>
 
           {/* Level Filter Dropdown */}
-          <div className="w-full lg:w-[220px]">
+          <div className="relative w-full lg:w-48">
             <select
               value={selectedLevel}
               onChange={(e) => setSelectedLevel(e.target.value)}
-              className="w-full h-14 px-6 bg-slate-50/70 border border-slate-100 rounded-2xl text-[14px] font-bold text-slate-700 outline-none focus:bg-white transition-all cursor-pointer appearance-none"
-              style={{
-                backgroundImage: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>")`,
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'right 16px center',
-                backgroundSize: '16px'
-              }}
+              className="w-full h-14 px-5 bg-slate-50/70 border border-slate-100 rounded-2xl text-[14px] font-bold text-slate-700 outline-none focus:bg-white focus:ring-4 ring-blue-500/5 focus:border-blue-200 transition-all appearance-none cursor-pointer"
             >
-              <option>All Levels</option>
-              <option>Bachelor's Degree</option>
-              <option>Master's Degree</option>
-              <option>Undergraduate Diploma</option>
-              <option>Postgraduate Certificate</option>
+              <option value="All Levels">All Levels</option>
+              <option value="Postgraduate">Postgraduate</option>
+              <option value="Undergraduate">Undergraduate</option>
+              <option value="Bachelor">Bachelor</option>
+              <option value="Master">Master</option>
+              <option value="Diploma">Diploma</option>
             </select>
           </div>
 
-          {/* Checkbox Filter */}
-          <label className="flex items-center gap-3 cursor-pointer shrink-0 py-2 select-none">
+          {/* Checkbox filter for auto-applied */}
+          <label className="flex items-center gap-3 cursor-pointer select-none px-2 shrink-0">
             <input
               type="checkbox"
               checked={onlyAutoApplied}
               onChange={(e) => setOnlyAutoApplied(e.target.checked)}
-              className="w-6 h-6 rounded-lg accent-[#3686FF] border-slate-300"
+              className="w-5 h-5 rounded-lg border-slate-200 text-[#3686FF] focus:ring-blue-500/20 cursor-pointer accent-[#3686FF]"
             />
-            <span className="text-[14px] font-bold text-slate-600">
-              Only Automatically Applied
-            </span>
+            <span className="text-[13px] font-bold text-slate-700 whitespace-nowrap">Auto-applied Only</span>
           </label>
+
         </div>
       </section>
 
-      {/* Grid Content */}
+      {/* Results Section */}
       <section className="max-w-[1280px] mx-auto px-6">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-32 bg-white rounded-[40px] border border-slate-100 shadow-sm">
-            <Loader2 className="w-12 h-12 text-[#3686FF] animate-spin mb-4" />
+            <Loader2 className="w-10 h-10 text-[#3686FF] animate-spin mb-4" />
             <p className="text-slate-400 font-bold uppercase tracking-widest text-[12px]">Fetching live scholarships...</p>
           </div>
         ) : error ? (
-          <div className="text-center py-32 bg-white rounded-[40px] border border-slate-100 shadow-sm px-6">
-            <AlertCircle className="w-12 h-12 text-rose-500 mx-auto mb-4" />
-            <p className="text-rose-500 font-bold mb-4">{error}</p>
+          <div className="flex flex-col items-center justify-center py-32 bg-white rounded-[40px] border border-slate-100 shadow-sm text-center px-6">
+            <AlertCircle className="w-12 h-12 text-rose-500 mb-4" />
+            <p className="text-slate-800 font-black text-[20px] mb-2">Unable to load scholarships</p>
+            <p className="text-slate-500 font-medium text-[14px] max-w-md mb-6">{error}</p>
             <button onClick={fetchScholarships} className="bg-[#3686FF] text-white px-6 py-3 rounded-xl font-bold hover:bg-[#2970E6] transition-all">Try again</button>
           </div>
         ) : filteredScholarships.length === 0 ? (
@@ -245,47 +347,70 @@ export default function ScholarshipsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
               {filteredScholarships.map((s) => {
                 const isExpanded = expandedId === s._id;
-                const displayAmount = s.award_amount_from 
-                  ? `${s.award_amount_currency_symbol || "$"}${parseFloat(String(s.award_amount_from)).toLocaleString()}`
+                const evalResult = evaluateScholarship(userProfile, s);
+                const numAmt = parseFloat(String(s.award_amount_from));
+                const displayAmount = s.award_amount_from && !isNaN(numAmt)
+                  ? `${s.award_amount_currency_symbol || "$"}${numAmt.toLocaleString()}`
                   : "Funding Available";
 
                 return (
                   <div 
                     key={s._id} 
-                    className="bg-white rounded-[32px] border border-slate-100 shadow-[0_10px_40px_rgba(0,0,0,0.02)] p-6 md:p-8 flex flex-col justify-between hover:shadow-[0_20px_60px_rgba(54,134,255,0.06)] hover:-translate-y-1 transition-all duration-300 h-full"
+                    className="bg-white rounded-[32px] border border-slate-100 shadow-[0_10px_40px_rgba(0,0,0,0.02)] p-6 md:p-8 flex flex-col justify-between hover:shadow-[0_20px_60px_rgba(54,134,255,0.06)] hover:-translate-y-1 transition-all duration-300 h-full relative overflow-hidden"
                   >
                     <div>
                       {/* Top Header */}
-                      <div className="flex justify-between items-start mb-6 gap-2">
+                      <div className="flex justify-between items-start mb-4 gap-2">
                         <div className="w-12 h-12 rounded-2xl bg-blue-50/80 flex items-center justify-center text-[#3686FF] shrink-0">
                           <Award className="w-6 h-6" />
                         </div>
-                        {s.automatically_applied && (
-                          <span className="px-3 py-1 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-600 text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shadow-sm">
-                            <CheckCircle className="w-3.5 h-3.5 text-emerald-500" /> Auto-Applied
+                        <div className="flex flex-col items-end gap-1">
+                          <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border shadow-xs ${evalResult.badgeBg} ${evalResult.badgeBorder}`}>
+                            {evalResult.status} ({evalResult.score}%)
                           </span>
-                        )}
+                          {s.automatically_applied && (
+                            <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-600 text-[9px] font-black uppercase tracking-wider flex items-center gap-1">
+                              <CheckCircle className="w-3 h-3 text-emerald-500" /> Auto-Applied
+                            </span>
+                          )}
+                        </div>
                       </div>
 
                       {/* Title & School */}
-                      <h3 className="text-[20px] font-black text-slate-900 leading-tight mb-2 line-clamp-2">
+                      <h3 className="text-[19px] font-black text-slate-900 leading-tight mb-2 line-clamp-2">
                         {s.title}
                       </h3>
-                      <p className="text-[#3686FF] font-bold text-[13px] uppercase tracking-wider mb-6 flex items-center gap-1.5">
-                        <Globe2 className="w-4 h-4" /> {s.school_group_name || "Conestoga College"}
+                      <p className="text-[#3686FF] font-bold text-[12px] uppercase tracking-wider mb-4 flex items-center gap-1.5">
+                        <Globe2 className="w-3.5 h-3.5" /> {s.school_group_name || "Partner University"}
                       </p>
 
+                      {/* Key Reasons / Warnings */}
+                      <div className="mb-4 bg-slate-50/70 p-3 rounded-xl space-y-1">
+                        {evalResult.matchReasons.slice(0, 2).map((reason, idx) => (
+                          <div key={idx} className="flex items-center gap-1.5 text-[11px] text-emerald-700 font-semibold truncate">
+                            <CheckCircle className="w-3 h-3 text-emerald-500 shrink-0" />
+                            <span>{reason}</span>
+                          </div>
+                        ))}
+                        {evalResult.warningReasons.slice(0, 1).map((warning, idx) => (
+                          <div key={idx} className="flex items-center gap-1.5 text-[11px] text-amber-700 font-semibold truncate">
+                            <AlertCircle className="w-3 h-3 text-amber-500 shrink-0" />
+                            <span>{warning}</span>
+                          </div>
+                        ))}
+                      </div>
+
                       {/* Details blocks */}
-                      <div className="grid grid-cols-2 gap-4 mb-6">
+                      <div className="grid grid-cols-2 gap-3 mb-5">
                         <div className="rounded-xl bg-slate-50/70 p-3">
                           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-0.5">Value</span>
-                          <span className="text-[15px] font-black text-slate-800 flex items-center gap-1">
-                            <Coins className="w-4 h-4 text-amber-500" /> {displayAmount}
+                          <span className="text-[14px] font-black text-slate-800 flex items-center gap-1">
+                            <Coins className="w-3.5 h-3.5 text-amber-500" /> {displayAmount}
                           </span>
                         </div>
                         <div className="rounded-xl bg-slate-50/70 p-3">
                           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-0.5">Apply Method</span>
-                          <span className="text-[13px] font-black text-slate-800 truncate block">
+                          <span className="text-[12px] font-black text-slate-800 truncate block">
                             {s.automatically_applied ? "No Extra Forms" : "Separate Form"}
                           </span>
                         </div>
@@ -293,13 +418,13 @@ export default function ScholarshipsPage() {
 
                       {/* Description */}
                       <div className="mb-6">
-                        <div className={`text-slate-500 font-medium text-[14px] leading-relaxed ${isExpanded ? "" : "line-clamp-3"}`}>
+                        <div className={`text-slate-500 font-medium text-[13px] leading-relaxed ${isExpanded ? "" : "line-clamp-3"}`}>
                           {isExpanded ? formatMarkdown(s.description) : (s.description || "").replace(/<[^>]*>/g, '').replace(/[\#\*]/g, '')}
                         </div>
                         {s.description && s.description.length > 150 && (
                           <button 
                             onClick={() => setExpandedId(isExpanded ? null : s._id)}
-                            className="text-[#3686FF] hover:text-indigo-600 font-bold text-[13px] mt-2 block transition-colors"
+                            className="text-[#3686FF] hover:text-indigo-600 font-bold text-[12px] mt-2 block transition-colors"
                           >
                             {isExpanded ? "Collapse Details" : "Read Full Requirements →"}
                           </button>

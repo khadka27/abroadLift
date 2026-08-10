@@ -60,6 +60,8 @@ import {
   Rocket,
   Paperclip,
   Menu,
+  ArrowLeftRight,
+  Scale,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
@@ -101,6 +103,7 @@ const formatTestType = (t: string) => {
 type TabKey =
   | "dashboard"
   | "matches"
+  | "compare"
   | "applications"
   | "documents"
   | "messages"
@@ -129,6 +132,7 @@ interface DocumentSlot {
   category: string;
   status: "Pending" | "Uploaded" | "Draft";
   fileName?: string;
+  fileUrl?: string;
   uploadedAt?: string;
 }
 
@@ -316,15 +320,10 @@ function DashboardInner() {
     }
   ]);
 
-  const [documents, setDocuments] = useState<DocumentSlot[]>([
-    { id: "doc-1", name: "Passport", category: "Identification", status: "Uploaded", fileName: "passport_scan_final.pdf", uploadedAt: "2026-06-10" },
-    { id: "doc-2", name: "Academic Transcript", category: "Education", status: "Uploaded", fileName: "transcript_undergrad.pdf", uploadedAt: "2026-06-10" },
-    { id: "doc-3", name: "Degree Certificate", category: "Education", status: "Uploaded", fileName: "degree_certificate.pdf", uploadedAt: "2026-06-11" },
-    { id: "doc-4", name: "Curriculum Vitae (CV)", category: "Career", status: "Pending" },
-    { id: "doc-5", name: "Statement of Purpose (SOP)", category: "Admissions", status: "Draft", fileName: "sop_draft_v2.docx", uploadedAt: "2026-06-20" },
-    { id: "doc-6", name: "Recommendation Letters (LORs)", category: "Admissions", status: "Pending" },
-    { id: "doc-7", name: "English Language Test Report", category: "Language", status: "Uploaded", fileName: "ielts_report_sheet.pdf", uploadedAt: "2026-06-12" },
-  ]);
+  const [documents, setDocuments] = useState<DocumentSlot[]>([]);
+  const [docsLoading, setDocsLoading] = useState(false);
+  const [uploadingDocId, setUploadingDocId] = useState<string | null>(null);
+  const [dragOverDocId, setDragOverDocId] = useState<string | null>(null);
 
   const [tasks, setTasks] = useState<TaskItem[]>([
     { id: "task-1", title: "Complete Personal Profile details", completed: true, dueDate: "2026-06-20" },
@@ -385,6 +384,212 @@ function DashboardInner() {
     email: "",
     phone: ""
   });
+
+  // ─── Compare Tool State & Presets ─────────────────────────────
+  const [compareSubTab, setCompareSubTab] = useState<"profiles" | "universities">("profiles");
+  const [selectedProfile1Id, setSelectedProfile1Id] = useState<string>("current");
+  const [selectedProfile2Id, setSelectedProfile2Id] = useState<string>("preset_ivy");
+  const [selectedUni1Id, setSelectedUni1Id] = useState<string>("uni_conestoga");
+  const [selectedUni2Id, setSelectedUni2Id] = useState<string>("uni_seneca");
+
+  const allCompareProfiles = useMemo(() => {
+    const defaultCurrent = {
+      id: "current",
+      name: profile.name ? `${profile.name} (Active Profile)` : "Active Profile",
+      gpa: profile.gpa || "3.50",
+      highestEducation: profile.highestEducation || "Bachelor's",
+      testType: profile.testType || "IELTS",
+      englishScore: profile.englishScore || "7.0",
+      yearlyBudget: profile.yearlyBudget || "30000",
+      bankBalance: profile.bankBalance || "3500000",
+      backlogs: profile.backlogs || "0",
+      studyGap: profile.studyGap || "0",
+      sponsorType: profile.sponsorType || "Self & Family",
+      sponsorIncome: profile.sponsorIncome || "1500000",
+      admissionProb: profile.admissionProb || 86,
+      visaSuccessProb: profile.visaSuccessProb || 92,
+      degreeLevel: profile.degreeLevel || "Master's",
+      preferredCountry: profile.preferredCountry || "Canada",
+    };
+
+    const presets = [
+      defaultCurrent,
+      {
+        id: "preset_ivy",
+        name: "Benchmark: Tier-1 Ivy / Research Applicant",
+        gpa: "3.88",
+        highestEducation: "4-Yr Honors Bachelor",
+        testType: "IELTS",
+        englishScore: "8.0",
+        yearlyBudget: "48000",
+        bankBalance: "6500000",
+        backlogs: "0",
+        studyGap: "0",
+        sponsorType: "Parental Business Account",
+        sponsorIncome: "3500000",
+        admissionProb: 88,
+        visaSuccessProb: 94,
+        degreeLevel: "Master's",
+        preferredCountry: "USA",
+      },
+      {
+        id: "preset_polytechnic",
+        name: "Benchmark: Canada College Applicant",
+        gpa: "3.20",
+        highestEducation: "3-Yr Bachelor",
+        testType: "PTE",
+        englishScore: "65",
+        yearlyBudget: "22000",
+        bankBalance: "3800000",
+        backlogs: "1",
+        studyGap: "1",
+        sponsorType: "Self & Property Equity",
+        sponsorIncome: "1800000",
+        admissionProb: 94,
+        visaSuccessProb: 89,
+        degreeLevel: "Postgrad Diploma",
+        preferredCountry: "Canada",
+      },
+      {
+        id: "preset_scholarship",
+        name: "Benchmark: Presidential Merit Scholar",
+        gpa: "3.95",
+        highestEducation: "B.Sc Engineering",
+        testType: "TOEFL",
+        englishScore: "108",
+        yearlyBudget: "18000",
+        bankBalance: "2800000",
+        backlogs: "0",
+        studyGap: "0",
+        sponsorType: "Merit Fellowship & Self",
+        sponsorIncome: "1200000",
+        admissionProb: 91,
+        visaSuccessProb: 86,
+        degreeLevel: "Master's",
+        preferredCountry: "Germany / Europe",
+      },
+    ];
+
+    savedMatches.forEach((item) => {
+      presets.push({
+        id: `saved_profile_${item.id}`,
+        name: `Saved Match: ${item.matchData?.name || "University Match"}`,
+        gpa: item.formData?.gpa || "3.5",
+        highestEducation: item.formData?.highestEducation || "Bachelor's",
+        testType: item.formData?.testType && item.formData?.testType !== "NONE" ? item.formData.testType : "IELTS",
+        englishScore: item.formData?.testScore || "7.0",
+        yearlyBudget: item.formData?.budget || "30000",
+        bankBalance: item.formData?.bankBalance || "3500000",
+        backlogs: item.formData?.backlogs || "0",
+        studyGap: item.formData?.studyGap || "0",
+        sponsorType: item.formData?.sponsorType || "Self",
+        sponsorIncome: item.formData?.sponsorIncome || "1500000",
+        admissionProb: item.admissionChance || 85,
+        visaSuccessProb: item.visaSuccess || 90,
+        degreeLevel: item.formData?.degree || "Master's",
+        preferredCountry: item.formData?.countries?.[0] || "Canada",
+      });
+    });
+
+    return presets;
+  }, [profile, savedMatches]);
+
+  const allCompareUniversities = useMemo(() => {
+    const presets = [
+      {
+        id: "uni_conestoga",
+        name: "Conestoga College",
+        location: "Kitchener-Waterloo, Ontario",
+        countryCode: "CA",
+        tuitionFeeUsd: 17500,
+        livingFeeUsd: 11000,
+        durationYears: 2,
+        acceptanceRate: "85%",
+        admissionMatchScore: 92,
+        visaConfidence: 91,
+        ranking: "#1 Ontario College for Graduate Employment",
+        popularProgram: "Applied Health & Information Technology",
+        scholarshipStatus: "Up to $3,000 Entrance Award",
+        weather: "16°C Clear",
+        safetyScore: 8.5,
+      },
+      {
+        id: "uni_seneca",
+        name: "Seneca Polytechnic",
+        location: "Toronto, Ontario",
+        countryCode: "CA",
+        tuitionFeeUsd: 18200,
+        livingFeeUsd: 13500,
+        durationYears: 2,
+        acceptanceRate: "82%",
+        admissionMatchScore: 88,
+        visaConfidence: 89,
+        ranking: "Top-Rated Tech & Innovation Campus in Toronto",
+        popularProgram: "Computer Programming & Software Engineering",
+        scholarshipStatus: "$2,000 Global Entrance Award",
+        weather: "18°C Mild",
+        safetyScore: 8.2,
+      },
+      {
+        id: "uni_duluth",
+        name: "University of Minnesota Duluth",
+        location: "Duluth, Minnesota",
+        countryCode: "US",
+        tuitionFeeUsd: 21400,
+        livingFeeUsd: 10500,
+        durationYears: 4,
+        acceptanceRate: "79%",
+        admissionMatchScore: 84,
+        visaConfidence: 86,
+        ranking: "#17 Regional University Midwest (US News)",
+        popularProgram: "B.S. Computer Science / Data Analytics",
+        scholarshipStatus: "Non-Resident Tuition Discount",
+        weather: "12°C Crisp",
+        safetyScore: 9.0,
+      },
+      {
+        id: "uni_northeastern",
+        name: "Northeastern University",
+        location: "Boston, Massachusetts",
+        countryCode: "US",
+        tuitionFeeUsd: 36800,
+        livingFeeUsd: 16000,
+        durationYears: 2,
+        acceptanceRate: "68%",
+        admissionMatchScore: 78,
+        visaConfidence: 94,
+        ranking: "#44 National Universities (R1 Research)",
+        popularProgram: "M.S. Information Systems & Co-Op Program",
+        scholarshipStatus: "Dean's Merit Scholarship Available",
+        weather: "20°C Pleasant",
+        safetyScore: 8.7,
+      },
+    ];
+
+    savedMatches.forEach((item) => {
+      if (item.matchData) {
+        presets.push({
+          id: `saved_uni_${item.id}`,
+          name: item.matchData.name || item.matchData.schoolName || "Saved University",
+          location: item.matchData.location || item.matchData.city || "Canada",
+          countryCode: item.matchData.countryCode || item.formData?.countries?.[0] || "CA",
+          tuitionFeeUsd: item.matchData.tuitionFeeUsd || item.matchData.tuitionFee || 18000,
+          livingFeeUsd: 12000,
+          durationYears: item.matchData.durationYears || 2,
+          acceptanceRate: item.matchData.acceptanceRate || "80%",
+          admissionMatchScore: item.admissionChance || 85,
+          visaConfidence: item.visaSuccess || 90,
+          ranking: item.matchData.ranking || "Accredited University Match",
+          popularProgram: item.formData?.program || "Undergraduate / Graduate Program",
+          scholarshipStatus: "Institutional Entrance Aid Available",
+          weather: "17°C Moderate",
+          safetyScore: 8.4,
+        });
+      }
+    });
+
+    return presets;
+  }, [savedMatches]);
   
   // Custom styled gradient mapping for User Avatars
   const avatarThemeClasses: Record<string, string> = {
@@ -461,6 +666,7 @@ function DashboardInner() {
     if (status === "authenticated") {
       void fetchProfileData();
       void fetchRecommendedMatches();
+      void fetchDocuments();
     }
   }, [status]);
 
@@ -709,6 +915,83 @@ function DashboardInner() {
     }, 3000);
   };
 
+  const fetchDocuments = async () => {
+    setDocsLoading(true);
+    try {
+      const res = await fetch("/api/documents");
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.documents)) {
+          setDocuments(
+            data.documents.map((d: any) => ({
+              id: d.id,
+              name: d.name,
+              category: d.category,
+              status: d.status as "Pending" | "Uploaded" | "Draft",
+              fileName: d.fileName || undefined,
+              fileUrl: d.fileUrl || undefined,
+              uploadedAt: d.uploadedAt ? new Date(d.uploadedAt).toISOString().slice(0, 10) : undefined,
+            }))
+          );
+        }
+      }
+    } catch (e) {
+      console.error("Failed to fetch documents", e);
+    } finally {
+      setDocsLoading(false);
+    }
+  };
+
+  const handleUploadFile = async (docId: string, file: File) => {
+    setUploadingDocId(docId);
+    try {
+      const fd = new FormData();
+      fd.append("docId", docId);
+      fd.append("file", file);
+      const res = await fetch("/api/documents", { method: "POST", body: fd });
+      if (res.ok) {
+        const data = await res.json();
+        const d = data.document;
+        setDocuments((prev) =>
+          prev.map((doc) =>
+            doc.id === docId
+              ? {
+                  ...doc,
+                  status: "Uploaded" as const,
+                  fileName: d.fileName,
+                  fileUrl: d.fileUrl || undefined,
+                  uploadedAt: d.uploadedAt ? new Date(d.uploadedAt).toISOString().slice(0, 10) : undefined,
+                }
+              : doc
+          )
+        );
+        const currentUploaded = documents.filter((d) => d.status === "Uploaded").length + 1;
+        if (currentUploaded >= 4) {
+          setTasks((prev) => prev.map((t) => (t.id === "task-2" ? { ...t, completed: true } : t)));
+        }
+      }
+    } catch (e) {
+      console.error("Upload failed", e);
+    } finally {
+      setUploadingDocId(null);
+    }
+  };
+
+  const handleRemoveFile = async (docId: string) => {
+    try {
+      await fetch(`/api/documents?id=${docId}`, { method: "DELETE" });
+      setDocuments((prev) =>
+        prev.map((doc) =>
+          doc.id === docId
+            ? { ...doc, status: "Pending" as const, fileName: undefined, uploadedAt: undefined }
+            : doc
+        )
+      );
+    } catch (e) {
+      console.error("Remove failed", e);
+    }
+  };
+
   const handleMockUpload = (docId: string) => {
     const fileNames = ["passport_scanned_v3.pdf", "official_transcript_stamp.pdf", "recommendation_prof.pdf", "sop_statement_v2.docx", "cv_academic_professional.pdf"];
     const randomFile = fileNames[Math.floor(Math.random() * fileNames.length)];
@@ -936,6 +1219,7 @@ function DashboardInner() {
       items: [
         { key: "dashboard" as TabKey, label: "Dashboard", icon: LayoutDashboard },
         { key: "matches" as TabKey, label: "My Matches", icon: Compass },
+        { key: "compare" as TabKey, label: "Compare Tool", icon: ArrowLeftRight },
         { key: "scholarships" as TabKey, label: "Scholarships", icon: Award },
         { key: "saved-universities" as TabKey, label: "Saved Universities", icon: Bookmark },
       ]
@@ -1226,6 +1510,7 @@ function DashboardInner() {
                 <p className="text-slate-400 text-xs sm:text-sm font-semibold mt-2.5">
                   {activeTab === "dashboard" && "Your centralized study-abroad planning and application tracker."}
                   {activeTab === "matches" && "Review colleges where you qualify and fit best."}
+                  {activeTab === "compare" && "Side-by-side evaluation of 2 student profiles or 2 target universities."}
                   {activeTab === "applications" && "Track and submit your university applications."}
                   {activeTab === "documents" && "Securely manage and upload your required academic files."}
                   {activeTab === "messages" && "Chat directly with your dedicated study-abroad counselor."}
@@ -1956,103 +2241,235 @@ function DashboardInner() {
                 {/* 4. DOCUMENTS TAB - Enhanced with progress ring & category groups */}
                 {activeTab === "documents" && (
                   <div className="space-y-6">
-                    {/* Progress Overview */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                      <Card className="rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/20 rounded-full blur-[40px] pointer-events-none" />
-                        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4 relative z-10">Document Progress</h3>
-                        <div className="flex items-center gap-4 relative z-10">
-                          <div className="relative w-16 h-16 shrink-0">
-                            <svg className="w-full h-full -rotate-90">
-                              <circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="5" />
-                              <circle
-                                cx="32" cy="32" r="26" fill="none"
-                                stroke="#10b981"
-                                strokeWidth="5"
-                                strokeDasharray={2 * Math.PI * 26}
-                                strokeDashoffset={2 * Math.PI * 26 * (1 - documents.filter(d => d.status === "Uploaded").length / documents.length)}
-                                strokeLinecap="round"
-                                className="transition-all duration-1000"
-                              />
-                            </svg>
-                            <span className="absolute inset-0 flex items-center justify-center text-sm font-black text-white">
-                              {documents.filter(d => d.status === "Uploaded").length}/{documents.length}
-                            </span>
-                          </div>
-                          <div>
-                            <p className="text-2xl font-black text-emerald-400">{Math.round(documents.filter(d => d.status === "Uploaded").length / documents.length * 100)}%</p>
-                            <p className="text-xs font-bold text-slate-400 mt-1">Documents uploaded</p>
-                          </div>
+                    {/* ── Header ── */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div>
+                        <h2 className="text-xl font-black text-slate-800 tracking-tight">Document Vault</h2>
+                        <p className="text-xs font-semibold text-slate-400 mt-0.5">All documents are saved securely to the database</p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-100 rounded-2xl px-4 py-2">
+                          <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                          <span className="text-xs font-black text-emerald-700">
+                            {documents.filter(d => d.status === "Uploaded").length} / {documents.length} Uploaded
+                          </span>
                         </div>
-                      </Card>
-                      {[
-                        { label: "Uploaded", count: documents.filter(d => d.status === "Uploaded").length, color: "from-emerald-500 to-teal-600", bg: "bg-emerald-50", text: "text-emerald-700" },
-                        { label: "Pending / Draft", count: documents.filter(d => d.status !== "Uploaded").length, color: "from-amber-500 to-orange-500", bg: "bg-amber-50", text: "text-amber-700" },
-                      ].map((s) => (
-                        <Card key={s.label} className={`rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 ${s.bg}`}>
-                          <h3 className={`text-[10px] font-black uppercase tracking-[0.2em] ${s.text} mb-4`}>{s.label}</h3>
-                          <p className={`text-5xl font-black ${s.text}`}>{s.count}</p>
-                          <p className={`text-xs font-bold ${s.text} opacity-60 mt-1`}>documents</p>
-                        </Card>
-                      ))}
+                        <div className="flex items-center gap-2 bg-amber-50 border border-amber-100 rounded-2xl px-4 py-2">
+                          <div className="w-2 h-2 rounded-full bg-amber-400" />
+                          <span className="text-xs font-black text-amber-700">
+                            {documents.filter(d => d.status !== "Uploaded").length} Pending
+                          </span>
+                        </div>
+                      </div>
                     </div>
 
-                    {/* Grouped Document List */}
-                    {Array.from(new Set(documents.map(d => d.category))).map((category) => {
+                    {/* ── Progress bar ── */}
+                    <Card className="rounded-[24px] border border-slate-100 shadow-sm shadow-slate-100 bg-white p-5">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-xs font-black text-slate-500 uppercase tracking-widest">Overall Completion</span>
+                        <span className="text-sm font-black text-[#3366FF]">
+                          {documents.length > 0 ? Math.round(documents.filter(d => d.status === "Uploaded").length / documents.length * 100) : 0}%
+                        </span>
+                      </div>
+                      <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${documents.length > 0 ? Math.round(documents.filter(d => d.status === "Uploaded").length / documents.length * 100) : 0}%` }}
+                          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+                          className="h-full bg-[#3366FF] rounded-full"
+                        />
+                      </div>
+                      <p className="text-[10px] font-semibold text-slate-400 mt-2">
+                        Upload all required documents to unlock full application access
+                      </p>
+                    </Card>
+
+                    {/* ── Loading skeleton ── */}
+                    {docsLoading && (
+                      <div className="space-y-4">
+                        {[1,2,3].map(i => (
+                          <Card key={i} className="rounded-[24px] border border-slate-100 shadow-sm bg-white p-5">
+                            <div className="animate-pulse space-y-3">
+                              <div className="h-3 w-24 bg-slate-100 rounded-full" />
+                              <div className="h-12 bg-slate-50 rounded-2xl" />
+                              <div className="h-12 bg-slate-50 rounded-2xl" />
+                            </div>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* ── Grouped by category ── */}
+                    {!docsLoading && Array.from(new Set(documents.map(d => d.category))).map((category) => {
                       const categoryDocs = documents.filter(d => d.category === category);
                       const allDone = categoryDocs.every(d => d.status === "Uploaded");
+                      const donePct = Math.round(categoryDocs.filter(d => d.status === "Uploaded").length / categoryDocs.length * 100);
+
+                      const categoryAccent: Record<string, string> = {
+                        "Identification": "border-l-[#3366FF] bg-[#3366FF]/5",
+                        "Education": "border-l-emerald-500 bg-emerald-500/5",
+                        "Career": "border-l-violet-500 bg-violet-500/5",
+                        "Admissions": "border-l-amber-500 bg-amber-500/5",
+                        "Language": "border-l-rose-500 bg-rose-500/5",
+                      };
+                      const accent = categoryAccent[category] || "border-l-slate-400 bg-slate-50";
+
                       return (
-                        <Card key={category} className="rounded-[32px] p-6 border-none shadow-xl shadow-slate-200/50 bg-white">
-                          <div className="flex items-center justify-between mb-5">
-                            <div className="flex items-center gap-2">
-                              <span className={`w-2.5 h-2.5 rounded-full ${allDone ? "bg-emerald-500" : "bg-amber-400"}`} />
-                              <h3 className="text-xs font-black text-slate-700 uppercase tracking-[0.15em]">{category}</h3>
+                        <Card key={category} className="rounded-[24px] border border-slate-100 shadow-sm shadow-slate-100 bg-white overflow-hidden">
+                          {/* Category header */}
+                          <div className={`px-5 py-3.5 border-l-4 flex items-center justify-between ${accent}`}>
+                            <div className="flex items-center gap-2.5">
+                              <span className="text-xs font-black text-slate-700 uppercase tracking-[0.15em]">{category}</span>
+                              {allDone && (
+                                <span className="inline-flex items-center gap-1 text-[9px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                                  <CheckCircle className="w-2.5 h-2.5" /> Complete
+                                </span>
+                              )}
                             </div>
-                            <span className="text-[10px] font-black text-slate-400">
-                              {categoryDocs.filter(d => d.status === "Uploaded").length}/{categoryDocs.length} uploaded
-                            </span>
+                            <span className="text-[10px] font-black text-slate-400">{donePct}%</span>
                           </div>
-                          <div className="divide-y divide-slate-50">
-                            {categoryDocs.map((doc) => (
-                              <div key={doc.id} className="flex flex-col sm:flex-row sm:items-center justify-between py-3.5 gap-3 first:pt-0 last:pb-0">
-                                <div className="flex items-start gap-3">
-                                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                                    doc.status === "Uploaded" ? "bg-emerald-50 text-emerald-600" :
-                                    doc.status === "Draft" ? "bg-amber-50 text-amber-600" : "bg-slate-100 text-slate-400"
-                                  }`}>
-                                    <FileText className="w-4 h-4" />
+
+                          {/* Document rows */}
+                          <div className="divide-y divide-slate-50/80 px-5">
+                            {categoryDocs.map((doc) => {
+                              const isUploading = uploadingDocId === doc.id;
+                              const isDragOver = dragOverDocId === doc.id;
+                              return (
+                                <div
+                                  key={doc.id}
+                                  className={`py-4 flex flex-col sm:flex-row sm:items-center gap-4 rounded-2xl transition-all duration-200 px-3 -mx-3 ${
+                                    isDragOver
+                                      ? "bg-[#3366FF]/8 border-2 border-dashed border-[#3366FF] scale-[1.01]"
+                                      : "border-2 border-transparent"
+                                  }`}
+                                  onDragOver={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setDragOverDocId(doc.id);
+                                  }}
+                                  onDragEnter={(e) => {
+                                    e.preventDefault();
+                                    setDragOverDocId(doc.id);
+                                  }}
+                                  onDragLeave={(e) => {
+                                    e.stopPropagation();
+                                    setDragOverDocId(null);
+                                  }}
+                                  onDrop={async (e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setDragOverDocId(null);
+                                    const file = e.dataTransfer.files?.[0];
+                                    if (file) await handleUploadFile(doc.id, file);
+                                  }}
+                                >
+                                  {/* Left: icon + info */}
+                                  <div className="flex items-start gap-3 flex-1 min-w-0">
+                                    <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 transition-all ${
+                                      isDragOver ? "bg-[#3366FF] text-white scale-110" :
+                                      doc.status === "Uploaded" ? "bg-emerald-50 text-emerald-600 border border-emerald-100" :
+                                      doc.status === "Draft" ? "bg-amber-50 text-amber-600 border border-amber-100" :
+                                      "bg-slate-50 text-slate-400 border border-slate-100"
+                                    }`}>
+                                      {isUploading
+                                        ? <Loader2 className="w-4 h-4 animate-spin" />
+                                        : isDragOver
+                                        ? <Upload className="w-4 h-4" />
+                                        : <FileText className="w-4 h-4" />
+                                      }
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                      <h4 className="font-bold text-slate-800 text-sm">{doc.name}</h4>
+                                      {isDragOver ? (
+                                        <p className="text-[10px] text-[#3366FF] font-bold mt-1 animate-pulse">Drop to upload</p>
+                                      ) : doc.fileName ? (
+                                        <div className="flex items-center gap-1.5 mt-1">
+                                          <CheckCircle className="w-3 h-3 text-emerald-500 shrink-0" />
+                                          {doc.fileUrl ? (
+                                            <a
+                                              href={doc.fileUrl}
+                                              target="_blank"
+                                              rel="noopener noreferrer"
+                                              className="text-[10px] text-[#3366FF] font-semibold truncate hover:underline"
+                                            >
+                                              {doc.fileName}
+                                            </a>
+                                          ) : (
+                                            <span className="text-[10px] text-slate-500 font-semibold truncate">{doc.fileName}</span>
+                                          )}
+                                          {doc.uploadedAt && (
+                                            <span className="text-[9px] text-slate-400 font-semibold shrink-0">· {doc.uploadedAt}</span>
+                                          )}
+                                        </div>
+                                      ) : (
+                                        <p className="text-[10px] text-slate-400 font-semibold mt-1">Drag & drop or click Upload</p>
+                                      )}
+                                    </div>
                                   </div>
-                                  <div>
-                                    <h4 className="font-bold text-slate-800 text-sm">{doc.name}</h4>
-                                    {doc.fileName && (
-                                      <p className="text-[10px] text-slate-500 font-semibold mt-0.5 flex items-center gap-1">
-                                        <CheckCircle className="w-3 h-3 text-emerald-500 shrink-0" />
-                                        {doc.fileName}
-                                      </p>
+
+                                  {/* Right: status badge + actions */}
+                                  <div className="flex items-center gap-2.5 shrink-0">
+                                    <span className={`inline-flex px-2.5 py-1 rounded-full text-[9px] font-black tracking-widest uppercase ${
+                                      doc.status === "Uploaded" ? "bg-emerald-50 text-emerald-600 border border-emerald-100" :
+                                      doc.status === "Draft" ? "bg-amber-50 text-amber-700 border border-amber-100" :
+                                      "bg-slate-100 text-slate-500"
+                                    }`}>
+                                      {doc.status}
+                                    </span>
+
+                                    {/* File input (click) */}
+                                    <label htmlFor={`file-input-${doc.id}`} className="cursor-pointer">
+                                      <input
+                                        id={`file-input-${doc.id}`}
+                                        type="file"
+                                        className="hidden"
+                                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                                        onChange={async (e) => {
+                                          const file = e.target.files?.[0];
+                                          if (file) await handleUploadFile(doc.id, file);
+                                          e.target.value = "";
+                                        }}
+                                      />
+                                      <span className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[10px] font-bold transition-all cursor-pointer ${
+                                        isUploading
+                                          ? "bg-slate-100 text-slate-400 cursor-not-allowed"
+                                          : "bg-[#3366FF] text-white hover:bg-[#254bdb] shadow-sm hover:shadow-[0_4px_12px_rgba(51,102,255,0.3)] active:scale-95"
+                                      }`}>
+                                        {isUploading ? (
+                                          <><Loader2 className="w-3 h-3 animate-spin" /> Uploading...</>
+                                        ) : (
+                                          <><Upload className="w-3 h-3" />{doc.status === "Uploaded" ? "Replace" : "Upload"}</>
+                                        )}
+                                      </span>
+                                    </label>
+
+                                    {/* Remove button */}
+                                    {doc.status === "Uploaded" && (
+                                      <button
+                                        onClick={() => handleRemoveFile(doc.id)}
+                                        className="w-8 h-8 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-500 flex items-center justify-center transition-all border border-rose-100 active:scale-95"
+                                        title="Remove file"
+                                      >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                      </button>
                                     )}
                                   </div>
                                 </div>
-                                <div className="flex items-center gap-2.5 justify-between sm:justify-end">
-                                  <span className={`inline-flex px-2.5 py-1 rounded-full text-[9px] font-black tracking-widest uppercase ${
-                                    doc.status === "Uploaded" ? "bg-emerald-50 text-emerald-600" :
-                                    doc.status === "Draft" ? "bg-amber-50 text-amber-700" : "bg-slate-100 text-slate-500"
-                                  }`}>
-                                    {doc.status}
-                                  </span>
-                                  <button
-                                    onClick={() => handleMockUpload(doc.id)}
-                                    className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold px-3.5 py-2 rounded-xl text-[10px] shadow-sm transition-all active:scale-95 hover:shadow-md flex items-center gap-1.5"
-                                  >
-                                    <Upload className="w-3 h-3" />
-                                    {doc.status === "Uploaded" ? "Replace" : "Upload"}
-                                  </button>
-                                </div>
-                              </div>
-                            ))}
+                              );
+                            })}
                           </div>
                         </Card>
                       );
                     })}
+
+                    {/* ── Empty state ── */}
+                    {!docsLoading && documents.length === 0 && (
+                      <Card className="rounded-[24px] border border-slate-100 shadow-sm bg-white p-12 text-center">
+                        <FileText className="w-12 h-12 text-slate-200 mx-auto mb-3" />
+                        <h3 className="font-black text-slate-700 text-sm">No documents found</h3>
+                        <p className="text-xs text-slate-400 mt-1">Reload the page to set up your document vault.</p>
+                      </Card>
+                    )}
                   </div>
                 )}
 
@@ -2579,6 +2996,384 @@ function DashboardInner() {
                             </Card>
                           );
                         })}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* 2. COMPARE TOOL TAB */}
+                {activeTab === "compare" && (
+                  <div className="space-y-6">
+                    {/* Header Controls / Mode Switch */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-3 bg-white/80 backdrop-blur-xl border border-slate-200/80 rounded-3xl shadow-xs">
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setCompareSubTab("profiles")}
+                          className={`px-4 py-2.5 rounded-2xl text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${
+                            compareSubTab === "profiles"
+                              ? "bg-[#3366FF] text-white shadow-md shadow-blue-500/20"
+                              : "text-slate-600 hover:bg-slate-100"
+                          }`}
+                        >
+                          <User className="w-4 h-4" /> Compare 2 Profiles
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setCompareSubTab("universities")}
+                          className={`px-4 py-2.5 rounded-2xl text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${
+                            compareSubTab === "universities"
+                              ? "bg-[#3366FF] text-white shadow-md shadow-blue-500/20"
+                              : "text-slate-600 hover:bg-slate-100"
+                          }`}
+                        >
+                          <GraduationCap className="w-4 h-4" /> Compare 2 Universities
+                        </button>
+                      </div>
+
+                      <span className="text-[11px] font-extrabold text-slate-400 px-3">
+                        {compareSubTab === "profiles"
+                          ? "Head-to-Head Academic & Financial Profile Evaluation"
+                          : "Side-by-Side Tuition, Living Cost & Visa Odds Comparison"}
+                      </span>
+                    </div>
+
+                    {/* SUBTAB 1: COMPARE 2 PROFILES */}
+                    {compareSubTab === "profiles" && (
+                      <div className="space-y-6">
+                        {/* Selector Row */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <Card className="p-5 rounded-[28px] border border-slate-200/80 bg-white shadow-xs">
+                            <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-2">
+                              Select Profile A (Baseline)
+                            </label>
+                            <select
+                              value={selectedProfile1Id}
+                              onChange={(e) => setSelectedProfile1Id(e.target.value)}
+                              className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 text-xs font-extrabold text-slate-800 focus:outline-none focus:border-[#3366FF]"
+                            >
+                              {allCompareProfiles.map((p) => (
+                                <option key={p.id} value={p.id}>{p.name}</option>
+                              ))}
+                            </select>
+                          </Card>
+
+                          <Card className="p-5 rounded-[28px] border border-slate-200/80 bg-white shadow-xs">
+                            <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-2">
+                              Select Profile B (Comparison Target)
+                            </label>
+                            <select
+                              value={selectedProfile2Id}
+                              onChange={(e) => setSelectedProfile2Id(e.target.value)}
+                              className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 text-xs font-extrabold text-slate-800 focus:outline-none focus:border-[#3366FF]"
+                            >
+                              {allCompareProfiles.map((p) => (
+                                <option key={p.id} value={p.id}>{p.name}</option>
+                              ))}
+                            </select>
+                          </Card>
+                        </div>
+
+                        {/* Head-to-Head Metric Rows */}
+                        {(() => {
+                          const p1 = allCompareProfiles.find((p) => p.id === selectedProfile1Id) || allCompareProfiles[0];
+                          const p2 = allCompareProfiles.find((p) => p.id === selectedProfile2Id) || allCompareProfiles[1] || allCompareProfiles[0];
+
+                          const gpa1 = parseFloat(p1.gpa || "3.5");
+                          const gpa2 = parseFloat(p2.gpa || "3.5");
+                          const budget1 = parseFloat(p1.yearlyBudget || "30000");
+                          const budget2 = parseFloat(p2.yearlyBudget || "30000");
+
+                          return (
+                            <div className="space-y-6">
+                              {/* Overview Cards */}
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <Card className="p-6 rounded-[32px] border border-blue-200 bg-blue-50/40 shadow-xs relative overflow-hidden">
+                                  <div className="flex items-center justify-between mb-3">
+                                    <span className="px-3 py-1 rounded-full bg-blue-600 text-white text-[10px] font-black uppercase tracking-wider">
+                                      Profile A
+                                    </span>
+                                    <span className="text-xs font-black text-blue-700">
+                                      {p1.degreeLevel} • {p1.preferredCountry}
+                                    </span>
+                                  </div>
+                                  <h3 className="text-lg font-black text-slate-900 mb-1">{p1.name}</h3>
+                                  <p className="text-xs text-slate-500 font-semibold">
+                                    GPA: {p1.gpa} | {p1.testType} {p1.englishScore} | Budget: ${parseInt(p1.yearlyBudget).toLocaleString()}/yr
+                                  </p>
+                                </Card>
+
+                                <Card className="p-6 rounded-[32px] border border-indigo-200 bg-indigo-50/40 shadow-xs relative overflow-hidden">
+                                  <div className="flex items-center justify-between mb-3">
+                                    <span className="px-3 py-1 rounded-full bg-indigo-600 text-white text-[10px] font-black uppercase tracking-wider">
+                                      Profile B
+                                    </span>
+                                    <span className="text-xs font-black text-indigo-700">
+                                      {p2.degreeLevel} • {p2.preferredCountry}
+                                    </span>
+                                  </div>
+                                  <h3 className="text-lg font-black text-slate-900 mb-1">{p2.name}</h3>
+                                  <p className="text-xs text-slate-500 font-semibold">
+                                    GPA: {p2.gpa} | {p2.testType} {p2.englishScore} | Budget: ${parseInt(p2.yearlyBudget).toLocaleString()}/yr
+                                  </p>
+                                </Card>
+                              </div>
+
+                              {/* Detailed Metrics Table */}
+                              <Card className="rounded-[32px] border border-slate-200/80 bg-white p-6 sm:p-8 shadow-xs">
+                                <h3 className="text-base font-black text-slate-900 mb-4 tracking-tight flex items-center gap-2">
+                                  <ArrowLeftRight className="w-5 h-5 text-[#3366FF]" /> Detailed Head-to-Head Comparison
+                                </h3>
+
+                                <div className="overflow-x-auto rounded-2xl border border-slate-200/80">
+                                  <table className="w-full text-left border-collapse min-w-[540px]">
+                                    <thead>
+                                      <tr className="bg-slate-50 border-b border-slate-200 text-slate-400 text-[10px] font-black uppercase tracking-widest">
+                                        <th className="p-3.5">Metric Category</th>
+                                        <th className="p-3.5 text-blue-700 font-black">Profile A ({p1.name.slice(0, 18)})</th>
+                                        <th className="p-3.5 text-indigo-700 font-black">Profile B ({p2.name.slice(0, 18)})</th>
+                                        <th className="p-3.5 text-right">Advantage</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100 text-xs font-semibold text-slate-700">
+                                      <tr className="hover:bg-slate-50/80">
+                                        <td className="p-3.5 font-extrabold text-slate-900">Academic GPA</td>
+                                        <td className={`p-3.5 font-extrabold ${gpa1 >= gpa2 ? "text-emerald-700" : ""}`}>{p1.gpa} / 4.00</td>
+                                        <td className={`p-3.5 font-extrabold ${gpa2 > gpa1 ? "text-emerald-700" : ""}`}>{p2.gpa} / 4.00</td>
+                                        <td className="p-3.5 text-right">
+                                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${gpa1 >= gpa2 ? "bg-blue-50 text-blue-700" : "bg-indigo-50 text-indigo-700"}`}>
+                                            {gpa1 >= gpa2 ? "Profile A +" + (gpa1 - gpa2).toFixed(2) : "Profile B +" + (gpa2 - gpa1).toFixed(2)}
+                                          </span>
+                                        </td>
+                                      </tr>
+
+                                      <tr className="hover:bg-slate-50/80">
+                                        <td className="p-3.5 font-extrabold text-slate-900">English Proficiency</td>
+                                        <td className="p-3.5">{p1.testType} {p1.englishScore}</td>
+                                        <td className="p-3.5">{p2.testType} {p2.englishScore}</td>
+                                        <td className="p-3.5 text-right text-slate-400">Direct Entry Meets</td>
+                                      </tr>
+
+                                      <tr className="hover:bg-slate-50/80">
+                                        <td className="p-3.5 font-extrabold text-slate-900">Annual Tuition Budget</td>
+                                        <td className="p-3.5 font-extrabold">${parseInt(p1.yearlyBudget).toLocaleString()} USD</td>
+                                        <td className="p-3.5 font-extrabold">${parseInt(p2.yearlyBudget).toLocaleString()} USD</td>
+                                        <td className="p-3.5 text-right">
+                                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${budget1 >= budget2 ? "bg-blue-50 text-blue-700" : "bg-indigo-50 text-indigo-700"}`}>
+                                            {budget1 >= budget2 ? "Profile A Higher Budget" : "Profile B Higher Budget"}
+                                          </span>
+                                        </td>
+                                      </tr>
+
+                                      <tr className="hover:bg-slate-50/80">
+                                        <td className="p-3.5 font-extrabold text-slate-900">Declared Bank Balance</td>
+                                        <td className="p-3.5">{formatNPRDevanagari(parseFloat(p1.bankBalance || "3500000"))}</td>
+                                        <td className="p-3.5">{formatNPRDevanagari(parseFloat(p2.bankBalance || "3500000"))}</td>
+                                        <td className="p-3.5 text-right text-emerald-700 font-bold">Proof Solvency Verified</td>
+                                      </tr>
+
+                                      <tr className="hover:bg-slate-50/80">
+                                        <td className="p-3.5 font-extrabold text-slate-900">Backlogs & Study Gap</td>
+                                        <td className="p-3.5">{p1.backlogs} backlogs · {p1.studyGap} yrs gap</td>
+                                        <td className="p-3.5">{p2.backlogs} backlogs · {p2.studyGap} yrs gap</td>
+                                        <td className="p-3.5 text-right">
+                                          <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-black uppercase">
+                                            Clean Record
+                                          </span>
+                                        </td>
+                                      </tr>
+
+                                      <tr className="hover:bg-slate-50/80">
+                                        <td className="p-3.5 font-extrabold text-slate-900">Projected Admission Chance</td>
+                                        <td className="p-3.5 font-black text-blue-600">{p1.admissionProb}% Score</td>
+                                        <td className="p-3.5 font-black text-indigo-600">{p2.admissionProb}% Score</td>
+                                        <td className="p-3.5 text-right">
+                                          <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase">
+                                            {p1.admissionProb >= p2.admissionProb ? "Profile A Lead" : "Profile B Lead"}
+                                          </span>
+                                        </td>
+                                      </tr>
+
+                                      <tr className="hover:bg-slate-50/80">
+                                        <td className="p-3.5 font-extrabold text-slate-900">Visa Confidence Rate</td>
+                                        <td className="p-3.5 font-black text-emerald-600">{p1.visaSuccessProb}% Rate</td>
+                                        <td className="p-3.5 font-black text-emerald-600">{p2.visaSuccessProb}% Rate</td>
+                                        <td className="p-3.5 text-right font-black text-emerald-700">Strong Approval Odds</td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </Card>
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    )}
+
+                    {/* SUBTAB 2: COMPARE 2 UNIVERSITIES */}
+                    {compareSubTab === "universities" && (
+                      <div className="space-y-6">
+                        {/* Selector Row */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <Card className="p-5 rounded-[28px] border border-slate-200/80 bg-white shadow-xs">
+                            <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-2">
+                              Select Target University A
+                            </label>
+                            <select
+                              value={selectedUni1Id}
+                              onChange={(e) => setSelectedUni1Id(e.target.value)}
+                              className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 text-xs font-extrabold text-slate-800 focus:outline-none focus:border-[#3366FF]"
+                            >
+                              {allCompareUniversities.map((u) => (
+                                <option key={u.id} value={u.id}>{u.name} ({u.location})</option>
+                              ))}
+                            </select>
+                          </Card>
+
+                          <Card className="p-5 rounded-[28px] border border-slate-200/80 bg-white shadow-xs">
+                            <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-2">
+                              Select Target University B
+                            </label>
+                            <select
+                              value={selectedUni2Id}
+                              onChange={(e) => setSelectedUni2Id(e.target.value)}
+                              className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 text-xs font-extrabold text-slate-800 focus:outline-none focus:border-[#3366FF]"
+                            >
+                              {allCompareUniversities.map((u) => (
+                                <option key={u.id} value={u.id}>{u.name} ({u.location})</option>
+                              ))}
+                            </select>
+                          </Card>
+                        </div>
+
+                        {/* Head-to-Head University Cards */}
+                        {(() => {
+                          const u1 = allCompareUniversities.find((u) => u.id === selectedUni1Id) || allCompareUniversities[0];
+                          const u2 = allCompareUniversities.find((u) => u.id === selectedUni2Id) || allCompareUniversities[1] || allCompareUniversities[0];
+
+                          const totalCost1Usd = (u1.tuitionFeeUsd + u1.livingFeeUsd) * u1.durationYears;
+                          const totalCost2Usd = (u2.tuitionFeeUsd + u2.livingFeeUsd) * u2.durationYears;
+
+                          return (
+                            <div className="space-y-6">
+                              {/* 2 Cards Banner */}
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <Card className="p-6 rounded-[32px] border border-slate-200/80 bg-white shadow-xs flex flex-col justify-between">
+                                  <div>
+                                    <div className="flex items-center justify-between mb-3">
+                                      <span className="px-2.5 py-1 rounded-full bg-blue-50 border border-blue-100 text-[#3366FF] text-[10px] font-black uppercase">
+                                        University A
+                                      </span>
+                                      <span className="text-xs font-extrabold text-slate-500">{u1.location}</span>
+                                    </div>
+                                    <h3 className="text-xl font-black text-slate-900 mb-1">{u1.name}</h3>
+                                    <p className="text-xs font-semibold text-slate-500 mb-4">{u1.ranking}</p>
+                                  </div>
+
+                                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                                    <span className="text-xs font-bold text-slate-500">Annual Tuition:</span>
+                                    <span className="text-base font-black text-[#3366FF]">
+                                      ${u1.tuitionFeeUsd.toLocaleString()} USD
+                                    </span>
+                                  </div>
+                                </Card>
+
+                                <Card className="p-6 rounded-[32px] border border-slate-200/80 bg-white shadow-xs flex flex-col justify-between">
+                                  <div>
+                                    <div className="flex items-center justify-between mb-3">
+                                      <span className="px-2.5 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 text-[10px] font-black uppercase">
+                                        University B
+                                      </span>
+                                      <span className="text-xs font-extrabold text-slate-500">{u2.location}</span>
+                                    </div>
+                                    <h3 className="text-xl font-black text-slate-900 mb-1">{u2.name}</h3>
+                                    <p className="text-xs font-semibold text-slate-500 mb-4">{u2.ranking}</p>
+                                  </div>
+
+                                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                                    <span className="text-xs font-bold text-slate-500">Annual Tuition:</span>
+                                    <span className="text-base font-black text-indigo-600">
+                                      ${u2.tuitionFeeUsd.toLocaleString()} USD
+                                    </span>
+                                  </div>
+                                </Card>
+                              </div>
+
+                              {/* Comparison Matrix Table */}
+                              <Card className="rounded-[32px] border border-slate-200/80 bg-white p-6 sm:p-8 shadow-xs">
+                                <h3 className="text-base font-black text-slate-900 mb-4 tracking-tight flex items-center gap-2">
+                                  <GraduationCap className="w-5 h-5 text-[#3366FF]" /> Institutional & Fiscal Matrix
+                                </h3>
+
+                                <div className="overflow-x-auto rounded-2xl border border-slate-200/80">
+                                  <table className="w-full text-left border-collapse min-w-[540px]">
+                                    <thead>
+                                      <tr className="bg-slate-50 border-b border-slate-200 text-slate-400 text-[10px] font-black uppercase tracking-widest">
+                                        <th className="p-3.5">Key Metric</th>
+                                        <th className="p-3.5 text-blue-700 font-black">{u1.name}</th>
+                                        <th className="p-3.5 text-indigo-700 font-black">{u2.name}</th>
+                                        <th className="p-3.5 text-right">Cost Difference</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100 text-xs font-semibold text-slate-700">
+                                      <tr className="hover:bg-slate-50/80">
+                                        <td className="p-3.5 font-extrabold text-slate-900">Annual Tuition Fee</td>
+                                        <td className="p-3.5 font-extrabold text-slate-900">${u1.tuitionFeeUsd.toLocaleString()} USD ({formatNPRDevanagari(u1.tuitionFeeUsd * 135)})</td>
+                                        <td className="p-3.5 font-extrabold text-slate-900">${u2.tuitionFeeUsd.toLocaleString()} USD ({formatNPRDevanagari(u2.tuitionFeeUsd * 135)})</td>
+                                        <td className="p-3.5 text-right">
+                                          <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-black uppercase">
+                                            {u1.tuitionFeeUsd <= u2.tuitionFeeUsd ? `Uni A Save $${(u2.tuitionFeeUsd - u1.tuitionFeeUsd).toLocaleString()}` : `Uni B Save $${(u1.tuitionFeeUsd - u2.tuitionFeeUsd).toLocaleString()}`}
+                                          </span>
+                                        </td>
+                                      </tr>
+
+                                      <tr className="hover:bg-slate-50/80">
+                                        <td className="p-3.5 font-extrabold text-slate-900">Est. Living Expenses</td>
+                                        <td className="p-3.5">${u1.livingFeeUsd.toLocaleString()} USD/yr</td>
+                                        <td className="p-3.5">${u2.livingFeeUsd.toLocaleString()} USD/yr</td>
+                                        <td className="p-3.5 text-right text-slate-500">Location Dependent</td>
+                                      </tr>
+
+                                      <tr className="hover:bg-slate-50/80">
+                                        <td className="p-3.5 font-extrabold text-slate-900">Total Degree Investment ({u1.durationYears} Years)</td>
+                                        <td className="p-3.5 font-black text-slate-900">${totalCost1Usd.toLocaleString()} USD</td>
+                                        <td className="p-3.5 font-black text-slate-900">${totalCost2Usd.toLocaleString()} USD</td>
+                                        <td className="p-3.5 text-right font-black text-[#3366FF]">
+                                          {formatNPRDevanagari(totalCost1Usd * 135)}
+                                        </td>
+                                      </tr>
+
+                                      <tr className="hover:bg-slate-50/80">
+                                        <td className="p-3.5 font-extrabold text-slate-900">Profile Match Score</td>
+                                        <td className="p-3.5 font-black text-blue-600">{u1.admissionMatchScore}% Score</td>
+                                        <td className="p-3.5 font-black text-indigo-600">{u2.admissionMatchScore}% Score</td>
+                                        <td className="p-3.5 text-right">
+                                          <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase">
+                                            {u1.admissionMatchScore >= u2.admissionMatchScore ? "Uni A Better Match" : "Uni B Better Match"}
+                                          </span>
+                                        </td>
+                                      </tr>
+
+                                      <tr className="hover:bg-slate-50/80">
+                                        <td className="p-3.5 font-extrabold text-slate-900">Visa Confidence Rate</td>
+                                        <td className="p-3.5 font-black text-emerald-600">{u1.visaConfidence}% Confidence</td>
+                                        <td className="p-3.5 font-black text-emerald-600">{u2.visaConfidence}% Confidence</td>
+                                        <td className="p-3.5 text-right font-bold text-emerald-700">Verified Solvency Tier</td>
+                                      </tr>
+
+                                      <tr className="hover:bg-slate-50/80">
+                                        <td className="p-3.5 font-extrabold text-slate-900">Scholarship Aid</td>
+                                        <td className="p-3.5 text-emerald-700 font-bold">{u1.scholarshipStatus}</td>
+                                        <td className="p-3.5 text-emerald-700 font-bold">{u2.scholarshipStatus}</td>
+                                        <td className="p-3.5 text-right text-slate-400">Merit Awards Available</td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </Card>
+                            </div>
+                          );
+                        })()}
                       </div>
                     )}
                   </div>

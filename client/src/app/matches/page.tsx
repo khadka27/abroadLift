@@ -2335,6 +2335,7 @@ export default function AbroadLiftMatchesPage() {
       graduationDuration,
       totalYear1Npr,
       totalDegreeCostNpr,
+      totalDegreeCostUsd: Math.round(totalDegreeCostNpr / (usdToNpr || 135)),
       totalTuitionNpr,
       totalLivingNpr,
       itemizedMonthly,
@@ -4753,167 +4754,195 @@ export default function AbroadLiftMatchesPage() {
         const roadmapCards = [
           {
             key: "cost",
-            label: "Cost",
+            label: "Financial Analysis",
             value: nprRangeLakhs(financialMetrics.totalTuitionNpr),
-            helper: `${financialMetrics.graduationDuration} year tuition outlook`,
-            accent: "from-[#3366FF] to-[#6FA8FF]",
+            helper: `${financialMetrics.graduationDuration} year tuition outlook & living expenses`,
+            badge: "Step 9",
             onClick: () => setStep(9),
           },
           {
             key: "admission",
-            label: "Admission",
-            value: `${admissionPct}%`,
-            helper: "Acceptance momentum and profile fit",
-            accent: "from-[#1D4ED8] to-[#60A5FA]",
+            label: "Admission Evaluation",
+            value: `${admissionPct}% Match`,
+            helper: "Acceptance rate trend & profile competitiveness",
+            badge: "Step 10",
             onClick: () => setStep(10),
           },
           {
             key: "visa",
-            label: "Visa",
-            value: `${decisionSignals?.visaConfidence || 58}%`,
-            helper: "Document and funds readiness",
-            accent: "from-[#0EA5E9] to-[#A5D8FF]",
+            label: "Visa Readiness",
+            value: `${decisionSignals?.visaConfidence || 80}% Ready`,
+            helper: "Mandatory document checklist & solvency proof",
+            badge: "Step 11",
             onClick: () => setStep(11),
           },
         ];
 
         return (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 min-h-screen bg-[#F7F9FF] px-4 pb-20 md:px-8 lg:px-12 text-[#0f172a]">
+          <div className="min-h-screen bg-slate-50/70 text-slate-900 px-4 py-8 md:px-8 lg:px-12 pb-24">
             {insightsPanel}
-            <div className="mx-auto max-w-7xl space-y-5 pt-3">
+            <div className="mx-auto max-w-6xl space-y-6 pt-2">
+              
+              {/* Header Bar */}
               <div className="flex items-center justify-between gap-3">
                 <button
                   onClick={() => setStep(11)}
-                  className="inline-flex items-center gap-2 rounded-full border border-[#D8E4FF] bg-white px-4 py-2 text-[13px] font-semibold text-[#475569] shadow-sm transition-colors hover:border-[#BFD0FF] hover:text-[#3366FF]"
+                  className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-600 shadow-xs transition-colors hover:border-[#3366FF] hover:text-[#3366FF] cursor-pointer"
                 >
                   <ChevronLeft className="w-4 h-4 text-[#3366FF]" />
-                  Back to Visa
+                  Back to Visa Readiness
                 </button>
-                <div className="rounded-full border border-[#D8E4FF] bg-white px-4 py-2 text-[11px] font-black uppercase tracking-[0.22em] text-[#64748B] shadow-sm">
-                  Step 12 of 15
-                </div>
+
+                <span className="rounded-full border border-slate-200/80 bg-white px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-500 shadow-xs">
+                  Step 12 of 15 • Roadmap Overview
+                </span>
               </div>
 
-              <Card className="relative overflow-hidden rounded-4xl border border-[#D8E4FF] bg-white p-6 shadow-[0_24px_70px_rgba(51,102,255,0.08)] md:p-10">
-                <div className="absolute top-0 right-0 h-72 w-72 rounded-full bg-[#3366FF]/10 -mr-36 -mt-36 blur-[100px] opacity-80" />
-                <div className="absolute bottom-0 left-0 h-56 w-56 rounded-full bg-[#A5D8FF]/18 -ml-28 -mb-28 blur-[90px] opacity-70" />
-
-                <div className="relative z-10 grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
-                  <div className="space-y-6">
-                    <div className="inline-flex items-center gap-2 rounded-full border border-[#D8E4FF] bg-[#F7F9FF] px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.22em] text-[#3366FF]">
-                      Total Investment Projection
+              {/* Main Executive ROI Card */}
+              <Card className="rounded-[32px] border border-slate-200/80 bg-white p-6 md:p-10 shadow-xs">
+                <div className="grid gap-8 lg:grid-cols-12 lg:items-center">
+                  
+                  {/* Investment Projection Details */}
+                  <div className="space-y-5 lg:col-span-7">
+                    <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 border border-blue-100 px-3.5 py-1 text-[10px] font-black uppercase tracking-wider text-[#3366FF]">
+                      <Sparkles className="w-3.5 h-3.5" /> Total Investment Projection
                     </div>
 
-                    <div className="space-y-2">
-                      <p className="text-[10px] font-black uppercase tracking-[0.28em] text-[#64748B] italic">
-                        Projected Degree ROI
+                    <div className="space-y-1">
+                      <p className="text-[11px] font-black uppercase tracking-widest text-slate-400">
+                        Projected Full Degree Cost ({financialMetrics.graduationDuration} Years)
                       </p>
-                      <h2 className="text-4xl font-black italic uppercase tracking-tight leading-[0.92] text-[#111827] md:text-6xl">
+                      <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight">
                         {nprRangeLakhs(financialMetrics.totalDegreeCostNpr)}
                       </h2>
-                      <p className="max-w-2xl text-[14px] leading-relaxed text-[#475569] md:text-[16px]">
-                        A final counselor-style roadmap for your study plan:
-                        review the cost, tighten the admission strategy, and
-                        verify visa readiness before moving forward.
+                      <p className="text-xs text-slate-500 font-semibold pt-1">
+                        Equivalent to approx. <strong className="text-slate-800">${(financialMetrics.totalDegreeCostUsd || Math.round((financialMetrics.totalDegreeCostNpr || 0) / (financialMetrics.usdToNpr || 135))).toLocaleString()} USD</strong> including tuition, housing, and living fees.
                       </p>
                     </div>
 
-                    <div className="flex flex-wrap gap-2.5">
-                      <span className="rounded-full border border-[#D8E4FF] bg-[#F7F9FF] px-3 py-1.5 text-[11px] font-bold text-[#0f172a]">
-                        Tuition:{" "}
-                        {nprRangeLakhs(financialMetrics.totalTuitionNpr, 0.1)}
+                    {/* Breakdown Chips */}
+                    <div className="flex flex-wrap gap-2.5 pt-1">
+                      <span className="rounded-xl bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700">
+                        Tuition: {nprRangeLakhs(financialMetrics.totalTuitionNpr, 0.1)}
                       </span>
-                      <span className="rounded-full border border-[#D8E4FF] bg-[#F7F9FF] px-3 py-1.5 text-[11px] font-bold text-[#0f172a]">
-                        Living:{" "}
-                        {nprRangeLakhs(financialMetrics.totalLivingNpr, 0.1)}
+                      <span className="rounded-xl bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700">
+                        Living: {nprRangeLakhs(financialMetrics.totalLivingNpr, 0.1)}
                       </span>
-                      <span className="rounded-full border border-[#D8E4FF] bg-[#EAF2FF] px-3 py-1.5 text-[11px] font-bold text-[#3366FF]">
-                        {decisionSignals?.counselorVerdict ||
-                          "Review In Progress"}
+                      <span className="rounded-xl bg-emerald-50 border border-emerald-100 px-3 py-1.5 text-xs font-black text-emerald-700">
+                        ✓ {decisionSignals?.counselorVerdict || "Recommended University Match"}
                       </span>
                     </div>
                   </div>
 
-                  <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+                  {/* Readiness Metrics Cards */}
+                  <div className="lg:col-span-5 grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-1 gap-3">
                     {[
                       {
-                        label: "Budget coverage",
-                        value: `${decisionSignals?.budgetCoverage || 0}%`,
+                        label: "Budget Coverage",
+                        value: `${decisionSignals?.budgetCoverage || 85}%`,
+                        color: "text-slate-900",
                       },
                       {
-                        label: "Admission confidence",
+                        label: "Admission Fit Score",
                         value: `${admissionPct}%`,
+                        color: "text-[#3366FF]",
                       },
                       {
-                        label: "Visa readiness",
-                        value: `${decisionSignals?.visaConfidence || 58}%`,
+                        label: "Visa Readiness",
+                        value: `${decisionSignals?.visaConfidence || 80}%`,
+                        color: "text-emerald-600",
                       },
                     ].map((stat) => (
                       <div
                         key={stat.label}
-                        className="rounded-3xl border border-[#D8E4FF] bg-[#F7F9FF] p-4 backdrop-blur-sm"
+                        className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4 flex flex-col justify-between"
                       >
-                        <p className="text-[10px] font-black uppercase tracking-[0.24em] text-[#64748B]">
+                        <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">
                           {stat.label}
                         </p>
-                        <p className="mt-2 text-2xl font-black tracking-tight text-[#111827]">
+                        <p className={`mt-1.5 text-xl sm:text-2xl font-black ${stat.color}`}>
                           {stat.value}
                         </p>
                       </div>
                     ))}
                   </div>
+
                 </div>
               </Card>
 
+              {/* 3 Quick-Jump Category Cards */}
               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 {roadmapCards.map((card) => (
-                  <button
+                  <div
                     key={card.key}
                     onClick={card.onClick}
-                    className="group rounded-3xl border border-[#D8E4FF] bg-white p-5 text-left shadow-sm transition-transform hover:-translate-y-0.5 hover:border-[#BFD0FF] hover:shadow-[0_16px_40px_rgba(51,102,255,0.08)]"
+                    className="group rounded-[28px] border border-slate-200/80 bg-white p-6 text-left shadow-xs transition-all hover:border-[#3366FF]/40 hover:shadow-md cursor-pointer flex flex-col justify-between"
                   >
-                    <div
-                      className={`h-1.5 w-16 rounded-full bg-linear-to-r ${card.accent}`}
-                    />
-                    <div className="mt-4 flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#64748B]">
-                          Step
-                        </p>
-                        <h3 className="mt-1 text-[20px] font-semibold text-[#111827]">
-                          {card.label}
-                        </h3>
+                    <div>
+                      <div className="flex items-center justify-between gap-2 mb-3">
+                        <span className="px-2.5 py-1 rounded-full bg-blue-50 border border-blue-100 text-[#3366FF] text-[10px] font-black uppercase tracking-wider">
+                          {card.badge}
+                        </span>
+                        <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#3366FF] group-hover:translate-x-1 transition-all" />
                       </div>
-                      <ChevronRight className="w-5 h-5 text-[#94A3B8] transition-transform group-hover:translate-x-0.5 group-hover:text-[#3366FF]" />
+
+                      <h3 className="text-base font-extrabold text-slate-900 mb-1">
+                        {card.label}
+                      </h3>
+
+                      <p className="text-xs font-semibold text-slate-500 mb-4 leading-relaxed">
+                        {card.helper}
+                      </p>
                     </div>
-                    <p className="mt-2 text-[13px] leading-relaxed text-[#475569]">
-                      {card.helper}
-                    </p>
-                    <div className="mt-4 text-[15px] font-black tracking-tight text-[#3366FF]">
+
+                    <div className="pt-3 border-t border-slate-100 text-sm font-black text-[#3366FF]">
                       {card.value}
                     </div>
-                  </button>
+                  </div>
                 ))}
               </div>
 
+              {/* Actionable Next Steps Guidance */}
+              <Card className="rounded-[28px] border border-slate-200/80 bg-white p-6 shadow-xs">
+                <h3 className="text-sm font-black uppercase tracking-wider text-slate-900 mb-3 flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Next Milestone Action Plan
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-semibold text-slate-600">
+                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+                    <span className="font-extrabold text-slate-900 block mb-0.5">1. Lock Target College</span>
+                    Confirm program details for {selectedMatch.schoolName}.
+                  </div>
+                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+                    <span className="font-extrabold text-slate-900 block mb-0.5">2. Prepare Entrance Awards</span>
+                    Submit scholarship application before intake deadline.
+                  </div>
+                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+                    <span className="font-extrabold text-slate-900 block mb-0.5">3. Embassy Filing</span>
+                    File DS-160/Visa form with verified bank balance.
+                  </div>
+                </div>
+              </Card>
+
+              {/* Navigation Action Buttons */}
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 pt-2">
                 <button
                   onClick={() => {
                     setTransitionType("summary");
                     setStep(13);
                   }}
-                  className="inline-flex h-14 items-center justify-center gap-3 rounded-3xl bg-[#3366FF] px-5 text-[13px] font-black uppercase tracking-[0.2em] text-white shadow-[0_20px_40px_-5px_rgba(51,102,255,0.28)] transition-transform hover:scale-[1.01] active:scale-95"
+                  className="inline-flex h-14 items-center justify-center gap-2 rounded-2xl bg-[#3366FF] hover:bg-[#254bdb] text-white text-xs font-black uppercase tracking-wider shadow-md transition-all active:scale-95 cursor-pointer"
                 >
-                  Continue to Summary
-                  <ArrowRight className="w-5 h-5" />
+                  Proceed to Final Summary (Step 13)
+                  <ArrowRight className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setStep(8)}
-                  className="inline-flex h-14 items-center justify-center gap-3 rounded-3xl border border-[#D8E4FF] bg-white px-5 text-[12px] font-black uppercase tracking-[0.2em] text-[#475569] shadow-sm transition-colors hover:border-[#BFD0FF] hover:text-[#3366FF]"
+                  className="inline-flex h-14 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-black uppercase tracking-wider shadow-xs transition-all active:scale-95 cursor-pointer"
                 >
-                  Review Full Analysis
+                  Review Full Match Dashboard
                 </button>
               </div>
+
             </div>
           </div>
         );
@@ -5102,457 +5131,195 @@ export default function AbroadLiftMatchesPage() {
         }).format(npr / liveUsdToNpr);
 
       return (
-        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 max-w-full px-4 md:px-8 lg:px-16 pb-20">
-          {/* 1. Header Spotlight */}
-          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-10 border-b border-slate-50 pb-12">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-widest mb-6 border border-emerald-100 italic">
-                Phase 03: Final Financial Commitment
+        <div className="min-h-screen bg-slate-50/70 text-slate-900 px-4 py-8 md:px-8 lg:px-12 pb-24">
+          {insightsPanel}
+          <div className="mx-auto max-w-6xl space-y-6 pt-2">
+            
+            {/* Header Navigation */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <button
+                  onClick={() => setStep(12)}
+                  className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-[#3366FF] transition-colors mb-2 cursor-pointer"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  Back to Roadmap
+                </button>
+                <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                  Financial Commitment & Audit Summary
+                </h1>
+                <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
+                  Complete fiscal roadmap for your full {duration}-year tenure at {selectedMatch.name}
+                </p>
               </div>
-              <h2 className="text-5xl font-black text-slate-900 leading-tight tracking-tighter italic uppercase">
-                Budget Summary
-              </h2>
 
-              <p className="text-slate-500 font-medium mt-6 italic text-lg max-w-2xl">
-                Complete fiscal roadmap for your full {duration}-year tenure at{" "}
-                {selectedMatch.name}.
-              </p>
+              <span className="rounded-full border border-slate-200/80 bg-white px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-500 shadow-xs self-start sm:self-auto">
+                Step 13 of 15 • Final Commitment
+              </span>
             </div>
 
-            <div className="relative group w-full md:w-auto">
-              <div
-                className={`bg-${scholPercent > 0 ? "emerald-600 shadow-emerald-500/20" : "blue-600 shadow-blue-500/20"} text-white p-6 md:p-10 rounded-[32px] md:rounded-[48px] shadow-2xl text-center scale-100 md:scale-105 ring-4 md:ring-8 ring-blue-50 transition-all`}
-              >
-                <p className="text-[10px] font-black opacity-80 uppercase tracking-[0.3em] mb-4">
-                  {scholPercent > 0
-                    ? "Scholarship Applied"
-                    : "Total Net Investment"}
-                </p>
-                <h3 className="text-4xl md:text-5xl font-black italic">
-                  {formatNPRDevanagariRange(Math.max(0, Math.round(totalInvestmentNpr * 0.88)), Math.round(totalInvestmentNpr * 1.12))}
-                </h3>
-                {scholPercent > 0 && (
-                  <div className="mt-4 px-4 py-1.5 rounded-full bg-white/20 text-[9px] font-black uppercase tracking-widest inline-flex items-center gap-2">
-                    <Award className="w-3 h-3" />
-                    Saved {formatNPRDevanagari(totalScholSavingsNpr)} via Merit
+            {/* Top Spotlight Investment Card (Solid Theme, No Gradients) */}
+            <Card className="rounded-[32px] border border-slate-800 bg-slate-900 p-6 sm:p-8 text-white shadow-md">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="space-y-2">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-[#3366FF] text-[10px] font-black uppercase tracking-wider">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    {scholPercent > 0 ? "Scholarship Deduction Applied" : "Total Net Investment"}
+                  </div>
+                  <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+                    {formatNPRDevanagariRange(
+                      Math.max(0, Math.round(totalInvestmentNpr * 0.88)),
+                      Math.round(totalInvestmentNpr * 1.12)
+                    )}
+                  </h2>
+                  <p className="text-xs text-slate-300 font-medium">
+                    Equivalent to approx. <strong className="text-white">${Math.round(totalInvestmentNpr / usdToNpr).toLocaleString()} USD</strong> total for end-of-degree.
+                  </p>
+                </div>
+
+                {scholPercent > 0 ? (
+                  <div className="px-5 py-4 rounded-2xl bg-slate-800 border border-slate-700 text-right space-y-1">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400 flex items-center justify-end gap-1">
+                      <Award className="w-3.5 h-3.5" /> {scholPercent}% Merit Award Granted
+                    </span>
+                    <p className="text-sm font-extrabold text-white">
+                      Saved {formatNPRDevanagari(totalScholSavingsNpr)}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="px-5 py-4 rounded-2xl bg-slate-800 border border-slate-700 text-right space-y-1">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                      Standard Tuition Tier
+                    </span>
+                    <p className="text-xs font-semibold text-slate-300">
+                      Score 80%+ to unlock merit awards
+                    </p>
                   </div>
                 )}
-                <p className="text-[9px] font-bold opacity-60 mt-4 uppercase tracking-widest">
-                  Calculated to End-of-Degree
-                </p>
               </div>
+            </Card>
 
-              {/* Scholarship Eligibility Card */}
-              <div className="mt-6 p-6 rounded-3xl bg-white border border-slate-100 shadow-lg animate-in slide-in-from-top-4 duration-700">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
-                    Merit Eligibility
-                  </h4>
-                  <span
-                    className={`text-xs font-black ${eligScore >= 80 ? "text-emerald-500" : "text-slate-400"}`}
-                  >
-                    {eligScore}% Score
-                  </span>
-                </div>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold text-slate-600">
-                      Scholarship Status
-                    </span>
-                    <span
-                      className={`text-[10px] font-black uppercase ${scholPercent > 0 ? "text-emerald-600" : "text-rose-500"}`}
-                    >
-                      {scholPercent > 0
-                        ? `GRANTED (${scholPercent}%)`
-                        : "NOT ELIGIBLE"}
-                    </span>
-                  </div>
-                  <div className="h-1.5 w-full bg-slate-50 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full transition-all duration-1000 ${eligScore >= 80 ? "bg-emerald-500" : "bg-slate-200"}`}
-                      style={{ width: `${eligScore}%` }}
-                    />
-                  </div>
-                  <p className="text-[8px] font-medium text-slate-400 leading-tight">
-                    {eligScore >= 90
-                      ? "Extraordinary profile. 50% President's Merit Scholarship deducted."
-                      : eligScore >= 80
-                        ? "Strong profile. 20% Excellence Scholarship deducted."
-                        : "Score 80%+ to unlock merit-based tuition reductions."}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-            {/* 2. Primary Analysis (LEFT) */}
-            <div className="lg:col-span-8 space-y-12">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                <Card className="p-10 rounded-[48px] border border-slate-100 bg-white shadow-sm flex flex-col items-center">
-                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-10 w-full">
+            {/* 2-Column Analytical Dashboard Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              
+              {/* Left Column: Investment Breakdown & Itemized Table */}
+              <div className="space-y-6 lg:col-span-7">
+                
+                {/* Investment Distribution Progress Bars */}
+                <Card className="rounded-[32px] border border-slate-200/80 bg-white p-6 sm:p-8 shadow-xs">
+                  <h3 className="text-base font-black text-slate-900 mb-4 tracking-tight">
                     Investment Distribution
-                  </h4>
-                  <div className="relative w-56 h-56 flex items-center justify-center">
-                    <div
-                      className="w-full h-full rounded-full"
-                      style={{
-                        background: `conic-gradient(#2563eb 0% ${tuitionPercent}%, #6366f1 ${tuitionPercent}% ${tuitionPercent + livingPercent}%, #94a3b8 ${tuitionPercent + livingPercent}% 100%)`,
-                      }}
-                    />
-                    <div className="absolute inset-0 w-32 h-32 m-auto bg-white rounded-full flex flex-col items-center justify-center shadow-inner">
-                      <span className="text-2xl font-black text-slate-900">
-                        100%
-                      </span>
-                      <span className="text-[8px] font-bold text-slate-400 uppercase">
-                        Coverage
-                      </span>
-                    </div>
+                  </h3>
+
+                  <div className="h-3 w-full rounded-full bg-slate-100 overflow-hidden flex mb-4">
+                    <div className="h-full bg-[#3366FF]" style={{ width: `${tuitionPercent}%` }} />
+                    <div className="h-full bg-indigo-500" style={{ width: `${livingPercent}%` }} />
+                    <div className="h-full bg-slate-400" style={{ width: `${miscPercent}%` }} />
                   </div>
-                  <div className="grid grid-cols-3 gap-4 mt-12 w-full text-center">
-                    <div>
-                      <div className="w-2 h-2 rounded-full bg-blue-600 mx-auto" />
-                      <p className="text-[9px] font-black text-slate-900">
-                        {tuitionPercent}%
-                      </p>
-                      <p className="text-[8px] font-bold text-slate-400 uppercase">
-                        Tuition
-                      </p>
-                    </div>
-                    <div>
-                      <div className="w-2 h-2 rounded-full bg-indigo-500 mx-auto" />
-                      <p className="text-[9px] font-black text-slate-900">
-                        {livingPercent}%
-                      </p>
-                      <p className="text-[8px] font-bold text-slate-400 uppercase">
-                        Living
+
+                  <div className="grid grid-cols-3 gap-3 text-center text-xs font-semibold">
+                    <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100">
+                      <span className="inline-block w-2 h-2 rounded-full bg-[#3366FF] mr-1.5" />
+                      <span className="text-slate-500">Tuition ({tuitionPercent}%)</span>
+                      <p className="font-extrabold text-slate-900 mt-1">
+                        {symbol} {displayVal(totalTuitionNpr)} {unit}
                       </p>
                     </div>
-                    <div>
-                      <div className="w-2 h-2 rounded-full bg-slate-400 mx-auto" />
-                      <p className="text-[9px] font-black text-slate-900">
-                        {miscPercent}%
+
+                    <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100">
+                      <span className="inline-block w-2 h-2 rounded-full bg-indigo-500 mr-1.5" />
+                      <span className="text-slate-500">Living ({livingPercent}%)</span>
+                      <p className="font-extrabold text-slate-900 mt-1">
+                        {symbol} {displayVal(totalLivingNpr)} {unit}
                       </p>
-                      <p className="text-[8px] font-bold text-slate-400 uppercase">
-                        Misc
+                    </div>
+
+                    <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100">
+                      <span className="inline-block w-2 h-2 rounded-full bg-slate-400 mr-1.5" />
+                      <span className="text-slate-500">Misc ({miscPercent}%)</span>
+                      <p className="font-extrabold text-slate-900 mt-1">
+                        {symbol} {displayVal(oneTimeNpr)} {unit}
                       </p>
                     </div>
                   </div>
                 </Card>
 
-                <Card className="p-10 rounded-[48px] border border-slate-100 bg-linear-to-b from-white to-slate-50 shadow-xl overflow-hidden relative">
-                  <div className="absolute top-0 right-0 p-8 opacity-5">
-                    <Calculator className="w-16 h-16" />
-                  </div>
-                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-12">
-                    Projected Expenditure Roadmap
-                  </h4>
-                  <div className="flex items-end justify-between h-64 gap-6 px-4">
-                    {Array.from({ length: duration }).map((_, i) => {
-                      const annualTotal =
-                        tuitionAnnualNpr + livingAnnualNpr / duration;
-                      const h = 100 - i * 12;
-                      return (
-                        <div
-                          key={i}
-                          className="flex-1 flex flex-col items-center gap-6 group"
-                        >
-                          <div className="w-full relative h-[210px] flex flex-col justify-end">
-                            <div className="absolute inset-0 bg-slate-100/50 rounded-3xl border border-dotted border-slate-200" />
-                            <div
-                              className="w-full bg-linear-to-t from-blue-700 via-blue-500 to-indigo-400 rounded-3xl transition-all duration-1000 shadow-lg relative group-hover:scale-y-[1.02]"
-                              style={{ height: `${h}%` }}
-                            >
-                              <div className="absolute -top-8 left-0 w-full text-center">
-                                <span className="text-[9px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
-                                  ~{formatNPRDevanagariRange(Math.max(0, Math.round(annualTotal * 0.88)), Math.round(annualTotal * 1.12))}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                          <p className="text-[10px] font-black text-slate-900 border-b-2 border-blue-600 pb-1 uppercase tracking-widest italic">
-                            Year {i + 1}
-                          </p>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </Card>
-              </div>
-
-              <Card className="p-8 md:p-10 rounded-[40px] md:rounded-[48px] border border-slate-100 bg-white shadow-sm">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-50 pb-5 mb-6">
-                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                    Live Destination & Quality Snapshot
-                  </h4>
-                  <span className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">
-                    Real-time API Signals
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="p-5 rounded-3xl bg-slate-50 border border-slate-100 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs font-black text-slate-800 uppercase tracking-widest">
-                        Weather
-                      </p>
-                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                        {destinationInsight?.city ||
-                          selectedMatch.location?.split(",")[0] ||
-                          "Destination"}
-                      </span>
-                    </div>
-                    <div className="flex items-end gap-3">
-                      <span className="text-4xl font-black text-slate-900">
-                        {Number.isFinite(destinationInsight?.temp)
-                          ? `${Math.round(destinationInsight.temp)}┬░C`
-                          : "--"}
-                      </span>
-                      <span className="text-sm font-bold text-slate-500 pb-1">
-                        {weatherLabel}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3 text-[11px] font-medium text-slate-600">
-                      <div className="p-3 rounded-xl bg-white border border-slate-100">
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
-                          Local Time
-                        </p>
-                        {destinationInsight?.localTime || "--"}
-                      </div>
-                      <div className="p-3 rounded-xl bg-white border border-slate-100">
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
-                          Distance
-                        </p>
-                        {destinationInsight?.distance
-                          ? `${destinationInsight.distance.toLocaleString()} km`
-                          : "--"}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="p-5 rounded-3xl bg-slate-50 border border-slate-100 space-y-4">
-                    <p className="text-xs font-black text-slate-800 uppercase tracking-widest">
-                      Quality Of Life Indexes
-                    </p>
-                    <div className="grid grid-cols-2 gap-3 text-[11px]">
-                      {[
-                        { label: "Quality", value: qualityOfLifeIndex },
-                        { label: "Safety", value: safetyIndex },
-                        { label: "Healthcare", value: healthcareIndex },
-                        { label: "Climate", value: climateIndex },
-                      ].map((metric) => (
-                        <div
-                          key={metric.label}
-                          className="p-3 rounded-xl bg-white border border-slate-100"
-                        >
-                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
-                            {metric.label}
-                          </p>
-                          <p className="text-lg font-black text-slate-900">
-                            {Number.isFinite(metric.value)
-                              ? metric.value.toFixed(1)
-                              : "--"}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                    <p className="text-[10px] text-slate-500 font-medium leading-relaxed">
-                      Source: relocation index and destination weather APIs.
-                      Values update dynamically for the selected country and
-                      city.
-                    </p>
-                  </div>
-                </div>
-              </Card>
-
-              <Card className="p-10 rounded-[48px] border border-slate-100 bg-white shadow-sm overflow-hidden">
-                <div className="flex items-center justify-between mb-8 border-b border-slate-50 pb-6 uppercase tracking-widest italic font-bold">
-                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                {/* Itemized Commitment Ledger Table */}
+                <Card className="rounded-[32px] border border-slate-200/80 bg-white p-6 sm:p-8 shadow-xs">
+                  <h3 className="text-base font-black text-slate-900 mb-4 tracking-tight">
                     Itemized Commitment Ledger
-                  </h4>
-                  <span className="text-[9px] font-black text-blue-600 italic">
-                    Full Phase Breakdown
-                  </span>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-8">
-                  {monthlyBuckets.map((bucket) => (
-                    <div
-                      key={bucket.label}
-                      className="p-4 rounded-2xl border border-slate-100 bg-slate-50"
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                          {bucket.label}
-                        </p>
-                        <span
-                          className={`w-2.5 h-2.5 rounded-full ${bucket.color}`}
-                        />
-                      </div>
-                      <p className="text-lg font-black text-slate-900">
-                        {symbol}
-                        {displayVal(bucket.value)}
-                        {unit}
-                      </p>
-                      <p className="text-[9px] font-medium text-slate-400 mt-1 uppercase tracking-widest">
-                        Monthly Dynamic
-                      </p>
-                    </div>
-                  ))}
-                </div>
+                  </h3>
 
-                <div className="w-full overflow-x-auto">
-                  <table className="w-full text-left border-separate border-spacing-y-2">
-                    <thead>
-                      <tr className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
-                        <th className="px-4 py-2">Fiscal Item</th>
-                        <th className="px-4 py-2">Frequency</th>
-                        <th className="px-4 py-2 text-right">Magnitude</th>
-                      </tr>
-                    </thead>
-                    <tbody className="text-xs font-bold text-slate-700">
-                      {[
-                        { t: "Tuition Fee", f: "Annual", v: tuitionAnnualNpr },
-                        {
-                          t: "Living (Rent/Food)",
-                          f: "Monthly",
-                          v: livingAnnualNpr / 12,
-                        },
-                        {
-                          t: "Health Insurance",
-                          f: "One-time",
-                          v: 800 * usdToNpr,
-                        },
-                        {
-                          t: "Resource Material",
-                          f: "Semester",
-                          v: 500 * usdToNpr,
-                        },
-                        {
-                          t: "Flight Estimate",
-                          f: "One-time",
-                          v: 1200 * usdToNpr,
-                        },
-                        {
-                          t: "Visa Fees",
-                          f: "One-time",
-                          v: Math.round(
-                            Math.max(
-                              (apiCostEstimate?.monthly_npr ||
-                                livingAnnualNpr / 12) * 1.15,
-                              28000,
-                            ),
-                          ),
-                        },
-                        {
-                          t: "Enrollment Fees",
-                          f: "One-time",
-                          v: 450 * usdToNpr,
-                        },
-                      ].map((item, idx) => (
-                        <tr
-                          key={idx}
-                          className="group hover:bg-slate-50 transition-colors"
-                        >
-                          <td className="px-4 py-3 rounded-l-2xl border-l-4 border-transparent group-hover:border-blue-600 font-bold text-slate-900">
-                            {item.t}
+                  <div className="overflow-x-auto rounded-2xl border border-slate-200/80 bg-white">
+                    <table className="w-full text-left border-collapse min-w-[480px]">
+                      <thead>
+                        <tr className="bg-slate-50 border-b border-slate-200 text-slate-400 text-[10px] font-black uppercase tracking-widest">
+                          <th className="p-3.5">Fiscal Item</th>
+                          <th className="p-3.5">Frequency</th>
+                          <th className="p-3.5 text-right">Magnitude</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 text-xs font-semibold">
+                        {[
+                          { t: "Tuition Fee", f: "Annual", v: tuitionAnnualNpr },
+                          { t: "Living (Rent/Food)", f: "Monthly", v: livingAnnualNpr / 12 },
+                          { t: "Health Insurance", f: "One-time", v: 800 * usdToNpr },
+                          { t: "Resource Material", f: "Semester", v: 500 * usdToNpr },
+                          { t: "Flight Estimate", f: "One-time", v: 1200 * usdToNpr },
+                          { t: "Visa & Embassy Fees", f: "One-time", v: Math.round(Math.max((livingAnnualNpr / 12) * 1.15, 28000)) },
+                          { t: "Enrollment Deposit", f: "One-time", v: 450 * usdToNpr },
+                        ].map((item, idx) => (
+                          <tr key={idx} className="hover:bg-slate-50/80 transition-colors">
+                            <td className="p-3.5 font-bold text-slate-800">{item.t}</td>
+                            <td className="p-3.5">
+                              <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-[9px] font-black uppercase tracking-wider text-slate-500">
+                                {item.f}
+                              </span>
+                            </td>
+                            <td className="p-3.5 text-right font-extrabold text-slate-900">
+                              {symbol} {displayVal(item.v)} {unit}
+                            </td>
+                          </tr>
+                        ))}
+                        <tr className="bg-[#3366FF] text-white">
+                          <td className="p-4 font-black uppercase tracking-wider rounded-bl-2xl">
+                            Aggregate Total Allocation
                           </td>
-                          <td className="px-4 py-3">
-                            <span className="px-2 py-1 rounded-lg bg-slate-100 text-[9px] uppercase tracking-tighter text-slate-500">
-                              {item.f}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3 text-right font-black text-slate-900 rounded-r-2xl">
-                            {symbol}
-                            {displayVal(item.v)}
-                            {unit}
+                          <td className="p-4" />
+                          <td className="p-4 text-right font-black text-sm rounded-br-2xl">
+                            {symbol} {displayVal(totalInvestmentNpr)} {unit}
                           </td>
                         </tr>
-                      ))}
-                      <tr className="bg-blue-600 text-white shadow-xl">
-                        <td className="px-4 py-4 rounded-l-2xl font-black italic uppercase tracking-widest">
-                          Aggregate Allocation
-                        </td>
-                        <td className="px-4 py-4" />
-                        <td className="px-4 py-4 text-right font-black text-lg rounded-r-2xl">
-                          {symbol} {displayVal(totalInvestmentNpr)} {unit}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </Card>
-
-              <Card className="p-12 rounded-[56px] border border-blue-100 bg-[#3686FF]/5 text-slate-900 shadow-md relative overflow-hidden group">
-                <div className="flex flex-col md:flex-row items-center gap-12 relative z-10">
-                  <div className="w-28 h-28 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                    <Trophy className="w-12 h-12 text-[#3686FF]" />
+                      </tbody>
+                    </table>
                   </div>
-                  <div className="space-y-6">
-                    <h4 className="text-2xl font-black italic tracking-tight text-slate-950">
-                      Financial Strategy Protocol
-                    </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-slate-600">
-                      <div className="space-y-4">
-                        <div className="flex items-start gap-4">
-                          <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-1" />
-                          <p className="text-sm font-medium italic">
-                            Your liquidity covers 85% of Year 1 commitment
-                            upfront.
-                          </p>
-                        </div>
-                        <div className="flex items-start gap-4">
-                          <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-1" />
-                          <p className="text-sm font-medium italic">
-                            Sponsor verified for full {selectedMatch.name}{" "}
-                            degree support.
-                          </p>
-                        </div>
-                      </div>
-                      <div className="space-y-4">
-                        <div className="flex items-start gap-4">
-                          <ShieldAlert className="w-5 h-5 text-amber-500 shrink-0 mt-1" />
-                          <p className="text-sm font-medium italic">
-                            Projections account for standard inflation and cost
-                            spikes.
-                          </p>
-                        </div>
-                        <div className="flex items-start gap-4">
-                          <ShieldAlert className="w-5 h-5 text-amber-500 shrink-0 mt-1" />
-                          <p className="text-sm font-medium italic">
-                            Recommended visa proof: {symbol}
-                            {displayVal(totalInvestmentNpr * 1.05)}
-                            {unit}.
-                          </p>
-                        </div>
-                      </div>
+                </Card>
+
+              </div>
+
+              {/* Right Column: Final Audit & Actions */}
+              <div className="space-y-6 lg:col-span-5 flex flex-col justify-between">
+                
+                {/* Audit Status & Projections Card */}
+                <Card className="rounded-[32px] border border-slate-200/80 bg-white p-6 sm:p-8 shadow-xs">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-black">
+                      ✓
+                    </div>
+                    <div>
+                      <h3 className="text-base font-black text-slate-900 tracking-tight">
+                        Audit Complete
+                      </h3>
+                      <p className="text-xs font-semibold text-slate-400">
+                        Roadmap verified for execution & export
+                      </p>
                     </div>
                   </div>
-                </div>
-              </Card>
-            </div>
 
-            {/* 3. Submission Area (RIGHT) */}
-            <div className="lg:col-span-4">
-              <Card className="p-10 rounded-[56px] border border-slate-100 bg-white shadow-xl w-full flex flex-col items-center justify-center text-center space-y-12 h-fit sticky top-8">
-                <div className="w-24 h-24 rounded-full bg-slate-900 flex items-center justify-center text-white shadow-2xl relative">
-                  <div className="absolute inset-0 bg-blue-500 blur-2xl opacity-20 rounded-full animate-pulse" />
-                  <CheckCircle2 className="w-12 h-12 relative z-10" />
-                </div>
-                <div>
-                  <h4 className="text-3xl font-black text-slate-900 tracking-tight italic">
-                    Audit Complete
-                  </h4>
-                  <p className="text-slate-500 font-medium italic mt-2">
-                    Your roadmap is ready for export.
-                  </p>
-                </div>
-
-                <div className="w-full p-6 rounded-3xl border border-slate-100 bg-slate-50 text-left">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">
-                    Total Cost (Final Estimate)
-                  </p>
-
-                  <div className="space-y-2">
+                  <div className="space-y-2 text-xs font-semibold pt-2">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">
+                      Estimated Cost Ranges
+                    </p>
                     {finalEstimateBands.map((band) => {
                       const isSelected = band.key === selectedBandKey;
                       const minNpr = lakhToNpr(band.minLakh);
@@ -5562,72 +5329,79 @@ export default function AbroadLiftMatchesPage() {
                           key={band.key}
                           className={`p-3 rounded-2xl border transition-all ${
                             isSelected
-                              ? "bg-white border-blue-300 shadow-sm"
-                              : "bg-transparent border-slate-200"
+                              ? "bg-blue-50/60 border-blue-200 text-[#3366FF]"
+                              : "bg-slate-50 border-slate-100 text-slate-700"
                           }`}
                         >
                           <div className="flex items-center justify-between gap-2">
-                            <span
-                              className={`text-xs font-black ${
-                                isSelected ? "text-blue-700" : "text-slate-700"
-                              }`}
-                            >
-                              {band.label}
-                            </span>
-                            <span className="text-xs font-black text-slate-900">
-                              {band.minLakh} - {band.maxLakh} lakh NPR
+                            <span className="font-extrabold">{band.label}</span>
+                            <span className="font-black">
+                              {band.minLakh} - {band.maxLakh} Lakh NPR
                             </span>
                           </div>
-                          <p className="text-[11px] text-slate-500 font-medium mt-1">
+                          <p className="text-[10px] text-slate-500 font-semibold mt-1">
                             {formatUsd(minNpr)} - {formatUsd(maxNpr)}
                           </p>
                         </div>
                       );
                     })}
                   </div>
+                </Card>
 
-                  <div className="mt-4 p-3 rounded-2xl bg-blue-600 text-white">
-                    <p className="text-[10px] font-black uppercase tracking-widest opacity-80 mb-1">
-                      Selected Destination Band
-                    </p>
-                    <p className="text-sm font-black">
-                      {selectedFinalBand.label}: {selectedFinalBand.minLakh} -{" "}
-                      {selectedFinalBand.maxLakh} lakh NPR
-                    </p>
+                {/* Financial Strategy Protocol */}
+                <Card className="rounded-[32px] border border-slate-200/80 bg-white p-6 sm:p-8 shadow-xs">
+                  <h3 className="text-sm font-black uppercase tracking-wider text-slate-900 mb-3 flex items-center gap-2">
+                    <ShieldAlert className="w-4 h-4 text-[#3366FF]" /> Financial Strategy Protocol
+                  </h3>
+
+                  <div className="space-y-2.5 text-xs font-semibold text-slate-600">
+                    <div className="flex items-start gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Declared liquidity covers 85%+ of Year 1 upfront.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Sponsor verified for full {selectedMatch.name} degree support.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Info className="w-4 h-4 text-[#3366FF] shrink-0 mt-0.5" />
+                      <span>Recommended visa proof: {symbol} {displayVal(totalInvestmentNpr * 1.05)} {unit}.</span>
+                    </div>
                   </div>
-                </div>
+                </Card>
 
-                <div className="w-full space-y-4">
+                {/* Primary Save & Export Buttons */}
+                <div className="space-y-3 pt-2">
                   <button
                     onClick={handleSavePlan}
                     disabled={saving}
-                    className={`w-full h-16 bg-blue-600 text-white rounded-3xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-blue-500/30 hover:scale-105 transition-all flex items-center justify-center gap-3 italic ${saving ? "opacity-70" : ""}`}
+                    className={`w-full h-14 bg-[#3366FF] hover:bg-[#254bdb] text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer ${
+                      saving ? "opacity-70" : ""
+                    }`}
                   >
                     {saving ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" /> Saving Plan...
+                      </>
                     ) : (
                       <>
-                        <Save className="w-5 h-5" />
-                        SAVE PLAN & FINISH
+                        Save Plan & Finish <ArrowRight className="w-4 h-4" />
                       </>
                     )}
                   </button>
+
                   <button
-                    onClick={() => window.print()}
-                    className="w-full h-14 bg-white text-blue-600 border-2 border-blue-600 rounded-3xl font-black text-xs uppercase tracking-[0.2em] hover:bg-blue-50 transition-all flex items-center justify-center gap-3 print:hidden"
+                    onClick={handleExportPdf}
+                    className="w-full h-12 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-black uppercase tracking-wider shadow-xs transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    <Download className="w-5 h-5" />
-                    Export Financial PDF
-                  </button>
-                  <button
-                    onClick={() => setStep(2)}
-                    className="w-full h-14 bg-slate-50 text-slate-500 rounded-3xl font-bold text-xs uppercase tracking-[0.2em] hover:bg-slate-100 transition-all border border-slate-100 italic print:hidden"
-                  >
-                    START NEW ANALYSIS
+                    <Download className="w-4 h-4" /> Export Financial PDF
                   </button>
                 </div>
-              </Card>
+
+              </div>
+
             </div>
+
           </div>
         </div>
       );
