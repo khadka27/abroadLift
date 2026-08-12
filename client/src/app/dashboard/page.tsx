@@ -309,8 +309,10 @@ function DashboardInner() {
 
   const isNegativeVal = (val: string | number | undefined | null): boolean => {
     if (val === undefined || val === null || val === "") return false;
-    const num = typeof val === "number" ? val : parseFloat(val.toString());
-    return !isNaN(num) && num < 0;
+    const str = val.toString().trim();
+    if (!/^\-?[0-9]+(\.[0-9]+)?$/.test(str)) return true;
+    const num = parseFloat(str);
+    return isNaN(num) || num < 0;
   };
 
   // Text-Only Validation: Letters, spaces, hyphens, dots, apostrophes ONLY.
@@ -366,7 +368,9 @@ function DashboardInner() {
 
   const isValidPassingYear = (yearStr: string | undefined | null): boolean => {
     if (!yearStr || !yearStr.trim()) return true;
-    const year = parseInt(yearStr.trim(), 10);
+    const str = yearStr.trim();
+    if (!/^[0-9]{4}$/.test(str)) return false;
+    const year = parseInt(str, 10);
     if (isNaN(year)) return false;
     const currentYear = new Date().getFullYear();
     return year >= 1970 && year <= currentYear + 10;
@@ -374,7 +378,9 @@ function DashboardInner() {
 
   const isValidGpaValue = (gpaStr: string | undefined | null): boolean => {
     if (!gpaStr || !gpaStr.trim()) return true;
-    const num = parseFloat(gpaStr.replace("%", "").trim());
+    const str = gpaStr.trim();
+    if (!/^[0-9]+(\.[0-9]{1,3})?%?$/.test(str)) return false;
+    const num = parseFloat(str.replace("%", ""));
     if (isNaN(num) || num < 0) return false;
     return num <= 100;
   };
@@ -4678,8 +4684,18 @@ function DashboardInner() {
                                       type="text"
                                       value={editForm.countryOfEducation}
                                       onChange={(e) => setEditForm({ ...editForm, countryOfEducation: e.target.value })}
-                                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
+                                      placeholder="e.g. Nepal, USA"
+                                      className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
+                                        !isValidTextOnly(editForm.countryOfEducation)
+                                          ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
+                                          : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
+                                      }`}
                                     />
+                                    {!isValidTextOnly(editForm.countryOfEducation) && (
+                                      <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
+                                        <span>⚠️ Country of education must contain text only (numbers and special characters are not allowed)</span>
+                                      </p>
+                                    )}
                                   </label>
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Graduation Status</span>
@@ -4708,7 +4724,7 @@ function DashboardInner() {
                                     />
                                     {!isValidPassingYear(editForm.passingYear) && (
                                       <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
-                                        <span>⚠️ Please enter a valid graduation year (1970 - 2035)</span>
+                                        <span>⚠️ Graduation year must be a 4-digit number (1970 - 2035, numbers only)</span>
                                       </p>
                                     )}
                                   </label>
@@ -4720,54 +4736,52 @@ function DashboardInner() {
                                       onChange={(e) => setEditForm({ ...editForm, gpa: e.target.value })}
                                       placeholder="e.g. 3.75 or 85%"
                                       className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
-                                        isNegativeVal(editForm.gpa) || !isValidGpaValue(editForm.gpa)
+                                        !isValidGpaValue(editForm.gpa) || isNegativeVal(editForm.gpa)
                                           ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
                                           : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
                                       }`}
                                     />
-                                    {(isNegativeVal(editForm.gpa) || !isValidGpaValue(editForm.gpa)) && (
+                                    {(!isValidGpaValue(editForm.gpa) || isNegativeVal(editForm.gpa)) && (
                                       <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
-                                        <span>⚠️ GPA / percentage cannot be negative or exceed 100% / 5.0 scale</span>
+                                        <span>⚠️ Academic score must contain numbers only (e.g. 3.75 or 85%, letters are not allowed)</span>
                                       </p>
                                     )}
                                   </label>
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Number of Backlogs</span>
                                     <input
-                                      type="number"
-                                      min="0"
-                                      max="50"
+                                      type="text"
                                       value={editForm.backlogs}
                                       onChange={(e) => setEditForm({ ...editForm, backlogs: e.target.value })}
+                                      placeholder="e.g. 0"
                                       className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
-                                        isNegativeVal(editForm.backlogs) || (editForm.backlogs && parseInt(editForm.backlogs) > 50)
+                                        !isValidDigitsOnly(editForm.backlogs) || isNegativeVal(editForm.backlogs) || (editForm.backlogs && parseInt(editForm.backlogs, 10) > 50)
                                           ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
                                           : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
                                       }`}
                                     />
-                                    {(isNegativeVal(editForm.backlogs) || (editForm.backlogs && parseInt(editForm.backlogs) > 50)) && (
+                                    {(!isValidDigitsOnly(editForm.backlogs) || isNegativeVal(editForm.backlogs) || (editForm.backlogs && parseInt(editForm.backlogs, 10) > 50)) && (
                                       <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
-                                        <span>⚠️ Backlogs count cannot be negative or exceed 50</span>
+                                        <span>⚠️ Backlogs count must be a number (0 to 50, letters are not allowed)</span>
                                       </p>
                                     )}
                                   </label>
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Study Gap (Years)</span>
                                     <input
-                                      type="number"
-                                      min="0"
-                                      max="30"
+                                      type="text"
                                       value={editForm.studyGap}
                                       onChange={(e) => setEditForm({ ...editForm, studyGap: e.target.value })}
+                                      placeholder="e.g. 0"
                                       className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
-                                        isNegativeVal(editForm.studyGap) || (editForm.studyGap && parseInt(editForm.studyGap) > 30)
+                                        !isValidDigitsOnly(editForm.studyGap) || isNegativeVal(editForm.studyGap) || (editForm.studyGap && parseInt(editForm.studyGap, 10) > 30)
                                           ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
                                           : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
                                       }`}
                                     />
-                                    {(isNegativeVal(editForm.studyGap) || (editForm.studyGap && parseInt(editForm.studyGap) > 30)) && (
+                                    {(!isValidDigitsOnly(editForm.studyGap) || isNegativeVal(editForm.studyGap) || (editForm.studyGap && parseInt(editForm.studyGap, 10) > 30)) && (
                                       <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
-                                        <span>⚠️ Study gap cannot be negative or exceed 30 years</span>
+                                        <span>⚠️ Study gap must be a number of years (0 to 30, letters are not allowed)</span>
                                       </p>
                                     )}
                                   </label>
@@ -4790,8 +4804,17 @@ function DashboardInner() {
                                       value={editForm.preferredCountry}
                                       onChange={(e) => setEditForm({ ...editForm, preferredCountry: e.target.value })}
                                       placeholder="e.g. Canada, USA, UK"
-                                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
+                                      className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
+                                        !isValidTextOnly(editForm.preferredCountry)
+                                          ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
+                                          : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
+                                      }`}
                                     />
+                                    {!isValidTextOnly(editForm.preferredCountry) && (
+                                      <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
+                                        <span>⚠️ Preferred country must contain text only (numbers and special characters are not allowed)</span>
+                                      </p>
+                                    )}
                                   </label>
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Preferred Degree Level</span>
@@ -4815,8 +4838,17 @@ function DashboardInner() {
                                       value={editForm.field}
                                       onChange={(e) => setEditForm({ ...editForm, field: e.target.value })}
                                       placeholder="e.g. Computer Science, Business"
-                                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
+                                      className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
+                                        !isValidTextOnly(editForm.field ? editForm.field.replace("&", "") : "")
+                                          ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
+                                          : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
+                                      }`}
                                     />
+                                    {!isValidTextOnly(editForm.field ? editForm.field.replace("&", "") : "") && (
+                                      <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
+                                        <span>⚠️ Field of study must contain text only</span>
+                                      </p>
+                                    )}
                                   </label>
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Preferred Program / Course</span>
@@ -5001,26 +5033,34 @@ function DashboardInner() {
                                           type="text"
                                           value={editForm.jobTitle}
                                           onChange={(e) => setEditForm({ ...editForm, jobTitle: e.target.value })}
-                                          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
-                                        />
-                                      </label>
-                                      <label className="block">
-                                        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Years of Experience</span>
-                                        <input
-                                          type="number"
-                                          min="0"
-                                          max="50"
-                                          value={editForm.workExperience}
-                                          onChange={(e) => setEditForm({ ...editForm, workExperience: e.target.value })}
                                           className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
-                                            isNegativeVal(editForm.workExperience) || (editForm.workExperience && parseInt(editForm.workExperience) > 50)
+                                            !isValidTextOnly(editForm.jobTitle ? editForm.jobTitle.replace("/", "") : "")
                                               ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
                                               : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
                                           }`}
                                         />
-                                        {(isNegativeVal(editForm.workExperience) || (editForm.workExperience && parseInt(editForm.workExperience) > 50)) && (
+                                        {!isValidTextOnly(editForm.jobTitle ? editForm.jobTitle.replace("/", "") : "") && (
                                           <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
-                                            <span>⚠️ Years of work experience cannot be negative or exceed 50</span>
+                                            <span>⚠️ Job title must contain text only (numbers are not allowed)</span>
+                                          </p>
+                                        )}
+                                      </label>
+                                      <label className="block">
+                                        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Years of Experience</span>
+                                        <input
+                                          type="text"
+                                          value={editForm.workExperience}
+                                          onChange={(e) => setEditForm({ ...editForm, workExperience: e.target.value })}
+                                          placeholder="e.g. 2"
+                                          className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
+                                            !isValidDigitsOnly(editForm.workExperience) || isNegativeVal(editForm.workExperience) || (editForm.workExperience && parseInt(editForm.workExperience, 10) > 50)
+                                              ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
+                                              : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
+                                          }`}
+                                        />
+                                        {(!isValidDigitsOnly(editForm.workExperience) || isNegativeVal(editForm.workExperience) || (editForm.workExperience && parseInt(editForm.workExperience, 10) > 50)) && (
+                                          <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
+                                            <span>⚠️ Years of work experience must be a number (0 to 50, letters are not allowed)</span>
                                           </p>
                                         )}
                                       </label>
@@ -5058,38 +5098,38 @@ function DashboardInner() {
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Annual Study Budget ({editForm.currency})</span>
                                     <input
-                                      type="number"
-                                      min="0"
+                                      type="text"
                                       value={editForm.yearlyBudget}
                                       onChange={(e) => setEditForm({ ...editForm, yearlyBudget: e.target.value })}
+                                      placeholder="e.g. 25000"
                                       className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
-                                        isNegativeVal(editForm.yearlyBudget)
+                                        !isValidNumericAmount(editForm.yearlyBudget) || isNegativeVal(editForm.yearlyBudget)
                                           ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
                                           : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
                                       }`}
                                     />
-                                    {isNegativeVal(editForm.yearlyBudget) && (
+                                    {(!isValidNumericAmount(editForm.yearlyBudget) || isNegativeVal(editForm.yearlyBudget)) && (
                                       <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
-                                        <span>⚠️ Annual budget cannot be negative</span>
+                                        <span>⚠️ Annual budget must be a positive number (letters are not allowed)</span>
                                       </p>
                                     )}
                                   </label>
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Available Bank Balance ({editForm.currency})</span>
                                     <input
-                                      type="number"
-                                      min="0"
+                                      type="text"
                                       value={editForm.bankBalance}
                                       onChange={(e) => setEditForm({ ...editForm, bankBalance: e.target.value })}
+                                      placeholder="e.g. 35000"
                                       className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
-                                        isNegativeVal(editForm.bankBalance)
+                                        !isValidNumericAmount(editForm.bankBalance) || isNegativeVal(editForm.bankBalance)
                                           ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
                                           : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
                                       }`}
                                     />
-                                    {isNegativeVal(editForm.bankBalance) && (
+                                    {(!isValidNumericAmount(editForm.bankBalance) || isNegativeVal(editForm.bankBalance)) && (
                                       <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
-                                        <span>⚠️ Bank balance cannot be negative</span>
+                                        <span>⚠️ Bank balance must be a positive number (letters are not allowed)</span>
                                       </p>
                                     )}
                                   </label>
@@ -5112,19 +5152,19 @@ function DashboardInner() {
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Sponsor's Annual Income ({editForm.currency})</span>
                                     <input
-                                      type="number"
-                                      min="0"
+                                      type="text"
                                       value={editForm.sponsorIncome}
                                       onChange={(e) => setEditForm({ ...editForm, sponsorIncome: e.target.value })}
+                                      placeholder="e.g. 40000"
                                       className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
-                                        isNegativeVal(editForm.sponsorIncome)
+                                        !isValidNumericAmount(editForm.sponsorIncome) || isNegativeVal(editForm.sponsorIncome)
                                           ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
                                           : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
                                       }`}
                                     />
-                                    {isNegativeVal(editForm.sponsorIncome) && (
+                                    {(!isValidNumericAmount(editForm.sponsorIncome) || isNegativeVal(editForm.sponsorIncome)) && (
                                       <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
-                                        <span>⚠️ Sponsor income cannot be negative</span>
+                                        <span>⚠️ Sponsor income must be a positive number (letters are not allowed)</span>
                                       </p>
                                     )}
                                   </label>
@@ -5199,8 +5239,17 @@ function DashboardInner() {
                                       type="text"
                                       value={editForm.emergencyName}
                                       onChange={(e) => setEditForm({ ...editForm, emergencyName: e.target.value })}
-                                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
+                                      className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
+                                        !isValidFullName(editForm.emergencyName)
+                                          ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
+                                          : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
+                                      }`}
                                     />
+                                    {!isValidFullName(editForm.emergencyName) && (
+                                      <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
+                                        <span>⚠️ Contact name must contain only letters and spaces (numbers and special characters are not allowed)</span>
+                                      </p>
+                                    )}
                                   </label>
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Relationship</span>
@@ -5209,8 +5258,17 @@ function DashboardInner() {
                                       value={editForm.emergencyRelation}
                                       onChange={(e) => setEditForm({ ...editForm, emergencyRelation: e.target.value })}
                                       placeholder="e.g. Parent, Sibling"
-                                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
+                                      className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
+                                        !isValidTextOnly(editForm.emergencyRelation)
+                                          ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
+                                          : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
+                                      }`}
                                     />
+                                    {!isValidTextOnly(editForm.emergencyRelation) && (
+                                      <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
+                                        <span>⚠️ Relationship must contain text only (numbers and special characters are not allowed)</span>
+                                      </p>
+                                    )}
                                   </label>
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Phone Number</span>
