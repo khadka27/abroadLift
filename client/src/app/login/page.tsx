@@ -74,12 +74,28 @@ function LoginForm() {
 
   const performLogin = useCallback(
     async (otpValue: string) => {
+      if (!countryDialCode || !countryDialCode.trim()) {
+        setError("Please select a valid country dial code.");
+        return;
+      }
+
+      if (!phoneNumber || !phoneNumber.trim()) {
+        setError("Please enter your phone number.");
+        return;
+      }
+
+      const phoneValid = validatePhoneByCountry(phoneNumber, countryDialCode);
+      if (!phoneValid.isValid) {
+        setError(phoneValid.errorMsg);
+        return;
+      }
+
       const normalizedPhoneNumber = normalizePhoneNumber(phoneNumber);
       const normalizedDialCode = normalizeDialCode(countryDialCode);
       const phoneE164 = toE164(normalizedDialCode, normalizedPhoneNumber);
 
       if (!phoneE164 || !otpValue.trim()) {
-        setError("Please enter your phone number and OTP.");
+        setError("Please select country code, enter phone number, and enter 6-digit OTP.");
         return;
       }
 
@@ -115,6 +131,16 @@ function LoginForm() {
   if (status === "loading" || status === "authenticated") return null;
 
   const handleSendOtp = async () => {
+    if (!countryDialCode || !countryDialCode.trim()) {
+      setError("Please select a valid country dial code.");
+      return;
+    }
+
+    if (!phoneNumber || !phoneNumber.trim()) {
+      setError("Please enter your phone number.");
+      return;
+    }
+
     const phoneValid = validatePhoneByCountry(phoneNumber, countryDialCode);
     if (!phoneValid.isValid) {
       setError(phoneValid.errorMsg);
@@ -126,7 +152,7 @@ function LoginForm() {
     const phoneE164 = toE164(normalizedDialCode, normalizedPhoneNumber);
 
     if (!phoneE164) {
-      setError("Please enter your phone number first.");
+      setError("Invalid country code or phone number combination.");
       return;
     }
 

@@ -9,6 +9,21 @@ export type PhoneValidationResult = {
 };
 
 export function validatePhoneByCountry(phone: string, dialCode: string): PhoneValidationResult {
+  if (!dialCode || !dialCode.trim()) {
+    return { isValid: false, errorMsg: "Please select a country code." };
+  }
+
+  if (!phone || !phone.trim()) {
+    return { isValid: false, errorMsg: "Phone number is required." };
+  }
+
+  if (/[^0-9\s\-\(\)\+]/.test(phone)) {
+    return {
+      isValid: false,
+      errorMsg: "Phone number must contain digits only (letters and special characters are not allowed).",
+    };
+  }
+
   const digits = phone.replace(/\D/g, "");
 
   if (!digits) {

@@ -190,8 +190,8 @@ function RegisterForm() {
   const validateField = (k: string, v: string): string => {
     if (k === "fullName") {
       if (!v.trim()) return "Full name is required.";
-      if (/[^a-zA-Z\s'\-.]/.test(v))
-        return "Full name must contain only letters, spaces, hyphens, or periods.";
+      if (!/^[a-zA-Z\s\-\.\'\u00C0-\u024F]+$/.test(v.trim()))
+        return "Full name must contain letters and spaces only (numbers and special characters are not allowed).";
       if (v.trim().length < 2) return "Full name must be at least 2 characters.";
     }
     if (k === "email") {
@@ -206,17 +206,6 @@ function RegisterForm() {
   };
 
   const handleChange = (k: string, v: string) => {
-    if (k === "fullName" && /[^a-zA-Z\s'\-.]/.test(v)) {
-      const cleaned = v.replace(/[^a-zA-Z\s'\-.]/g, "");
-      setForm((p) => ({ ...p, [k]: cleaned }));
-      setErrors((p) => ({
-        ...p,
-        [k]: "Special characters are not allowed in full name.",
-      }));
-      setServerError("");
-      return;
-    }
-
     if (k === "countryDialCode") {
       setForm((p) => ({ ...p, countryDialCode: v }));
       if (form.phone.trim()) {
@@ -438,19 +427,25 @@ function RegisterForm() {
               <form onSubmit={handleProceedToTerms} className="space-y-6">
                 {/* Full Name Field */}
                 <div className="space-y-1">
-                  <label className="text-[13px] font-bold text-slate-700 block">Name</label>
-                  <div className="relative flex items-center border-b-2 border-slate-200 focus-within:border-[#3366FF] transition-colors pb-1">
+                  <label className="text-[13px] font-bold text-slate-700 block">Full Name</label>
+                  <div className={`relative flex items-center border-b-2 transition-colors pb-1 ${
+                    errors.fullName ? "border-rose-500" : "border-slate-200 focus-within:border-[#3366FF]"
+                  }`}>
                     <input
                       type="text"
-                      placeholder="Enter your name"
+                      placeholder="Enter your full name"
                       value={form.fullName}
                       onChange={(e) => handleChange("fullName", e.target.value)}
                       className="w-full bg-transparent text-[15px] font-medium text-slate-900 placeholder:text-slate-400 outline-none pr-8 py-2"
                     />
-                    <User className="w-5 h-5 text-slate-400 absolute right-1 pointer-events-none" />
+                    <User className={`w-5 h-5 absolute right-1 pointer-events-none ${
+                      errors.fullName ? "text-rose-500" : "text-slate-400"
+                    }`} />
                   </div>
                   {errors.fullName && (
-                    <p className="text-[11px] text-rose-500 font-bold mt-1">{errors.fullName}</p>
+                    <p className="text-[11px] text-rose-500 font-bold mt-1 flex items-center gap-1">
+                      <span>⚠️ {errors.fullName}</span>
+                    </p>
                   )}
                 </div>
 
