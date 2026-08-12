@@ -4399,10 +4399,22 @@ export default function AbroadLiftMatchesPage() {
                 </div>
                 {form.plannedTestType && (
                   <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-                    <label className="text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-2 block">Target Score</label>
+                    <label className="text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-2 block">
+                      {form.plannedTestType} Target Score
+                    </label>
                     <input
                       type="text"
-                      placeholder="e.g. 6.5, 65, 90"
+                      placeholder={
+                        form.plannedTestType === "IELTS"
+                          ? "e.g. 6.5 or 7.0 (Band Score 1-9)"
+                          : form.plannedTestType === "PTE"
+                          ? "e.g. 65 or 70 (Global Score 10-90)"
+                          : form.plannedTestType === "TOEFL"
+                          ? "e.g. 85 or 90 (iBT Score 0-120)"
+                          : form.plannedTestType === "Duolingo"
+                          ? "e.g. 115 or 120 (DET Score 10-160)"
+                          : "e.g. Target Score"
+                      }
                       value={form.plannedTestScore}
                       onChange={(e) => setForm({ ...form, plannedTestScore: e.target.value })}
                       className={`w-full bg-[#F4F7FF] text-slate-800 text-[15px] font-bold rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#3686FF]/50 border transition-all placeholder:font-medium placeholder:text-slate-400 ${plannedScoreError ? 'border-red-400 ring-2 ring-red-400/20' : 'border-transparent'}`}

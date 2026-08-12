@@ -1533,24 +1533,6 @@ function DashboardInner() {
         <div className="absolute -bottom-20 -left-20 h-[400px] w-[400px] rounded-full bg-indigo-400/15 blur-[100px]" />
       </div>
 
-      {/* Mobile Top Header Bar */}
-      <div className="max-w-[1580px] mx-auto px-4 md:hidden">
-        <div className="flex items-center justify-between bg-white/70 backdrop-blur-xl border border-white/60 p-4 rounded-3xl mb-6 shadow-[0_8px_30px_rgba(0,0,0,0.02)]">
-          <button
-            onClick={() => setIsMobileMenuOpen(true)}
-            className="p-2.5 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-2xl transition-all shadow-xs flex items-center justify-center shrink-0 border border-slate-100"
-          >
-            <Menu className="w-5 h-5" />
-          </button>
-          <span className="font-black text-slate-800 text-sm tracking-tight capitalize">
-            {activeTab.replace("-", " ")}
-          </span>
-          <div className={`w-10 h-10 rounded-2xl bg-gradient-to-br ${currentAvatarGradient} flex items-center justify-center font-black text-white shadow-sm text-xs`}>
-            {profile.name.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase() || "S"}
-          </div>
-        </div>
-      </div>
-
       {/* Scrollable dashboard body */}
       <div className="flex flex-1 overflow-hidden pt-24 md:pt-28">
 
@@ -1671,6 +1653,24 @@ function DashboardInner() {
 
         <div className="flex-1 overflow-y-auto">
         <div className="max-w-[1580px] mx-auto px-4 md:px-8 pb-16">
+          {/* Mobile Navigation Header Bar (In-Flow) */}
+          <div className="md:hidden pt-4 pb-2">
+            <div className="flex items-center justify-between bg-white/80 backdrop-blur-xl border border-slate-200/80 p-3.5 rounded-3xl shadow-xs">
+              <button
+                onClick={() => setIsMobileMenuOpen(true)}
+                className="p-2.5 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-2xl transition-all shadow-xs flex items-center justify-center shrink-0 border border-slate-200/60 cursor-pointer"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+              <span className="font-black text-slate-800 text-sm tracking-tight capitalize">
+                {activeTab.replace("-", " ")}
+              </span>
+              <div className={`w-9 h-9 rounded-2xl bg-gradient-to-br ${currentAvatarGradient} flex items-center justify-center font-black text-white shadow-sm text-xs`}>
+                {profile.name.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase() || "S"}
+              </div>
+            </div>
+          </div>
+
         <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] lg:grid-cols-[300px_1fr] gap-6 lg:gap-8 items-start">
           
           {/* ══════════ SIDEBAR (NAVIGATION) ══════════ */}
@@ -3459,11 +3459,11 @@ function DashboardInner() {
                                     <tbody className="divide-y divide-slate-100 text-xs font-semibold text-slate-700">
                                       <tr className="hover:bg-slate-50/80">
                                         <td className="p-3.5 font-extrabold text-slate-900">Academic GPA</td>
-                                        <td className={`p-3.5 font-extrabold ${gpa1 >= gpa2 ? "text-emerald-700" : ""}`}>{p1.gpa} / 4.00</td>
+                                        <td className={`p-3.5 font-extrabold ${gpa1 > gpa2 ? "text-emerald-700" : ""}`}>{p1.gpa} / 4.00</td>
                                         <td className={`p-3.5 font-extrabold ${gpa2 > gpa1 ? "text-emerald-700" : ""}`}>{p2.gpa} / 4.00</td>
                                         <td className="p-3.5 text-right">
-                                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${gpa1 >= gpa2 ? "bg-blue-50 text-blue-700" : "bg-indigo-50 text-indigo-700"}`}>
-                                            {gpa1 >= gpa2 ? "Profile A +" + (gpa1 - gpa2).toFixed(2) : "Profile B +" + (gpa2 - gpa1).toFixed(2)}
+                                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${gpa1 > gpa2 ? "bg-blue-50 text-blue-700" : gpa2 > gpa1 ? "bg-indigo-50 text-indigo-700" : "bg-slate-100 text-slate-600"}`}>
+                                            {gpa1 > gpa2 ? "Profile A +" + (gpa1 - gpa2).toFixed(2) : gpa2 > gpa1 ? "Profile B +" + (gpa2 - gpa1).toFixed(2) : "Equal GPA"}
                                           </span>
                                         </td>
                                       </tr>
@@ -3480,8 +3480,8 @@ function DashboardInner() {
                                         <td className="p-3.5 font-extrabold">${parseInt(p1.yearlyBudget).toLocaleString()} USD</td>
                                         <td className="p-3.5 font-extrabold">${parseInt(p2.yearlyBudget).toLocaleString()} USD</td>
                                         <td className="p-3.5 text-right">
-                                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${budget1 >= budget2 ? "bg-blue-50 text-blue-700" : "bg-indigo-50 text-indigo-700"}`}>
-                                            {budget1 >= budget2 ? "Profile A Higher Budget" : "Profile B Higher Budget"}
+                                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${budget1 > budget2 ? "bg-blue-50 text-blue-700" : budget2 > budget1 ? "bg-indigo-50 text-indigo-700" : "bg-slate-100 text-slate-600"}`}>
+                                            {budget1 > budget2 ? "Profile A Higher Budget" : budget2 > budget1 ? "Profile B Higher Budget" : "Equal Budget"}
                                           </span>
                                         </td>
                                       </tr>
@@ -3509,8 +3509,8 @@ function DashboardInner() {
                                         <td className="p-3.5 font-black text-blue-600">{p1.admissionProb}% Score</td>
                                         <td className="p-3.5 font-black text-indigo-600">{p2.admissionProb}% Score</td>
                                         <td className="p-3.5 text-right">
-                                          <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase">
-                                            {p1.admissionProb >= p2.admissionProb ? "Profile A Lead" : "Profile B Lead"}
+                                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${p1.admissionProb > p2.admissionProb ? "bg-emerald-50 text-emerald-700" : p2.admissionProb > p1.admissionProb ? "bg-indigo-50 text-indigo-700" : "bg-slate-100 text-slate-600"}`}>
+                                            {p1.admissionProb > p2.admissionProb ? "Profile A Lead" : p2.admissionProb > p1.admissionProb ? "Profile B Lead" : "Equal Chance"}
                                           </span>
                                         </td>
                                       </tr>
@@ -3629,7 +3629,7 @@ function DashboardInner() {
                                         <th className="p-3.5">Key Metric</th>
                                         <th className="p-3.5 text-blue-700 font-black">{u1.name}</th>
                                         <th className="p-3.5 text-indigo-700 font-black">{u2.name}</th>
-                                        <th className="p-3.5 text-right">Cost Difference</th>
+                                        <th className="p-3.5 text-right">Comparison Insight</th>
                                       </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100 text-xs font-semibold text-slate-700">
@@ -4950,45 +4950,45 @@ function DashboardInner() {
                                   Personal Information
                                 </h3>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                                  <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors">
+                                  <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors min-w-0">
                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Full Name</span>
-                                    <span className="text-sm font-bold text-slate-800 mt-1">{profile.name}</span>
+                                    <span className="text-sm font-bold text-slate-800 mt-1 break-words">{profile.name}</span>
                                   </div>
-                                  <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors">
+                                  <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors min-w-0">
                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Email Address</span>
-                                    <span className="text-sm font-bold text-slate-800 mt-1">{profile.email}</span>
+                                    <span className="text-sm font-bold text-slate-800 mt-1 break-all">{profile.email}</span>
                                   </div>
-                                  <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors">
+                                  <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors min-w-0">
                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Phone Number</span>
-                                    <span className="text-sm font-bold text-slate-800 mt-1">{profile.phoneNumber || "Not set"}</span>
+                                    <span className="text-sm font-bold text-slate-800 mt-1 break-all">{profile.phoneNumber || "Not set"}</span>
                                   </div>
-                                  <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors">
+                                  <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors min-w-0">
                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Date of Birth</span>
-                                    <span className="text-sm font-bold text-slate-800 mt-1">{profile.dateOfBirth || "Not set"}</span>
+                                    <span className="text-sm font-bold text-slate-800 mt-1 break-words">{profile.dateOfBirth || "Not set"}</span>
                                   </div>
-                                  <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors">
+                                  <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors min-w-0">
                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Gender</span>
-                                    <span className="text-sm font-bold text-slate-800 mt-1">{profile.gender || "Not set"}</span>
+                                    <span className="text-sm font-bold text-slate-800 mt-1 break-words">{profile.gender || "Not set"}</span>
                                   </div>
-                                  <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors">
+                                  <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors min-w-0">
                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Nationality</span>
-                                    <span className="text-sm font-bold text-slate-800 mt-1">{profile.nationality || "Not set"}</span>
+                                    <span className="text-sm font-bold text-slate-800 mt-1 break-words">{profile.nationality || "Not set"}</span>
                                   </div>
-                                  <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors">
+                                  <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors min-w-0">
                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Current Country</span>
-                                    <span className="text-sm font-bold text-slate-800 mt-1">{profile.currentCountry || "Not set"}</span>
+                                    <span className="text-sm font-bold text-slate-800 mt-1 break-words">{profile.currentCountry || "Not set"}</span>
                                   </div>
-                                  <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors">
+                                  <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors min-w-0">
                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Passport Number</span>
-                                    <span className="text-sm font-bold text-slate-800 mt-1">{profile.passportNumber || "Not set"}</span>
+                                    <span className="text-sm font-bold text-slate-800 mt-1 break-all">{profile.passportNumber || "Not set"}</span>
                                   </div>
-                                  <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors">
+                                  <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors min-w-0">
                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Passport Expiry</span>
-                                    <span className="text-sm font-bold text-slate-800 mt-1">{profile.passportExpiryDate || "Not set"}</span>
+                                    <span className="text-sm font-bold text-slate-800 mt-1 break-words">{profile.passportExpiryDate || "Not set"}</span>
                                   </div>
-                                  <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors">
+                                  <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors min-w-0">
                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Marital Status</span>
-                                    <span className="text-sm font-bold text-slate-800 mt-1">{profile.maritalStatus || "Not set"}</span>
+                                    <span className="text-sm font-bold text-slate-800 mt-1 break-words">{profile.maritalStatus || "Not set"}</span>
                                   </div>
                                 </div>
                                 
@@ -5229,21 +5229,21 @@ function DashboardInner() {
                                   Emergency Contact Details
                                 </h3>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                  <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors">
+                                  <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors min-w-0">
                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Contact Name</span>
-                                    <span className="text-sm font-bold text-slate-800 mt-1">{profile.emergencyName || "Not set"}</span>
+                                    <span className="text-sm font-bold text-slate-800 mt-1 break-words">{profile.emergencyName || "Not set"}</span>
                                   </div>
-                                  <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors">
+                                  <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors min-w-0">
                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Relationship</span>
-                                    <span className="text-sm font-bold text-slate-800 mt-1">{profile.emergencyRelation || "Not set"}</span>
+                                    <span className="text-sm font-bold text-slate-800 mt-1 break-words">{profile.emergencyRelation || "Not set"}</span>
                                   </div>
-                                  <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors">
+                                  <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors min-w-0">
                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Phone Number</span>
-                                    <span className="text-sm font-bold text-slate-800 mt-1">{profile.emergencyPhone || "Not set"}</span>
+                                    <span className="text-sm font-bold text-slate-800 mt-1 break-all">{profile.emergencyPhone || "Not set"}</span>
                                   </div>
-                                  <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors">
+                                  <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors min-w-0">
                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Email Address</span>
-                                    <span className="text-sm font-bold text-slate-800 mt-1">{profile.emergencyEmail || "Not set"}</span>
+                                    <span className="text-sm font-bold text-slate-800 mt-1 break-all">{profile.emergencyEmail || "Not set"}</span>
                                   </div>
                                 </div>
                               </div>

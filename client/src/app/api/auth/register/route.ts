@@ -53,8 +53,9 @@ export async function POST(req: Request) {
 
     const normalizedName = (name || "").trim();
     const normalizedEmail = (email || "").toLowerCase().trim();
+    const rawPhoneDigits = normalizePhoneNumber(phoneNumber || "").replace(/^0+/, "");
     const normalizedDialCode = normalizeDialCode(countryDialCode || "");
-    const normalizedPhoneNumber = normalizePhoneNumber(phoneNumber || "");
+    const normalizedPhoneNumber = rawPhoneDigits;
     const phoneE164 = toE164(normalizedDialCode, normalizedPhoneNumber);
     const wantsWhatsApp =
       typeof prefersWhatsApp === "boolean" ? prefersWhatsApp : true;
@@ -76,7 +77,7 @@ export async function POST(req: Request) {
       );
     }
 
-    if (!normalizedDialCode || !normalizedPhoneNumber) {
+    if (!normalizedDialCode || !rawPhoneDigits) {
       return NextResponse.json(
         { error: "Country code and phone number are required." },
         { status: 400 },
@@ -90,12 +91,22 @@ export async function POST(req: Request) {
       );
     }
 
-    // Check existing email
+    // Check existing email and phone number (across country codes / format variations)
     const existingEmail = await prisma.user.findUnique({
       where: { email: normalizedEmail },
     });
-    const existingPhone = await prisma.user.findUnique({
-      where: { phoneE164 },
+
+    const existingPhone = await prisma.user.findFirst({
+      where: {
+        OR: [
+          ...(phoneE164 ? [{ phoneE164 }] : []),
+          ...(rawPhoneDigits.length >= 7 ? [
+            { phoneNumber: rawPhoneDigits },
+            { phoneNumber: `0${rawPhoneDigits}` },
+            { phoneE164: { endsWith: rawPhoneDigits } },
+          ] : []),
+        ],
+      },
     });
 
     if (existingEmail || existingPhone) {

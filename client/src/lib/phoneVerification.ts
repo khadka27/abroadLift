@@ -16,10 +16,20 @@ export function normalizePhoneNumber(input: string) {
 
 export function toE164(dialCode: string, phoneNumber: string) {
   const dialDigits = dialCode.replaceAll(/\D/g, "");
-  const phoneDigits = phoneNumber.replaceAll(/\D/g, "");
+  let phoneDigits = phoneNumber.replaceAll(/\D/g, "");
 
   if (!dialDigits || !phoneDigits) {
     return "";
+  }
+
+  // Strip leading 0 if present (e.g. 09801234567 -> 9801234567)
+  if (phoneDigits.startsWith("0")) {
+    phoneDigits = phoneDigits.replace(/^0+/, "");
+  }
+
+  // If phoneDigits starts with dialDigits (e.g. user pasted country code into phone field), strip it
+  if (phoneDigits.startsWith(dialDigits) && phoneDigits.length > dialDigits.length + 6) {
+    phoneDigits = phoneDigits.slice(dialDigits.length);
   }
 
   const combined = `${dialDigits}${phoneDigits}`;

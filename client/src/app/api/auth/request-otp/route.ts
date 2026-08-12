@@ -20,16 +20,26 @@ export async function POST(req: Request) {
         normalizeDialCode(countryDialCode || ""),
         normalizePhoneNumber(phoneNumber || ""),
       );
+    const rawPhoneDigits = normalizePhoneNumber(phoneNumber || phoneE164 || "").replace(/^0+/, "");
 
-    if (!normalizedPhoneE164) {
+    if (!normalizedPhoneE164 && !rawPhoneDigits) {
       return NextResponse.json(
         { error: "Phone number is required." },
         { status: 400 },
       );
     }
 
-    const user = await prisma.user.findUnique({
-      where: { phoneE164: normalizedPhoneE164 },
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          ...(normalizedPhoneE164 ? [{ phoneE164: normalizedPhoneE164 }] : []),
+          ...(rawPhoneDigits.length >= 7 ? [
+            { phoneNumber: rawPhoneDigits },
+            { phoneNumber: `0${rawPhoneDigits}` },
+            { phoneE164: { endsWith: rawPhoneDigits } },
+          ] : []),
+        ],
+      },
     });
 
     if (!user?.phoneE164) {

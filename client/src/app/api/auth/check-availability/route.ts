@@ -29,11 +29,21 @@ export async function GET(req: Request) {
       const normalizedDial = normalizeDialCode(dialCode);
       const normalizedPhone = normalizePhoneNumber(phone);
       const phoneE164 = toE164(normalizedDial, normalizedPhone);
-      if (!phoneE164) {
+      const rawPhoneDigits = normalizedPhone.replace(/^0+/, "");
+      if (!phoneE164 && !rawPhoneDigits) {
         return NextResponse.json({ available: false, field: "phone", reason: "invalid_format" });
       }
-      const existing = await prisma.user.findUnique({
-        where: { phoneE164 },
+      const existing = await prisma.user.findFirst({
+        where: {
+          OR: [
+            ...(phoneE164 ? [{ phoneE164 }] : []),
+            ...(rawPhoneDigits.length >= 7 ? [
+              { phoneNumber: rawPhoneDigits },
+              { phoneNumber: `0${rawPhoneDigits}` },
+              { phoneE164: { endsWith: rawPhoneDigits } },
+            ] : []),
+          ],
+        },
         select: { id: true },
       });
       return NextResponse.json({
