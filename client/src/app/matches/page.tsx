@@ -2169,7 +2169,28 @@ function AnalyzingScreen({ onFinish }: { onFinish?: () => void }) {
   return <MatchingEngineScreen onFinish={onFinish} />;
 }
 
-/* ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ Main Component ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+/* ─────────────── Main Component ─────────────── */
+const COUNTRY_CODE_TO_NAME: Record<string, string> = {
+  USA: "United States",
+  US: "United States",
+  "United States": "United States",
+  UK: "United Kingdom",
+  GB: "United Kingdom",
+  "United Kingdom": "United Kingdom",
+  CA: "Canada",
+  Canada: "Canada",
+  AU: "Australia",
+  Australia: "Australia",
+  DE: "Germany",
+  Germany: "Germany",
+  IE: "Ireland",
+  Ireland: "Ireland",
+  MT: "Malta",
+  Malta: "Malta",
+  NZ: "New Zealand",
+  "New Zealand": "New Zealand",
+};
+
 export default function AbroadLiftMatchesPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -2180,6 +2201,8 @@ export default function AbroadLiftMatchesPage() {
   const [step, setStep] = useState(1);
   const [costPeriod, setCostPeriod] = useState<string>("First Year");
   const [form, setForm] = useState<Form>(DEF);
+  const selectedCountryCode = form.countries[0] || "USA";
+  const countryName = COUNTRY_CODE_TO_NAME[selectedCountryCode] || "United States";
   const [matches, setMatches] = useState<Match[]>([]);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   const [loading, setLoading] = useState(false);
@@ -4094,74 +4117,165 @@ export default function AbroadLiftMatchesPage() {
 
       const COUNTRY_CODE_TO_NAME: Record<string, string> = {
         USA: "United States",
+        US: "United States",
+        "United States": "United States",
         UK: "United Kingdom",
+        GB: "United Kingdom",
+        "United Kingdom": "United Kingdom",
         CA: "Canada",
+        Canada: "Canada",
         AU: "Australia",
+        Australia: "Australia",
         DE: "Germany",
+        Germany: "Germany",
         IE: "Ireland",
-        MT: "Malta"
+        Ireland: "Ireland",
+        MT: "Malta",
+        Malta: "Malta",
+        NZ: "New Zealand",
+        "New Zealand": "New Zealand",
       };
 
-      const TEST_SUPPORT_MATRIX: Record<string, Record<string, { status: "supported" | "limited" | "not_supported" | "some_unis" | "many_unis"; message: string }>> = {
-        "Canada": {
+      const TEST_SUPPORT_MATRIX: Record<
+        string,
+        Record<
+          string,
+          {
+            status: "supported" | "limited" | "not_supported" | "some_unis" | "many_unis";
+            message: string;
+          }
+        >
+      > = {
+        Canada: {
           IELTS: { status: "supported", message: "Fully accepted by all universities and SDS visa stream." },
           "PTE Academic": { status: "supported", message: "Fully accepted by all universities and SDS visa stream." },
           TOEFL: { status: "supported", message: "Fully accepted by all universities and SDS visa stream." },
           Duolingo: { status: "many_unis", message: "Accepted by many universities for admission." },
-          Cambridge: { status: "some_unis", message: "Accepted by some universities for admission." }
+          Cambridge: { status: "some_unis", message: "Accepted by some universities for admission." },
         },
         "United States": {
           IELTS: { status: "supported", message: "Fully accepted by all universities." },
           "PTE Academic": { status: "supported", message: "Fully accepted by all universities." },
           TOEFL: { status: "supported", message: "Fully accepted by all universities." },
           Duolingo: { status: "many_unis", message: "Accepted by many universities for admission." },
-          Cambridge: { status: "some_unis", message: "Accepted by some universities for admission." }
+          Cambridge: { status: "some_unis", message: "Accepted by some universities for admission." },
         },
-        "Australia": {
+        Australia: {
           IELTS: { status: "supported", message: "Fully accepted for admission and student visa." },
           "PTE Academic": { status: "supported", message: "Fully accepted for admission and student visa." },
           TOEFL: { status: "supported", message: "Fully accepted for admission and student visa." },
           Duolingo: { status: "not_supported", message: "This language is not supported in this country" },
-          Cambridge: { status: "supported", message: "Accepted for admission and student visa." }
+          Cambridge: { status: "supported", message: "Accepted for admission and student visa." },
         },
         "United Kingdom": {
           IELTS: { status: "supported", message: "Fully accepted. IELTS Academic/UKVI is standard." },
           "PTE Academic": { status: "supported", message: "Fully accepted by all universities." },
           TOEFL: { status: "supported", message: "Fully accepted by all universities." },
           Duolingo: { status: "some_unis", message: "Accepted by some universities only. Check university specific requirements." },
-          Cambridge: { status: "supported", message: "Fully accepted by all universities." }
+          Cambridge: { status: "supported", message: "Fully accepted by all universities." },
         },
-        "Ireland": {
+        Ireland: {
           IELTS: { status: "supported", message: "Fully accepted by all universities." },
           "PTE Academic": { status: "supported", message: "Fully accepted by all universities." },
           TOEFL: { status: "supported", message: "Fully accepted by all universities." },
           Duolingo: { status: "some_unis", message: "Accepted by some universities. Check university specific requirements." },
-          Cambridge: { status: "supported", message: "Fully accepted by all universities." }
+          Cambridge: { status: "supported", message: "Fully accepted by all universities." },
         },
-        "Germany": {
+        Germany: {
           IELTS: { status: "supported", message: "Fully accepted by all universities." },
           "PTE Academic": { status: "supported", message: "Fully accepted by all universities." },
           TOEFL: { status: "supported", message: "Fully accepted by all universities." },
           Duolingo: { status: "some_unis", message: "Accepted by some universities. Check university specific requirements." },
-          Cambridge: { status: "supported", message: "Fully accepted by all universities." }
+          Cambridge: { status: "supported", message: "Fully accepted by all universities." },
         },
-        "Malta": {
+        Malta: {
           IELTS: { status: "supported", message: "Fully accepted by all universities." },
           "PTE Academic": { status: "supported", message: "Fully accepted by all universities." },
           TOEFL: { status: "supported", message: "Fully accepted by all universities." },
           Duolingo: { status: "some_unis", message: "Accepted by some universities. Check university specific requirements." },
-          Cambridge: { status: "supported", message: "Fully accepted by all universities." }
-        }
+          Cambridge: { status: "supported", message: "Fully accepted by all universities." },
+        },
+        "New Zealand": {
+          IELTS: { status: "supported", message: "Fully accepted by all universities and student visa." },
+          "PTE Academic": { status: "supported", message: "Fully accepted by all universities and student visa." },
+          TOEFL: { status: "supported", message: "Fully accepted by all universities and student visa." },
+          Duolingo: { status: "not_supported", message: "This language is not supported in this country" },
+          Cambridge: { status: "supported", message: "Fully accepted by all universities." },
+        },
       };
 
-      const selectedCountryCode = form.countries[0] || "USA";
-      const countryName = COUNTRY_CODE_TO_NAME[selectedCountryCode] || "Canada";
+      const userTargetCountries =
+        form.countries && form.countries.length > 0
+          ? form.countries
+          : ["USA"];
 
-      const getTestSupportInfo = (testId: string, countryCode: string) => {
-        const name = COUNTRY_CODE_TO_NAME[countryCode] || "Canada";
-        const matrix = TEST_SUPPORT_MATRIX[name];
-        if (!matrix) return null;
-        return matrix[testId] || null;
+      const selectedCountryCode = userTargetCountries[0] || "USA";
+      const countryName =
+        COUNTRY_CODE_TO_NAME[selectedCountryCode] || "United States";
+
+      const getTestSupportInfo = (
+        testId: string,
+        countriesList: string[] = userTargetCountries
+      ) => {
+        if (
+          testId === "NONE" ||
+          testId === "SAT" ||
+          testId === "GRE" ||
+          testId === "GMAT"
+        ) {
+          return {
+            status: "supported" as const,
+            message: "Accepted standard test.",
+            isNotSupported: false,
+          };
+        }
+
+        const targetList =
+          countriesList && countriesList.length > 0
+            ? countriesList
+            : ["USA"];
+        let isNotSupported = false;
+        let worstStatus:
+          | "supported"
+          | "many_unis"
+          | "some_unis"
+          | "not_supported" = "supported";
+        let message = "";
+
+        for (const cCode of targetList) {
+          const cName = COUNTRY_CODE_TO_NAME[cCode] || cCode;
+          const matrix = TEST_SUPPORT_MATRIX[cName];
+          if (matrix && matrix[testId]) {
+            const info = matrix[testId];
+            if (info.status === "not_supported") {
+              isNotSupported = true;
+              worstStatus = "not_supported";
+              message = info.message;
+              break;
+            } else if (
+              info.status === "some_unis" &&
+              (worstStatus as string) !== "not_supported"
+            ) {
+              worstStatus = "some_unis";
+              message = info.message;
+            } else if (
+              info.status === "many_unis" &&
+              worstStatus !== "supported" &&
+              (worstStatus as string) !== "some_unis"
+            ) {
+              worstStatus = "many_unis";
+              message = info.message;
+            } else if (info.status === "supported" && !message) {
+              message = info.message;
+            }
+          }
+        }
+
+        return {
+          status: worstStatus,
+          message: message || "Accepted by universities.",
+          isNotSupported,
+        };
       };
 
       const handleTestSelect = (testId: string) => {
@@ -4182,21 +4296,32 @@ export default function AbroadLiftMatchesPage() {
             Cambridge: "180",
             SAT: "1100",
             GRE: "310",
-            GMAT: "580"
+            GMAT: "580",
           };
-          const test = TEST_OPTIONS.find(t => t.id === testId);
-          if (test && (isNaN(score) || score === 0 || score < test.min || score > test.max)) {
+          const test = TEST_OPTIONS.find((t) => t.id === testId);
+          if (
+            test &&
+            (isNaN(score) || score === 0 || score < test.min || score > test.max)
+          ) {
             updateForm("testScore", defaultScores[testId]);
           }
         }
       };
 
-      const selectedTest = TEST_OPTIONS.find(t => t.id === form.testType && form.hasEnglishTest === true);
+      const selectedTest = TEST_OPTIONS.find(
+        (t) => t.id === form.testType && form.hasEnglishTest === true
+      );
       const scoreVal = parseFloat(form.testScore);
-      const isAbove50 = selectedTest && !isNaN(scoreVal) && scoreVal >= selectedTest.min50;
-      const percentOfMax = selectedTest && !isNaN(scoreVal) && selectedTest.max > 0
-        ? Math.round(((scoreVal - selectedTest.min) / (selectedTest.max - selectedTest.min)) * 100)
-        : 0;
+      const isAbove50 =
+        selectedTest && !isNaN(scoreVal) && scoreVal >= selectedTest.min50;
+      const percentOfMax =
+        selectedTest && !isNaN(scoreVal) && selectedTest.max > 0
+          ? Math.round(
+              ((scoreVal - selectedTest.min) /
+                (selectedTest.max - selectedTest.min)) *
+                100
+            )
+          : 0;
 
       // Score validation for currently selected test
       let scoreError = "";
@@ -4207,9 +4332,11 @@ export default function AbroadLiftMatchesPage() {
         } else if (score < selectedTest.min || score > selectedTest.max) {
           scoreError = `${selectedTest.name} score must be between ${selectedTest.min} and ${selectedTest.max}`;
         } else if (selectedTest.id === "IELTS" && (score * 10) % 5 !== 0) {
-          scoreError = "IELTS score must be in half-band increments (e.g. 6.0, 6.5, 7.0)";
+          scoreError =
+            "IELTS score must be in half-band increments (e.g. 6.0, 6.5, 7.0)";
         } else if (selectedTest.id === "Duolingo" && score % 5 !== 0) {
-          scoreError = "Duolingo score must be in increments of 5 (e.g. 105, 110, 115)";
+          scoreError =
+            "Duolingo score must be in increments of 5 (e.g. 105, 110, 115)";
         }
       }
 
@@ -4223,17 +4350,25 @@ export default function AbroadLiftMatchesPage() {
           if (pScore < 1 || pScore > 9) {
             plannedScoreError = "IELTS score must be between 1 and 9";
           } else if ((pScore * 10) % 5 !== 0) {
-            plannedScoreError = "IELTS score must be in half-band increments (e.g. 6.5, 7.0)";
+            plannedScoreError =
+              "IELTS score must be in half-band increments (e.g. 6.5, 7.0)";
           }
-        } else if (form.plannedTestType === "PTE" && (pScore < 10 || pScore > 90)) {
+        } else if (
+          form.plannedTestType === "PTE" &&
+          (pScore < 10 || pScore > 90)
+        ) {
           plannedScoreError = "PTE score must be between 10 and 90";
-        } else if (form.plannedTestType === "TOEFL" && (pScore < 0 || pScore > 120)) {
+        } else if (
+          form.plannedTestType === "TOEFL" &&
+          (pScore < 0 || pScore > 120)
+        ) {
           plannedScoreError = "TOEFL score must be between 0 and 120";
         } else if (form.plannedTestType === "Duolingo") {
           if (pScore < 10 || pScore > 160) {
             plannedScoreError = "Duolingo score must be between 10 and 160";
           } else if (pScore % 5 !== 0) {
-            plannedScoreError = "Duolingo score must be in increments of 5 (e.g. 115, 120)";
+            plannedScoreError =
+              "Duolingo score must be in increments of 5 (e.g. 115, 120)";
           }
         }
       }
@@ -4251,21 +4386,54 @@ export default function AbroadLiftMatchesPage() {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 w-full mb-8">
             {TEST_OPTIONS.filter((test) => {
-              const support = getTestSupportInfo(test.id, selectedCountryCode);
-              return !support || support.status !== "not_supported";
+              // 1. Degree level filtering
+              const deg = (form.degree || "").toLowerCase();
+              const isPostgrad =
+                deg.includes("postgrad") ||
+                deg.includes("master") ||
+                deg.includes("phd") ||
+                deg.includes("doctor");
+              const isUndergrad =
+                deg.includes("bachelor") ||
+                deg.includes("diploma") ||
+                deg.includes("undergrad") ||
+                deg.includes("associate") ||
+                deg.includes("grade") ||
+                deg.includes("foundation");
+
+              if (test.id === "SAT" && isPostgrad) return false;
+              if ((test.id === "GRE" || test.id === "GMAT") && isUndergrad)
+                return false;
+
+              // 2. Destination country acceptance filtering - DO NOT DISPLAY tests not accepted
+              if (test.id === "NONE") return true;
+              const support = getTestSupportInfo(test.id, userTargetCountries);
+              if (
+                support &&
+                (support.status === "not_supported" || support.isNotSupported)
+              ) {
+                return false;
+              }
+              return true;
             }).map((test) => {
-              const isSelected = (test.id === "NONE" && form.hasEnglishTest === false) ||
-                                 (test.id !== "NONE" && form.hasEnglishTest === true && form.testType === test.id);
-              
-              const support = getTestSupportInfo(test.id, selectedCountryCode);
+              const isSelected =
+                (test.id === "NONE" && form.hasEnglishTest === false) ||
+                (test.id !== "NONE" &&
+                  form.hasEnglishTest === true &&
+                  form.testType === test.id);
+
+              const support = getTestSupportInfo(test.id, userTargetCountries);
               const supportBadge = support ? (
-                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black tracking-wide uppercase mt-2.5 ${
-                  support.status === "supported" || support.status === "many_unis"
-                    ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
-                    : support.status === "not_supported"
-                    ? "bg-rose-50 text-rose-700 border border-rose-100 animate-pulse"
-                    : "bg-amber-50 text-amber-700 border border-amber-100"
-                }`}>
+                <span
+                  className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black tracking-wide uppercase mt-2.5 ${
+                    support.status === "supported" ||
+                    support.status === "many_unis"
+                      ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
+                      : support.status === "not_supported"
+                      ? "bg-rose-50 text-rose-700 border border-rose-100 animate-pulse"
+                      : "bg-amber-50 text-amber-700 border border-amber-100"
+                  }`}
+                >
                   {support.status === "supported" ? (
                     <span className="flex items-center gap-1">
                       <Check className="w-2.5 h-2.5 text-emerald-700" /> Accepted
@@ -4305,9 +4473,19 @@ export default function AbroadLiftMatchesPage() {
                   <div>
                     {(() => {
                       const TestIcon = test.icon;
-                      return <TestIcon className={`w-6 h-6 mb-2 ${isSelected ? "text-blue-500" : "text-slate-400"}`} />;
+                      return (
+                        <TestIcon
+                          className={`w-6 h-6 mb-2 ${
+                            isSelected ? "text-blue-500" : "text-slate-400"
+                          }`}
+                        />
+                      );
                     })()}
-                    <span className={`text-[11px] font-black uppercase block tracking-wider leading-none mb-1 ${isSelected ? "text-blue-600" : "text-slate-400"}`}>
+                    <span
+                      className={`text-[11px] font-black uppercase block tracking-wider leading-none mb-1 ${
+                        isSelected ? "text-blue-600" : "text-slate-400"
+                      }`}
+                    >
                       {test.name}
                     </span>
                     <span className="text-[11px] font-medium text-slate-500 block leading-tight">
@@ -4328,14 +4506,28 @@ export default function AbroadLiftMatchesPage() {
                     <selectedTest.icon className="w-5 h-5 text-[#3686FF]" />
                     <span>{selectedTest.name} Score Details</span>
                   </h3>
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                    Score range: {selectedTest.min} – {selectedTest.max} (Threshold for 50%: {selectedTest.min50})
+                  <p className="text-xs text-slate-500 font-medium">
+                    Enter your overall {selectedTest.name} score
                   </p>
                 </div>
-                <div className="w-full md:w-48 space-y-2">
-                  <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest pl-1">
-                    Your Score
-                  </label>
+              </div>
+
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-black uppercase tracking-wider text-slate-600">
+                      Overall Score ({selectedTest.min} - {selectedTest.max})
+                    </label>
+                    {form.testScore && (
+                      <span
+                        className={`text-[11px] font-black uppercase tracking-wider ${
+                          isAbove50 ? "text-emerald-600" : "text-amber-600"
+                        }`}
+                      >
+                        {percentOfMax}% Score Level
+                      </span>
+                    )}
+                  </div>
                   <input
                     type="number"
                     min={selectedTest.min}
@@ -4343,7 +4535,9 @@ export default function AbroadLiftMatchesPage() {
                     step={selectedTest.step}
                     placeholder={selectedTest.placeholder}
                     className={`w-full h-[50px] px-5 bg-white border rounded-2xl text-[16px] font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/5 transition-all shadow-sm ${
-                      scoreError ? "border-red-400 focus:border-red-500 bg-red-50/20" : "border-slate-200 focus:border-blue-500"
+                      scoreError
+                        ? "border-red-400 focus:border-red-500 bg-red-50/20"
+                        : "border-slate-200 focus:border-blue-500"
                     }`}
                     value={form.testScore === "0" ? "" : form.testScore}
                     onChange={(e) => updateForm("testScore", e.target.value)}
@@ -4356,21 +4550,27 @@ export default function AbroadLiftMatchesPage() {
                 </div>
               </div>
 
-
               {/* Country Specific English Test Acceptance Warning/Info */}
               {(() => {
-                const supportInfo = getTestSupportInfo(selectedTest.id, selectedCountryCode);
+                const supportInfo = getTestSupportInfo(
+                  selectedTest.id,
+                  userTargetCountries
+                );
                 if (!supportInfo) return null;
                 return (
-                  <div className={`p-4 rounded-2xl border flex items-start gap-3 transition-all duration-300 animate-in fade-in ${
-                    supportInfo.status === "supported" || supportInfo.status === "many_unis"
-                      ? "bg-emerald-50/50 border-emerald-100 text-emerald-800"
-                      : supportInfo.status === "not_supported"
-                      ? "bg-rose-50/70 border-rose-100 text-rose-800"
-                      : "bg-amber-50/70 border-amber-100 text-amber-800"
-                  }`}>
+                  <div
+                    className={`p-4 rounded-2xl border flex items-start gap-3 transition-all duration-300 animate-in fade-in ${
+                      supportInfo.status === "supported" ||
+                      supportInfo.status === "many_unis"
+                        ? "bg-emerald-50/50 border-emerald-100 text-emerald-800"
+                        : supportInfo.status === "not_supported"
+                        ? "bg-rose-50/70 border-rose-100 text-rose-800"
+                        : "bg-amber-50/70 border-amber-100 text-amber-800"
+                    }`}
+                  >
                     <span className="shrink-0 mt-0.5">
-                      {supportInfo.status === "supported" || supportInfo.status === "many_unis" ? (
+                      {supportInfo.status === "supported" ||
+                      supportInfo.status === "many_unis" ? (
                         <CheckCircle2 className="w-5 h-5 text-emerald-600" />
                       ) : supportInfo.status === "not_supported" ? (
                         <ShieldAlert className="w-5 h-5 text-rose-600" />
@@ -4389,8 +4589,6 @@ export default function AbroadLiftMatchesPage() {
                   </div>
                 );
               })()}
-
-
             </div>
           )}
 
@@ -4401,7 +4599,9 @@ export default function AbroadLiftMatchesPage() {
                   No problem!
                 </p>
                 <p className="text-blue-600/80 text-[13px] font-semibold leading-relaxed">
-                  You can continue to search matches without a score. Many universities offer pathway programs or English waivers, though we recommend preparing for a test later.
+                  You can continue to search matches without a score. Many
+                  universities offer pathway programs or English waivers,
+                  though we recommend preparing for a test later.
                 </p>
               </div>
               <div className="bg-white/80 rounded-2xl p-5 text-left border border-blue-100 space-y-5">
@@ -4410,76 +4610,94 @@ export default function AbroadLiftMatchesPage() {
                 </p>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {[
-                    { value: "IELTS", label: "IELTS", icon: GraduationCap, desc: "Band Score (1-9)" },
-                    { value: "PTE", label: "PTE", icon: ScrollText, desc: "Global Score (10-90)" },
-                    { value: "TOEFL", label: "TOEFL", icon: Globe, desc: "iBT Score (0-120)" },
-                    { value: "Duolingo", label: "Duolingo", icon: Award, desc: "DET Score (10-160)" },
-                  ].filter((opt) => {
-                    const testIdMap: Record<string, string> = {
-                      IELTS: "IELTS",
-                      PTE: "PTE Academic",
-                      TOEFL: "TOEFL",
-                      Duolingo: "Duolingo",
-                    };
-                    const support = getTestSupportInfo(testIdMap[opt.value] || opt.value, selectedCountryCode);
-                    return !support || support.status !== "not_supported";
-                  }).map((opt) => {
-                    const isSelected = form.plannedTestType === opt.value;
-                    const TestIcon = opt.icon;
-                    return (
-                      <button
-                        key={opt.value}
-                        type="button"
-                        onClick={() => setForm({ ...form, plannedTestType: isSelected ? "" : opt.value, plannedTestScore: isSelected ? "" : form.plannedTestScore })}
-                        className={`group relative text-left p-3.5 rounded-2xl border-2 transition-all duration-300 flex flex-col items-start ${
-                          isSelected
-                            ? "border-blue-500 bg-blue-50/30 shadow-md scale-[1.02]"
-                            : "border-slate-100 bg-white shadow-sm hover:border-blue-200"
-                        }`}
-                      >
-                        {isSelected && (
-                          <span className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center text-white">
-                            <Check className="w-3 h-3 stroke-[3]" />
+                    {
+                      value: "IELTS",
+                      label: "IELTS",
+                      icon: GraduationCap,
+                      desc: "Band Score (1-9)",
+                    },
+                    {
+                      value: "PTE",
+                      label: "PTE",
+                      icon: ScrollText,
+                      desc: "Global Score (10-90)",
+                    },
+                    {
+                      value: "TOEFL",
+                      label: "TOEFL",
+                      icon: Globe,
+                      desc: "iBT Score (0-120)",
+                    },
+                    {
+                      value: "Duolingo",
+                      label: "Duolingo",
+                      icon: Award,
+                      desc: "DET Score (10-160)",
+                    },
+                  ]
+                    .filter((opt) => {
+                      const testIdMap: Record<string, string> = {
+                        IELTS: "IELTS",
+                        PTE: "PTE Academic",
+                        TOEFL: "TOEFL",
+                        Duolingo: "Duolingo",
+                      };
+                      const support = getTestSupportInfo(
+                        testIdMap[opt.value] || opt.value,
+                        userTargetCountries
+                      );
+                      return (
+                        !support ||
+                        (!support.isNotSupported &&
+                          support.status !== "not_supported")
+                      );
+                    })
+                    .map((opt) => {
+                      const isSelected = form.plannedTestType === opt.value;
+                      const TestIcon = opt.icon;
+                      return (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() =>
+                            setForm({
+                              ...form,
+                              plannedTestType: isSelected ? "" : opt.value,
+                              plannedTestScore: isSelected
+                                ? ""
+                                : form.plannedTestScore,
+                            })
+                          }
+                          className={`group relative text-left p-3.5 rounded-2xl border-2 transition-all duration-300 flex flex-col items-start ${
+                            isSelected
+                              ? "border-blue-500 bg-blue-50/30 shadow-md scale-[1.02]"
+                              : "border-slate-100 bg-white shadow-sm hover:border-blue-200"
+                          }`}
+                        >
+                          {isSelected && (
+                            <span className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center text-white">
+                              <Check className="w-3 h-3 stroke-[3]" />
+                            </span>
+                          )}
+                          <TestIcon
+                            className={`w-5 h-5 mb-1.5 ${
+                              isSelected ? "text-blue-500" : "text-slate-400"
+                            }`}
+                          />
+                          <span
+                            className={`text-[11px] font-black uppercase block tracking-wider leading-none mb-0.5 ${
+                              isSelected ? "text-blue-600" : "text-slate-500"
+                            }`}
+                          >
+                            {opt.label}
                           </span>
-                        )}
-                        <TestIcon className={`w-5 h-5 mb-1.5 ${isSelected ? "text-blue-500" : "text-slate-400"}`} />
-                        <span className={`text-[11px] font-black uppercase block tracking-wider leading-none mb-0.5 ${isSelected ? "text-blue-600" : "text-slate-500"}`}>
-                          {opt.label}
-                        </span>
-                        <span className="text-[10px] font-medium text-slate-400 block leading-tight">
-                          {opt.desc}
-                        </span>
-                      </button>
-                    );
-                  })}
+                          <span className="text-[10px] font-medium text-slate-400 block leading-tight">
+                            {opt.desc}
+                          </span>
+                        </button>
+                      );
+                    })}
                 </div>
-                {form.plannedTestType && (
-                  <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-                    <label className="text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-2 block">
-                      {form.plannedTestType} Target Score
-                    </label>
-                    <input
-                      type="text"
-                      placeholder={
-                        form.plannedTestType === "IELTS"
-                          ? "e.g. 6.5 or 7.0 (Band Score 1-9)"
-                          : form.plannedTestType === "PTE"
-                          ? "e.g. 65 or 70 (Global Score 10-90)"
-                          : form.plannedTestType === "TOEFL"
-                          ? "e.g. 85 or 90 (iBT Score 0-120)"
-                          : form.plannedTestType === "Duolingo"
-                          ? "e.g. 115 or 120 (DET Score 10-160)"
-                          : "e.g. Target Score"
-                      }
-                      value={form.plannedTestScore}
-                      onChange={(e) => setForm({ ...form, plannedTestScore: e.target.value })}
-                      className={`w-full bg-[#F4F7FF] text-slate-800 text-[15px] font-bold rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#3686FF]/50 border transition-all placeholder:font-medium placeholder:text-slate-400 ${plannedScoreError ? 'border-red-400 ring-2 ring-red-400/20' : 'border-transparent'}`}
-                    />
-                    {plannedScoreError && (
-                      <p className="text-red-500 text-[11px] font-bold mt-1.5">{plannedScoreError}</p>
-                    )}
-                  </div>
-                )}
               </div>
             </div>
           )}
@@ -5347,67 +5565,66 @@ export default function AbroadLiftMatchesPage() {
         }).format(npr / liveUsdToNpr);
 
       return (
-        <div className="min-h-screen bg-slate-50/70 text-slate-900 px-4 py-8 md:px-8 lg:px-12 pb-24">
-          {insightsPanel}
-          <div id="financial-audit-pdf-content" className="mx-auto max-w-6xl space-y-6 pt-2 bg-white p-4 sm:p-6 rounded-[32px]">
+        <div className="min-h-screen bg-slate-50/70 text-slate-900 px-3 py-4 md:px-6 lg:px-8 pb-20">
+          <div id="financial-audit-pdf-content" className="mx-auto max-w-5xl space-y-4 pt-1 bg-white p-3.5 sm:p-5 rounded-[24px]">
             
-            {/* Header Navigation */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            {/* Header Navigation in Soft Blue Card */}
+            <div className="bg-blue-50/70 border border-blue-100/90 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <button
                   onClick={() => setStep(12)}
-                  className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-[#3366FF] transition-colors mb-2 cursor-pointer"
+                  className="inline-flex items-center gap-1.5 text-[11px] font-bold text-blue-600 hover:text-blue-800 transition-colors mb-1 cursor-pointer"
                 >
-                  <ChevronLeft className="w-4 h-4" />
+                  <ChevronLeft className="w-3.5 h-3.5" />
                   Back to Roadmap
                 </button>
-                <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                <h1 className="text-[16px] sm:text-[18px] font-extrabold text-blue-950 tracking-tight leading-snug">
                   Financial Commitment & Audit Summary
                 </h1>
-                <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
+                <p className="text-[11px] sm:text-[12px] font-medium text-slate-500 mt-0.5">
                   Complete fiscal roadmap for your full {duration}-year tenure at {selectedMatch.name}
                 </p>
               </div>
 
-              <span className="rounded-full border border-slate-200/80 bg-white px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-500 shadow-xs self-start sm:self-auto">
+              <span className="rounded-full border border-blue-200/70 bg-white px-3.5 py-1 text-[9px] font-black uppercase tracking-widest text-blue-700 shadow-xs self-start sm:self-auto shrink-0">
                 Step 13 of 15 • Final Commitment
               </span>
             </div>
 
-            {/* Top Spotlight Investment Card (Clean Light Theme) */}
-            <Card className="rounded-[32px] border border-blue-100 bg-white p-6 sm:p-8 text-slate-900 shadow-sm">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div className="space-y-2">
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-[#3686FF] text-[10px] font-black uppercase tracking-wider">
-                    <Sparkles className="w-3.5 h-3.5 text-[#3686FF]" />
+            {/* Top Spotlight Investment Card (Soft Blue Palette) */}
+            <Card className="rounded-[24px] border border-blue-200/80 bg-blue-50/80 p-4 sm:p-6 text-blue-950 shadow-sm">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white border border-blue-200 text-blue-700 text-[9px] font-black uppercase tracking-wider">
+                    <Sparkles className="w-3 h-3 text-blue-600" />
                     {scholPercent > 0 ? "Scholarship Deduction Applied" : "Total Net Investment"}
                   </div>
-                  <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
+                  <h2 className="text-2xl sm:text-3xl font-black text-blue-950 tracking-tight leading-none mt-1">
                     {formatNPRDevanagariRange(
                       Math.max(0, Math.round(totalInvestmentNpr * 0.88)),
                       Math.round(totalInvestmentNpr * 1.12)
                     )}
                   </h2>
-                  <p className="text-xs text-slate-500 font-medium">
-                    Equivalent to approx. <strong className="text-slate-800">${Math.round(totalInvestmentNpr / usdToNpr).toLocaleString()} USD</strong> total for end-of-degree.
+                  <p className="text-[11px] text-slate-600 font-medium">
+                    Equivalent to approx. <strong className="text-blue-950 font-bold">${Math.round(totalInvestmentNpr / usdToNpr).toLocaleString()} USD</strong> total for end-of-degree.
                   </p>
                 </div>
 
                 {scholPercent > 0 ? (
-                  <div className="px-5 py-4 rounded-2xl bg-emerald-50 border border-emerald-100 text-right space-y-1">
-                    <span className="text-[10px] font-black uppercase tracking-wider text-emerald-700 flex items-center justify-end gap-1">
-                      <Award className="w-3.5 h-3.5" /> {scholPercent}% Merit Award Granted
+                  <div className="px-4 py-3 rounded-xl bg-emerald-50 border border-emerald-100 text-right space-y-0.5">
+                    <span className="text-[9px] font-black uppercase tracking-wider text-emerald-700 flex items-center justify-end gap-1">
+                      <Award className="w-3 h-3" /> {scholPercent}% Merit Award Granted
                     </span>
-                    <p className="text-sm font-extrabold text-emerald-900">
+                    <p className="text-[13px] font-extrabold text-emerald-900">
                       Saved {formatNPRDevanagari(totalScholSavingsNpr)}
                     </p>
                   </div>
                 ) : (
-                  <div className="px-5 py-4 rounded-2xl bg-slate-50 border border-slate-100 text-right space-y-1">
-                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">
+                  <div className="px-4 py-3 rounded-xl bg-white/90 border border-blue-100 text-right space-y-0.5">
+                    <span className="text-[9px] font-black uppercase tracking-wider text-slate-500">
                       Standard Tuition Tier
                     </span>
-                    <p className="text-xs font-semibold text-slate-600">
+                    <p className="text-[11px] font-semibold text-slate-600">
                       Score 80%+ to unlock merit awards
                     </p>
                   </div>
@@ -5416,44 +5633,49 @@ export default function AbroadLiftMatchesPage() {
             </Card>
 
             {/* 2-Column Analytical Dashboard Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
               
               {/* Left Column: Investment Breakdown & Itemized Table */}
-              <div className="space-y-6 lg:col-span-7">
+              <div className="space-y-4 lg:col-span-7">
                 
                 {/* Investment Distribution Progress Bars */}
-                <Card className="rounded-[32px] border border-slate-200/80 bg-white p-6 sm:p-8 shadow-xs">
-                  <h3 className="text-base font-black text-slate-900 mb-4 tracking-tight">
-                    Investment Distribution
-                  </h3>
+                <Card className="rounded-[24px] border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs">
+                  <div className="mb-3">
+                    <h3 className="text-[15px] sm:text-[16px] font-bold text-slate-900 tracking-tight leading-tight">
+                      Investment Distribution
+                    </h3>
+                    <p className="text-[10px] text-slate-400 font-medium leading-tight mt-0.5">
+                      Proportional breakdown across tuition, living, and ancillary expenses
+                    </p>
+                  </div>
 
-                  <div className="h-3 w-full rounded-full bg-slate-100 overflow-hidden flex mb-4">
-                    <div className="h-full bg-[#3366FF]" style={{ width: `${tuitionPercent}%` }} />
+                  <div className="h-2.5 w-full rounded-full bg-slate-100 overflow-hidden flex mb-3">
+                    <div className="h-full bg-blue-600" style={{ width: `${tuitionPercent}%` }} />
                     <div className="h-full bg-indigo-500" style={{ width: `${livingPercent}%` }} />
                     <div className="h-full bg-slate-400" style={{ width: `${miscPercent}%` }} />
                   </div>
 
-                  <div className="grid grid-cols-3 gap-3 text-center text-xs font-semibold">
-                    <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100">
-                      <span className="inline-block w-2 h-2 rounded-full bg-[#3366FF] mr-1.5" />
-                      <span className="text-slate-500">Tuition ({tuitionPercent}%)</span>
-                      <p className="font-extrabold text-slate-900 mt-1">
+                  <div className="grid grid-cols-3 gap-2 text-center text-xs font-semibold">
+                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                      <span className="inline-block w-2 h-2 rounded-full bg-blue-600 mr-1" />
+                      <span className="text-slate-500 text-[11px]">Tuition ({tuitionPercent}%)</span>
+                      <p className="font-extrabold text-slate-900 text-[12px] mt-0.5">
                         {symbol} {displayVal(totalTuitionNpr)} {unit}
                       </p>
                     </div>
 
-                    <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100">
-                      <span className="inline-block w-2 h-2 rounded-full bg-indigo-500 mr-1.5" />
-                      <span className="text-slate-500">Living ({livingPercent}%)</span>
-                      <p className="font-extrabold text-slate-900 mt-1">
+                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                      <span className="inline-block w-2 h-2 rounded-full bg-indigo-500 mr-1" />
+                      <span className="text-slate-500 text-[11px]">Living ({livingPercent}%)</span>
+                      <p className="font-extrabold text-slate-900 text-[12px] mt-0.5">
                         {symbol} {displayVal(totalLivingNpr)} {unit}
                       </p>
                     </div>
 
-                    <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100">
-                      <span className="inline-block w-2 h-2 rounded-full bg-slate-400 mr-1.5" />
-                      <span className="text-slate-500">Misc ({miscPercent}%)</span>
-                      <p className="font-extrabold text-slate-900 mt-1">
+                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                      <span className="inline-block w-2 h-2 rounded-full bg-slate-400 mr-1" />
+                      <span className="text-slate-500 text-[11px]">Misc ({miscPercent}%)</span>
+                      <p className="font-extrabold text-slate-900 text-[12px] mt-0.5">
                         {symbol} {displayVal(oneTimeNpr)} {unit}
                       </p>
                     </div>
@@ -5461,48 +5683,56 @@ export default function AbroadLiftMatchesPage() {
                 </Card>
 
                 {/* Itemized Commitment Ledger Table */}
-                <Card className="rounded-[32px] border border-slate-200/80 bg-white p-6 sm:p-8 shadow-xs">
-                  <h3 className="text-base font-black text-slate-900 mb-4 tracking-tight">
-                    Itemized Commitment Ledger
-                  </h3>
+                <Card className="rounded-[24px] border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs">
+                  <div className="mb-3">
+                    <h3 className="text-[15px] sm:text-[16px] font-bold text-slate-900 tracking-tight leading-tight">
+                      Itemized Commitment Ledger
+                    </h3>
+                    <p className="text-[10px] text-slate-400 font-medium leading-tight mt-0.5">
+                      Detailed breakdown of tuition, living expenses, and embassy fees
+                    </p>
+                  </div>
 
-                  <div className="overflow-x-auto rounded-2xl border border-slate-200/80 bg-white">
-                    <table className="w-full text-left border-collapse min-w-[480px]">
+                  <div className="overflow-x-auto rounded-xl border border-slate-200/80 bg-white">
+                    <table className="w-full text-left border-collapse min-w-[440px]">
                       <thead>
-                        <tr className="bg-slate-50 border-b border-slate-200 text-slate-400 text-[10px] font-black uppercase tracking-widest">
-                          <th className="p-3.5">Fiscal Item</th>
-                          <th className="p-3.5">Frequency</th>
-                          <th className="p-3.5 text-right">Magnitude</th>
+                        <tr className="bg-slate-50 border-b border-slate-200 text-slate-400 text-[9px] font-black uppercase tracking-widest">
+                          <th className="p-2.5">Fiscal Item</th>
+                          <th className="p-2.5">Frequency</th>
+                          <th className="p-2.5 text-right">Magnitude</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100 text-xs font-semibold">
+                      <tbody className="divide-y divide-slate-100 text-[12px] font-semibold">
                         {[
-                          { t: "Tuition Fee", f: "Annual", v: tuitionAnnualNpr },
-                          { t: "Living (Rent/Food)", f: "Monthly", v: livingAnnualNpr / 12 },
-                          { t: "Health Insurance", f: "One-time", v: 800 * usdToNpr },
-                          { t: "Resource Material", f: "Semester", v: 500 * usdToNpr },
-                          { t: "Flight Estimate", f: "One-time", v: 1200 * usdToNpr },
-                          { t: "Visa & Embassy Fees", f: "One-time", v: Math.round(Math.max((livingAnnualNpr / 12) * 1.15, 28000)) },
-                          { t: "Enrollment Deposit", f: "One-time", v: 450 * usdToNpr },
+                          { t: "Tuition Fee", sub: "Core academic instruction fee", f: "Annual", v: tuitionAnnualNpr },
+                          { t: "Living (Rent/Food)", sub: "Accommodation & food estimate", f: "Monthly", v: livingAnnualNpr / 12 },
+                          { t: "Health Insurance", sub: "Mandatory international coverage", f: "One-time", v: 800 * usdToNpr },
+                          { t: "Resource Material", sub: "Books & tech supplies", f: "Semester", v: 500 * usdToNpr },
+                          { t: "Flight Estimate", sub: "Travel budget allowance", f: "One-time", v: 1200 * usdToNpr },
+                          { t: "Visa & Embassy Fees", sub: "Permit processing & biometric", f: "One-time", v: Math.round(Math.max((livingAnnualNpr / 12) * 1.15, 28000)) },
+                          { t: "Enrollment Deposit", sub: "Seat confirmation deposit", f: "One-time", v: 450 * usdToNpr },
                         ].map((item, idx) => (
                           <tr key={idx} className="hover:bg-slate-50/80 transition-colors">
-                            <td className="p-3.5 font-bold text-slate-800">{item.t}</td>
-                            <td className="p-3.5">
-                              <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-[9px] font-black uppercase tracking-wider text-slate-500">
+                            <td className="p-2.5">
+                              <span className="font-bold text-slate-800 text-[12px] block leading-tight">{item.t}</span>
+                              <span className="text-[10px] text-slate-400 font-medium block leading-tight mt-0.5">{item.sub}</span>
+                            </td>
+                            <td className="p-2.5">
+                              <span className="px-2 py-0.5 rounded-full bg-slate-100 text-[8px] font-black uppercase tracking-wider text-slate-500">
                                 {item.f}
                               </span>
                             </td>
-                            <td className="p-3.5 text-right font-extrabold text-slate-900">
+                            <td className="p-2.5 text-right font-extrabold text-slate-900 text-[12px]">
                               {symbol} {displayVal(item.v)} {unit}
                             </td>
                           </tr>
                         ))}
-                        <tr className="bg-[#3366FF] text-white">
-                          <td className="p-4 font-black uppercase tracking-wider rounded-bl-2xl">
+                        <tr className="bg-blue-600 text-white">
+                          <td className="p-3 font-black uppercase tracking-wider text-[11px] rounded-bl-xl">
                             Aggregate Total Allocation
                           </td>
-                          <td className="p-4" />
-                          <td className="p-4 text-right font-black text-sm rounded-br-2xl">
+                          <td className="p-3" />
+                          <td className="p-3 text-right font-black text-[13px] rounded-br-xl">
                             {symbol} {displayVal(totalInvestmentNpr)} {unit}
                           </td>
                         </tr>
@@ -5514,26 +5744,26 @@ export default function AbroadLiftMatchesPage() {
               </div>
 
               {/* Right Column: Final Audit & Actions */}
-              <div className="space-y-6 lg:col-span-5 flex flex-col justify-between">
+              <div className="space-y-4 lg:col-span-5 flex flex-col justify-between">
                 
                 {/* Audit Status & Projections Card */}
-                <Card className="rounded-[32px] border border-slate-200/80 bg-white p-6 sm:p-8 shadow-xs">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-black">
+                <Card className="rounded-[24px] border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs">
+                  <div className="flex items-center gap-2.5 mb-3">
+                    <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-black text-sm">
                       ✓
                     </div>
                     <div>
-                      <h3 className="text-base font-black text-slate-900 tracking-tight">
+                      <h3 className="text-[15px] sm:text-[16px] font-bold text-slate-900 tracking-tight leading-tight">
                         Audit Complete
                       </h3>
-                      <p className="text-xs font-semibold text-slate-400">
+                      <p className="text-[10px] font-medium text-slate-400 leading-tight">
                         Roadmap verified for execution & export
                       </p>
                     </div>
                   </div>
 
-                  <div className="space-y-2 text-xs font-semibold pt-2">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">
+                  <div className="space-y-2 text-xs font-semibold pt-1">
+                    <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1.5">
                       Estimated Cost Ranges
                     </p>
                     {finalEstimateBands.map((band) => {
@@ -5543,19 +5773,19 @@ export default function AbroadLiftMatchesPage() {
                       return (
                         <div
                           key={band.key}
-                          className={`p-3 rounded-2xl border transition-all ${
+                          className={`p-2.5 rounded-xl border transition-all ${
                             isSelected
-                              ? "bg-blue-50/60 border-blue-200 text-[#3366FF]"
+                              ? "bg-blue-50/80 border-blue-200 text-blue-900"
                               : "bg-slate-50 border-slate-100 text-slate-700"
                           }`}
                         >
                           <div className="flex items-center justify-between gap-2">
-                            <span className="font-extrabold">{band.label}</span>
-                            <span className="font-black">
+                            <span className="font-extrabold text-[12px]">{band.label}</span>
+                            <span className="font-black text-[12px]">
                               {band.minLakh} - {band.maxLakh} Lakh NPR
                             </span>
                           </div>
-                          <p className="text-[10px] text-slate-500 font-semibold mt-1">
+                          <p className="text-[10px] text-slate-500 font-semibold mt-0.5">
                             {formatUsd(minNpr)} - {formatUsd(maxNpr)}
                           </p>
                         </div>
@@ -5565,43 +5795,51 @@ export default function AbroadLiftMatchesPage() {
                 </Card>
 
                 {/* Financial Strategy Protocol */}
-                <Card className="rounded-[32px] border border-slate-200/80 bg-white p-6 sm:p-8 shadow-xs">
-                  <h3 className="text-sm font-black uppercase tracking-wider text-slate-900 mb-3 flex items-center gap-2">
-                    <ShieldAlert className="w-4 h-4 text-[#3366FF]" /> Financial Strategy Protocol
-                  </h3>
+                <Card className="rounded-[24px] border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs">
+                  <div className="mb-2.5">
+                    <h3 className="text-[14px] font-extrabold text-slate-900 flex items-center gap-1.5">
+                      <ShieldAlert className="w-4 h-4 text-blue-600" /> Financial Strategy Protocol
+                    </h3>
+                    <p className="text-[10px] text-slate-400 font-medium leading-tight mt-0.5">
+                      Visa compliance guidelines & verification checks
+                    </p>
+                  </div>
 
-                  <div className="space-y-2.5 text-xs font-semibold text-slate-600">
+                  <div className="space-y-2 text-[11px] sm:text-[12px] font-semibold text-slate-600">
                     <div className="flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
                       <span>Declared liquidity covers 85%+ of Year 1 upfront.</span>
                     </div>
                     <div className="flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
                       <span>Sponsor verified for full {selectedMatch.name} degree support.</span>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Info className="w-4 h-4 text-[#3366FF] shrink-0 mt-0.5" />
+                      <Info className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
                       <span>Recommended visa proof: {symbol} {displayVal(totalInvestmentNpr * 1.05)} {unit}.</span>
                     </div>
                   </div>
                 </Card>
 
+                {/* Dynamic Counselor Signals */}
+                {insightsPanel}
+
                 {/* Primary Save & Export Buttons */}
-                <div className="space-y-3 pt-2">
+                <div className="space-y-2.5 pt-1">
                   <button
                     onClick={handleSavePlan}
                     disabled={saving}
-                    className={`w-full h-14 bg-[#3366FF] hover:bg-[#254bdb] text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer ${
+                    className={`w-full h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-extrabold text-[11px] uppercase tracking-wider shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer ${
                       saving ? "opacity-70" : ""
                     }`}
                   >
                     {saving ? (
                       <>
-                        <Loader2 className="w-4 h-4 animate-spin" /> Saving Plan...
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" /> Saving Plan...
                       </>
                     ) : (
                       <>
-                        Save Plan & Finish <ArrowRight className="w-4 h-4" />
+                        Save Plan & Finish <ArrowRight className="w-3.5 h-3.5" />
                       </>
                     )}
                   </button>
@@ -5617,15 +5855,15 @@ export default function AbroadLiftMatchesPage() {
                         () => setIsExportingPdf(false)
                       );
                     }}
-                    className="w-full h-12 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-black uppercase tracking-wider shadow-xs transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                    className="w-full h-11 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-[11px] font-extrabold uppercase tracking-wider shadow-xs transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                   >
                     {isExportingPdf ? (
                       <>
-                        <Loader2 className="w-4 h-4 animate-spin text-[#3686FF]" /> Generating PDF...
+                        <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-600" /> Generating PDF...
                       </>
                     ) : (
                       <>
-                        <Download className="w-4 h-4 text-[#3686FF]" /> Export Financial PDF
+                        <Download className="w-3.5 h-3.5 text-blue-600" /> Export Financial PDF
                       </>
                     )}
                   </button>

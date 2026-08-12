@@ -88,7 +88,7 @@ function convertColorToRgb(colorStr: string): string {
   }
 
   // 3. Fallback to a solid dark visible color (never transparent!)
-  return "#0f172a";
+  return "#1e3a8a";
 }
 
 function sanitizeColorString(str: string): string {
@@ -102,6 +102,36 @@ function sanitizeColorString(str: string): string {
   });
 }
 
+function createComputedStyleProxy(
+  originalStyle: CSSStyleDeclaration
+): CSSStyleDeclaration {
+  return new Proxy(originalStyle, {
+    get(target, prop, receiver) {
+      if (prop === "getPropertyValue") {
+        return function (property: string) {
+          const val = target.getPropertyValue(property);
+          if (
+            val &&
+            /(?:lab|oklch|oklab|lch|color|light-dark)\(/i.test(val)
+          ) {
+            return sanitizeColorString(val);
+          }
+          return val;
+        };
+      }
+      const val = Reflect.get(target, prop, receiver);
+      if (
+        typeof prop === "string" &&
+        typeof val === "string" &&
+        /(?:lab|oklch|oklab|lch|color|light-dark)\(/i.test(val)
+      ) {
+        return sanitizeColorString(val);
+      }
+      return typeof val === "function" ? val.bind(target) : val;
+    },
+  });
+}
+
 export async function exportElementToPDF(
   elementOrId: HTMLElement | string,
   filename: string = "AbroadLift_Report",
@@ -111,6 +141,8 @@ export async function exportElementToPDF(
   if (typeof window === "undefined") return;
 
   if (onStart) onStart();
+
+  const originalGetComputedStyle = window.getComputedStyle;
 
   try {
     const element =
@@ -124,6 +156,15 @@ export async function exportElementToPDF(
       return;
     }
 
+    // Override window.getComputedStyle to intercept and convert all unsupported color functions
+    window.getComputedStyle = function (
+      elt: Element,
+      pseudoElt?: string | null
+    ): CSSStyleDeclaration {
+      const style = originalGetComputedStyle(elt, pseudoElt);
+      return createComputedStyleProxy(style);
+    };
+
     // Capture target element canvas at 2x resolution with sanitized CSS colors & reset animations
     const canvas = await html2canvas(element as HTMLElement, {
       scale: 2,
@@ -136,6 +177,19 @@ export async function exportElementToPDF(
       windowWidth: document.documentElement.offsetWidth,
       windowHeight: document.documentElement.offsetHeight,
       onclone: (clonedDoc, clonedElement) => {
+        // Override clonedDoc.defaultView.getComputedStyle as well
+        if (clonedDoc.defaultView) {
+          const clonedOrigGetComputedStyle =
+            clonedDoc.defaultView.getComputedStyle;
+          clonedDoc.defaultView.getComputedStyle = function (
+            elt: Element,
+            pseudoElt?: string | null
+          ): CSSStyleDeclaration {
+            const style = clonedOrigGetComputedStyle(elt, pseudoElt);
+            return createComputedStyleProxy(style);
+          };
+        }
+
         // 1. Sanitize all <style> tags
         const styleTags = clonedDoc.querySelectorAll("style");
         styleTags.forEach((style) => {
@@ -144,7 +198,33 @@ export async function exportElementToPDF(
           }
         });
 
-        // 2. Ensure all elements are visible and disable animations/transforms that obscure content
+        // 2. Convert stylesheet link rules if accessible
+        const linkTags =
+          clonedDoc.querySelectorAll<HTMLLinkElement>("link[rel='stylesheet']");
+        linkTags.forEach((link) => {
+          try {
+            if (link.sheet) {
+              let rulesText = "";
+              const rules = link.sheet.cssRules || link.sheet.rules;
+              for (let i = 0; i < rules.length; i++) {
+                rulesText += rules[i].cssText + "\n";
+              }
+              if (
+                rulesText &&
+                /(?:lab|oklch|oklab|lch|color|light-dark)\(/i.test(rulesText)
+              ) {
+                const newStyle = clonedDoc.createElement("style");
+                newStyle.textContent = sanitizeColorString(rulesText);
+                link.parentNode?.insertBefore(newStyle, link);
+                link.disabled = true;
+              }
+            }
+          } catch {
+            // cross-origin sheet fallback
+          }
+        });
+
+        // 3. Ensure all elements are visible and disable animations/transforms that obscure content
         const view = clonedDoc.defaultView || window;
         const allElements =
           clonedDoc.querySelectorAll<HTMLElement | SVGElement>("*");
@@ -257,6 +337,9 @@ export async function exportElementToPDF(
   } catch (error) {
     console.error("PDF Generation Error:", error);
   } finally {
+    // Restore original window.getComputedStyle
+    window.getComputedStyle = originalGetComputedStyle;
+
     // Clean up temporary conversion helper if present
     const helper = document.getElementById("pdf-color-convert-helper");
     if (helper && helper.parentNode) {
@@ -265,5 +348,6 @@ export async function exportElementToPDF(
     if (onComplete) onComplete();
   }
 }
+
 
 

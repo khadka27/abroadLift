@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getProgramsCached, getProgramsMultiPageCached } from "@/lib/api/cache";
 import { abroadliftApi } from "@/lib/api/abroadlift";
+import { FALLBACK_SCHOOLS } from "@/lib/data/fallbackUniversities";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -12,8 +13,10 @@ export async function GET(req: NextRequest) {
   if (allFieldsAndPrograms) {
     try {
       const levelFilter = searchParams.get("level");
-      // Fetch programs from multi-page cache (up to 5 pages = 500 programs max)
-      const programs = await getProgramsMultiPageCached(5);
+      // Fetch programs from multi-page cache (up to 35 pages) + fallback dataset
+      const remotePrograms = await getProgramsMultiPageCached(35).catch(() => []);
+      const fallbackProgs = FALLBACK_SCHOOLS.flatMap((s) => s.programs);
+      const programs = [...remotePrograms, ...fallbackProgs];
 
       const isLevelMatch = (pLevel: string, filter: string) => {
         if (!filter) return true;

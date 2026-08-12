@@ -106,15 +106,17 @@ export async function getAllSchoolsCached(): Promise<any[]> {
       const totalPages = Math.min(firstPage.pagination?.totalPages || 1, 15);
       const schools: any[] = [...(firstPage.data || [])];
 
-      for (let p = 2; p <= totalPages; p++) {
-        try {
-          const page = await rawFetch<any>(`/api/schools?page=${p}&limit=100`);
-          if (page.data) schools.push(...page.data);
-          // 200 ms pause between sequential pages to avoid 429
-          await new Promise((r) => setTimeout(r, 250));
-        } catch (err) {
-          console.warn(`Skipping schools page ${p}:`, err);
-          break; // stop on error to avoid cascading 429s
+      const batchSize = 4;
+      for (let p = 2; p <= totalPages; p += batchSize) {
+        const promises = [];
+        for (let i = p; i < p + batchSize && i <= totalPages; i++) {
+          promises.push(rawFetch<any>(`/api/schools?page=${i}&limit=100`).catch(() => ({ data: [] })));
+        }
+        const results = await Promise.all(promises);
+        for (const res of results) {
+          if (res && res.data) {
+            schools.push(...res.data);
+          }
         }
       }
 

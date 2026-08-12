@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { getAllSchoolsCached, getSchoolsCached, getProgramsMultiPageCached } from "@/lib/api/cache";
+import { FALLBACK_SCHOOLS } from "@/lib/data/fallbackUniversities";
 
 function getProgramField(prog: any): string {
   const n = (prog.name || "").trim().toLowerCase();
@@ -196,9 +197,13 @@ export async function GET(req: NextRequest) {
   const hasCriteria = !!(degreeLevel || field || program || budget > 0 || userGpa > 0 || rawTestScore > 0);
 
   try {
-    // 1. Fetch remote cached schools/programs
-    const schools = await getAllSchoolsCached();
-    const programs = await getProgramsMultiPageCached(35);
+    // 1. Fetch remote cached schools/programs and merge fallback dataset
+    const remoteSchools = await getAllSchoolsCached().catch(() => []);
+    const remotePrograms = await getProgramsMultiPageCached(35).catch(() => []);
+    const fallbackPrograms = FALLBACK_SCHOOLS.flatMap((s) => s.programs);
+
+    const schools = [...remoteSchools, ...FALLBACK_SCHOOLS];
+    const programs = [...remotePrograms, ...fallbackPrograms];
 
     const programsBySchool = new Map<number, any[]>();
     for (const prog of programs) {

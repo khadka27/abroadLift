@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { getAllSchoolsCached, getProgramsMultiPageCached } from "@/lib/api/cache";
+import { FALLBACK_SCHOOLS } from "@/lib/data/fallbackUniversities";
 
 const COUNTRY_ALIAS_TO_CODE: Record<string, string> = {
   US: "USA",
@@ -112,11 +113,15 @@ export async function GET(req: NextRequest) {
     .filter(Boolean);
 
   try {
-    // Fetch all schools and programs from cached multipage data
-    const [schools, programs] = await Promise.all([
-      getAllSchoolsCached(),
-      getProgramsMultiPageCached(15).catch(() => [])
+    // Fetch all schools and programs from cached multipage data + fallback dataset
+    const [remoteSchools, remotePrograms] = await Promise.all([
+      getAllSchoolsCached().catch(() => []),
+      getProgramsMultiPageCached(35).catch(() => [])
     ]);
+
+    const fallbackPrograms = FALLBACK_SCHOOLS.flatMap((s) => s.programs);
+    const schools = [...remoteSchools, ...FALLBACK_SCHOOLS];
+    const programs = [...remotePrograms, ...fallbackPrograms];
 
     // Map programs by school_id
     const programsBySchool = new Map<number, any[]>();
@@ -153,17 +158,29 @@ export async function GET(req: NextRequest) {
       const rank = school.school_rank || 500;
       const acceptanceRate = Math.min(95, Math.max(25, 98 - Math.round(Math.log10(rank + 1) * 15)));
       
-      const schoolPrograms = programsBySchool.get(school.school_id) || [];
+      const schoolPrograms = programsBySchool.get(school.school_id) || school.programs || [];
       
-      // Extract unique majors (fieldCategories) offered by this school
-      const majors = Array.from(new Set(schoolPrograms.map(getProgramField)));
+      // Extract unique majors offered by this school
+      let majors = Array.from(new Set(schoolPrograms.map(getProgramField)));
+      if (majors.length === 0) {
+        majors = [
+          "Business & Management",
+          "Computer Science & IT",
+          "Engineering",
+          "Medicine & Health",
+          "Data Science & AI",
+          "Arts & Humanities",
+          "Social Sciences",
+          "Natural Sciences"
+        ];
+      }
       
       // Calculate a realistic average tuition fee based on programs or fallback
       const tuitions = schoolPrograms
-        .map((p) => parseFloat(String(p.tuition || 0)))
-        .filter((t) => !isNaN(t) && t > 0);
+        .map((p: any) => parseFloat(String(p.tuition || 0)))
+        .filter((t: number) => !isNaN(t) && t > 0);
       const avgTuition = tuitions.length > 0 
-        ? Math.round(tuitions.reduce((a, b) => a + b, 0) / tuitions.length)
+        ? Math.round(tuitions.reduce((a: number, b: number) => a + b, 0) / tuitions.length)
         : (school.tuition || school.tuitionFee || school.tuition_fee ? parseFloat(String(school.tuition || school.tuitionFee || school.tuition_fee)) : 0);
 
       return {
