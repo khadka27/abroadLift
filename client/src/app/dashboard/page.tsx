@@ -313,6 +313,37 @@ function DashboardInner() {
     return !isNaN(num) && num < 0;
   };
 
+  // Text-Only Validation: Letters, spaces, hyphens, dots, apostrophes ONLY.
+  // Numbers (0-9) and special characters are NOT allowed.
+  const isValidTextOnly = (val: string | undefined | null): boolean => {
+    if (!val || !val.trim()) return true;
+    return /^[a-zA-Z\s\-\.\'\u00C0-\u024F]+$/.test(val.trim());
+  };
+
+  // Full Name Validation: Text only, at least 2 characters.
+  const isValidFullName = (val: string | undefined | null): boolean => {
+    if (!val || !val.trim()) return true;
+    return /^[a-zA-Z\s\-\.\'\u00C0-\u024F]{2,80}$/.test(val.trim());
+  };
+
+  // Strict Digits-Only Integer Validation (Backlogs, Study Gap, Work Experience)
+  const isValidDigitsOnly = (val: string | undefined | null): boolean => {
+    if (!val || !val.trim()) return true;
+    return /^[0-9]+$/.test(val.trim());
+  };
+
+  // Numeric Amount Validation (Budget, Bank Balance, Sponsor Income)
+  const isValidNumericAmount = (val: string | undefined | null): boolean => {
+    if (!val || !val.trim()) return true;
+    return /^[0-9]+(\.[0-9]{1,2})?$/.test(val.trim());
+  };
+
+  // Passport Number Validation (Alphanumeric only, no special symbols)
+  const isValidPassportNumber = (val: string | undefined | null): boolean => {
+    if (!val || !val.trim()) return true;
+    return /^[a-zA-Z0-9]+$/.test(val.trim());
+  };
+
   const isValidEmail = (emailStr: string | undefined | null): boolean => {
     if (!emailStr || !emailStr.trim()) return true;
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailStr.trim());
@@ -1427,7 +1458,42 @@ function DashboardInner() {
     setSaving(true);
     setErrorMsg("");
 
-    // 1. Personal Info Validation
+    // 1. Personal Info Text-Only & Format Validation
+    if (editForm.name && !isValidFullName(editForm.name)) {
+      setErrorMsg("Full name can only contain letters and spaces (numbers and special characters are not allowed).");
+      setSaving(false);
+      return;
+    }
+    if (editForm.nationality && !isValidTextOnly(editForm.nationality)) {
+      setErrorMsg("Nationality can only contain letters and spaces (numbers and special characters are not allowed).");
+      setSaving(false);
+      return;
+    }
+    if (editForm.currentCountry && !isValidTextOnly(editForm.currentCountry)) {
+      setErrorMsg("Current country can only contain letters and spaces (numbers and special characters are not allowed).");
+      setSaving(false);
+      return;
+    }
+    if (editForm.firstLanguage && !isValidTextOnly(editForm.firstLanguage)) {
+      setErrorMsg("Native language can only contain letters and spaces (numbers and special characters are not allowed).");
+      setSaving(false);
+      return;
+    }
+    if (editForm.cityTown && !isValidTextOnly(editForm.cityTown)) {
+      setErrorMsg("City/Town can only contain letters and spaces (numbers and special characters are not allowed).");
+      setSaving(false);
+      return;
+    }
+    if (editForm.provinceState && !isValidTextOnly(editForm.provinceState)) {
+      setErrorMsg("Province/State can only contain letters and spaces (numbers and special characters are not allowed).");
+      setSaving(false);
+      return;
+    }
+    if (editForm.passportNumber && !isValidPassportNumber(editForm.passportNumber)) {
+      setErrorMsg("Passport number can only contain letters and numbers (special characters are not allowed).");
+      setSaving(false);
+      return;
+    }
     if (editForm.email && !isValidEmail(editForm.email)) {
       setErrorMsg("Please enter a valid email address.");
       setSaving(false);
@@ -1466,7 +1532,22 @@ function DashboardInner() {
       return;
     }
 
-    // 2. Academic Credentials Validation
+    // 2. Academic & Preferences Credentials Validation
+    if (editForm.preferredCountry && !isValidTextOnly(editForm.preferredCountry)) {
+      setErrorMsg("Preferred destination country can only contain letters and spaces.");
+      setSaving(false);
+      return;
+    }
+    if (editForm.field && !isValidTextOnly(editForm.field.replace("&", ""))) {
+      setErrorMsg("Field of study can only contain letters and text characters.");
+      setSaving(false);
+      return;
+    }
+    if (editForm.jobTitle && !isValidTextOnly(editForm.jobTitle.replace("/", ""))) {
+      setErrorMsg("Job title can only contain letters and spaces (numbers are not allowed).");
+      setSaving(false);
+      return;
+    }
     if (editForm.passingYear && !isValidPassingYear(editForm.passingYear)) {
       setErrorMsg("Please enter a valid graduation year between 1970 and 2035.");
       setSaving(false);
@@ -1489,6 +1570,22 @@ function DashboardInner() {
     }
 
     // 4. Financial & Experience Non-negative & Bound Checks
+    if (editForm.backlogs && !isValidDigitsOnly(editForm.backlogs)) {
+      setErrorMsg("Backlogs count must contain numbers only (letters and special characters are not allowed).");
+      setSaving(false);
+      return;
+    }
+    if (editForm.studyGap && !isValidDigitsOnly(editForm.studyGap)) {
+      setErrorMsg("Study gap must contain numbers only (letters and special characters are not allowed).");
+      setSaving(false);
+      return;
+    }
+    if (editForm.workExperience && !isValidDigitsOnly(editForm.workExperience)) {
+      setErrorMsg("Years of work experience must contain numbers only (letters and special characters are not allowed).");
+      setSaving(false);
+      return;
+    }
+
     const budgetVal = editForm.yearlyBudget ? parseFloat(editForm.yearlyBudget) : NaN;
     const bankVal = editForm.bankBalance ? parseFloat(editForm.bankBalance) : NaN;
     const incomeVal = editForm.sponsorIncome ? parseFloat(editForm.sponsorIncome) : NaN;
@@ -1532,6 +1629,16 @@ function DashboardInner() {
     }
 
     // 5. Emergency Contact Validation
+    if (editForm.emergencyName && !isValidFullName(editForm.emergencyName)) {
+      setErrorMsg("Emergency contact name can only contain letters and spaces (numbers and special characters are not allowed).");
+      setSaving(false);
+      return;
+    }
+    if (editForm.emergencyRelation && !isValidTextOnly(editForm.emergencyRelation)) {
+      setErrorMsg("Emergency relationship can only contain letters and spaces (numbers and special characters are not allowed).");
+      setSaving(false);
+      return;
+    }
     if (editForm.emergencyEmail && !isValidEmail(editForm.emergencyEmail)) {
       setErrorMsg("Please enter a valid emergency contact email address.");
       setSaving(false);
@@ -4254,8 +4361,17 @@ function DashboardInner() {
                                       type="text"
                                       value={editForm.name}
                                       onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
+                                      className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
+                                        !isValidFullName(editForm.name)
+                                          ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
+                                          : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
+                                      }`}
                                     />
+                                    {!isValidFullName(editForm.name) && (
+                                      <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
+                                        <span>⚠️ Full name must contain only letters and spaces (numbers and special characters are not allowed)</span>
+                                      </p>
+                                    )}
                                   </label>
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Email Address</span>
@@ -4289,7 +4405,7 @@ function DashboardInner() {
                                     />
                                     {!isValidPhone(editForm.phoneNumber) && (
                                       <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
-                                        <span>⚠️ Invalid phone number format (7 to 15 digits expected)</span>
+                                        <span>⚠️ Phone number must contain digits only (letters and special characters are not allowed)</span>
                                       </p>
                                     )}
                                   </label>
@@ -4369,8 +4485,17 @@ function DashboardInner() {
                                       value={editForm.nationality}
                                       onChange={(e) => setEditForm({ ...editForm, nationality: e.target.value })}
                                       placeholder="e.g. Nepali"
-                                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
+                                      className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
+                                        !isValidTextOnly(editForm.nationality)
+                                          ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
+                                          : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
+                                      }`}
                                     />
+                                    {!isValidTextOnly(editForm.nationality) && (
+                                      <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
+                                        <span>⚠️ Nationality must contain text only (numbers and special characters are not allowed)</span>
+                                      </p>
+                                    )}
                                   </label>
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Current Country</span>
@@ -4379,8 +4504,17 @@ function DashboardInner() {
                                       value={editForm.currentCountry}
                                       onChange={(e) => setEditForm({ ...editForm, currentCountry: e.target.value })}
                                       placeholder="e.g. Nepal"
-                                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
+                                      className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
+                                        !isValidTextOnly(editForm.currentCountry)
+                                          ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
+                                          : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
+                                      }`}
                                     />
+                                    {!isValidTextOnly(editForm.currentCountry) && (
+                                      <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
+                                        <span>⚠️ Current country must contain text only (numbers and special characters are not allowed)</span>
+                                      </p>
+                                    )}
                                   </label>
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">First / Native Language</span>
@@ -4389,8 +4523,17 @@ function DashboardInner() {
                                       value={editForm.firstLanguage}
                                       onChange={(e) => setEditForm({ ...editForm, firstLanguage: e.target.value })}
                                       placeholder="e.g. Nepali, English"
-                                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
+                                      className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
+                                        !isValidTextOnly(editForm.firstLanguage)
+                                          ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
+                                          : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
+                                      }`}
                                     />
+                                    {!isValidTextOnly(editForm.firstLanguage) && (
+                                      <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
+                                        <span>⚠️ Native language must contain text only (numbers and special characters are not allowed)</span>
+                                      </p>
+                                    )}
                                   </label>
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Passport Number</span>
@@ -4399,8 +4542,17 @@ function DashboardInner() {
                                       value={editForm.passportNumber}
                                       onChange={(e) => setEditForm({ ...editForm, passportNumber: e.target.value })}
                                       placeholder="e.g. N01234567"
-                                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
+                                      className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
+                                        !isValidPassportNumber(editForm.passportNumber)
+                                          ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
+                                          : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
+                                      }`}
                                     />
+                                    {!isValidPassportNumber(editForm.passportNumber) && (
+                                      <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
+                                        <span>⚠️ Passport number must be alphanumeric (special characters are not allowed)</span>
+                                      </p>
+                                    )}
                                   </label>
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Passport Expiry Date</span>
@@ -4453,8 +4605,17 @@ function DashboardInner() {
                                         type="text"
                                         value={editForm.cityTown}
                                         onChange={(e) => setEditForm({ ...editForm, cityTown: e.target.value })}
-                                        className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
+                                        className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
+                                          !isValidTextOnly(editForm.cityTown)
+                                            ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
+                                            : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
+                                        }`}
                                       />
+                                      {!isValidTextOnly(editForm.cityTown) && (
+                                        <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
+                                          <span>⚠️ City/Town must contain text only (numbers and special characters are not allowed)</span>
+                                        </p>
+                                      )}
                                     </label>
                                     <label className="block">
                                       <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Province / State</span>
@@ -4462,8 +4623,17 @@ function DashboardInner() {
                                         type="text"
                                         value={editForm.provinceState}
                                         onChange={(e) => setEditForm({ ...editForm, provinceState: e.target.value })}
-                                        className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
+                                        className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
+                                          !isValidTextOnly(editForm.provinceState)
+                                            ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
+                                            : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
+                                        }`}
                                       />
+                                      {!isValidTextOnly(editForm.provinceState) && (
+                                        <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
+                                          <span>⚠️ Province/State must contain text only (numbers and special characters are not allowed)</span>
+                                        </p>
+                                      )}
                                     </label>
                                     <label className="block">
                                       <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Postal / ZIP Code</span>
