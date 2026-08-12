@@ -25,6 +25,8 @@ import { FlagIcon } from "./FlagIcon";
 import { motion } from "framer-motion";
 import { formatNPRDevanagari } from "@/lib/currency";
 
+import { UniversityDetailsModal } from "./UniversitySelection";
+
 interface StudyOverviewDashboardProps {
   form: Form;
   selectedMatch: Match;
@@ -43,6 +45,7 @@ interface StudyOverviewDashboardProps {
   onAdvanceToAdmission: () => void;
   onAdvanceToVisa: () => void;
   onGoToMatches: () => void;
+  onSelectUniversity?: (match: Match) => void;
 }
 
 export function StudyOverviewDashboard({
@@ -61,8 +64,12 @@ export function StudyOverviewDashboard({
   onAdvanceToAdmission,
   onAdvanceToVisa,
   onGoToMatches,
+  onSelectUniversity,
 }: StudyOverviewDashboardProps) {
   const [showConfirmModal, setShowConfirmModal] = React.useState(false);
+  const [selectedUniForDetails, setSelectedUniForDetails] = React.useState<Match | null>(null);
+  const [detailsTab, setDetailsTab] = React.useState<"estimates" | "overview" | "rankings" | "courses" | "facts">("estimates");
+
   const formatNprLakhRange = (valueNpr: number, _spread = 0.12) => {
     return formatNPRDevanagari(valueNpr);
   };
@@ -182,7 +189,7 @@ export function StudyOverviewDashboard({
               <div className="w-8 h-8 rounded-full border border-slate-200 bg-white flex items-center justify-center shadow-sm group-hover:border-blue-200 group-hover:bg-blue-50 transition-all">
                 <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
               </div>
-              Back to matches
+              Back to University page
             </button>
 
             <button
@@ -563,11 +570,28 @@ export function StudyOverviewDashboard({
                     </div>
 
                     <div className="space-y-2.5">
-                      <button className="w-full bg-[#3686FF] hover:bg-blue-600 text-white font-bold text-sm py-3.5 rounded-2xl shadow-md shadow-blue-500/15 hover:shadow-blue-500/25 flex items-center justify-center gap-1.5 transition-all group-hover:translate-y-[-2px]">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (onSelectUniversity) {
+                            onSelectUniversity(uni);
+                          } else {
+                            onAdvanceToCost();
+                          }
+                        }}
+                        className="w-full bg-[#3686FF] hover:bg-blue-600 text-white font-bold text-sm py-3.5 rounded-2xl shadow-md shadow-blue-500/15 hover:shadow-blue-500/25 flex items-center justify-center gap-1.5 transition-all group-hover:translate-y-[-2px] cursor-pointer"
+                      >
                         Select University <ChevronRight className="w-4 h-4" />
                       </button>
 
-                      <button className="w-full text-slate-400 hover:text-slate-600 font-bold text-[13px] py-2 transition-all hover:bg-slate-50 rounded-xl">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedUniForDetails(uni);
+                          setDetailsTab("estimates");
+                        }}
+                        className="w-full text-slate-500 hover:text-blue-600 font-bold text-[13px] py-2 transition-all hover:bg-blue-50 rounded-xl cursor-pointer"
+                      >
                         View Details
                       </button>
                     </div>
@@ -578,6 +602,23 @@ export function StudyOverviewDashboard({
           </div>
         </div>
       </div>
+
+      {selectedUniForDetails && (
+        <UniversityDetailsModal
+          match={selectedUniForDetails}
+          currency={form.currency || "USD"}
+          activeTab={detailsTab}
+          setActiveTab={setDetailsTab}
+          usdToNpr={USD_TO_NPR}
+          onClose={() => setSelectedUniForDetails(null)}
+          onShortlist={() => {
+            if (onSelectUniversity) {
+              onSelectUniversity(selectedUniForDetails);
+            }
+            setSelectedUniForDetails(null);
+          }}
+        />
+      )}
 
       {showConfirmModal && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4 animate-in fade-in duration-300">

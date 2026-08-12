@@ -169,7 +169,7 @@ export default function SchoolDetailPage() {
     <main className="min-h-screen bg-[#F8FAFC] font-sans selection:bg-[#3686FF]/20 selection:text-[#3686FF] overflow-x-hidden pb-20">
       
       {/* Hero Banner Section */}
-      <section className="relative h-[320px] md:h-[450px] w-full overflow-hidden shrink-0">
+      <section className="relative h-[400px] md:h-[520px] w-full overflow-hidden shrink-0">
         <Image
           src={school.banner?.url || "/uni-default.webp"}
           alt={school.name}
@@ -178,16 +178,29 @@ export default function SchoolDetailPage() {
           priority
           unoptimized
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/35 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-slate-950/20" />
         
-        {/* Navigation & Actions */}
-        <div className="absolute top-8 left-6 md:left-12 right-6 md:right-12 flex justify-between items-center z-20">
+        {/* Navigation & Actions - Placed below fixed Navbar (height 80px) */}
+        <div className="absolute top-24 md:top-28 left-6 md:left-12 right-6 md:right-12 flex items-center justify-between gap-3 z-20">
           <button 
-            onClick={() => router.back()}
-            className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md text-white border border-white/20 hover:bg-white hover:text-slate-900 flex items-center justify-center transition-all shadow-md hover:scale-105"
+            onClick={() => {
+              if (typeof window !== "undefined" && window.history.length > 1) {
+                router.back();
+              } else {
+                router.push("/matches");
+              }
+            }}
+            className="px-4 py-2.5 rounded-full bg-slate-900/80 hover:bg-slate-900 backdrop-blur-md text-white border border-white/20 text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all shadow-lg hover:scale-105 cursor-pointer"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-4 h-4 text-blue-400" /> Back to Matches
           </button>
+
+          <Link
+            href="/matches"
+            className="px-4 py-2.5 rounded-full bg-blue-600/90 hover:bg-blue-600 backdrop-blur-md text-white border border-white/20 text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all shadow-lg hover:scale-105 cursor-pointer"
+          >
+            <GraduationCap className="w-4 h-4" /> Compare Universities
+          </Link>
         </div>
 
         {/* School Name & Rank Title */}

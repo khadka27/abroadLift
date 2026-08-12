@@ -3627,15 +3627,19 @@ export default function AbroadLiftMatchesPage() {
     if (step === 3) {
       const degreeVal = (form.degree || "").toLowerCase();
       const levelKey =
-        degreeVal.includes("bachelor") || degreeVal.includes("undergrad")
-          ? "bachelor-4"
-          : degreeVal.includes("doctor") || degreeVal.includes("phd")
-            ? "doctorate"
-            : degreeVal.includes("associate") || degreeVal.includes("foundation")
-              ? "associate-foundation"
-              : degreeVal.includes("diploma")
-                ? "undergrad-dip-2"
-                : "masters";
+        degreeVal.includes("pg-cert") || degreeVal.includes("pg_cert") || degreeVal.includes("postgraduate certificate")
+          ? "pg-cert"
+          : degreeVal.includes("pg-dip") || degreeVal.includes("pg_dip") || degreeVal.includes("postgraduate diploma")
+            ? "pg-dip"
+            : degreeVal.includes("bachelor") || degreeVal.includes("undergrad")
+              ? "bachelor-4"
+              : degreeVal.includes("doctor") || degreeVal.includes("phd")
+                ? "doctorate"
+                : degreeVal.includes("associate") || degreeVal.includes("foundation")
+                  ? "associate-foundation"
+                  : degreeVal.includes("diploma")
+                    ? "undergrad-dip-2"
+                    : "masters";
 
       const levelFallbackMap = LEVEL_PROGRAMS[levelKey] || LEVEL_PROGRAMS.masters || PROGRAMS;
       const rawProgramsMap =
@@ -3646,30 +3650,57 @@ export default function AbroadLiftMatchesPage() {
           return list.filter((p) => {
             const pl = p.toLowerCase();
             if (
+              pl.includes("certificate") ||
+              pl.includes("diploma") ||
               pl.startsWith("bachelor") ||
               pl.startsWith("bsc") ||
               pl.startsWith("bba") ||
               pl.startsWith("llb") ||
               pl.startsWith("mbbs") ||
               pl.startsWith("associate") ||
-              pl.startsWith("foundation") ||
-              pl.startsWith("diploma in")
+              pl.startsWith("foundation")
             ) {
+              if (
+                pl.includes("master") ||
+                pl.includes("msc") ||
+                pl.includes("mba") ||
+                pl.includes("meng") ||
+                pl.includes("llm") ||
+                pl.includes("m.a.") ||
+                pl.includes("m.s.")
+              ) {
+                return true;
+              }
               return false;
             }
             return true;
+          });
+        }
+        if (degreeVal.includes("pg-cert") || degreeVal.includes("cert")) {
+          return list.filter((p) => {
+            const pl = p.toLowerCase();
+            return pl.includes("certificate") || pl.includes("cert");
+          });
+        }
+        if (degreeVal.includes("pg-dip") || degreeVal.includes("diploma")) {
+          return list.filter((p) => {
+            const pl = p.toLowerCase();
+            return (pl.includes("diploma") || pl.includes("dip")) && !pl.includes("bachelor");
           });
         }
         if (degreeVal.includes("bachelor") || degreeVal === "bachelor-4" || degreeVal === "bachelors") {
           return list.filter((p) => {
             const pl = p.toLowerCase();
             if (
-              pl.startsWith("master") ||
-              pl.startsWith("msc") ||
-              pl.startsWith("mba") ||
-              pl.startsWith("llm") ||
-              pl.startsWith("phd") ||
-              pl.startsWith("doctor")
+              pl.includes("master") ||
+              pl.includes("msc") ||
+              pl.includes("mba") ||
+              pl.includes("llm") ||
+              pl.includes("phd") ||
+              pl.includes("doctor") ||
+              pl.includes("postgraduate") ||
+              pl.includes("graduate certificate") ||
+              pl.includes("graduate diploma")
             ) {
               return false;
             }
@@ -4848,6 +4879,10 @@ export default function AbroadLiftMatchesPage() {
                 setStep(11);
               }}
               onGoToMatches={() => setStep(7)}
+              onSelectUniversity={(uni) => {
+                setSelectedMatch(uni);
+                setStep(9);
+              }}
             />
             {insightsPanel}
           </>

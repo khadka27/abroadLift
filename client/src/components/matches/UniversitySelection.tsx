@@ -21,6 +21,9 @@ import {
   Users,
   LayoutGrid,
   List,
+  ExternalLink,
+  Bookmark,
+  BookOpen,
 } from "lucide-react";
 import { Match, Form } from "@/types/matches";
 import { User } from "next-auth";
@@ -305,7 +308,7 @@ export function UniversitySelection({
             className="w-full h-12 md:h-16 pl-12 md:pl-14 pr-6 bg-slate-50/50 rounded-[18px] md:rounded-2xl text-[14px] md:text-[15px] font-regular text-slate-900 outline-none focus:bg-white focus:ring-4 ring-blue-500/5 focus:border-blue-200 transition-all placeholder:text-slate-400"
           />
         </div>
-        <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+        <div className="flex items-center gap-2 w-full md:w-auto shrink-0 justify-end">
           {/* View Toggle */}
           <div className="flex items-center bg-slate-100/90 p-1 rounded-[18px] md:rounded-2xl border border-slate-200/60 shrink-0">
             <button
@@ -333,15 +336,6 @@ export function UniversitySelection({
               <span className="hidden sm:inline">List</span>
             </button>
           </div>
-
-          <button className="flex-1 md:flex-none h-12 md:h-16 px-5 md:px-8 rounded-[18px] md:rounded-2xl bg-white border border-slate-100 flex items-center justify-center gap-2 text-slate-900 font-semibold text-[12px] md:text-sm tracking-tight shadow-sm hover:bg-slate-50 transition-all shrink-0">
-            <ArrowUpDown className="w-[14px] h-[14px] md:w-[16px] md:h-[16px] text-slate-400" />
-            Sort by Match
-          </button>
-          <button className="flex-1 md:flex-none h-12 md:h-16 px-5 md:px-8 rounded-[18px] md:rounded-2xl bg-white border border-slate-100 flex items-center justify-center gap-2 text-slate-900 font-semibold text-[12px] md:text-sm tracking-tight shadow-sm hover:bg-slate-50 transition-all shrink-0">
-            <SlidersHorizontal className="w-[14px] h-[14px] md:w-[16px] md:h-[16px] text-slate-400" />
-            Filters
-          </button>
         </div>
       </div>
 
@@ -781,7 +775,7 @@ function MatchListItem({
   );
 }
 
-function UniversityDetailsModal({
+export function UniversityDetailsModal({
   match: m,
   currency: c,
   activeTab,
@@ -814,52 +808,64 @@ function UniversityDetailsModal({
   ] as const;
 
   return (
-    <div className="fixed inset-0 z-[120] bg-slate-900/40 backdrop-blur-md p-3 md:p-8 flex items-center justify-center">
+    <div className="fixed inset-0 z-[120] bg-slate-950/50 backdrop-blur-md p-4 md:p-6 flex items-center justify-center animate-in fade-in duration-200">
       <button
         type="button"
         aria-label="Close details"
         className="absolute inset-0 cursor-default"
         onClick={onClose}
       />
-      <div className="relative w-full max-w-[1040px] max-h-[92vh] rounded-[36px] bg-white border border-white/40 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.3)] overflow-hidden flex flex-col">
-        {/* Hero Banner */}
-        <div className="relative h-48 md:h-64 shrink-0">
+      <div className="relative w-full max-w-3xl max-h-[88vh] rounded-3xl bg-white border border-slate-200/80 shadow-[0_25px_70px_-15px_rgba(15,23,42,0.25)] overflow-hidden flex flex-col transform transition-all animate-in zoom-in-95 duration-200">
+        {/* Compact Hero Banner */}
+        <div className="relative h-36 md:h-44 shrink-0 bg-slate-900 overflow-hidden">
           <Image
             src={m.banner || "/uni-default.webp"}
             alt={m.name}
             fill
-            className="object-cover"
+            className="object-cover opacity-70"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent" />
-          <div className="absolute left-6 md:left-10 bottom-6 md:bottom-8 text-white z-10">
-            <h3 className="text-[24px] md:text-[40px] font-black leading-none tracking-tight text-white drop-shadow-md">
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent" />
+          
+          <div className="absolute left-5 md:left-8 bottom-4 md:bottom-6 text-white z-10 pr-14">
+            <div className="flex flex-wrap items-center gap-2 mb-1.5">
+              <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/90 text-white text-[10px] font-black uppercase tracking-wider backdrop-blur-xs">
+                {admissionChance}% Match
+              </span>
+              {m.rankingWorld && (
+                <span className="px-2.5 py-0.5 rounded-full bg-blue-600/90 text-white text-[10px] font-black uppercase tracking-wider backdrop-blur-xs">
+                  QS #{m.rankingWorld}
+                </span>
+              )}
+            </div>
+            <h3 className="text-lg md:text-2xl font-black text-white leading-tight tracking-tight drop-shadow-xs">
               {m.name}
             </h3>
-            <p className="text-[13px] md:text-[16px] font-medium opacity-90 mt-2 flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-blue-400" />
+            <p className="text-xs font-semibold text-slate-200/90 mt-1 flex items-center gap-1.5">
+              <MapPin className="w-3.5 h-3.5 text-blue-400 shrink-0" />
               {m.location || "Location not specified"}
             </p>
           </div>
+
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 md:top-6 md:right-6 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/30 hover:bg-white hover:text-slate-900 flex items-center justify-center transition-all shadow-lg hover:scale-105"
+            className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/20 hover:bg-white text-white hover:text-slate-900 border border-white/30 backdrop-blur-md flex items-center justify-center transition-all shadow-sm cursor-pointer z-20"
             aria-label="Close details"
           >
-            <X className="w-5 h-5 md:w-6 md:h-6" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="shrink-0 border-b border-slate-100/80 px-4 md:px-8 py-4 overflow-x-auto bg-white flex gap-2 hide-scrollbar">
+        {/* Minimal Tab Bar */}
+        <div className="shrink-0 border-b border-slate-100 px-5 md:px-8 py-3 bg-white flex gap-1.5 overflow-x-auto hide-scrollbar">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={`px-5 py-2.5 rounded-full text-[13px] md:text-[14px] font-bold tracking-wide transition-all whitespace-nowrap ${
+              className={`px-4 py-2 rounded-xl text-xs font-extrabold tracking-wide transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === tab.id
-                  ? "bg-[#3686FF] text-white shadow-[0_8px_20px_rgba(54,134,255,0.25)]"
-                  : "bg-slate-50 text-slate-500 hover:bg-slate-100"
+                  ? "bg-[#3686FF] text-white shadow-xs shadow-blue-500/20"
+                  : "bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
               }`}
             >
               {tab.label}
@@ -867,84 +873,84 @@ function UniversityDetailsModal({
           ))}
         </div>
 
-        {/* Content Area */}
-        <div className="flex-1 overflow-y-auto p-6 md:p-10 bg-[#f8fafc] hide-scrollbar">
+        {/* Minimal Content Area */}
+        <div className="flex-1 overflow-y-auto p-5 md:p-7 bg-slate-50/60 hide-scrollbar">
           {activeTab === "estimates" && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="rounded-[32px] bg-white p-8 shadow-[0_10px_40px_rgba(0,0,0,0.04)] border border-slate-100 flex flex-col justify-center relative overflow-hidden group hover:shadow-[0_20px_60px_rgba(0,0,0,0.06)] transition-shadow">
-                <div className="absolute -right-10 -top-10 w-40 h-40 bg-blue-50 rounded-full blur-3xl pointer-events-none group-hover:bg-blue-100 transition-colors" />
-                <p className="text-[12px] font-black uppercase tracking-widest text-slate-400 mb-2">
-                  Estimated Total Cost / Yr
-                </p>
-                <p className="text-[40px] md:text-[48px] font-black text-slate-900 leading-none tracking-tight">
-                  {formatCurrencyRange((m.tuitionFee || 0) + yearlyLiving, c, 0.12, usdToNpr)}
-                </p>
-                <div className="mt-8 h-2.5 rounded-full bg-slate-100 overflow-hidden flex shadow-inner">
-                  <div className="h-full bg-blue-500 rounded-full" style={{ width: "60%" }} />
-                  <div className="h-full bg-emerald-400 rounded-full ml-1" style={{ width: "30%" }} />
-                  <div className="h-full bg-amber-400 rounded-full ml-1" style={{ width: "10%" }} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="rounded-2xl bg-white p-6 border border-slate-200/80 shadow-xs flex flex-col justify-between">
+                <div>
+                  <p className="text-[11px] font-black uppercase tracking-wider text-slate-400 mb-1">
+                    Est. Total Annual Cost
+                  </p>
+                  <p className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
+                    {formatCurrencyRange((m.tuitionFee || 0) + yearlyLiving, c, 0.12, usdToNpr)}
+                  </p>
                 </div>
-                <div className="mt-5 flex flex-wrap items-center gap-4 text-[13px] text-slate-600 font-bold">
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded-full bg-blue-500 shadow-sm shadow-blue-500/50" />
-                    Tuition
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/50" />
-                    Living
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded-full bg-amber-400 shadow-sm shadow-amber-400/50" />
-                    Other
-                  </span>
+                <div className="mt-5">
+                  <div className="h-2 rounded-full bg-slate-100 overflow-hidden flex">
+                    <div className="h-full bg-blue-500 rounded-full" style={{ width: "60%" }} />
+                    <div className="h-full bg-emerald-500 rounded-full ml-1" style={{ width: "30%" }} />
+                    <div className="h-full bg-amber-400 rounded-full ml-1" style={{ width: "10%" }} />
+                  </div>
+                  <div className="mt-3 flex items-center justify-between text-[11px] font-bold text-slate-600">
+                    <span className="flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-blue-500" /> Tuition
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500" /> Living
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-amber-400" /> Other
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              <div className="rounded-[32px] bg-white p-8 shadow-[0_10px_40px_rgba(0,0,0,0.04)] border border-slate-100 flex flex-col justify-center relative overflow-hidden group hover:shadow-[0_20px_60px_rgba(0,0,0,0.06)] transition-shadow">
-                <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-emerald-50 rounded-full blur-3xl pointer-events-none group-hover:bg-emerald-100 transition-colors" />
-                <p className="text-[12px] font-black uppercase tracking-widest text-slate-400 mb-2">
-                  Your Chances
-                </p>
-                <div className="flex items-end gap-3 mt-1 relative z-10">
-                  <span className="text-[56px] md:text-[64px] font-black text-emerald-500 leading-none tracking-tighter">
+              <div className="rounded-2xl bg-white p-6 border border-slate-200/80 shadow-xs flex flex-col justify-between">
+                <div>
+                  <p className="text-[11px] font-black uppercase tracking-wider text-slate-400 mb-1">
+                    Admission Probability
+                  </p>
+                  <p className="text-4xl font-black text-emerald-600 tracking-tight">
                     {admissionChance}%
-                  </span>
+                  </p>
                 </div>
-                <p className="text-[14px] font-semibold text-slate-500 mt-4 leading-relaxed relative z-10">
-                  Based on your academic profile, test scores, and this university&apos;s historical admission trends.
+                <p className="text-xs font-semibold text-slate-500 mt-4 leading-relaxed">
+                  Based on your GPA, test scores, and institutional acceptance requirements.
                 </p>
               </div>
             </div>
           )}
 
           {activeTab === "overview" && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="rounded-[32px] bg-white p-8 shadow-[0_10px_40px_rgba(0,0,0,0.04)] border border-slate-100">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
-                    <Info className="w-5 h-5 text-blue-500" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="rounded-2xl bg-white p-6 border border-slate-200/80 shadow-xs">
+                <div className="flex items-center gap-2.5 mb-3">
+                  <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+                    <Info className="w-4 h-4" />
                   </div>
-                  <h4 className="text-[20px] font-extrabold text-slate-900 tracking-tight">About University</h4>
+                  <h4 className="text-base font-extrabold text-slate-900">About Institution</h4>
                 </div>
-                <p className="text-[15px] font-medium text-slate-600 leading-relaxed">
+                <p className="text-xs font-medium text-slate-600 leading-relaxed">
                   {m.description ||
-                    `${m.name} offers strong academics, modern campus facilities, and excellent global exposure for international students.`}
+                    `${m.name} is a premier institution offering high quality degree programs, modern campus facilities, and research opportunities for international students.`}
                 </p>
               </div>
 
-              <div className="rounded-[32px] bg-white p-8 shadow-[0_10px_40px_rgba(0,0,0,0.04)] border border-slate-100">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center">
-                    <Award className="w-5 h-5 text-amber-500" />
+              <div className="rounded-2xl bg-white p-6 border border-slate-200/80 shadow-xs">
+                <div className="flex items-center gap-2.5 mb-3">
+                  <div className="w-8 h-8 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600">
+                    <Award className="w-4 h-4" />
                   </div>
-                  <h4 className="text-[20px] font-extrabold text-slate-900 tracking-tight">Highlights</h4>
+                  <h4 className="text-base font-extrabold text-slate-900">Popular Offerings</h4>
                 </div>
-                <div className="flex flex-col gap-3">
+                <div className="space-y-2">
                   {courses.slice(0, 3).map((program) => (
                     <div
                       key={program}
-                      className="rounded-2xl bg-slate-50 border border-slate-100 px-4 py-3 text-[14px] font-bold text-slate-700"
+                      className="rounded-xl bg-slate-50 border border-slate-100 px-3.5 py-2.5 text-xs font-bold text-slate-700 flex items-center gap-2"
                     >
+                      <BookOpen className="w-3.5 h-3.5 text-blue-500 shrink-0" />
                       {program}
                     </div>
                   ))}
@@ -954,57 +960,49 @@ function UniversityDetailsModal({
           )}
 
           {activeTab === "rankings" && (
-            <div className="max-w-2xl mx-auto">
-              <div className="rounded-[36px] bg-gradient-to-br from-indigo-600 via-blue-600 to-blue-700 text-white p-8 md:p-12 shadow-[0_20px_40px_rgba(79,70,229,0.3)] relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none" />
-                <div className="flex items-center gap-3 mb-8 relative z-10">
-                  <Award className="w-8 h-8 text-indigo-200" />
-                  <p className="text-[24px] font-black tracking-tight">Global Excellence</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="rounded-2xl bg-white p-6 border border-slate-200/80 shadow-xs flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0">
+                  <Award className="w-6 h-6" />
                 </div>
-                <div className="grid grid-cols-2 gap-6 relative z-10">
-                  <div className="rounded-[24px] bg-white/10 border border-white/20 p-6 backdrop-blur-sm">
-                    <p className="text-[12px] uppercase font-black tracking-widest text-indigo-100 mb-2">
-                      QS World Rank
-                    </p>
-                    <p className="text-[48px] md:text-[56px] leading-none font-black text-white drop-shadow-md">
-                      #{m.rankingWorld || "-"}
-                    </p>
-                  </div>
-                  <div className="rounded-[24px] bg-white/10 border border-white/20 p-6 backdrop-blur-sm">
-                    <p className="text-[12px] uppercase font-black tracking-widest text-indigo-100 mb-2">
-                      National Rank
-                    </p>
-                    <p className="text-[48px] md:text-[56px] leading-none font-black text-white drop-shadow-md">
-                      #{m.rankingNational || "-"}
-                    </p>
-                  </div>
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">QS World Rank</p>
+                  <p className="text-3xl font-black text-slate-900">#{m.rankingWorld || "N/A"}</p>
+                </div>
+              </div>
+
+              <div className="rounded-2xl bg-white p-6 border border-slate-200/80 shadow-xs flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
+                  <Building2 className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">National Rank</p>
+                  <p className="text-3xl font-black text-slate-900">#{m.rankingNational || "N/A"}</p>
                 </div>
               </div>
             </div>
           )}
 
           {activeTab === "courses" && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {courses.map((program, idx) => (
                 <div
                   key={`${program}-${idx}`}
-                  className="rounded-[32px] bg-white p-8 shadow-[0_10px_40px_rgba(0,0,0,0.04)] border border-slate-100 hover:shadow-[0_20px_60px_rgba(0,0,0,0.06)] transition-all group"
+                  className="rounded-2xl bg-white p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between gap-3"
                 >
-                  <div className="flex items-start justify-between gap-4 mb-8">
-                    <div>
-                      <span className="inline-block text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full bg-blue-50 text-blue-600 mb-4">
-                        {formProgramTag(program)}
-                      </span>
-                      <p className="font-extrabold text-slate-900 text-[20px] leading-tight">
-                        {program}
-                      </p>
-                    </div>
+                  <div>
+                    <span className="inline-block text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-md bg-blue-50 text-blue-600 mb-2">
+                      {formProgramTag(program)}
+                    </span>
+                    <p className="font-extrabold text-slate-900 text-sm leading-snug">
+                      {program}
+                    </p>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="rounded-2xl bg-slate-50 p-4">
-                      <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Tuition Fee</p>
-                      <p className="text-[16px] font-black text-slate-900">
+                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 text-xs">
+                    <div>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase">Tuition Fee</p>
+                      <p className="font-black text-slate-800">
                         {(() => {
                           const fee = (m.tuitionFee && m.tuitionFee > 0)
                             ? m.tuitionFee
@@ -1017,9 +1015,9 @@ function UniversityDetailsModal({
                         })()}
                       </p>
                     </div>
-                    <div className="rounded-2xl bg-slate-50 p-4">
-                      <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Deadline</p>
-                      <p className="text-[16px] font-black text-slate-900">
+                    <div>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase">Deadline</p>
+                      <p className="font-black text-slate-800">
                         {m.deadline || m.applicationDeadline || "Rolling"}
                       </p>
                     </div>
@@ -1030,81 +1028,55 @@ function UniversityDetailsModal({
           )}
 
           {activeTab === "facts" && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 grid grid-cols-2 gap-4 md:gap-6">
-                <div className="rounded-[32px] bg-white p-6 md:p-8 shadow-[0_10px_40px_rgba(0,0,0,0.04)] border border-slate-100 flex flex-col justify-center">
-                  <div className="flex items-center gap-2 text-slate-400 text-[11px] font-black uppercase tracking-widest mb-3">
-                    <Building2 className="w-4 h-4 text-blue-500" /> Type
-                  </div>
-                  <p className="text-[20px] md:text-[24px] font-extrabold text-slate-900 leading-none">
-                    {m.type || "Public"}
-                  </p>
-                </div>
-                <div className="rounded-[32px] bg-white p-6 md:p-8 shadow-[0_10px_40px_rgba(0,0,0,0.04)] border border-slate-100 flex flex-col justify-center">
-                  <div className="flex items-center gap-2 text-slate-400 text-[11px] font-black uppercase tracking-widest mb-3">
-                    <Award className="w-4 h-4 text-amber-500" /> Established
-                  </div>
-                  <p className="text-[20px] md:text-[24px] font-extrabold text-slate-900 leading-none">
-                    {m.founded || "N/A"}
-                  </p>
-                </div>
-                <div className="rounded-[32px] bg-white p-6 md:p-8 shadow-[0_10px_40px_rgba(0,0,0,0.04)] border border-slate-100 flex flex-col justify-center">
-                  <div className="flex items-center gap-2 text-slate-400 text-[11px] font-black uppercase tracking-widest mb-3">
-                    <MapPin className="w-4 h-4 text-emerald-500" /> Campus
-                  </div>
-                  <p className="text-[20px] md:text-[24px] font-extrabold text-slate-900 leading-none line-clamp-1">
-                    {m.location || "N/A"}
-                  </p>
-                </div>
-                <div className="rounded-[32px] bg-white p-6 md:p-8 shadow-[0_10px_40px_rgba(0,0,0,0.04)] border border-slate-100 flex flex-col justify-center">
-                  <div className="flex items-center gap-2 text-slate-400 text-[11px] font-black uppercase tracking-widest mb-3">
-                    <Users className="w-4 h-4 text-indigo-500" /> Students
-                  </div>
-                  <p className="text-[20px] md:text-[24px] font-extrabold text-slate-900 leading-none">
-                    {m.studentPopulation
-                      ? `${m.studentPopulation.toLocaleString()}+`
-                      : "N/A"}
-                  </p>
-                </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3.5">
+              <div className="rounded-2xl bg-white p-4 border border-slate-200/80 shadow-xs">
+                <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Type</p>
+                <p className="text-sm font-extrabold text-slate-900">{m.type || "Public"}</p>
               </div>
-
-              <div className="rounded-[32px] bg-white p-8 shadow-[0_10px_40px_rgba(0,0,0,0.04)] border border-slate-100">
-                <h4 className="text-[20px] font-extrabold text-slate-900 tracking-tight mb-6">Requirements</h4>
-                <div className="space-y-6">
-                  <div>
-                    <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest mb-1">English Score</p>
-                    <p className="text-[18px] font-black text-slate-800">IELTS {m.englishReq || "6.5"}</p>
-                  </div>
-                  <div>
-                    <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest mb-1">Minimum GPA</p>
-                    <p className="text-[18px] font-black text-slate-800">
-                      {(m.gpaRequirement ? (m.gpaRequirement > 4.0 ? Math.round(((m.gpaRequirement / 100) * 4.0) * 10) / 10 : m.gpaRequirement) : 3.0).toFixed(1)}/4.0
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest mb-1">Intl. Students</p>
-                    <p className="text-[18px] font-black text-slate-800">{m.internationalPercentage || "N/A"}%</p>
-                  </div>
-                </div>
+              <div className="rounded-2xl bg-white p-4 border border-slate-200/80 shadow-xs">
+                <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Established</p>
+                <p className="text-sm font-extrabold text-slate-900">{m.founded || "N/A"}</p>
+              </div>
+              <div className="rounded-2xl bg-white p-4 border border-slate-200/80 shadow-xs">
+                <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Students</p>
+                <p className="text-sm font-extrabold text-slate-900">
+                  {m.studentPopulation ? `${m.studentPopulation.toLocaleString()}+` : "N/A"}
+                </p>
+              </div>
+              <div className="rounded-2xl bg-white p-4 border border-slate-200/80 shadow-xs">
+                <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">English Req</p>
+                <p className="text-sm font-extrabold text-slate-900">IELTS {m.englishReq || "6.5"}</p>
+              </div>
+              <div className="rounded-2xl bg-white p-4 border border-slate-200/80 shadow-xs">
+                <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Minimum GPA</p>
+                <p className="text-sm font-extrabold text-slate-900">
+                  {(m.gpaRequirement ? (m.gpaRequirement > 4.0 ? Math.round(((m.gpaRequirement / 100) * 4.0) * 10) / 10 : m.gpaRequirement) : 3.0).toFixed(1)} / 4.0
+                </p>
+              </div>
+              <div className="rounded-2xl bg-white p-4 border border-slate-200/80 shadow-xs">
+                <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Intl Students</p>
+                <p className="text-sm font-extrabold text-slate-900">{m.internationalPercentage || "18"}%</p>
               </div>
             </div>
           )}
         </div>
 
-        {/* Footer */}
-        <div className="shrink-0 border-t border-slate-100 p-6 md:p-8 bg-white flex justify-end gap-3">
+        {/* Minimal Action Footer */}
+        <div className="shrink-0 border-t border-slate-100 p-4 md:px-7 md:py-4 bg-white flex items-center justify-between gap-3">
           <Link
             href={`/schools/${m.id}`}
-            className="w-full md:w-auto px-8 h-14 md:h-16 rounded-[20px] border border-slate-200 hover:bg-slate-50 text-slate-700 font-extrabold text-[14px] md:text-[16px] uppercase tracking-widest transition-all flex items-center justify-center"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs font-extrabold text-slate-600 hover:text-blue-600 flex items-center gap-1.5 transition-colors"
           >
-            Visit Campus Page
+            Visit Campus Page <ExternalLink className="w-3.5 h-3.5" />
           </Link>
           <button
             type="button"
             onClick={onShortlist}
-            className="w-full md:w-auto px-12 h-14 md:h-16 rounded-[20px] bg-[#3686FF] hover:bg-[#2970E6] text-white font-extrabold text-[14px] md:text-[16px] uppercase tracking-widest transition-all shadow-[0_12px_30px_rgba(54,134,255,0.3)] hover:shadow-[0_20px_40px_rgba(54,134,255,0.4)] hover:-translate-y-1 active:translate-y-0"
+            className="px-6 py-3 rounded-xl bg-[#3686FF] hover:bg-blue-600 text-white font-extrabold text-xs shadow-md shadow-blue-500/20 hover:shadow-blue-500/30 transition-all active:scale-95 cursor-pointer flex items-center gap-1.5"
           >
-            Shortlist University
+            <Bookmark className="w-3.5 h-3.5" /> Shortlist University
           </button>
         </div>
       </div>

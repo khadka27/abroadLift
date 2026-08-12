@@ -12,11 +12,11 @@ export default function PremiumLoader({ message = "Initializing Portal..." }: { 
   }, []);
 
   if (!mounted) {
-    return <div className="fixed inset-0 bg-white" suppressHydrationWarning={true} />;
+    return <div className="fixed inset-0 z-[99999] bg-white" suppressHydrationWarning={true} />;
   }
 
   return (
-    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white overflow-hidden" suppressHydrationWarning={true}>
+    <div className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-white overflow-hidden" suppressHydrationWarning={true}>
       {/* CSS Animations */}
       <style>{`
         @keyframes globe-scroll {

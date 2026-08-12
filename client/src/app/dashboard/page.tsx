@@ -313,56 +313,7 @@ function DashboardInner() {
     return !isNaN(num) && num < 0;
   };
   
-  const [applications, setApplications] = useState<Application[]>([
-    {
-      id: "app-1",
-      universityName: "Conestoga College",
-      country: "Canada",
-      programName: "Bachelor of Applied Health Information Science",
-      stage: "Under Review",
-      appliedDate: "2026-05-15",
-      intake: "Fall 2026",
-      fee: "$100 CAD",
-      feePaid: true,
-      applicationDeadline: "2026-07-01",
-      documentsAttached: 4,
-      totalDocumentsRequired: 4,
-      scholarshipApplied: true,
-      notes: "Documents verified by admissions team. Awaiting official offer decision.",
-    },
-    {
-      id: "app-2",
-      universityName: "Seneca College",
-      country: "Canada",
-      programName: "Advanced Diploma in Computer Programming & Analysis",
-      stage: "Offer Received",
-      appliedDate: "2026-06-01",
-      intake: "Fall 2026",
-      fee: "$90 CAD",
-      feePaid: true,
-      applicationDeadline: "2026-06-30",
-      documentsAttached: 4,
-      totalDocumentsRequired: 4,
-      scholarshipApplied: true,
-      notes: "Official Letter of Acceptance (LOA) issued! Tuition deposit due by July 15.",
-    },
-    {
-      id: "app-3",
-      universityName: "University of Hertfordshire",
-      country: "United Kingdom",
-      programName: "MSc Computer Science with Placement",
-      stage: "Draft",
-      appliedDate: "2026-08-01",
-      intake: "September 2026",
-      fee: "Free Waiver",
-      feePaid: true,
-      applicationDeadline: "2026-08-25",
-      documentsAttached: 2,
-      totalDocumentsRequired: 4,
-      scholarshipApplied: false,
-      notes: "Upload SOP & Passport copy before submitting.",
-    }
-  ]);
+  const [applications, setApplications] = useState<Application[]>([]);
 
   const [appSearchQuery, setAppSearchQuery] = useState("");
   const [appStageFilter, setAppStageFilter] = useState<string>("All");
@@ -781,6 +732,7 @@ function DashboardInner() {
       void fetchRecommendedMatches();
       void fetchDocuments();
       void fetchTasks();
+      void fetchApplications();
     }
   }, [status]);
 
@@ -880,6 +832,20 @@ function DashboardInner() {
       console.error(e);
     } finally {
       setMatchesLoading(false);
+    }
+  };
+
+  const fetchApplications = async () => {
+    try {
+      const res = await fetch("/api/applications");
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.applications)) {
+          setApplications(data.applications);
+        }
+      }
+    } catch (e) {
+      console.error("Failed to fetch applications:", e);
     }
   };
 
@@ -1242,16 +1208,30 @@ function DashboardInner() {
     }
   };
 
-  const handleApplyMatch = (matchItem: any) => {
-    const newApp: Application = {
-      id: `app-${Date.now()}`,
-      universityName: matchItem.name,
-      country: matchItem.countryCode || "Canada",
-      programName: matchItem.popularPrograms?.[0] || profile.program || "Bachelor Program",
-      stage: "Draft",
-      appliedDate: new Date().toISOString().slice(0, 10),
-    };
-    setApplications([newApp, ...applications]);
+  const handleApplyMatch = async (matchItem: any) => {
+    try {
+      const res = await fetch("/api/applications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          universityName: matchItem.name,
+          country: matchItem.countryCode || matchItem.country || "Canada",
+          programName: matchItem.popularPrograms?.[0] || profile.program || "Bachelor Program",
+          stage: "Draft",
+          intake: "Fall 2026",
+          fee: "$100 USD",
+          notes: "Application initiated from program matches.",
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.application) {
+          setApplications((prev) => [data.application, ...prev.filter((a) => a.id !== data.application.id)]);
+        }
+      }
+    } catch (e) {
+      console.error("Error creating application:", e);
+    }
     setActiveTab("applications");
   };
 
@@ -1272,29 +1252,38 @@ function DashboardInner() {
     }
   };
 
-  const handleCreateNewApplication = (e: React.FormEvent) => {
+  const handleCreateNewApplication = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newAppForm.universityName || !newAppForm.programName) {
       alert("Please fill in university and program name.");
       return;
     }
 
-    const newApp: Application = {
-      id: `app-${Date.now()}`,
-      universityName: newAppForm.universityName,
-      country: newAppForm.country,
-      programName: newAppForm.programName,
-      stage: newAppForm.stage,
-      appliedDate: new Date().toISOString().split("T")[0],
-      intake: newAppForm.intake,
-      fee: newAppForm.fee,
-      feePaid: false,
-      documentsAttached: 2,
-      totalDocumentsRequired: 4,
-      notes: "Newly created application draft.",
-    };
+    try {
+      const res = await fetch("/api/applications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          universityName: newAppForm.universityName,
+          country: newAppForm.country,
+          programName: newAppForm.programName,
+          stage: newAppForm.stage,
+          intake: newAppForm.intake,
+          fee: newAppForm.fee,
+          notes: "Newly created application draft.",
+        }),
+      });
 
-    setApplications([newApp, ...applications]);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.application) {
+          setApplications((prev) => [data.application, ...prev.filter((a) => a.id !== data.application.id)]);
+        }
+      }
+    } catch (e) {
+      console.error("Error saving new application:", e);
+    }
+
     setShowNewAppModal(false);
     setNewAppForm({
       universityName: "",
@@ -2585,8 +2574,17 @@ function DashboardInner() {
                                   {app.stage === "Draft" && (
                                     <button
                                       type="button"
-                                      onClick={() => {
-                                        setApplications(applications.map(a => a.id === app.id ? { ...a, stage: "Submitted" as ApplicationStage } : a));
+                                      onClick={async () => {
+                                        setApplications((prev) => prev.map((a) => (a.id === app.id ? { ...a, stage: "Submitted" as ApplicationStage } : a)));
+                                        try {
+                                          await fetch("/api/applications", {
+                                            method: "PATCH",
+                                            headers: { "Content-Type": "application/json" },
+                                            body: JSON.stringify({ id: app.id, stage: "Submitted" }),
+                                          });
+                                        } catch (e) {
+                                          console.error("Failed to update status:", e);
+                                        }
                                       }}
                                       className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
                                     >
@@ -2596,8 +2594,17 @@ function DashboardInner() {
                                   {app.stage === "Offer Received" && (
                                     <button
                                       type="button"
-                                      onClick={() => {
-                                        setApplications(applications.map(a => a.id === app.id ? { ...a, stage: "Accepted" as ApplicationStage } : a));
+                                      onClick={async () => {
+                                        setApplications((prev) => prev.map((a) => (a.id === app.id ? { ...a, stage: "Accepted" as ApplicationStage } : a)));
+                                        try {
+                                          await fetch("/api/applications", {
+                                            method: "PATCH",
+                                            headers: { "Content-Type": "application/json" },
+                                            body: JSON.stringify({ id: app.id, stage: "Accepted" }),
+                                          });
+                                        } catch (e) {
+                                          console.error("Failed to update status:", e);
+                                        }
                                       }}
                                       className="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold text-xs shadow-xs transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
                                     >
@@ -2621,7 +2628,16 @@ function DashboardInner() {
                                   <button
                                     type="button"
                                     title="Delete Application"
-                                    onClick={() => setApplications(applications.filter(a => a.id !== app.id))}
+                                    onClick={async () => {
+                                      setApplications((prev) => prev.filter((a) => a.id !== app.id));
+                                      try {
+                                        await fetch(`/api/applications?id=${encodeURIComponent(app.id)}`, {
+                                          method: "DELETE",
+                                        });
+                                      } catch (e) {
+                                        console.error("Failed to delete application:", e);
+                                      }
+                                    }}
                                     className="p-2 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all cursor-pointer"
                                   >
                                     <Trash2 className="w-4 h-4" />

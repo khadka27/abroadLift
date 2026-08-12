@@ -61,8 +61,10 @@ export default function ClientWrapper({
     <SessionProvider>
       <SessionExpiryWatcher />
       <Navbar />
-      <div>{children}</div>
-      <Footer />
+      <div className="flex flex-col min-h-screen">
+        <main className="flex-1 w-full min-h-[calc(100vh-200px)]">{children}</main>
+        <Footer />
+      </div>
     </SessionProvider>
   );
 }
