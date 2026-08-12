@@ -312,6 +312,62 @@ function DashboardInner() {
     const num = typeof val === "number" ? val : parseFloat(val.toString());
     return !isNaN(num) && num < 0;
   };
+
+  const isValidEmail = (emailStr: string | undefined | null): boolean => {
+    if (!emailStr || !emailStr.trim()) return true;
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailStr.trim());
+  };
+
+  const isValidPhone = (phoneStr: string | undefined | null): boolean => {
+    if (!phoneStr || !phoneStr.trim()) return true;
+    const cleaned = phoneStr.replace(/[\s\-\(\)]/g, "");
+    return /^\+?[0-9]{7,15}$/.test(cleaned);
+  };
+
+  const isValidPassportExpiry = (expiryStr: string | undefined | null): boolean => {
+    if (!expiryStr || !expiryStr.trim()) return true;
+    const expDate = new Date(expiryStr);
+    if (isNaN(expDate.getTime())) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return expDate > today;
+  };
+
+  const isValidPassingYear = (yearStr: string | undefined | null): boolean => {
+    if (!yearStr || !yearStr.trim()) return true;
+    const year = parseInt(yearStr.trim(), 10);
+    if (isNaN(year)) return false;
+    const currentYear = new Date().getFullYear();
+    return year >= 1970 && year <= currentYear + 10;
+  };
+
+  const isValidGpaValue = (gpaStr: string | undefined | null): boolean => {
+    if (!gpaStr || !gpaStr.trim()) return true;
+    const num = parseFloat(gpaStr.replace("%", "").trim());
+    if (isNaN(num) || num < 0) return false;
+    return num <= 100;
+  };
+
+  const getEnglishScoreErrorMsg = (scoreStr: string | undefined | null, testType: string | undefined | null): string => {
+    if (!scoreStr || !scoreStr.trim()) return "";
+    const score = parseFloat(scoreStr.trim());
+    if (isNaN(score)) return "Please enter a valid numeric score.";
+    if (score < 0) return "Test score cannot be negative.";
+
+    const type = (testType || "IELTS").toUpperCase();
+    if (type.includes("IELTS")) {
+      if (score < 1 || score > 9) return "IELTS band score must be between 1.0 and 9.0.";
+      if ((score * 10) % 5 !== 0) return "IELTS score must be in half-band increments (e.g. 6.5, 7.0).";
+    } else if (type.includes("PTE")) {
+      if (score < 10 || score > 90) return "PTE score must be between 10 and 90.";
+    } else if (type.includes("TOEFL")) {
+      if (score < 0 || score > 120) return "TOEFL score must be between 0 and 120.";
+    } else if (type.includes("DUOLINGO")) {
+      if (score < 10 || score > 160) return "Duolingo score must be between 10 and 160.";
+      if (score % 5 !== 0) return "Duolingo score must be in increments of 5 (e.g. 105, 115).";
+    }
+    return "";
+  };
   
   const [applications, setApplications] = useState<Application[]>([]);
 
@@ -1371,17 +1427,18 @@ function DashboardInner() {
     setSaving(true);
     setErrorMsg("");
 
-    // Validate non-negative numbers
-    const budgetVal = editForm.yearlyBudget ? parseFloat(editForm.yearlyBudget) : NaN;
-    const bankVal = editForm.bankBalance ? parseFloat(editForm.bankBalance) : NaN;
-    const incomeVal = editForm.sponsorIncome ? parseFloat(editForm.sponsorIncome) : NaN;
-    const gpaVal = editForm.gpa ? parseFloat(editForm.gpa) : NaN;
-    const engVal = editForm.englishScore ? parseFloat(editForm.englishScore) : NaN;
-    const backlogsVal = editForm.backlogs ? parseInt(editForm.backlogs, 10) : NaN;
-    const gapVal = editForm.studyGap ? parseInt(editForm.studyGap, 10) : NaN;
-    const workExpVal = editForm.workExperience ? parseInt(editForm.workExperience, 10) : NaN;
+    // 1. Personal Info Validation
+    if (editForm.email && !isValidEmail(editForm.email)) {
+      setErrorMsg("Please enter a valid email address.");
+      setSaving(false);
+      return;
+    }
+    if (editForm.phoneNumber && !isValidPhone(editForm.phoneNumber)) {
+      setErrorMsg("Please enter a valid primary phone number (7 to 15 digits).");
+      setSaving(false);
+      return;
+    }
 
-    // Validate DOB (non-future and age 16+)
     const todayStr = new Date().toISOString().slice(0, 10);
     if (editForm.dateOfBirth) {
       if (editForm.dateOfBirth > todayStr) {
@@ -1403,6 +1460,44 @@ function DashboardInner() {
       }
     }
 
+    if (editForm.passportExpiryDate && !isValidPassportExpiry(editForm.passportExpiryDate)) {
+      setErrorMsg("Passport expiry date must be in the future (your passport appears to be expired).");
+      setSaving(false);
+      return;
+    }
+
+    // 2. Academic Credentials Validation
+    if (editForm.passingYear && !isValidPassingYear(editForm.passingYear)) {
+      setErrorMsg("Please enter a valid graduation year between 1970 and 2035.");
+      setSaving(false);
+      return;
+    }
+    if (editForm.gpa && !isValidGpaValue(editForm.gpa)) {
+      setErrorMsg("GPA / percentage value is invalid or exceeds max scale (100% or 5.0).");
+      setSaving(false);
+      return;
+    }
+
+    // 3. English Test Score Validation
+    if (editForm.hasEnglishTest) {
+      const engErr = getEnglishScoreErrorMsg(editForm.englishScore, editForm.testType);
+      if (engErr) {
+        setErrorMsg(engErr);
+        setSaving(false);
+        return;
+      }
+    }
+
+    // 4. Financial & Experience Non-negative & Bound Checks
+    const budgetVal = editForm.yearlyBudget ? parseFloat(editForm.yearlyBudget) : NaN;
+    const bankVal = editForm.bankBalance ? parseFloat(editForm.bankBalance) : NaN;
+    const incomeVal = editForm.sponsorIncome ? parseFloat(editForm.sponsorIncome) : NaN;
+    const gpaVal = editForm.gpa ? parseFloat(editForm.gpa) : NaN;
+    const engVal = editForm.englishScore ? parseFloat(editForm.englishScore) : NaN;
+    const backlogsVal = editForm.backlogs ? parseInt(editForm.backlogs, 10) : NaN;
+    const gapVal = editForm.studyGap ? parseInt(editForm.studyGap, 10) : NaN;
+    const workExpVal = editForm.workExperience ? parseInt(editForm.workExperience, 10) : NaN;
+
     if (
       (!isNaN(budgetVal) && budgetVal < 0) ||
       (!isNaN(bankVal) && bankVal < 0) ||
@@ -1414,6 +1509,36 @@ function DashboardInner() {
       (!isNaN(workExpVal) && workExpVal < 0)
     ) {
       setErrorMsg("Amount, budget, bank balance, GPA, scores, and experience values cannot be negative numbers.");
+      setSaving(false);
+      return;
+    }
+
+    if (!isNaN(backlogsVal) && backlogsVal > 50) {
+      setErrorMsg("Number of backlogs cannot exceed 50.");
+      setSaving(false);
+      return;
+    }
+
+    if (!isNaN(gapVal) && gapVal > 30) {
+      setErrorMsg("Study gap cannot exceed 30 years.");
+      setSaving(false);
+      return;
+    }
+
+    if (!isNaN(workExpVal) && workExpVal > 50) {
+      setErrorMsg("Years of work experience cannot exceed 50.");
+      setSaving(false);
+      return;
+    }
+
+    // 5. Emergency Contact Validation
+    if (editForm.emergencyEmail && !isValidEmail(editForm.emergencyEmail)) {
+      setErrorMsg("Please enter a valid emergency contact email address.");
+      setSaving(false);
+      return;
+    }
+    if (editForm.emergencyPhone && !isValidPhone(editForm.emergencyPhone)) {
+      setErrorMsg("Please enter a valid emergency contact phone number (7 to 15 digits expected).");
       setSaving(false);
       return;
     }
@@ -4138,8 +4263,17 @@ function DashboardInner() {
                                       type="email"
                                       value={editForm.email}
                                       onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
+                                      className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
+                                        !isValidEmail(editForm.email)
+                                          ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
+                                          : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
+                                      }`}
                                     />
+                                    {!isValidEmail(editForm.email) && (
+                                      <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
+                                        <span>⚠️ Please enter a valid email address (e.g. user@example.com)</span>
+                                      </p>
+                                    )}
                                   </label>
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Phone Number</span>
@@ -4147,8 +4281,17 @@ function DashboardInner() {
                                       type="text"
                                       value={editForm.phoneNumber}
                                       onChange={(e) => setEditForm({ ...editForm, phoneNumber: e.target.value })}
-                                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
+                                      className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
+                                        !isValidPhone(editForm.phoneNumber)
+                                          ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
+                                          : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
+                                      }`}
                                     />
+                                    {!isValidPhone(editForm.phoneNumber) && (
+                                      <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
+                                        <span>⚠️ Invalid phone number format (7 to 15 digits expected)</span>
+                                      </p>
+                                    )}
                                   </label>
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">
@@ -4265,8 +4408,17 @@ function DashboardInner() {
                                       type="date"
                                       value={editForm.passportExpiryDate}
                                       onChange={(e) => setEditForm({ ...editForm, passportExpiryDate: e.target.value })}
-                                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
+                                      className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
+                                        !isValidPassportExpiry(editForm.passportExpiryDate)
+                                          ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
+                                          : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
+                                      }`}
                                     />
+                                    {!isValidPassportExpiry(editForm.passportExpiryDate) && (
+                                      <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
+                                        <span>⚠️ Passport is expired or expiring today (Expiry date must be in the future)</span>
+                                      </p>
+                                    )}
                                   </label>
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Marital Status</span>
@@ -4377,8 +4529,18 @@ function DashboardInner() {
                                       type="text"
                                       value={editForm.passingYear}
                                       onChange={(e) => setEditForm({ ...editForm, passingYear: e.target.value })}
-                                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
+                                      placeholder="e.g. 2024"
+                                      className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
+                                        !isValidPassingYear(editForm.passingYear)
+                                          ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
+                                          : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
+                                      }`}
                                     />
+                                    {!isValidPassingYear(editForm.passingYear) && (
+                                      <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
+                                        <span>⚠️ Please enter a valid graduation year (1970 - 2035)</span>
+                                      </p>
+                                    )}
                                   </label>
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Academic GPA / Percentage</span>
@@ -4388,14 +4550,14 @@ function DashboardInner() {
                                       onChange={(e) => setEditForm({ ...editForm, gpa: e.target.value })}
                                       placeholder="e.g. 3.75 or 85%"
                                       className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
-                                        isNegativeVal(editForm.gpa)
+                                        isNegativeVal(editForm.gpa) || !isValidGpaValue(editForm.gpa)
                                           ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
                                           : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
                                       }`}
                                     />
-                                    {isNegativeVal(editForm.gpa) && (
+                                    {(isNegativeVal(editForm.gpa) || !isValidGpaValue(editForm.gpa)) && (
                                       <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
-                                        <span>⚠️ GPA / percentage cannot be negative</span>
+                                        <span>⚠️ GPA / percentage cannot be negative or exceed 100% / 5.0 scale</span>
                                       </p>
                                     )}
                                   </label>
@@ -4404,17 +4566,18 @@ function DashboardInner() {
                                     <input
                                       type="number"
                                       min="0"
+                                      max="50"
                                       value={editForm.backlogs}
                                       onChange={(e) => setEditForm({ ...editForm, backlogs: e.target.value })}
                                       className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
-                                        isNegativeVal(editForm.backlogs)
+                                        isNegativeVal(editForm.backlogs) || (editForm.backlogs && parseInt(editForm.backlogs) > 50)
                                           ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
                                           : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
                                       }`}
                                     />
-                                    {isNegativeVal(editForm.backlogs) && (
+                                    {(isNegativeVal(editForm.backlogs) || (editForm.backlogs && parseInt(editForm.backlogs) > 50)) && (
                                       <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
-                                        <span>⚠️ Backlogs count cannot be negative</span>
+                                        <span>⚠️ Backlogs count cannot be negative or exceed 50</span>
                                       </p>
                                     )}
                                   </label>
@@ -4423,17 +4586,18 @@ function DashboardInner() {
                                     <input
                                       type="number"
                                       min="0"
+                                      max="30"
                                       value={editForm.studyGap}
                                       onChange={(e) => setEditForm({ ...editForm, studyGap: e.target.value })}
                                       className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
-                                        isNegativeVal(editForm.studyGap)
+                                        isNegativeVal(editForm.studyGap) || (editForm.studyGap && parseInt(editForm.studyGap) > 30)
                                           ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
                                           : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
                                       }`}
                                     />
-                                    {isNegativeVal(editForm.studyGap) && (
+                                    {(isNegativeVal(editForm.studyGap) || (editForm.studyGap && parseInt(editForm.studyGap) > 30)) && (
                                       <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
-                                        <span>⚠️ Study gap cannot be negative</span>
+                                        <span>⚠️ Study gap cannot be negative or exceed 30 years</span>
                                       </p>
                                     )}
                                   </label>
@@ -4675,10 +4839,20 @@ function DashboardInner() {
                                         <input
                                           type="number"
                                           min="0"
+                                          max="50"
                                           value={editForm.workExperience}
                                           onChange={(e) => setEditForm({ ...editForm, workExperience: e.target.value })}
-                                          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
+                                          className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
+                                            isNegativeVal(editForm.workExperience) || (editForm.workExperience && parseInt(editForm.workExperience) > 50)
+                                              ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
+                                              : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
+                                          }`}
                                         />
+                                        {(isNegativeVal(editForm.workExperience) || (editForm.workExperience && parseInt(editForm.workExperience) > 50)) && (
+                                          <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
+                                            <span>⚠️ Years of work experience cannot be negative or exceed 50</span>
+                                          </p>
+                                        )}
                                       </label>
                                     </>
                                   )}
@@ -4874,8 +5048,17 @@ function DashboardInner() {
                                       type="text"
                                       value={editForm.emergencyPhone}
                                       onChange={(e) => setEditForm({ ...editForm, emergencyPhone: e.target.value })}
-                                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
+                                      className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
+                                        !isValidPhone(editForm.emergencyPhone)
+                                          ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
+                                          : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
+                                      }`}
                                     />
+                                    {!isValidPhone(editForm.emergencyPhone) && (
+                                      <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
+                                        <span>⚠️ Invalid emergency phone format (7 to 15 digits expected)</span>
+                                      </p>
+                                    )}
                                   </label>
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Email Address</span>
@@ -4883,8 +5066,17 @@ function DashboardInner() {
                                       type="email"
                                       value={editForm.emergencyEmail}
                                       onChange={(e) => setEditForm({ ...editForm, emergencyEmail: e.target.value })}
-                                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-800 outline-none focus:border-blue-400 focus:bg-white"
+                                      className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
+                                        !isValidEmail(editForm.emergencyEmail)
+                                          ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
+                                          : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
+                                      }`}
                                     />
+                                    {!isValidEmail(editForm.emergencyEmail) && (
+                                      <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
+                                        <span>⚠️ Please enter a valid email address (e.g. contact@example.com)</span>
+                                      </p>
+                                    )}
                                   </label>
                                 </div>
                               </div>
