@@ -796,13 +796,15 @@ export function AdmissionDetails({
 
                     {/* Language */}
                     {(() => {
+                      const userTestType = form.testType || "IELTS";
                       const rawScoreVal = parseFloat(String(form.testScore)) || 0;
                       const reqIelts = selectedMatch.englishReq || 6.5;
                       const meetsLang = rawScoreVal >= reqIelts || testScore >= reqIelts;
+                      const displayScore = rawScoreVal > 0 ? form.testScore : (testScore > 0 ? String(testScore) : "N/A");
                       return (
                         <tr>
-                          <td className="p-3 font-bold text-slate-800">💬 {form.testType || "IELTS"}</td>
-                          <td className="p-3 font-extrabold text-slate-900">{form.testScore || "N/A"} <span className="text-[10px] font-normal text-slate-400">({reqIelts.toFixed(1)} req)</span></td>
+                          <td className="p-3 font-bold text-slate-800">💬 {userTestType}</td>
+                          <td className="p-3 font-extrabold text-slate-900">{displayScore} <span className="text-[10px] font-normal text-slate-400">({reqIelts.toFixed(1)} req)</span></td>
                           <td className="p-3 text-center">
                             {meetsLang ? (
                               <span className="inline-flex px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-emerald-50 text-emerald-700 border border-emerald-100">
@@ -856,36 +858,36 @@ export function AdmissionDetails({
               </div>
             </Card>
 
-            {/* High-Impact Action Plan Banner (Solid Theme, No Gradients/Glows) */}
-            <Card className="rounded-[32px] border border-slate-800 bg-slate-900 p-6 text-white shadow-md">
-              <h3 className="mb-4 text-xs font-black uppercase tracking-[0.2em] text-[#3366FF]">
+            {/* High-Impact Action Plan Banner (Clean Light Theme) */}
+            <Card className="rounded-[32px] border border-blue-100 bg-white p-6 text-slate-900 shadow-sm">
+              <h3 className="mb-4 text-xs font-black uppercase tracking-[0.2em] text-[#3686FF]">
                 {isEligible ? "Action Plan to 90%+ Match" : "Recommended Roadmap"}
               </h3>
 
-              <div className="space-y-3 text-xs font-medium text-slate-300 mb-6">
+              <div className="space-y-3 text-xs font-medium text-slate-600 mb-6">
                 {!isEligible && admissionAnalysis?.factors ? (
                   <>
                     <div className="flex gap-2.5 items-start">
-                      <span className="w-5 h-5 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0 text-[10px] font-black text-white">1</span>
+                      <span className="w-5 h-5 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 text-[10px] font-black text-blue-600">1</span>
                       <span className="leading-relaxed">
-                        Achieve at least <strong className="text-white">{admissionAnalysis.factors.requiredIelts}</strong> IELTS score.
+                        Achieve at least <strong className="text-slate-900">{admissionAnalysis.factors.requiredIelts}</strong> IELTS score.
                       </span>
                     </div>
                     <div className="flex gap-2.5 items-start">
-                      <span className="w-5 h-5 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0 text-[10px] font-black text-white">2</span>
-                      <span className="leading-relaxed">Target colleges accepting GPA <strong className="text-white">{form.gpa}</strong>.</span>
+                      <span className="w-5 h-5 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 text-[10px] font-black text-blue-600">2</span>
+                      <span className="leading-relaxed">Target colleges accepting GPA <strong className="text-slate-900">{form.gpa}</strong>.</span>
                     </div>
                   </>
                 ) : (
                   <>
                     <div className="flex gap-2.5 items-start">
-                      <span className="w-5 h-5 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0 text-[10px] font-black text-white">1</span>
+                      <span className="w-5 h-5 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 text-[10px] font-black text-blue-600">1</span>
                       <span className="leading-relaxed">
-                        Improve <strong className="text-white">{form.testType || "Language"}</strong> score by half a band.
+                        Improve <strong className="text-slate-900">{form.testType || "Language"}</strong> score by half a band.
                       </span>
                     </div>
                     <div className="flex gap-2.5 items-start">
-                      <span className="w-5 h-5 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0 text-[10px] font-black text-white">2</span>
+                      <span className="w-5 h-5 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 text-[10px] font-black text-blue-600">2</span>
                       <span className="leading-relaxed">Submit application early to qualify for entrance awards.</span>
                     </div>
                   </>

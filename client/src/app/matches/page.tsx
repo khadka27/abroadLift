@@ -2909,7 +2909,27 @@ export default function AbroadLiftMatchesPage() {
             const data = await res.json();
             const p = data.profile || {};
 
-            // Check if starting a new search
+            const getProfileOverrides = (p: any, userData: any) => {
+              const overrides: Partial<Form> = {};
+              if (userData?.name) overrides.name = userData.name;
+              if (userData?.email) overrides.email = userData.email;
+              if (p?.gpa !== undefined && p?.gpa !== null && p?.gpa !== "") overrides.gpa = p.gpa.toString();
+              if (p?.englishScore !== undefined && p?.englishScore !== null && p?.englishScore !== "") overrides.testScore = p.englishScore.toString();
+              if (p?.testType) overrides.testType = p.testType;
+              if (p?.hasEnglishTest !== undefined && p?.hasEnglishTest !== null) overrides.hasEnglishTest = p.hasEnglishTest;
+              if (p?.backlogs !== undefined && p?.backlogs !== null && p?.backlogs !== "") overrides.backlogs = p.backlogs.toString();
+              if (p?.studyGap !== undefined && p?.studyGap !== null && p?.studyGap !== "") overrides.studyGap = p.studyGap.toString();
+              if (p?.yearlyBudget !== undefined && p?.yearlyBudget !== null && p?.yearlyBudget !== "") overrides.budget = p.yearlyBudget.toString();
+              if (p?.bankBalance !== undefined && p?.bankBalance !== null && p?.bankBalance !== "") overrides.bankBalance = p.bankBalance.toString();
+              if (p?.degreeLevel) overrides.degree = p.degreeLevel;
+              if (p?.field) overrides.field = p.field;
+              if (p?.program) overrides.program = p.program;
+              if (p?.preferredCountry) overrides.countries = [p.preferredCountry];
+              return overrides;
+            };
+
+            const profileOverrides = getProfileOverrides(p, data);
+
             const searchParams = new URLSearchParams(window.location.search);
             const isNewSearch = searchParams.get("new") === "true";
 
@@ -2918,6 +2938,7 @@ export default function AbroadLiftMatchesPage() {
                 ...DEF,
                 name: data.name || "",
                 email: data.email || "",
+                ...profileOverrides,
               });
               setSelectedMatch(null);
               setStep(1);
@@ -2947,16 +2968,15 @@ export default function AbroadLiftMatchesPage() {
                 if (dbForm) {
                   setForm((prev) => ({
                     ...prev,
-                    name: data.name || prev.name,
-                    email: data.email || prev.email,
                     ...dbForm,
+                    ...profileOverrides,
                   }));
                 }
                 if (dbMatch) {
                   setSelectedMatch(dbMatch);
                   setStep(8);
                   if (dbForm) {
-                    void runMatch(dbForm as any);
+                    void runMatch({ ...dbForm, ...profileOverrides } as any);
                   }
                   return; // Loaded specific saved profile, skip default loading
                 }
@@ -2976,7 +2996,11 @@ export default function AbroadLiftMatchesPage() {
             }
 
             if (hasRestoredMatch) {
-              return; // Keep existing localStorage state, skip database sync
+              setForm((prev) => ({
+                ...prev,
+                ...profileOverrides,
+              }));
+              return; // Keep existing localStorage state with updated profile overrides
             }
 
             // Fall back to original behavior: check matching records in database first (latest record)
@@ -2988,16 +3012,15 @@ export default function AbroadLiftMatchesPage() {
               if (dbForm) {
                 setForm((prev) => ({
                   ...prev,
-                  name: data.name || prev.name,
-                  email: data.email || prev.email,
                   ...dbForm,
+                  ...profileOverrides,
                 }));
               }
               if (dbMatch) {
                 setSelectedMatch(dbMatch);
                 setStep(8);
                 if (dbForm) {
-                  void runMatch(dbForm as any);
+                  void runMatch({ ...dbForm, ...profileOverrides } as any);
                 }
                 return; // Direct display step 8
               }
@@ -5349,40 +5372,40 @@ export default function AbroadLiftMatchesPage() {
               </span>
             </div>
 
-            {/* Top Spotlight Investment Card (Solid Theme, No Gradients) */}
-            <Card className="rounded-[32px] border border-slate-800 bg-slate-900 p-6 sm:p-8 text-white shadow-md">
+            {/* Top Spotlight Investment Card (Clean Light Theme) */}
+            <Card className="rounded-[32px] border border-blue-100 bg-white p-6 sm:p-8 text-slate-900 shadow-sm">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="space-y-2">
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-[#3366FF] text-[10px] font-black uppercase tracking-wider">
-                    <Sparkles className="w-3.5 h-3.5" />
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-[#3686FF] text-[10px] font-black uppercase tracking-wider">
+                    <Sparkles className="w-3.5 h-3.5 text-[#3686FF]" />
                     {scholPercent > 0 ? "Scholarship Deduction Applied" : "Total Net Investment"}
                   </div>
-                  <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+                  <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
                     {formatNPRDevanagariRange(
                       Math.max(0, Math.round(totalInvestmentNpr * 0.88)),
                       Math.round(totalInvestmentNpr * 1.12)
                     )}
                   </h2>
-                  <p className="text-xs text-slate-300 font-medium">
-                    Equivalent to approx. <strong className="text-white">${Math.round(totalInvestmentNpr / usdToNpr).toLocaleString()} USD</strong> total for end-of-degree.
+                  <p className="text-xs text-slate-500 font-medium">
+                    Equivalent to approx. <strong className="text-slate-800">${Math.round(totalInvestmentNpr / usdToNpr).toLocaleString()} USD</strong> total for end-of-degree.
                   </p>
                 </div>
 
                 {scholPercent > 0 ? (
-                  <div className="px-5 py-4 rounded-2xl bg-slate-800 border border-slate-700 text-right space-y-1">
-                    <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400 flex items-center justify-end gap-1">
+                  <div className="px-5 py-4 rounded-2xl bg-emerald-50 border border-emerald-100 text-right space-y-1">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-emerald-700 flex items-center justify-end gap-1">
                       <Award className="w-3.5 h-3.5" /> {scholPercent}% Merit Award Granted
                     </span>
-                    <p className="text-sm font-extrabold text-white">
+                    <p className="text-sm font-extrabold text-emerald-900">
                       Saved {formatNPRDevanagari(totalScholSavingsNpr)}
                     </p>
                   </div>
                 ) : (
-                  <div className="px-5 py-4 rounded-2xl bg-slate-800 border border-slate-700 text-right space-y-1">
-                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                  <div className="px-5 py-4 rounded-2xl bg-slate-50 border border-slate-100 text-right space-y-1">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">
                       Standard Tuition Tier
                     </span>
-                    <p className="text-xs font-semibold text-slate-300">
+                    <p className="text-xs font-semibold text-slate-600">
                       Score 80%+ to unlock merit awards
                     </p>
                   </div>
