@@ -2187,6 +2187,7 @@ export default function AbroadLiftMatchesPage() {
   >(null);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [searchQuery, setSearchQuery] = useState(""); // For Step 3 (Field of Study)
   const [dynamicLivingCost, setDynamicLivingCost] = useState<any>(null);
   const [relocationStats, setRelocationStats] = useState<any>(null);
@@ -5347,7 +5348,7 @@ export default function AbroadLiftMatchesPage() {
       return (
         <div className="min-h-screen bg-slate-50/70 text-slate-900 px-4 py-8 md:px-8 lg:px-12 pb-24">
           {insightsPanel}
-          <div className="mx-auto max-w-6xl space-y-6 pt-2">
+          <div id="financial-audit-pdf-content" className="mx-auto max-w-6xl space-y-6 pt-2 bg-white p-4 sm:p-6 rounded-[32px]">
             
             {/* Header Navigation */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -5605,10 +5606,27 @@ export default function AbroadLiftMatchesPage() {
                   </button>
 
                   <button
-                    onClick={() => window.print()}
-                    className="w-full h-12 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-black uppercase tracking-wider shadow-xs transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+                    type="button"
+                    disabled={isExportingPdf}
+                    onClick={() => {
+                      exportElementToPDF(
+                        "financial-audit-pdf-content",
+                        `AbroadLift_Financial_Audit_${selectedMatch?.name?.replace(/\s+/g, "_") || "Report"}`,
+                        () => setIsExportingPdf(true),
+                        () => setIsExportingPdf(false)
+                      );
+                    }}
+                    className="w-full h-12 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-black uppercase tracking-wider shadow-xs transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                   >
-                    <Download className="w-4 h-4" /> Export Financial PDF
+                    {isExportingPdf ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin text-[#3686FF]" /> Generating PDF...
+                      </>
+                    ) : (
+                      <>
+                        <Download className="w-4 h-4 text-[#3686FF]" /> Export Financial PDF
+                      </>
+                    )}
                   </button>
                 </div>
 
