@@ -81,6 +81,7 @@ import { AdmissionDetails } from "@/components/matches/AdmissionDetails";
 import { VisaEligibility } from "@/components/matches/VisaEligibility";
 import { formatNPRDevanagari, formatNPRDevanagariRange } from "@/lib/currency";
 import { StudyOverviewDashboard } from "@/components/matches/StudyOverviewDashboard";
+import { exportElementToPDF } from "@/lib/pdfExporter";
 
 /* ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ Static data ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
 const COUNTRIES = [
@@ -5702,12 +5703,12 @@ export default function AbroadLiftMatchesPage() {
       ];
 
       return (
-        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 max-w-5xl mx-auto px-4 md:px-6 pb-32 space-y-5">
+        <div id="final-report-pdf-content" className="animate-in fade-in slide-in-from-bottom-2 duration-500 max-w-5xl mx-auto px-4 md:px-6 pb-32 space-y-5 bg-white p-4 sm:p-6 rounded-[32px]">
           <Card className="p-6 md:p-8 rounded-[28px] md:rounded-[36px] border border-slate-100 bg-white shadow-sm">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-                  Step 14 ΓÇó Final Counselor Verdict
+                  Step 14 • Final Counselor Verdict
                 </p>
                 <h2 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tight mt-2">
                   {decisionSignals.counselorVerdict}
@@ -5841,10 +5842,26 @@ export default function AbroadLiftMatchesPage() {
               </button>
               <button
                 type="button"
-                onClick={() => window.print()}
-                className="flex-1 py-3.5 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-black uppercase tracking-wider shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+                disabled={isExportingPdf}
+                onClick={() => {
+                  exportElementToPDF(
+                    "final-report-pdf-content",
+                    `AbroadLift_Full_Match_Report_${selectedMatch?.name?.replace(/\s+/g, "_") || "Report"}`,
+                    () => setIsExportingPdf(true),
+                    () => setIsExportingPdf(false)
+                  );
+                }}
+                className="flex-1 py-3.5 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-black uppercase tracking-wider shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
-                <Download className="w-4 h-4" /> Export Full PDF Report
+                {isExportingPdf ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-[#3686FF]" /> Generating PDF...
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-4 h-4 text-[#3686FF]" /> Export Full PDF Report
+                  </>
+                )}
               </button>
             </div>
           </Card>
