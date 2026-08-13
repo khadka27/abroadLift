@@ -5,6 +5,7 @@
 "use client";
 
 import { CustomSelect } from "@/components/ui/CustomSelect";
+import Loading from "@/components/ui/Loading";
 
 import { useEffect, useMemo, useState, useRef, Suspense } from "react";
 import { signOut, useSession } from "next-auth/react";
@@ -2250,8 +2251,7 @@ function DashboardInner() {
                       <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs">
                         {loading ? (
                           <div className="flex py-10 justify-center items-center">
-                            <Loader2 className="w-6 h-6 text-[#3686FF] animate-spin mr-3" />
-                            <span className="font-bold text-slate-500 animate-pulse text-xs">Loading saved matches...</span>
+                            <Loading size="md" text="Loading saved matches..." />
                           </div>
                         ) : savedMatches.length === 0 ? (
                           <div className="text-center py-8 text-slate-500 flex flex-col items-center gap-3">
@@ -2574,8 +2574,7 @@ function DashboardInner() {
 
                       {matchesLoading ? (
                         <div className="flex py-16 justify-center items-center">
-                          <Loader2 className="w-8 h-8 text-[#3686FF] animate-spin mr-3" />
-                          <span className="font-bold text-slate-500 animate-pulse text-xs">Matching universities against your GPA and test scores...</span>
+                          <Loading size="lg" text="Matching universities against your GPA and test scores..." />
                         </div>
                       ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -6767,10 +6766,7 @@ export default function StudentDashboard() {
   return (
     <Suspense fallback={
       <div className="flex h-screen w-full items-center justify-center bg-slate-50">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 rounded-full border-4 border-blue-500 border-t-transparent animate-spin" />
-          <p className="text-sm font-bold text-slate-400">Loading dashboard…</p>
-        </div>
+        <Loading size="lg" text="Loading dashboard…" />
       </div>
     }>
       <DashboardInner />

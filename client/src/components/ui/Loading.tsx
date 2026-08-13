@@ -1,61 +1,54 @@
 import React from "react";
+import Image from "next/image";
 
 interface LoadingProps {
   size?: "sm" | "md" | "lg" | "xl" | number;
   text?: string;
-  fullScreen?: boolean;
   className?: string;
 }
 
 export default function Loading({
-  size = "md",
+  size = "lg",
   text,
-  fullScreen = false,
   className = "",
 }: LoadingProps) {
-  let pixelSize = 48;
+  let pixelSize = 220;
   if (typeof size === "number") {
     pixelSize = size;
   } else {
     switch (size) {
       case "sm":
-        pixelSize = 28;
+        pixelSize = 80;
         break;
       case "md":
-        pixelSize = 48;
+        pixelSize = 140;
         break;
       case "lg":
-        pixelSize = 72;
+        pixelSize = 220;
         break;
       case "xl":
-        pixelSize = 96;
+        pixelSize = 320;
         break;
     }
   }
 
-  const content = (
-    <div className={`flex flex-col items-center justify-center gap-3 ${className}`}>
-      <img
+  return (
+    <div className={`flex flex-col items-center justify-center text-center ${className}`}>
+      <Image
         src="/loading (1).svg"
         alt="Loading..."
+        width={pixelSize}
+        height={pixelSize}
         style={{ width: `${pixelSize}px`, height: `${pixelSize}px` }}
         className="object-contain"
+        unoptimized
+        priority
       />
       {text && (
-        <p className="text-slate-500 font-medium text-sm md:text-base animate-pulse">
+        <p className="mt-3 text-slate-500 font-medium text-sm md:text-base animate-pulse">
           {text}
         </p>
       )}
     </div>
   );
-
-  if (fullScreen) {
-    return (
-      <div className="min-h-screen w-full flex items-center justify-center bg-slate-50/80 backdrop-blur-sm fixed inset-0 z-50">
-        {content}
-      </div>
-    );
-  }
-
-  return content;
 }
