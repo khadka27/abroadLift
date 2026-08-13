@@ -24,6 +24,9 @@ import {
   Plus,
   X,
   PieChart,
+} from "lucide-react";
+import Loading from "@/components/ui/Loading";
+import {
   Bell,
   Eye,
   EyeOff,
@@ -308,7 +311,7 @@ export default function AdminDashboard() {
   if (loading && status === "authenticated") {
     return (
       <div className="h-screen w-full flex items-center justify-center bg-slate-50">
-        <Loader2 className="w-12 h-12 text-indigo-600 animate-spin" />
+        <Loading size="lg" text="Loading dashboard overview..." />
       </div>
     );
   }

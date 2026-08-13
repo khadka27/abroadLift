@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { FlagIcon } from "@/components/matches/FlagIcon";
 import SearchGlobe from "@/components/SearchGlobe";
+import Loading from "@/components/ui/Loading";
 
 const COUNTRY_CODES: { [key: string]: string } = {
   "All Countries": "US,CA,GB,AU,DE,IE,MT",
@@ -497,8 +498,7 @@ export default function SearchPage() {
           {/* Grid or List View */}
           {loading ? (
             <div className="flex flex-col items-center justify-center py-32 bg-white rounded-[40px] border border-slate-100 shadow-sm">
-              <Loader2 className="w-12 h-12 text-[#3686FF] animate-spin mb-4" />
-              <p className="text-slate-400 font-bold uppercase tracking-widest text-[12px]">Analyzing global database...</p>
+              <Loading size="lg" text="Analyzing global database..." />
             </div>
           ) : error ? (
             <div className="text-center py-32 bg-white rounded-[40px] border border-slate-100 shadow-sm">

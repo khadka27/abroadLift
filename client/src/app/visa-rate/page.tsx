@@ -22,6 +22,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { DollarSign } from "lucide-react";
+import Loading from "@/components/ui/Loading";
 
 interface VisaCheck {
   id: string;
@@ -129,8 +130,7 @@ export default function VisaRatePage() {
   if (status === "loading" || fetching) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#F8FAFC]">
-        <Loader2 className="w-10 h-10 text-blue-600 animate-spin mb-4" />
-        <p className="text-slate-500 font-medium">Loading your visa history...</p>
+        <Loading size="lg" text="Loading your visa history..." />
       </div>
     );
   }

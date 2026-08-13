@@ -32,8 +32,10 @@ import {
   Clock,
   ExternalLink,
   MessageSquare,
-  Shield
+  Shield,
+  Coins,
 } from "lucide-react";
+import Loading from "@/components/ui/Loading";
 import { format } from "date-fns";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -138,7 +140,7 @@ export default function StudentDetails({ params }: { params: Promise<{ id: strin
   if (loading || !student) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center">
-        <Loader2 className="w-12 h-12 text-indigo-600 animate-spin" />
+        <Loading size="lg" text="Loading student profile..." />
       </div>
     );
   }

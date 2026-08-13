@@ -6,6 +6,7 @@ import {
   ChevronRight, ChevronLeft, Calendar, Coins, GraduationCap, Globe2, BookOpen
 } from "lucide-react";
 import { evaluateScholarship } from "@/lib/scholarship-evaluator";
+import Loading from "@/components/ui/Loading";
 
 interface Scholarship {
   _id: string;
@@ -327,8 +328,7 @@ export default function ScholarshipsPage() {
       <section className="max-w-[1280px] mx-auto px-6">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-32 bg-white rounded-[40px] border border-slate-100 shadow-sm">
-            <Loader2 className="w-10 h-10 text-[#3686FF] animate-spin mb-4" />
-            <p className="text-slate-400 font-bold uppercase tracking-widest text-[12px]">Fetching live scholarships...</p>
+            <Loading size="lg" text="Fetching live scholarships..." />
           </div>
         ) : error ? (
           <div className="flex flex-col items-center justify-center py-32 bg-white rounded-[40px] border border-slate-100 shadow-sm text-center px-6">

@@ -9,6 +9,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { formatNPRDevanagari, getRateToNpr } from "@/lib/currency";
+import Loading from "@/components/ui/Loading";
 
 interface School {
   _id: string;
@@ -143,8 +144,7 @@ export default function SchoolDetailPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center">
-        <Loader2 className="w-12 h-12 text-[#3686FF] animate-spin mb-4" />
-        <p className="text-slate-400 font-bold uppercase tracking-widest text-[12px]">Analyzing Campus Profile...</p>
+        <Loading size="lg" text="Analyzing Campus Profile..." />
       </div>
     );
   }

@@ -5,6 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import { Loader2 } from "lucide-react";
+import Loading from "@/components/ui/Loading";
 
 export default function AdminLayout({
   children,
@@ -56,9 +57,7 @@ export default function AdminLayout({
         />
 
         <div className="relative z-10 flex flex-col items-center text-center max-w-sm px-6">
-          <div className="w-16 h-16 rounded-[20px] bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 mb-8 border border-white/10">
-            <Loader2 className="w-8 h-8 text-white animate-spin" />
-          </div>
+          <Loading size="lg" className="mb-4" />
           <h2 className="text-lg font-black tracking-widest uppercase bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent mb-2">
             AbroadLift Admin
           </h2>
