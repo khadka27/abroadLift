@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { AlertCircle, CheckCircle2, ShieldCheck } from "lucide-react";
+import OTPInput from "@/components/ui/OTPInput";
 
 function VerifyOtpForm() {
   const router = useRouter();
@@ -144,7 +145,14 @@ function VerifyOtpForm() {
             >
               OTP Code
             </label>
-            <OTPInput value={otp} onChange={(v) => setOtp(v)} />
+            <OTPInput
+              value={otp}
+              onChange={(v) => {
+                setOtp(v);
+                setError("");
+              }}
+              isError={Boolean(error)}
+            />
           </div>
 
           <button
@@ -175,123 +183,6 @@ function VerifyOtpForm() {
           </Link>
         </p>
       </div>
-    </div>
-  );
-}
-
-function OTPInput({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-}) {
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-
-  // Initialize value to 6 digits (empty or space filled if needed)
-  const otpArray = value.split("").slice(0, 6);
-  while (otpArray.length < 6) otpArray.push("");
-
-  const otpBoxes = [
-    { id: "otp-digit-1", index: 0 },
-    { id: "otp-digit-2", index: 1 },
-    { id: "otp-digit-3", index: 2 },
-    { id: "otp-digit-4", index: 3 },
-    { id: "otp-digit-5", index: 4 },
-    { id: "otp-digit-6", index: 5 },
-  ];
-
-  const handleChange = (index: number, newVal: string) => {
-    // Only allow digits
-    const digit = newVal.slice(-1); // Get the last typed character
-    if (digit && !/^\d$/.test(digit)) return;
-
-    const newOtpArray = [...otpArray];
-    newOtpArray[index] = digit;
-    const finalOtp = newOtpArray.join("");
-    onChange(finalOtp);
-
-    // Automatically focus next input if a digit was entered
-    if (digit && index < 5) {
-      inputRefs.current[index + 1]?.focus();
-    }
-  };
-
-  const handleKeyDown = (
-    index: number,
-    e: React.KeyboardEvent<HTMLInputElement>,
-  ) => {
-    if (e.key === "Backspace") {
-      e.preventDefault();
-      if (otpArray[index]) {
-        // Clear current box and stay here
-        const newOtpArray = [...otpArray];
-        newOtpArray[index] = "";
-        onChange(newOtpArray.join(""));
-      } else if (index > 0) {
-        // If current box is already empty, clear previous box and focus it
-        const newOtpArray = [...otpArray];
-        newOtpArray[index - 1] = "";
-        onChange(newOtpArray.join(""));
-        inputRefs.current[index - 1]?.focus();
-      }
-    } else if (e.key === "ArrowLeft" && index > 0) {
-      inputRefs.current[index - 1]?.focus();
-    } else if (e.key === "ArrowRight" && index < 5) {
-      inputRefs.current[index + 1]?.focus();
-    } else if (e.key === "Enter") {
-      const formEl = (e.target as HTMLElement).closest("form");
-      if (formEl) {
-        e.preventDefault();
-        formEl.requestSubmit();
-      }
-    }
-  };
-
-  const handlePaste = (
-    index: number,
-    e: React.ClipboardEvent<HTMLInputElement>,
-  ) => {
-    const clipboard = e.clipboardData;
-    if (!clipboard) return;
-
-    const pastedData = clipboard.getData("text").replace(/\D/g, "").slice(0, 6).split("");
-    if (pastedData.length === 0) return;
-    e.preventDefault();
-
-    const newOtpArray = [...otpArray];
-    pastedData.forEach((char, i) => {
-      if (index + i < 6) {
-        newOtpArray[index + i] = char;
-      }
-    });
-
-    onChange(newOtpArray.join(""));
-
-    const lastFocusedIndex = Math.min(index + pastedData.length, 5);
-    inputRefs.current[lastFocusedIndex]?.focus();
-  };
-
-  return (
-    <div className="flex justify-between w-full">
-      {otpBoxes.map(({ id, index }) => (
-        <input
-          key={id}
-          ref={(el) => {
-            inputRefs.current[index] = el;
-          }}
-          type="text"
-          inputMode="numeric"
-          maxLength={1}
-          value={otpArray[index]}
-          onChange={(e) => handleChange(index, e.target.value)}
-          onKeyDown={(e) => handleKeyDown(index, e)}
-          onPaste={(e) => {
-            handlePaste(index, e);
-          }}
-          className="w-12 h-12 text-center text-[20px] font-bold border-2 border-[#E5E7EB] rounded-[12px] bg-white text-[#0f172a] shadow-sm outline-none transition-all focus:border-gray-300"
-        />
-      ))}
     </div>
   );
 }

@@ -13,6 +13,7 @@ import {
   toE164,
 } from "@/lib/phoneVerification";
 import { validatePhoneByCountry, getPhonePlaceholder } from "@/lib/phone-validation";
+import OTPInput from "@/components/ui/OTPInput";
 
 const COUNTRY_CODES = [
   { label: "Nepal", dialCode: "+977" },
@@ -386,7 +387,14 @@ function LoginForm() {
                     <label className="text-[13px] font-bold text-slate-700 block">
                       Enter 6-Digit Verification Code
                     </label>
-                    <OTPInput value={otp} onChange={(v) => setOtp(v)} />
+                    <OTPInput
+                      value={otp}
+                      onChange={(v) => {
+                        setOtp(v);
+                        setError("");
+                      }}
+                      isError={Boolean(error)}
+                    />
                   </div>
 
                   <div className="space-y-3 pt-2">
@@ -417,118 +425,6 @@ function LoginForm() {
         </div>
 
       </div>
-    </div>
-  );
-}
-
-function OTPInput({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-}) {
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const otpArray = value.split("").slice(0, 6);
-  while (otpArray.length < 6) otpArray.push("");
-
-  const otpBoxes = [
-    { id: "otp-digit-1", index: 0 },
-    { id: "otp-digit-2", index: 1 },
-    { id: "otp-digit-3", index: 2 },
-    { id: "otp-digit-4", index: 3 },
-    { id: "otp-digit-5", index: 4 },
-    { id: "otp-digit-6", index: 5 },
-  ];
-
-  const handleChange = (index: number, newVal: string) => {
-    const digit = newVal.slice(-1);
-    if (digit && !/^\d$/.test(digit)) return;
-
-    const newOtpArray = [...otpArray];
-    newOtpArray[index] = digit;
-    const finalOtp = newOtpArray.join("");
-    onChange(finalOtp);
-
-    if (digit && index < 5) {
-      inputRefs.current[index + 1]?.focus();
-    }
-  };
-
-  const handleKeyDown = (
-    index: number,
-    e: React.KeyboardEvent<HTMLInputElement>
-  ) => {
-    if (e.key === "Backspace") {
-      e.preventDefault();
-      if (otpArray[index]) {
-        const newOtpArray = [...otpArray];
-        newOtpArray[index] = "";
-        onChange(newOtpArray.join(""));
-      } else if (index > 0) {
-        const newOtpArray = [...otpArray];
-        newOtpArray[index - 1] = "";
-        onChange(newOtpArray.join(""));
-        inputRefs.current[index - 1]?.focus();
-      }
-    } else if (e.key === "ArrowLeft" && index > 0) {
-      inputRefs.current[index - 1]?.focus();
-    } else if (e.key === "ArrowRight" && index < 5) {
-      inputRefs.current[index + 1]?.focus();
-    } else if (e.key === "Enter") {
-      const formEl = (e.target as HTMLElement).closest("form");
-      if (formEl) {
-        e.preventDefault();
-        formEl.requestSubmit();
-      }
-    }
-  };
-
-  const handlePaste = (
-    index: number,
-    e: React.ClipboardEvent<HTMLInputElement>
-  ) => {
-    const clipboard = e.clipboardData;
-    if (!clipboard) return;
-
-    const pastedData = clipboard
-      .getData("text")
-      .replace(/\D/g, "")
-      .slice(0, 6)
-      .split("");
-    if (pastedData.length === 0) return;
-    e.preventDefault();
-
-    const newOtpArray = [...otpArray];
-    pastedData.forEach((char, i) => {
-      if (index + i < 6) {
-        newOtpArray[index + i] = char;
-      }
-    });
-
-    onChange(newOtpArray.join(""));
-    const lastFocusedIndex = Math.min(index + pastedData.length, 5);
-    inputRefs.current[lastFocusedIndex]?.focus();
-  };
-
-  return (
-    <div className="flex justify-between w-full gap-2">
-      {otpBoxes.map(({ id, index }) => (
-        <input
-          key={id}
-          ref={(el) => {
-            inputRefs.current[index] = el;
-          }}
-          type="text"
-          inputMode="numeric"
-          maxLength={1}
-          value={otpArray[index]}
-          onChange={(e) => handleChange(index, e.target.value)}
-          onKeyDown={(e) => handleKeyDown(index, e)}
-          onPaste={(e) => handlePaste(index, e)}
-          className="w-full aspect-square text-center text-[20px] font-extrabold border-b-2 border-slate-300 focus:border-[#3366FF] bg-slate-50 text-slate-900 outline-none transition-all focus:bg-white rounded-xl shadow-sm"
-        />
-      ))}
     </div>
   );
 }
