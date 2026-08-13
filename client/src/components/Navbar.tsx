@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
@@ -21,12 +21,37 @@ export default function Navbar() {
   const { data: session, status } = useSession();
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
+  const [visible, setVisible] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const lastScrollY = useRef(0);
+
   const isAuthenticated = status === "authenticated";
   const isAdmin = session?.user?.role === "ADMIN";
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      // Scrolled style threshold (for background backdrop)
+      setScrolled(currentScrollY > 20);
+
+      // Auto-hide on scroll down, show on scroll up
+      if (currentScrollY > 50) {
+        if (currentScrollY > lastScrollY.current) {
+          // Scrolling DOWN -> hide
+          setVisible(false);
+        } else {
+          // Scrolling UP -> show
+          setVisible(true);
+        }
+      } else {
+        // At top of page -> show
+        setVisible(true);
+      }
+
+      lastScrollY.current = currentScrollY;
+    };
+
     handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
@@ -39,7 +64,9 @@ export default function Navbar() {
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 pt-4 px-4 sm:px-6 lg:px-12`}
+        className={`fixed top-0 left-0 right-0 z-[100] transition-transform duration-500 pt-4 px-4 sm:px-6 lg:px-12 ${
+          visible || mobileOpen ? "translate-y-0" : "-translate-y-full"
+        }`}
       >
         <div 
           className={`max-w-[1400px] mx-auto flex items-center justify-between px-5 py-3 lg:px-8 transition-all duration-500 rounded-full ${
