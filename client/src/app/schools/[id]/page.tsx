@@ -169,7 +169,7 @@ export default function SchoolDetailPage() {
     <main className="min-h-screen bg-[#F8FAFC] font-sans selection:bg-[#3686FF]/20 selection:text-[#3686FF] overflow-x-hidden pb-20">
       
       {/* Hero Banner Section */}
-      <section className="relative h-[400px] md:h-[520px] w-full overflow-hidden shrink-0">
+      <section className="relative min-h-[480px] sm:min-h-[440px] md:h-[520px] w-full overflow-hidden shrink-0">
         <Image
           src={school.banner?.url || "/uni-default.webp"}
           alt={school.name}
@@ -181,7 +181,7 @@ export default function SchoolDetailPage() {
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-slate-950/20" />
         
         {/* Navigation & Actions - Placed below fixed Navbar (height 80px) */}
-        <div className="absolute top-24 md:top-28 left-6 md:left-12 right-6 md:right-12 flex items-center justify-between gap-3 z-20">
+        <div className="absolute top-20 sm:top-24 md:top-28 left-4 sm:left-6 md:left-12 right-4 sm:right-6 md:right-12 flex items-center justify-between gap-2 sm:gap-3 z-20">
           <button 
             onClick={() => {
               if (typeof window !== "undefined" && window.history.length > 1) {
@@ -190,33 +190,33 @@ export default function SchoolDetailPage() {
                 router.push("/matches");
               }
             }}
-            className="px-4 py-2.5 rounded-full bg-slate-900/80 hover:bg-slate-900 backdrop-blur-md text-white border border-white/20 text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all shadow-lg hover:scale-105 cursor-pointer"
+            className="px-3 py-2 sm:px-4 sm:py-2.5 rounded-full bg-slate-900/80 hover:bg-slate-900 backdrop-blur-md text-white border border-white/20 text-[11px] sm:text-xs font-black uppercase tracking-wider flex items-center gap-1.5 sm:gap-2 transition-all shadow-lg hover:scale-105 cursor-pointer whitespace-nowrap shrink-0"
           >
-            <ArrowLeft className="w-4 h-4 text-blue-400" /> Back to Matches
+            <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-400 shrink-0" /> Back <span className="hidden min-[380px]:inline">to Matches</span>
           </button>
 
           <Link
             href="/matches"
-            className="px-4 py-2.5 rounded-full bg-blue-600/90 hover:bg-blue-600 backdrop-blur-md text-white border border-white/20 text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all shadow-lg hover:scale-105 cursor-pointer"
+            className="px-3 py-2 sm:px-4 sm:py-2.5 rounded-full bg-blue-600/90 hover:bg-blue-600 backdrop-blur-md text-white border border-white/20 text-xs font-black uppercase tracking-wider flex items-center gap-1.5 sm:gap-2 transition-all shadow-lg hover:scale-105 cursor-pointer whitespace-nowrap shrink-0"
           >
-            <GraduationCap className="w-4 h-4" /> Compare Universities
+            <GraduationCap className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" /> Compare <span className="hidden min-[380px]:inline">Universities</span>
           </Link>
         </div>
 
         {/* School Name & Rank Title */}
-        <div className="absolute left-6 md:left-12 bottom-8 md:bottom-12 right-6 md:right-12 text-white z-10">
-          <div className="flex flex-wrap items-center gap-3 mb-3">
+        <div className="absolute left-4 sm:left-6 md:left-12 bottom-6 sm:bottom-8 md:bottom-12 right-4 sm:right-6 md:right-12 text-white z-10">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
             {school.school_rank && (
-              <span className="bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm text-[11px] font-black text-[#3686FF] uppercase tracking-widest">
-                <Award className="w-3.5 h-3.5" /> #{school.school_rank} Global Rank
+              <span className="bg-white/95 backdrop-blur-md px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full flex items-center gap-1.5 shadow-sm text-[10px] sm:text-[11px] font-black text-[#3686FF] uppercase tracking-widest">
+                <Award className="w-3.5 h-3.5 shrink-0" /> #{school.school_rank} Global Rank
               </span>
             )}
-            <span className="bg-white/15 backdrop-blur-md px-3.5 py-1.5 rounded-full text-[11px] font-black text-white uppercase tracking-widest border border-white/25">
+            <span className="bg-white/15 backdrop-blur-md px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-[11px] font-black text-white uppercase tracking-widest border border-white/25">
               {school.institution_type || "Public Institution"}
             </span>
           </div>
-          <div className="flex flex-col md:flex-row md:items-center gap-4 max-w-5xl">
-            <h1 className="text-[32px] md:text-[56px] font-black leading-tight tracking-tight drop-shadow-md text-white">
+          <div className="flex flex-col md:flex-row md:items-center gap-3 sm:gap-4 max-w-5xl">
+            <h1 className="text-[26px] sm:text-[32px] md:text-[56px] font-black leading-tight tracking-tight drop-shadow-md text-white">
               {school.name}
             </h1>
             {school.website && (
@@ -224,14 +224,14 @@ export default function SchoolDetailPage() {
                 href={school.website}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#3686FF] hover:bg-[#2970E6] text-white font-extrabold text-[12px] uppercase tracking-wider transition-all shadow-lg shadow-blue-500/20 hover:-translate-y-0.5 active:translate-y-0 shrink-0 md:mt-2"
+                className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-[#3686FF] hover:bg-[#2970E6] text-white font-extrabold text-[11px] sm:text-[12px] uppercase tracking-wider transition-all shadow-lg shadow-blue-500/20 hover:-translate-y-0.5 active:translate-y-0 shrink-0 self-start md:self-auto md:mt-2"
               >
-                Visit Website <ExternalLink className="w-4 h-4" />
+                Visit Website <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
               </a>
             )}
           </div>
-          <p className="text-[14px] md:text-[18px] font-medium opacity-90 mt-2 flex items-center gap-2">
-            <MapPin className="w-4 h-4 text-rose-500" />
+          <p className="text-[13px] sm:text-[14px] md:text-[18px] font-medium opacity-90 mt-2 flex items-center gap-2">
+            <MapPin className="w-4 h-4 text-rose-500 shrink-0" />
             {school.address ? `${school.address}, ` : ""}{school.city}, {school.province}, {school.country}
           </p>
         </div>

@@ -6541,8 +6541,7 @@ function DashboardInner() {
             </div>
 
             {/* Modal Footer */}
-            <div className="p-4 border-t border-slate-100 bg-white flex items-center justify-between shrink-0">
-              <span className="text-xs font-bold text-slate-400">AbroadLift Encrypted Document Vault</span>
+            <div className="p-4 border-t border-slate-100 bg-white flex items-center justify-end shrink-0">
               <button
                 type="button"
                 onClick={() => setPreviewDoc(null)}
