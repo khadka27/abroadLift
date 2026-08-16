@@ -61,11 +61,86 @@ function oklabToRgb(l: number, aComp: number, bComp: number): [number, number, n
   return [r, g, b];
 }
 
-function replaceColorFunctions(
-  str: string,
-  replacer: (match: string) => string
-): string {
+function parseColorToRgb(colorStr: string, isTextProperty: boolean = false): string {
+  if (!colorStr) return isTextProperty ? "#0f172a" : "transparent";
+  const str = colorStr.trim();
+
+  // 1. Parse oklch(...)
+  const oklchMatch = str.match(
+    /oklch\(\s*([-\d.]+)(%?)\s+([-\d.]+)\s+([-\d.]+)(?:deg|rad|turn)?(?:\s*[\/\,]\s*([-\d.]+)(%?))?\s*\)/i
+  );
+  if (oklchMatch) {
+    let l = parseFloat(oklchMatch[1]);
+    if (oklchMatch[2] === "%") l = l / 100;
+    const c = parseFloat(oklchMatch[3]);
+    const h = parseFloat(oklchMatch[4]);
+    let alpha = oklchMatch[5] !== undefined ? parseFloat(oklchMatch[5]) : 1;
+    if (oklchMatch[6] === "%") alpha = alpha / 100;
+
+    const [r, g, b] = oklchToRgb(l, c, h);
+    if (alpha < 1 && !isNaN(alpha)) {
+      return `rgba(${r}, ${g}, ${b}, ${alpha.toFixed(2)})`;
+    }
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+
+  // 2. Parse oklab(...)
+  const oklabMatch = str.match(
+    /oklab\(\s*([-\d.]+)(%?)\s+([-\d.]+)\s+([-\d.]+)(?:\s*[\/\,]\s*([-\d.]+)(%?))?\s*\)/i
+  );
+  if (oklabMatch) {
+    let l = parseFloat(oklabMatch[1]);
+    if (oklabMatch[2] === "%") l = l / 100;
+    const aVal = parseFloat(oklabMatch[3]);
+    const bVal = parseFloat(oklabMatch[4]);
+    let alpha = oklabMatch[5] !== undefined ? parseFloat(oklabMatch[5]) : 1;
+    if (oklabMatch[6] === "%") alpha = alpha / 100;
+
+    const [r, g, b] = oklabToRgb(l, aVal, bVal);
+    if (alpha < 1 && !isNaN(alpha)) {
+      return `rgba(${r}, ${g}, ${b}, ${alpha.toFixed(2)})`;
+    }
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+
+  // 3. Parse color(srgb r g b / a)
+  const colorFnMatch = str.match(
+    /color\(\s*srgb\s+([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)(?:\s*[\/\,]\s*([-\d.]+))?\s*\)/i
+  );
+  if (colorFnMatch) {
+    const r = Math.min(255, Math.max(0, Math.round(parseFloat(colorFnMatch[1]) * 255)));
+    const g = Math.min(255, Math.max(0, Math.round(parseFloat(colorFnMatch[2]) * 255)));
+    const b = Math.min(255, Math.max(0, Math.round(parseFloat(colorFnMatch[3]) * 255)));
+    const a = colorFnMatch[4] !== undefined ? parseFloat(colorFnMatch[4]) : 1;
+    if (a < 1) return `rgba(${r}, ${g}, ${b}, ${a.toFixed(2)})`;
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+
+  // 4. light-dark(light, dark)
+  if (/^light-dark\(/i.test(str)) {
+    const inner = str.slice(11, -1);
+    const parts = inner.split(",");
+    if (parts[0]) return parseColorToRgb(parts[0].trim(), isTextProperty);
+  }
+
+  // If string has no oklch/oklab syntax, return original if non-empty
+  if (!/(?:lab|oklch|oklab|lch|color|light-dark)\(/i.test(str)) {
+    return str;
+  }
+
+  // Safe fallback
+  if (isTextProperty) {
+    return "#0f172a";
+  }
+  return "transparent";
+}
+
+function sanitizeCssString(str: string, isTextProperty: boolean = false): string {
   if (!str) return str;
+  if (!/(?:lab|oklch|oklab|lch|color|light-dark)\(/i.test(str)) {
+    return str;
+  }
+
   const keywords = ["lab", "oklch", "oklab", "lch", "color", "light-dark"];
   const regex = new RegExp(`(?:${keywords.join("|")})\\(`, "gi");
 
@@ -88,7 +163,7 @@ function replaceColorFunctions(
     if (openCount === 0) {
       result += str.slice(lastIndex, startIndex);
       const fullMatch = str.slice(startIndex, currIndex);
-      result += replacer(fullMatch);
+      result += parseColorToRgb(fullMatch, isTextProperty);
       lastIndex = currIndex;
       regex.lastIndex = currIndex;
     }
@@ -96,111 +171,6 @@ function replaceColorFunctions(
 
   result += str.slice(lastIndex);
   return result;
-}
-
-function convertColorToRgb(colorStr: string): string {
-  if (typeof window === "undefined" || !colorStr) return colorStr;
-  const trimmed = colorStr.trim();
-
-  // 1. oklab(L a b / A) or oklab(L a b)
-  if (/^oklab\(/i.test(trimmed)) {
-    const match = trimmed.match(
-      /^oklab\(\s*([-\d.]+)(%?)\s+([-\d.]+)\s+([-\d.]+)(?:\s*[\/\,]\s*([-\d.]+)(%?))?\s*\)$/i
-    );
-    if (match) {
-      let l = parseFloat(match[1]);
-      if (match[2] === "%") l = l / 100;
-      const aVal = parseFloat(match[3]);
-      const bVal = parseFloat(match[4]);
-      let alpha = match[5] !== undefined ? parseFloat(match[5]) : 1;
-      if (match[6] === "%") alpha = alpha / 100;
-
-      const [r, g, b] = oklabToRgb(l, aVal, bVal);
-      if (alpha < 1) return `rgba(${r}, ${g}, ${b}, ${alpha.toFixed(2)})`;
-      return `rgb(${r}, ${g}, ${b})`;
-    }
-  }
-
-  // 2. oklch(L C H / A) or oklch(L C H)
-  if (/^oklch\(/i.test(trimmed)) {
-    const match = trimmed.match(
-      /^oklch\(\s*([-\d.]+)(%?)\s+([-\d.]+)\s+([-\d.]+)(?:\s*[\/\,]\s*([-\d.]+)(%?))?\s*\)$/i
-    );
-    if (match) {
-      let l = parseFloat(match[1]);
-      if (match[2] === "%") l = l / 100;
-      const c = parseFloat(match[3]);
-      const h = parseFloat(match[4]);
-      let alpha = match[5] !== undefined ? parseFloat(match[5]) : 1;
-      if (match[6] === "%") alpha = alpha / 100;
-
-      const [r, g, b] = oklchToRgb(l, c, h);
-      if (alpha < 1) return `rgba(${r}, ${g}, ${b}, ${alpha.toFixed(2)})`;
-      return `rgb(${r}, ${g}, ${b})`;
-    }
-  }
-
-  // 3. color(srgb R G B / A)
-  if (/^color\(\s*srgb/i.test(trimmed)) {
-    const match = trimmed.match(
-      /^color\(\s*srgb\s+([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)(?:\s*[\/\,]\s*([-\d.]+))?\s*\)$/i
-    );
-    if (match) {
-      const r = Math.min(255, Math.max(0, Math.round(parseFloat(match[1]) * 255)));
-      const g = Math.min(255, Math.max(0, Math.round(parseFloat(match[2]) * 255)));
-      const b = Math.min(255, Math.max(0, Math.round(parseFloat(match[3]) * 255)));
-      const a = match[4] !== undefined ? parseFloat(match[4]) : 1;
-      if (a < 1) return `rgba(${r}, ${g}, ${b}, ${a.toFixed(2)})`;
-      return `rgb(${r}, ${g}, ${b})`;
-    }
-  }
-
-  // 4. light-dark(light, dark)
-  if (/^light-dark\(/i.test(trimmed)) {
-    const inner = trimmed.slice(11, -1);
-    const parts = inner.split(",");
-    if (parts[0]) return convertColorToRgb(parts[0].trim());
-  }
-
-  // 5. DOM Computed Style Resolution via temporary helper
-  try {
-    let helper = document.getElementById("pdf-color-convert-helper");
-    if (!helper) {
-      helper = document.createElement("div");
-      helper.id = "pdf-color-convert-helper";
-      helper.style.position = "fixed";
-      helper.style.left = "-9999px";
-      helper.style.top = "-9999px";
-      helper.style.visibility = "hidden";
-      helper.style.pointerEvents = "none";
-      document.body.appendChild(helper);
-    }
-
-    helper.style.color = "";
-    helper.style.color = trimmed;
-    const comp = window.getComputedStyle(helper).color;
-    if (
-      comp &&
-      !/(?:lab|oklch|oklab|lch|color|light-dark)\(/i.test(comp)
-    ) {
-      return comp;
-    }
-  } catch {
-    // ignore
-  }
-
-  return "transparent";
-}
-
-function sanitizeColorString(str: string): string {
-  if (!str) return str;
-  if (!/(?:lab|oklch|oklab|lch|color|light-dark)\(/i.test(str)) {
-    return str;
-  }
-
-  return replaceColorFunctions(str, (match) => {
-    return convertColorToRgb(match);
-  });
 }
 
 export async function exportElementToPDF(
@@ -212,32 +182,6 @@ export async function exportElementToPDF(
   if (typeof window === "undefined") return;
 
   if (onStart) onStart();
-
-  const originalGetComputedStyle = window.getComputedStyle;
-
-  const wrapComputedStyle = (style: CSSStyleDeclaration): CSSStyleDeclaration => {
-    return new Proxy(style, {
-      get(target, prop) {
-        if (prop === "getPropertyValue") {
-          return (propertyName: string) => {
-            const val = target.getPropertyValue(propertyName);
-            if (val && /(?:lab|oklch|oklab|lch|color|light-dark)\(/i.test(val)) {
-              return sanitizeColorString(val);
-            }
-            return val;
-          };
-        }
-        const val = (target as any)[prop];
-        if (typeof val === "function") {
-          return val.bind(target);
-        }
-        if (typeof val === "string" && /(?:lab|oklch|oklab|lch|color|light-dark)\(/i.test(val)) {
-          return sanitizeColorString(val);
-        }
-        return val;
-      },
-    });
-  };
 
   try {
     const element =
@@ -251,15 +195,6 @@ export async function exportElementToPDF(
       return;
     }
 
-    // 1. Temporarily patch main window.getComputedStyle during html2canvas initialization
-    window.getComputedStyle = function (
-      elt: Element,
-      pseudoElt?: string | null
-    ): CSSStyleDeclaration {
-      const comp = originalGetComputedStyle.call(window, elt, pseudoElt);
-      return wrapComputedStyle(comp);
-    };
-
     const canvas = await html2canvas(element as HTMLElement, {
       scale: 2,
       useCORS: true,
@@ -269,27 +204,15 @@ export async function exportElementToPDF(
       scrollX: 0,
       scrollY: 0,
       onclone: (clonedDoc, clonedElement) => {
-        // Patch clonedDoc defaultView getComputedStyle
-        if (clonedDoc.defaultView) {
-          const clonedOrigGetComputedStyle = clonedDoc.defaultView.getComputedStyle;
-          clonedDoc.defaultView.getComputedStyle = function (
-            elt: Element,
-            pseudoElt?: string | null
-          ): CSSStyleDeclaration {
-            const comp = clonedOrigGetComputedStyle.call(clonedDoc.defaultView, elt, pseudoElt);
-            return wrapComputedStyle(comp);
-          };
-        }
-
-        // Sanitize all style tags
+        // 1. Sanitize all <style> tags in cloned document
         const styleTags = clonedDoc.querySelectorAll("style");
         styleTags.forEach((style) => {
           if (style.textContent) {
-            style.textContent = sanitizeColorString(style.textContent);
+            style.textContent = sanitizeCssString(style.textContent, false);
           }
         });
 
-        // Hide action buttons in PDF clone
+        // 2. Hide export/save action buttons inside PDF clone
         const actionButtons = clonedDoc.querySelectorAll(".no-pdf, button");
         actionButtons.forEach((btn) => {
           if (
@@ -300,24 +223,7 @@ export async function exportElementToPDF(
           }
         });
 
-        // Force explicit inline sanitized styles on all elements
-        const colorProps = [
-          "color",
-          "background-color",
-          "border-color",
-          "border-top-color",
-          "border-right-color",
-          "border-bottom-color",
-          "border-left-color",
-          "outline-color",
-          "box-shadow",
-          "text-shadow",
-          "background",
-          "background-image",
-          "fill",
-          "stroke",
-        ];
-
+        // 3. Process all cloned elements safely: guarantee text is never transparent!
         const allElements = clonedDoc.querySelectorAll<HTMLElement | SVGElement>("*");
         allElements.forEach((el) => {
           const styleAttr = el.getAttribute("style");
@@ -325,7 +231,7 @@ export async function exportElementToPDF(
             styleAttr &&
             /(?:lab|oklch|oklab|lch|color|light-dark)\(/i.test(styleAttr)
           ) {
-            el.setAttribute("style", sanitizeColorString(styleAttr));
+            el.setAttribute("style", sanitizeCssString(styleAttr, false));
           }
 
           if (el instanceof HTMLElement) {
@@ -343,14 +249,44 @@ export async function exportElementToPDF(
                 el.style.transform = "none";
               }
 
-              for (const prop of colorProps) {
+              // Text Color: guarantee dark, crisp, non-transparent text!
+              const textColor = comp.getPropertyValue("color");
+              if (
+                textColor &&
+                (textColor === "transparent" ||
+                  /(?:lab|oklch|oklab|lch|color|light-dark)\(/i.test(textColor))
+              ) {
+                const sanitizedText = sanitizeCssString(textColor, true);
+                el.style.setProperty(
+                  "color",
+                  sanitizedText === "transparent" ? "#0f172a" : sanitizedText,
+                  "important"
+                );
+              }
+
+              // Background & Border colors
+              const bgProps = [
+                "background-color",
+                "border-color",
+                "border-top-color",
+                "border-right-color",
+                "border-bottom-color",
+                "border-left-color",
+                "outline-color",
+                "box-shadow",
+                "text-shadow",
+                "fill",
+                "stroke",
+              ];
+
+              for (const prop of bgProps) {
                 try {
                   const val = comp.getPropertyValue(prop);
                   if (
                     val &&
                     /(?:lab|oklch|oklab|lch|color|light-dark)\(/i.test(val)
                   ) {
-                    const sanitized = sanitizeColorString(val);
+                    const sanitized = sanitizeCssString(val, false);
                     el.style.setProperty(prop, sanitized, "important");
                   }
                 } catch {
@@ -410,8 +346,6 @@ export async function exportElementToPDF(
   } catch (error) {
     console.error("PDF Generation Error:", error);
   } finally {
-    // ALWAYS restore original getComputedStyle
-    window.getComputedStyle = originalGetComputedStyle;
     if (onComplete) onComplete();
   }
 }
