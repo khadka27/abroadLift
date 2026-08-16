@@ -5059,59 +5059,63 @@ export default function AbroadLiftMatchesPage() {
         return formatNPRDevanagari(valueNpr);
       };
 
+      const currentAdmissionScore = decisionSignals?.admissionConfidence ?? admissionPct;
+      const currentVisaScore = visaAnalysis?.successChance ?? visaAnalysis?.readinessPercent ?? decisionSignals?.visaConfidence ?? 80;
+      const currentBudgetScore = decisionSignals?.budgetCoverage ?? 100;
+
       const signalCards = [
         {
           label: "Admission Confidence",
-          value: `${decisionSignals?.admissionConfidence ?? admissionPct}%`,
+          value: `${currentAdmissionScore}%`,
           tone:
-            (decisionSignals?.admissionConfidence ?? admissionPct) >= 75
-              ? "text-emerald-700 bg-emerald-50 border-emerald-100"
-              : (decisionSignals?.admissionConfidence ?? admissionPct) >= 60
-                ? "text-amber-700 bg-amber-50 border-amber-100"
-                : "text-rose-700 bg-rose-50 border-rose-100",
+            currentAdmissionScore >= 75
+              ? "text-emerald-900 bg-emerald-100/80 border-emerald-200"
+              : currentAdmissionScore >= 60
+                ? "text-amber-900 bg-amber-100/80 border-amber-200"
+                : "text-rose-900 bg-rose-100/80 border-rose-200",
         },
         {
           label: "Visa Readiness",
-          value: `${decisionSignals?.visaConfidence ?? 80}%`,
+          value: `${currentVisaScore}%`,
           tone:
-            (decisionSignals?.visaConfidence ?? 80) >= 72
-              ? "text-emerald-700 bg-emerald-50 border-emerald-100"
-              : (decisionSignals?.visaConfidence ?? 80) >= 58
-                ? "text-amber-700 bg-amber-50 border-amber-100"
-                : "text-rose-700 bg-rose-50 border-rose-100",
+            currentVisaScore >= 72
+              ? "text-emerald-900 bg-emerald-100/80 border-emerald-200"
+              : currentVisaScore >= 58
+                ? "text-amber-900 bg-amber-100/80 border-amber-200"
+                : "text-rose-900 bg-rose-100/80 border-rose-200",
         },
         {
           label: "Year-1 Budget Coverage",
-          value: `${decisionSignals?.budgetCoverage ?? 100}%`,
+          value: `${currentBudgetScore}%`,
           tone:
-            (decisionSignals?.budgetCoverage ?? 100) >= 100
-              ? "text-emerald-700 bg-emerald-50 border-emerald-100"
-              : (decisionSignals?.budgetCoverage ?? 100) >= 85
-                ? "text-amber-700 bg-amber-50 border-amber-100"
-                : "text-rose-700 bg-rose-50 border-rose-100",
+            currentBudgetScore >= 100
+              ? "text-emerald-900 bg-emerald-100/80 border-emerald-200"
+              : currentBudgetScore >= 75
+                ? "text-amber-900 bg-amber-100/80 border-amber-200"
+                : "text-rose-900 bg-rose-100/80 border-rose-200",
         },
       ];
 
       const insightsPanel = (
-        <Card className="mx-4 md:mx-6 lg:mx-8 mt-4 p-4 md:p-5 rounded-2xl border border-slate-100 bg-white shadow-sm">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-3">
+        <Card className="rounded-[24px] border border-slate-200/80 bg-slate-100/60 p-4 md:p-5 shadow-xs w-full">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
             <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-500">
               Dynamic Counselor Signals
             </h4>
-            <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 font-extrabold">
+            <span className="text-[11px] font-black uppercase tracking-widest text-blue-600">
               {decisionSignals?.counselorVerdict || "STRONG PROCEED"}
             </span>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {signalCards.map((item) => (
               <div
                 key={item.label}
-                className={`rounded-xl border px-3 py-2.5 ${item.tone}`}
+                className={`rounded-2xl border px-4 py-3 ${item.tone}`}
               >
-                <p className="text-[9px] font-black uppercase tracking-widest opacity-75">
+                <p className="text-[10px] font-black uppercase tracking-wider opacity-85">
                   {item.label}
                 </p>
-                <p className="text-base font-black tracking-tight mt-1">
+                <p className="text-xl sm:text-2xl font-black tracking-tight mt-1">
                   {item.value}
                 </p>
               </div>
@@ -5200,10 +5204,28 @@ export default function AbroadLiftMatchesPage() {
               onBack={() => setStep(8)}
               onUpdateAnalysis={(analysis) => {
                 setVisaAnalysis(analysis);
+                if (analysis?.docsStatus) {
+                  setForm((prev) => ({
+                    ...prev,
+                    passportReady: !!analysis.docsStatus.passport,
+                    docsReady: (analysis.readinessPercent || 0) >= 80,
+                    docsStatus: analysis.docsStatus,
+                  }));
+                }
               }}
               initialVisaAnalysis={visaAnalysis}
               onComplete={(analysisData) => {
-                if (analysisData) setVisaAnalysis(analysisData);
+                if (analysisData) {
+                  setVisaAnalysis(analysisData);
+                  if (analysisData.docsStatus) {
+                    setForm((prev) => ({
+                      ...prev,
+                      passportReady: !!analysisData.docsStatus.passport,
+                      docsReady: (analysisData.readinessPercent || 0) >= 80,
+                      docsStatus: analysisData.docsStatus,
+                    }));
+                  }
+                }
                 setTransitionType("roadmap");
                 setStep(12);
               }}
@@ -5214,6 +5236,10 @@ export default function AbroadLiftMatchesPage() {
       }
 
       if (step === 12 && financialMetrics) {
+        const currentAdmissionScore = decisionSignals?.admissionConfidence ?? admissionPct;
+        const currentVisaScore = visaAnalysis?.successChance ?? visaAnalysis?.readinessPercent ?? decisionSignals?.visaConfidence ?? 80;
+        const currentBudgetScore = decisionSignals?.budgetCoverage ?? Math.min(100, Math.round((financialMetrics.totalYear1Npr ? (Number.parseFloat(form.budget) || 0) / financialMetrics.totalYear1Npr : 1) * 100));
+
         const roadmapCards = [
           {
             key: "cost",
@@ -5226,7 +5252,7 @@ export default function AbroadLiftMatchesPage() {
           {
             key: "admission",
             label: "Admission Evaluation",
-            value: `${admissionPct}% Match`,
+            value: `${currentAdmissionScore}% Match`,
             helper: "Acceptance rate trend & profile competitiveness",
             badge: "Step 10",
             onClick: () => setStep(10),
@@ -5234,7 +5260,7 @@ export default function AbroadLiftMatchesPage() {
           {
             key: "visa",
             label: "Visa Readiness",
-            value: `${decisionSignals?.visaConfidence || 80}% Ready`,
+            value: `${currentVisaScore}% Ready`,
             helper: "Mandatory document checklist & solvency proof",
             badge: "Step 11",
             onClick: () => setStep(11),
@@ -5243,7 +5269,6 @@ export default function AbroadLiftMatchesPage() {
 
         return (
           <div className="min-h-screen bg-slate-50/70 text-slate-900 px-4 py-8 md:px-8 lg:px-12 pb-24">
-            {insightsPanel}
             <div className="mx-auto max-w-6xl space-y-6 pt-2">
               
               {/* Header Bar */}
@@ -5302,25 +5327,58 @@ export default function AbroadLiftMatchesPage() {
                     {[
                       {
                         label: "Budget Coverage",
-                        value: `${decisionSignals?.budgetCoverage || 85}%`,
-                        color: "text-slate-900",
+                        value: `${currentBudgetScore}%`,
+                        color:
+                          currentBudgetScore >= 100
+                            ? "text-emerald-700"
+                            : currentBudgetScore >= 75
+                              ? "text-amber-700"
+                              : "text-rose-700",
+                        bg:
+                          currentBudgetScore >= 100
+                            ? "bg-emerald-50/80 border-emerald-100"
+                            : currentBudgetScore >= 75
+                              ? "bg-amber-50/80 border-amber-100"
+                              : "bg-rose-50/80 border-rose-100",
                       },
                       {
                         label: "Admission Fit Score",
-                        value: `${admissionPct}%`,
-                        color: "text-[#3366FF]",
+                        value: `${currentAdmissionScore}%`,
+                        color:
+                          currentAdmissionScore >= 75
+                            ? "text-emerald-700"
+                            : currentAdmissionScore >= 60
+                              ? "text-amber-700"
+                              : "text-rose-700",
+                        bg:
+                          currentAdmissionScore >= 75
+                            ? "bg-emerald-50/80 border-emerald-100"
+                            : currentAdmissionScore >= 60
+                              ? "bg-amber-50/80 border-amber-100"
+                              : "bg-rose-50/80 border-rose-100",
                       },
                       {
                         label: "Visa Readiness",
-                        value: `${decisionSignals?.visaConfidence || 80}%`,
-                        color: "text-emerald-600",
+                        value: `${currentVisaScore}%`,
+                        color:
+                          currentVisaScore >= 72
+                            ? "text-emerald-700"
+                            : currentVisaScore >= 58
+                              ? "text-amber-700"
+                              : "text-rose-700",
+                        bg:
+                          currentVisaScore >= 72
+                            ? "bg-emerald-50/80 border-emerald-100"
+                            : currentVisaScore >= 58
+                              ? "bg-amber-50/80 border-amber-100"
+                              : "bg-rose-50/80 border-rose-100",
                       },
                     ].map((stat) => (
                       <div
                         key={stat.label}
-                        className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4 flex flex-col justify-between"
+                        className={`rounded-2xl border p-4 flex flex-col justify-between ${stat.bg}`}
                       >
-                        <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                        <p className="text-[10px] font-black uppercase tracking-wider text-slate-500">
                           {stat.label}
                         </p>
                         <p className={`mt-1.5 text-xl sm:text-2xl font-black ${stat.color}`}>
@@ -5385,6 +5443,9 @@ export default function AbroadLiftMatchesPage() {
                   </div>
                 </div>
               </Card>
+
+              {/* Dynamic Counselor Signals Panel */}
+              {insightsPanel}
 
               {/* Navigation Action Buttons */}
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 pt-2">

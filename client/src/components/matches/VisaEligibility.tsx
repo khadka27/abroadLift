@@ -61,6 +61,9 @@ export function VisaEligibility({
     if (initialVisaAnalysis?.docsStatus) {
       return initialVisaAnalysis.docsStatus;
     }
+    if ((form as any)?.docsStatus) {
+      return (form as any).docsStatus;
+    }
     return {
       passport: !!form.passportReady,
       admissionLetter: true,
