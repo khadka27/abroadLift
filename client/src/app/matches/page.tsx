@@ -2575,10 +2575,14 @@ export default function AbroadLiftMatchesPage() {
     if (!selectedMatch) return;
     setSaving(true);
     try {
+      const mergedFormData = {
+        ...form,
+        visaAnalysis,
+      };
       const response = await fetch("/api/matches/save", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ formData: form, matchData: selectedMatch }),
+        body: JSON.stringify({ formData: mergedFormData, matchData: selectedMatch }),
       });
       if (response.ok) {
         // Redirect to dashboard or show success
@@ -2623,6 +2627,7 @@ export default function AbroadLiftMatchesPage() {
         if (data.selectedMatch) restoredMatch = data.selectedMatch;
         if (data.matches) restoredMatches = data.matches;
         if (data.step) restoredStep = data.step;
+        if (data.visaAnalysis) setVisaAnalysis(data.visaAnalysis);
       } catch (e) {
         console.error("Failed to load match data", e);
       }
@@ -2779,9 +2784,9 @@ export default function AbroadLiftMatchesPage() {
 
   useEffect(() => {
     if (!hasRestored) return;
-    const data = { form, step, selectedMatch, matches };
+    const data = { form, step, selectedMatch, matches, visaAnalysis };
     localStorage.setItem(MATCH_STORAGE_KEY, JSON.stringify(data));
-  }, [form, step, selectedMatch, matches, hasRestored]);
+  }, [form, step, selectedMatch, matches, visaAnalysis, hasRestored]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -3011,6 +3016,9 @@ export default function AbroadLiftMatchesPage() {
                     ...dbForm,
                     ...profileOverrides,
                   }));
+                  if (dbForm.visaAnalysis) {
+                    setVisaAnalysis(dbForm.visaAnalysis);
+                  }
                 }
                 if (dbMatch) {
                   setSelectedMatch(dbMatch);
@@ -4911,7 +4919,7 @@ export default function AbroadLiftMatchesPage() {
                 await fetch("/api/matches/save", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ formData: form, matchData: m }),
+                  body: JSON.stringify({ formData: { ...form, visaAnalysis }, matchData: m }),
                 });
               } catch (e) {
                 console.error("Failed to save selected match on selection", e);
@@ -5190,7 +5198,12 @@ export default function AbroadLiftMatchesPage() {
               form={form}
               selectedMatch={selectedMatch}
               onBack={() => setStep(8)}
-              onComplete={() => {
+              onUpdateAnalysis={(analysis) => {
+                setVisaAnalysis(analysis);
+              }}
+              initialVisaAnalysis={visaAnalysis}
+              onComplete={(analysisData) => {
+                if (analysisData) setVisaAnalysis(analysisData);
                 setTransitionType("roadmap");
                 setStep(12);
               }}
