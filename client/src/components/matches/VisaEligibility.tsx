@@ -27,7 +27,9 @@ interface VisaEligibilityProps {
   form: Form;
   selectedMatch: Match;
   onBack: () => void;
-  onComplete: () => void;
+  onComplete: (analysisData?: any) => void;
+  onUpdateAnalysis?: (analysisData: any) => void;
+  initialVisaAnalysis?: any;
 }
 
 export function VisaEligibility({
@@ -35,6 +37,8 @@ export function VisaEligibility({
   selectedMatch,
   onBack,
   onComplete,
+  onUpdateAnalysis,
+  initialVisaAnalysis,
 }: VisaEligibilityProps) {
   const [visaAnalysis, setVisaAnalysis] = useState<{
     successChance?: number;
@@ -42,7 +46,7 @@ export function VisaEligibility({
     label?: string;
     guidance?: Array<{ title?: string; description?: string; status?: string }>;
     checklist?: Array<{ title?: string; description?: string; status?: string }>;
-  } | null>(null);
+  } | null>(initialVisaAnalysis || null);
 
   const visaCountry = selectedMatch.countryCode || form.countries[0] || "USA";
   const visaTitle = `${visaCountry} Student Visa (Category F-1 / Study Permit)`;
@@ -53,13 +57,18 @@ export function VisaEligibility({
   const userGpa = parseFloat(String(form.gpa || 0)) || 3.0;
 
   // Local state for interactive document checklist
-  const [docsStatus, setDocsStatus] = useState<Record<string, boolean>>({
-    passport: !!form.passportReady,
-    admissionLetter: true,
-    financialProof: hasFunds,
-    academicTranscripts: userGpa >= 2.5,
-    languageReport: !!form.testScore,
-    visaForm: false,
+  const [docsStatus, setDocsStatus] = useState<Record<string, boolean>>(() => {
+    if (initialVisaAnalysis?.docsStatus) {
+      return initialVisaAnalysis.docsStatus;
+    }
+    return {
+      passport: !!form.passportReady,
+      admissionLetter: true,
+      financialProof: hasFunds,
+      academicTranscripts: userGpa >= 2.5,
+      languageReport: !!form.testScore,
+      visaForm: false,
+    };
   });
 
   useEffect(() => {
@@ -72,7 +81,7 @@ export function VisaEligibility({
       .then((res) => res.json())
       .then((data) => {
         if (!active || data?.error) return;
-        setVisaAnalysis(data);
+        setVisaAnalysis((prev) => ({ ...prev, ...data }));
       })
       .catch(console.error);
 
@@ -93,6 +102,50 @@ export function VisaEligibility({
     98,
     Math.max(45, (visaAnalysis?.successChance || 82) + (verifiedCount - 3) * 4)
   );
+
+  useEffect(() => {
+    if (onUpdateAnalysis) {
+      onUpdateAnalysis({
+        successChance,
+        readinessPercent: calculatedReadiness,
+        verifiedCount,
+        totalDocs,
+        docsStatus,
+        label: calculatedReadiness >= 80 ? "High Visa Readiness" : "Action Needed",
+        visaCountry,
+        visaTitle,
+        guidance: visaAnalysis?.guidance || [],
+        checklist: visaAnalysis?.checklist || [],
+      });
+    }
+  }, [
+    successChance,
+    calculatedReadiness,
+    verifiedCount,
+    totalDocs,
+    docsStatus,
+    visaCountry,
+    visaTitle,
+    visaAnalysis,
+    onUpdateAnalysis,
+  ]);
+
+  const handleComplete = () => {
+    const finalData = {
+      successChance,
+      readinessPercent: calculatedReadiness,
+      verifiedCount,
+      totalDocs,
+      docsStatus,
+      label: calculatedReadiness >= 80 ? "High Visa Readiness" : "Action Needed",
+      visaCountry,
+      visaTitle,
+    };
+    if (onUpdateAnalysis) {
+      onUpdateAnalysis(finalData);
+    }
+    onComplete(finalData);
+  };
 
   const circleRadius = 54;
   const circumference = 2 * Math.PI * circleRadius;
@@ -395,7 +448,7 @@ export function VisaEligibility({
         {/* Primary Action Button */}
         <div className="pt-2">
           <button
-            onClick={onComplete}
+            onClick={handleComplete}
             className="w-full h-14 bg-[#3366FF] hover:bg-[#254bdb] text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
           >
             Generate Final Study & Visa Roadmap

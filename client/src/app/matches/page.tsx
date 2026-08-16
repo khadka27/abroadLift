@@ -1866,18 +1866,15 @@ function GenericEngineScreen({
   }, []);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setDataIndicators((prev) =>
-        prev.map((indicator) => ({
-          ...indicator,
-          count: indicator.active
-            ? Math.floor(Math.random() * 5000) + 8000
-            : indicator.count,
-        })),
-      );
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
+    setDataIndicators((prev) =>
+      prev.map((indicator) => ({
+        ...indicator,
+        count: indicator.active
+          ? Math.round((progress / 100) * (indicator.count || 12500)) || indicator.count
+          : indicator.count,
+      })),
+    );
+  }, [progress]);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -1953,10 +1950,22 @@ function GenericEngineScreen({
 
           {/* Central Animated Content */}
           <div className="relative flex flex-col items-center justify-center gap-1 mt-1">
-            <config.icon
-              className={`w-10 h-10 ${config.accent} drop-shadow-sm`}
-              strokeWidth={2.5}
-            />
+            {typeof config.icon === "string" ? (
+              <Image
+                src={config.icon}
+                alt="Engine Icon"
+                width={48}
+                height={48}
+                className="w-12 h-12 object-contain drop-shadow-sm"
+                unoptimized
+                priority
+              />
+            ) : (
+              <config.icon
+                className={`w-10 h-10 ${config.accent} drop-shadow-sm`}
+                strokeWidth={2.5}
+              />
+            )}
             <span
               className={`text-[26px] font-black ${config.accent} tabular-nums tracking-tighter drop-shadow-sm`}
             >
@@ -2078,7 +2087,7 @@ function MatchingEngineScreen({ onFinish }: { onFinish?: () => void }) {
       { text: "Index Scanned", count: 124500, active: true },
       { text: "Models Active", count: 12, active: false },
     ],
-    icon: Search,
+    icon: "/Data Analysis.svg",
     gradient: "bg-gradient-to-r from-blue-600 to-indigo-500",
     glow: "bg-blue-500/20",
     accent: "text-blue-500",
@@ -2104,7 +2113,7 @@ function FinancialEngineScreen({ onFinish }: { onFinish?: () => void }) {
       { text: "Rate Scanned", count: 138.45, active: true },
       { text: "Categories", count: 42, active: false },
     ],
-    icon: Calculator,
+    icon: "/Calculator.svg",
     gradient: "bg-gradient-to-r from-emerald-500 to-teal-400",
     glow: "bg-emerald-500/20",
     accent: "text-emerald-400",
@@ -2130,7 +2139,7 @@ function AdmissionEngineScreen({ onFinish }: { onFinish?: () => void }) {
       { text: "Profiles Scanned", count: 85200, active: true },
       { text: "Signals Weighing", count: 140, active: false },
     ],
-    icon: Target,
+    icon: "/Data Analysis.svg",
     gradient: "bg-gradient-to-r from-indigo-500 to-purple-600",
     glow: "bg-indigo-500/20",
     accent: "text-indigo-400",
@@ -2156,7 +2165,7 @@ function VisaEngineScreen({ onFinish }: { onFinish?: () => void }) {
       { text: "Approvals Scanned", count: 3200, active: true },
       { text: "Policies Indexed", count: 18, active: false },
     ],
-    icon: Shield,
+    icon: "/Visa stamp passport.svg",
     gradient: "bg-gradient-to-r from-amber-500 to-rose-600",
     glow: "bg-amber-500/20",
     accent: "text-amber-400",
@@ -2773,6 +2782,12 @@ export default function AbroadLiftMatchesPage() {
     const data = { form, step, selectedMatch, matches };
     localStorage.setItem(MATCH_STORAGE_KEY, JSON.stringify(data));
   }, [form, step, selectedMatch, matches, hasRestored]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [step]);
 
   useEffect(() => {
     if (step >= 8 && !session && status !== "loading") {
@@ -5039,31 +5054,31 @@ export default function AbroadLiftMatchesPage() {
       const signalCards = [
         {
           label: "Admission Confidence",
-          value: `${admissionPct}%`,
+          value: `${decisionSignals?.admissionConfidence ?? admissionPct}%`,
           tone:
-            admissionPct >= 75
+            (decisionSignals?.admissionConfidence ?? admissionPct) >= 75
               ? "text-emerald-700 bg-emerald-50 border-emerald-100"
-              : admissionPct >= 60
+              : (decisionSignals?.admissionConfidence ?? admissionPct) >= 60
                 ? "text-amber-700 bg-amber-50 border-amber-100"
                 : "text-rose-700 bg-rose-50 border-rose-100",
         },
         {
           label: "Visa Readiness",
-          value: `${decisionSignals?.visaConfidence || 58}%`,
+          value: `${decisionSignals?.visaConfidence ?? 80}%`,
           tone:
-            (decisionSignals?.visaConfidence || 0) >= 72
+            (decisionSignals?.visaConfidence ?? 80) >= 72
               ? "text-emerald-700 bg-emerald-50 border-emerald-100"
-              : (decisionSignals?.visaConfidence || 0) >= 58
+              : (decisionSignals?.visaConfidence ?? 80) >= 58
                 ? "text-amber-700 bg-amber-50 border-amber-100"
                 : "text-rose-700 bg-rose-50 border-rose-100",
         },
         {
           label: "Year-1 Budget Coverage",
-          value: `${decisionSignals?.budgetCoverage || 65}%`,
+          value: `${decisionSignals?.budgetCoverage ?? 100}%`,
           tone:
-            (decisionSignals?.budgetCoverage || 0) >= 100
+            (decisionSignals?.budgetCoverage ?? 100) >= 100
               ? "text-emerald-700 bg-emerald-50 border-emerald-100"
-              : (decisionSignals?.budgetCoverage || 0) >= 85
+              : (decisionSignals?.budgetCoverage ?? 100) >= 85
                 ? "text-amber-700 bg-amber-50 border-amber-100"
                 : "text-rose-700 bg-rose-50 border-rose-100",
         },
@@ -5075,8 +5090,8 @@ export default function AbroadLiftMatchesPage() {
             <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-500">
               Dynamic Counselor Signals
             </h4>
-            <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">
-              {decisionSignals?.counselorVerdict || "Evaluating"}
+            <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 font-extrabold">
+              {decisionSignals?.counselorVerdict || "STRONG PROCEED"}
             </span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">

@@ -102,6 +102,9 @@ export default function ScholarshipsPage() {
 
   useEffect(() => {
     fetchScholarships();
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   }, [fetchScholarships]);
 
   // Client-side filtering combined with paginated results

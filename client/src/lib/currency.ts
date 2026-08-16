@@ -99,3 +99,59 @@ export function getRateToNpr(countryName: string): number {
   if (norm.includes("india")) return 134.5 / 83.50; // INR to NPR
   return 134.5; // Default: USD to NPR
 }
+
+export function formatUSD(v: number): string {
+  if (isNaN(v)) return "$0 USD";
+  return `$${Math.round(v).toLocaleString("en-US")} USD`;
+}
+
+/**
+ * Formats a financial amount string/number into a dual currency format showing both USD ($) and NPR (Rs).
+ * Example: "$25,000 USD (Rs 33.63 Lakh)" or "Rs 35 Lakh ($26,022 USD)"
+ */
+export function formatDualCurrencyDisplay(
+  rawVal: number | string | null | undefined,
+  currency: string = "USD"
+): string {
+  if (rawVal === null || rawVal === undefined || rawVal === "") return "Not set";
+  const num = typeof rawVal === "number" ? rawVal : parseFloat(String(rawVal).replace(/,/g, ""));
+  if (isNaN(num) || num <= 0) return "Not set";
+
+  let usdAmount = 0;
+  let nprAmount = 0;
+
+  const isNPRBase = currency === "NPR" || num > 500000;
+
+  if (isNPRBase) {
+    nprAmount = num;
+    usdAmount = num / 134.5;
+    return `${formatNPRDevanagari(nprAmount)} (${formatUSD(usdAmount)})`;
+  } else {
+    usdAmount = num;
+    nprAmount = num * 134.5;
+    return `${formatUSD(usdAmount)} (${formatNPRDevanagari(nprAmount)})`;
+  }
+}
+
+/**
+ * Provides live real-time conversion hint during input editing.
+ */
+export function formatLiveConversionHint(
+  amountStr: string,
+  currency: string = "USD"
+): string {
+  if (!amountStr) return "";
+  const num = parseFloat(String(amountStr).replace(/,/g, ""));
+  if (isNaN(num) || num <= 0) return "";
+
+  const isNPRBase = currency === "NPR" || num > 500000;
+
+  if (isNPRBase) {
+    const usd = num / 134.5;
+    return `≈ ${formatUSD(usd)} (${formatNPRDevanagari(num)})`;
+  } else {
+    const npr = num * 134.5;
+    return `≈ ${formatNPRDevanagari(npr)} (Rs ${formatLakhCrore(npr)})`;
+  }
+}
+

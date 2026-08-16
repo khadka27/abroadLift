@@ -130,9 +130,11 @@ const EverythingSection = () => (
             transition={{ delay: 0.5 }}
             className="flex justify-center lg:justify-start"
           >
-            <Button className="bg-[#3366FF] text-white px-[32px] py-[24px] rounded-[16px] font-bold text-[16px] shadow-[0_10px_30px_rgba(51,102,255,0.3)] transition-all hover:scale-105 hover:bg-[#254bdb]">
-              Create a Student Account <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
+            <Link href="/register">
+              <Button className="bg-[#3366FF] text-white px-[32px] py-[24px] rounded-[16px] font-bold text-[16px] shadow-[0_10px_30px_rgba(51,102,255,0.3)] transition-all hover:scale-105 hover:bg-[#254bdb] cursor-pointer">
+                Create a Student Account <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </Link>
           </motion.div>
         </div>
       </div>

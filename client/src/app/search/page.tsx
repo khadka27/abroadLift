@@ -267,6 +267,12 @@ export default function SearchPage() {
     setCurrentPage(1);
   }, [filteredResults]);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [currentPage]);
+
   // Fetch unique countries dynamically from API to populate the country filter
   useEffect(() => {
     const loadCountries = async () => {

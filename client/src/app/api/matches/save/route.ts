@@ -37,12 +37,18 @@ export async function POST(req: Request) {
     if (testScoreNum >= 7.0 || testScoreNum >= 100) admissionChance += 15;
     admissionChance = Math.min(95, admissionChance);
 
-    // Visa Success (simplified version)
+    // Visa Success (Use actual evaluation if available, otherwise estimate)
     let visaSuccess = 60;
-    if (formData.passportReady) visaSuccess += 10;
-    if (formData.docsReady) visaSuccess += 10;
-    if (formData.bankBalance && parseFloat(formData.bankBalance) > 3000000) visaSuccess += 15;
-    visaSuccess = Math.min(98, visaSuccess);
+    if (formData.visaAnalysis && typeof formData.visaAnalysis.successChance === "number") {
+      visaSuccess = formData.visaAnalysis.successChance;
+    } else if (formData.visaAnalysis && typeof formData.visaAnalysis.readinessPercent === "number") {
+      visaSuccess = formData.visaAnalysis.readinessPercent;
+    } else {
+      if (formData.passportReady) visaSuccess += 10;
+      if (formData.docsReady) visaSuccess += 10;
+      if (formData.bankBalance && parseFloat(formData.bankBalance) > 3000000) visaSuccess += 15;
+      visaSuccess = Math.min(98, visaSuccess);
+    }
 
     // Cost Estimate
     const tuition = matchData.tuitionFee || 20000;

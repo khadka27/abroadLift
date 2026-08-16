@@ -70,7 +70,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
-import { formatNPRDevanagari } from "@/lib/currency";
+import { formatNPRDevanagari, formatDualCurrencyDisplay, formatLiveConversionHint } from "@/lib/currency";
 import PremiumLoader from "@/components/PremiumLoader";
 import { FlagIcon } from "@/components/matches/FlagIcon";
 
@@ -3567,7 +3567,7 @@ function DashboardInner() {
                                       </div>
                                       <div>
                                         <span className="text-slate-400 block text-[9px] font-bold uppercase tracking-wider">Financial Sponsor</span>
-                                        <strong className="text-slate-700">{item.formData?.sponsorType || "Self"} (${parseInt(item.formData?.sponsorIncome || "1500000").toLocaleString()} NPR)</strong>
+                                        <strong className="text-slate-700">{item.formData?.sponsorType || "Self"} ({formatDualCurrencyDisplay(item.formData?.sponsorIncome || "1500000", item.formData?.currency || "NPR")})</strong>
                                       </div>
                                     </div>
                                   </motion.div>
@@ -5072,66 +5072,115 @@ function DashboardInner() {
                             {/* Section 5: Financial Details */}
                             {profileSubTab === 5 && (
                               <div className="space-y-5">
-                                <h3 className="text-sm font-black text-slate-800 border-b border-slate-50 pb-2 flex items-center gap-2">
-                                  <DollarSign className="w-4.5 h-4.5 text-blue-500" />
-                                  Financial Information
-                                </h3>
+                                <div className="flex flex-wrap items-center justify-between border-b border-slate-50 pb-2 gap-2">
+                                  <h3 className="text-sm font-black text-slate-800 flex items-center gap-2">
+                                    <DollarSign className="w-4.5 h-4.5 text-blue-500" />
+                                    Financial Information
+                                  </h3>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const isNPR = editForm.currency === "NPR";
+                                      const b = parseFloat(editForm.yearlyBudget) || 0;
+                                      const bank = parseFloat(editForm.bankBalance) || 0;
+                                      const inc = parseFloat(editForm.sponsorIncome) || 0;
+
+                                      if (isNPR) {
+                                        setEditForm({
+                                          ...editForm,
+                                          currency: "USD",
+                                          yearlyBudget: b > 0 ? Math.round(b / 134.5).toString() : editForm.yearlyBudget,
+                                          bankBalance: bank > 0 ? Math.round(bank / 134.5).toString() : editForm.bankBalance,
+                                          sponsorIncome: inc > 0 ? Math.round(inc / 134.5).toString() : editForm.sponsorIncome,
+                                        });
+                                      } else {
+                                        setEditForm({
+                                          ...editForm,
+                                          currency: "NPR",
+                                          yearlyBudget: b > 0 ? Math.round(b * 134.5).toString() : editForm.yearlyBudget,
+                                          bankBalance: bank > 0 ? Math.round(bank * 134.5).toString() : editForm.bankBalance,
+                                          sponsorIncome: inc > 0 ? Math.round(inc * 134.5).toString() : editForm.sponsorIncome,
+                                        });
+                                      }
+                                    }}
+                                    className="text-[11px] font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200/60 px-3 py-1 rounded-xl transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                                  >
+                                    🔄 {editForm.currency === "NPR" ? "Convert values to USD ($)" : "Convert values to NPR (Rs)"}
+                                  </button>
+                                </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Preferred Currency</span>
                                     <CustomSelect
                                       options={[
-                                        { value: "USD", label: "USD ($)" },
+                                        { value: "USD", label: "USD ($ - US Dollar)" },
+                                        { value: "NPR", label: "NPR (Rs - Nepali Rupee)" },
                                         { value: "CAD", label: "CAD (C$)" },
                                         { value: "GBP", label: "GBP (£)" },
                                         { value: "AUD", label: "AUD (A$)" },
                                         { value: "EUR", label: "EUR (€)" },
                                         { value: "INR", label: "INR (₹)" },
-                                        { value: "NPR", label: "NPR (Rs)" },
                                       ]}
                                       value={editForm.currency}
                                       onChange={(val) => setEditForm({ ...editForm, currency: val })}
                                       placeholder="Select Currency"
                                     />
                                   </label>
+
                                   <label className="block">
-                                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Annual Study Budget ({editForm.currency})</span>
+                                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">
+                                      Annual Study Budget ({editForm.currency})
+                                    </span>
                                     <input
                                       type="text"
                                       value={editForm.yearlyBudget}
                                       onChange={(e) => setEditForm({ ...editForm, yearlyBudget: e.target.value })}
-                                      placeholder="e.g. 25000"
+                                      placeholder={editForm.currency === "NPR" ? "e.g. 3500000 (35 Lakhs)" : "e.g. 25000"}
                                       className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
                                         !isValidNumericAmount(editForm.yearlyBudget) || isNegativeVal(editForm.yearlyBudget)
                                           ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
                                           : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
                                       }`}
                                     />
+                                    {editForm.yearlyBudget && isValidNumericAmount(editForm.yearlyBudget) && !isNegativeVal(editForm.yearlyBudget) && (
+                                      <p className="text-[11px] font-extrabold text-blue-600 mt-1 flex items-center gap-1">
+                                        <span>{formatLiveConversionHint(editForm.yearlyBudget, editForm.currency)}</span>
+                                      </p>
+                                    )}
                                     {(!isValidNumericAmount(editForm.yearlyBudget) || isNegativeVal(editForm.yearlyBudget)) && (
                                       <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
-                                        <span>⚠️ Annual budget must be a positive number (letters are not allowed)</span>
+                                        <span>⚠️ Annual budget must be a positive number</span>
                                       </p>
                                     )}
                                   </label>
+
                                   <label className="block">
-                                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Available Bank Balance ({editForm.currency})</span>
+                                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">
+                                      Available Bank Balance ({editForm.currency})
+                                    </span>
                                     <input
                                       type="text"
                                       value={editForm.bankBalance}
                                       onChange={(e) => setEditForm({ ...editForm, bankBalance: e.target.value })}
-                                      placeholder="e.g. 35000"
+                                      placeholder={editForm.currency === "NPR" ? "e.g. 5000000 (50 Lakhs)" : "e.g. 35000"}
                                       className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
                                         !isValidNumericAmount(editForm.bankBalance) || isNegativeVal(editForm.bankBalance)
                                           ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
                                           : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
                                       }`}
                                     />
+                                    {editForm.bankBalance && isValidNumericAmount(editForm.bankBalance) && !isNegativeVal(editForm.bankBalance) && (
+                                      <p className="text-[11px] font-extrabold text-blue-600 mt-1 flex items-center gap-1">
+                                        <span>{formatLiveConversionHint(editForm.bankBalance, editForm.currency)}</span>
+                                      </p>
+                                    )}
                                     {(!isValidNumericAmount(editForm.bankBalance) || isNegativeVal(editForm.bankBalance)) && (
                                       <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
-                                        <span>⚠️ Bank balance must be a positive number (letters are not allowed)</span>
+                                        <span>⚠️ Bank balance must be a positive number</span>
                                       </p>
                                     )}
                                   </label>
+
                                   <label className="block">
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Sponsor Type</span>
                                     <CustomSelect
@@ -5149,21 +5198,28 @@ function DashboardInner() {
                                   </label>
 
                                   <label className="block">
-                                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Sponsor's Annual Income ({editForm.currency})</span>
+                                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">
+                                      Sponsor's Annual Income ({editForm.currency})
+                                    </span>
                                     <input
                                       type="text"
                                       value={editForm.sponsorIncome}
                                       onChange={(e) => setEditForm({ ...editForm, sponsorIncome: e.target.value })}
-                                      placeholder="e.g. 40000"
+                                      placeholder={editForm.currency === "NPR" ? "e.g. 1500000 (15 Lakhs)" : "e.g. 40000"}
                                       className={`w-full rounded-xl border px-3.5 py-2.5 text-sm font-medium outline-none transition-all ${
                                         !isValidNumericAmount(editForm.sponsorIncome) || isNegativeVal(editForm.sponsorIncome)
                                           ? "border-red-400 bg-red-50/40 text-red-900 focus:border-red-500"
                                           : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
                                       }`}
                                     />
+                                    {editForm.sponsorIncome && isValidNumericAmount(editForm.sponsorIncome) && !isNegativeVal(editForm.sponsorIncome) && (
+                                      <p className="text-[11px] font-extrabold text-blue-600 mt-1 flex items-center gap-1">
+                                        <span>{formatLiveConversionHint(editForm.sponsorIncome, editForm.currency)}</span>
+                                      </p>
+                                    )}
                                     {(!isValidNumericAmount(editForm.sponsorIncome) || isNegativeVal(editForm.sponsorIncome)) && (
                                       <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
-                                        <span>⚠️ Sponsor income must be a positive number (letters are not allowed)</span>
+                                        <span>⚠️ Sponsor income must be a positive number</span>
                                       </p>
                                     )}
                                   </label>
@@ -5589,13 +5645,13 @@ function DashboardInner() {
                                   <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors">
                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Annual Budget</span>
                                     <span className="text-sm font-bold text-slate-800 mt-1">
-                                      {profile.yearlyBudget ? formatNPRDevanagari((profile.currency === "USD" || !profile.currency) ? parseFloat(profile.yearlyBudget) * 134.5 : parseFloat(profile.yearlyBudget)) : "Not set"}
+                                      {formatDualCurrencyDisplay(profile.yearlyBudget, profile.currency)}
                                     </span>
                                   </div>
                                   <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors">
                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Available Bank Balance</span>
                                     <span className="text-sm font-bold text-slate-800 mt-1">
-                                      {profile.bankBalance ? formatNPRDevanagari((profile.currency === "USD" || !profile.currency) ? parseFloat(profile.bankBalance) * 134.5 : parseFloat(profile.bankBalance)) : "Not set"}
+                                      {formatDualCurrencyDisplay(profile.bankBalance, profile.currency)}
                                     </span>
                                   </div>
                                   <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors">
@@ -5605,7 +5661,7 @@ function DashboardInner() {
                                   <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors">
                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Sponsor&apos;s Annual Income</span>
                                     <span className="text-sm font-bold text-slate-800 mt-1">
-                                      {profile.sponsorIncome ? formatNPRDevanagari((profile.currency === "USD" || !profile.currency) ? parseFloat(profile.sponsorIncome) * 134.5 : parseFloat(profile.sponsorIncome)) : "Not set"}
+                                      {formatDualCurrencyDisplay(profile.sponsorIncome, profile.currency)}
                                     </span>
                                   </div>
                                   <div className="p-4 rounded-2xl border border-slate-50 bg-slate-50/50 flex flex-col justify-between hover:bg-slate-50 transition-colors">

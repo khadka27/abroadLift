@@ -45,7 +45,7 @@ const CTABanner = () => (
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-100px" }}
-      className="max-w-[1280px] mx-auto bg-gradient-to-r from-[#3366FF] to-[#1e40af] rounded-[40px] relative overflow-hidden shadow-[0_20px_50px_rgba(51,102,255,0.3)]"
+      className="max-w-[1280px] mx-auto bg-gradient-to-r from-[#1d4ed8] via-[#2563eb] to-[#1e40af] rounded-[40px] relative overflow-hidden shadow-[0_20px_50px_rgba(37,99,235,0.35)]"
     >
       {/* Animated gradient overlay */}
       <motion.div 
@@ -53,7 +53,7 @@ const CTABanner = () => (
           backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] 
         }}
         transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-        className="absolute inset-0 opacity-50 bg-[length:200%_200%] bg-gradient-to-tr from-transparent via-white/10 to-transparent pointer-events-none"
+        className="absolute inset-0 opacity-40 bg-[length:200%_200%] bg-gradient-to-tr from-transparent via-white/10 to-transparent pointer-events-none"
       />
 
       {/* Background Watermark */}
@@ -77,7 +77,7 @@ const CTABanner = () => (
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
-              className="text-white/90 text-[18px] font-medium leading-relaxed mb-10 max-w-[500px]"
+              className="text-blue-50 text-[18px] font-medium leading-relaxed mb-10 max-w-[500px]"
             >
               AbroadLift brings together the key parts of the study abroad journey
               in one simple experience - college matching, cost estimation,
@@ -88,16 +88,26 @@ const CTABanner = () => (
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.3 }}
-              className="flex flex-wrap items-center gap-6"
+              className="flex flex-wrap items-center gap-4 sm:gap-6"
             >
-              <Link href="/matches" className="inline-flex items-center justify-center h-[56px] text-[#3366FF] rounded-2xl bg-white hover:bg-white/90 font-bold px-[32px] text-[16px] transition-all hover:scale-105 shadow-xl">
-                Start Free Today <ArrowRight className="w-5 h-5 ml-2" strokeWidth={2.5} />
+              <Link 
+                href="/matches" 
+                className="inline-flex items-center justify-center h-[56px] bg-white hover:bg-slate-50 font-bold px-[32px] rounded-2xl transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] shadow-xl hover:shadow-2xl border border-white/20 group cursor-pointer"
+                style={{ color: "#1e40af" }}
+              >
+                <span className="flex items-center gap-2 font-extrabold text-[16px]" style={{ color: "#1e40af" }}>
+                  Start Free Today
+                  <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" strokeWidth={2.5} style={{ color: "#1e40af" }} />
+                </span>
               </Link>
               <Link
                 href="/matches"
-                className="text-white text-[15px] font-medium underline underline-offset-4 hover:text-white/80 transition-colors"
+                className="inline-flex items-center justify-center h-[56px] px-[28px] rounded-2xl border-2 border-white/40 hover:border-white bg-white/10 hover:bg-white/20 backdrop-blur-md transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] font-bold text-[15px] text-white group cursor-pointer"
               >
-                Find Your Best-Fit College
+                <span className="flex items-center gap-2 font-semibold text-white">
+                  Find Your Best-Fit College
+                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1 text-white/80 group-hover:text-white" strokeWidth={2} />
+                </span>
               </Link>
             </motion.div>
           </div>

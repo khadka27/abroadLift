@@ -38,6 +38,7 @@ import {
 import Loading from "@/components/ui/Loading";
 import { format } from "date-fns";
 import { Card } from "@/components/ui/card";
+import { formatDualCurrencyDisplay } from "@/lib/currency";
 import { Badge } from "@/components/ui/badge";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
@@ -558,24 +559,24 @@ export default function StudentDetails({ params }: { params: Promise<{ id: strin
                   </div>
                   <div>
                     <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Yearly Budget limit</label>
-                    <p className="font-extrabold text-slate-800 mt-1 text-lg">
-                      {p.yearlyBudget ? `${p.yearlyBudget.toLocaleString()} ${p.currency || "USD"}` : "—"}
+                    <p className="font-extrabold text-slate-800 mt-1 text-sm">
+                      {formatDualCurrencyDisplay(p.yearlyBudget, p.currency)}
                     </p>
                   </div>
                   <div>
                     <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Available Bank Balance</label>
-                    <p className="font-extrabold text-slate-800 mt-1 text-lg">
-                      {p.bankBalance ? `${p.bankBalance.toLocaleString()} ${p.currency || "USD"}` : "—"}
+                    <p className="font-extrabold text-slate-800 mt-1 text-sm">
+                      {formatDualCurrencyDisplay(p.bankBalance, p.currency)}
                     </p>
                   </div>
                   <div>
                     <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Sponsor Source / Type</label>
-                    <p className="font-semibold text-slate-700 mt-1">{p.sponsorType || "—"}</p>
+                    <p className="font-semibold text-slate-700 mt-1 text-sm">{p.sponsorType || "—"}</p>
                   </div>
                   <div>
                     <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Sponsor Annual Income</label>
-                    <p className="font-semibold text-slate-700 mt-1">
-                      {p.sponsorIncome ? `${p.sponsorIncome.toLocaleString()} ${p.currency || "USD"}` : "—"}
+                    <p className="font-semibold text-slate-700 mt-1 text-sm">
+                      {formatDualCurrencyDisplay(p.sponsorIncome, p.currency)}
                     </p>
                   </div>
                 </div>

@@ -108,9 +108,11 @@ const AdmissionSection = () => (
           </div>
 
           <div className="flex justify-center lg:justify-start">
-            <Button className="bg-[#3686FF] text-white px-[24px] py-[12px] h-auto rounded-[10px] font-semibold text-[15px] shadow-[0_8px_30px_rgb(51,102,255,0.3)] transition-all hover:scale-105 hover:shadow-[0_8px_35px_rgb(51,102,255,0.4)]">
-              Get Started Now <ArrowRight className="w-5 h-5 ml-1.5" strokeWidth={2.5} />
-            </Button>
+            <Link href="/matches">
+              <Button className="bg-[#3686FF] text-white px-[24px] py-[12px] h-auto rounded-[10px] font-semibold text-[15px] shadow-[0_8px_30px_rgb(51,102,255,0.3)] transition-all hover:scale-105 hover:shadow-[0_8px_35px_rgb(51,102,255,0.4)] cursor-pointer">
+                Get Started Now <ArrowRight className="w-5 h-5 ml-1.5" strokeWidth={2.5} />
+              </Button>
+            </Link>
           </div>
         </div>
       </div>

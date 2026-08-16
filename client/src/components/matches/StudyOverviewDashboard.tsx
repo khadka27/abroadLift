@@ -504,7 +504,7 @@ export function StudyOverviewDashboard({
               const costNpr = Math.round(costUsd * USD_TO_NPR);
               const matchScore = Math.max(
                 70,
-                Math.round((uni.admissionRate || 65) + Math.random() * 10),
+                Math.round(uni.matchScore || uni.admissionRate || 75),
               );
 
               return (
