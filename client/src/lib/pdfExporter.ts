@@ -3,10 +3,69 @@
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
+function oklchToRgb(l: number, c: number, h: number): [number, number, number] {
+  const hRad = (h * Math.PI) / 180;
+  const a = c * Math.cos(hRad);
+  const bComp = c * Math.sin(hRad);
+
+  const l_ = l + 0.3963377774 * a + 0.2158037573 * bComp;
+  const m_ = l - 0.1055613458 * a - 0.0638541728 * bComp;
+  const s_ = l - 0.0894841775 * a - 1.291485548 * bComp;
+
+  const L = l_ * l_ * l_;
+  const M = m_ * m_ * m_;
+  const S = s_ * s_ * s_;
+
+  let rLin = +4.0767416621 * L - 3.3077115913 * M + 0.2309699292 * S;
+  let gLin = -1.2684380046 * L + 2.6097574011 * M - 0.3413193965 * S;
+  let bLin = -0.0041960863 * L - 0.7034186147 * M + 1.707614701 * S;
+
+  rLin = Math.max(0, rLin);
+  gLin = Math.max(0, gLin);
+  bLin = Math.max(0, bLin);
+
+  const toSrgb = (x: number) =>
+    x <= 0.0031308 ? 12.92 * x : 1.055 * Math.pow(x, 1 / 2.4) - 0.055;
+
+  const r = Math.min(255, Math.max(0, Math.round(toSrgb(rLin) * 255)));
+  const g = Math.min(255, Math.max(0, Math.round(toSrgb(gLin) * 255)));
+  const b = Math.min(255, Math.max(0, Math.round(toSrgb(bLin) * 255)));
+
+  return [r, g, b];
+}
+
+function oklabToRgb(l: number, aComp: number, bComp: number): [number, number, number] {
+  const l_ = l + 0.3963377774 * aComp + 0.2158037573 * bComp;
+  const m_ = l - 0.1055613458 * aComp - 0.0638541728 * bComp;
+  const s_ = l - 0.0894841775 * aComp - 1.291485548 * bComp;
+
+  const L = l_ * l_ * l_;
+  const M = m_ * m_ * m_;
+  const S = s_ * s_ * s_;
+
+  let rLin = +4.0767416621 * L - 3.3077115913 * M + 0.2309699292 * S;
+  let gLin = -1.2684380046 * L + 2.6097574011 * M - 0.3413193965 * S;
+  let bLin = -0.0041960863 * L - 0.7034186147 * M + 1.707614701 * S;
+
+  rLin = Math.max(0, rLin);
+  gLin = Math.max(0, gLin);
+  bLin = Math.max(0, bLin);
+
+  const toSrgb = (x: number) =>
+    x <= 0.0031308 ? 12.92 * x : 1.055 * Math.pow(x, 1 / 2.4) - 0.055;
+
+  const r = Math.min(255, Math.max(0, Math.round(toSrgb(rLin) * 255)));
+  const g = Math.min(255, Math.max(0, Math.round(toSrgb(gLin) * 255)));
+  const b = Math.min(255, Math.max(0, Math.round(toSrgb(bLin) * 255)));
+
+  return [r, g, b];
+}
+
 function replaceColorFunctions(
   str: string,
   replacer: (match: string) => string
 ): string {
+  if (!str) return str;
   const keywords = ["lab", "oklch", "oklab", "lch", "color", "light-dark"];
   const regex = new RegExp(`(?:${keywords.join("|")})\\(`, "gi");
 
@@ -41,54 +100,96 @@ function replaceColorFunctions(
 
 function convertColorToRgb(colorStr: string): string {
   if (typeof window === "undefined" || !colorStr) return colorStr;
+  const trimmed = colorStr.trim();
 
-  // 1. Try DOM computed style conversion via a temporary hidden helper attached to document.body
+  // 1. oklab(L a b / A) or oklab(L a b)
+  if (/^oklab\(/i.test(trimmed)) {
+    const match = trimmed.match(
+      /^oklab\(\s*([-\d.]+)(%?)\s+([-\d.]+)\s+([-\d.]+)(?:\s*[\/\,]\s*([-\d.]+)(%?))?\s*\)$/i
+    );
+    if (match) {
+      let l = parseFloat(match[1]);
+      if (match[2] === "%") l = l / 100;
+      const aVal = parseFloat(match[3]);
+      const bVal = parseFloat(match[4]);
+      let alpha = match[5] !== undefined ? parseFloat(match[5]) : 1;
+      if (match[6] === "%") alpha = alpha / 100;
+
+      const [r, g, b] = oklabToRgb(l, aVal, bVal);
+      if (alpha < 1) return `rgba(${r}, ${g}, ${b}, ${alpha.toFixed(2)})`;
+      return `rgb(${r}, ${g}, ${b})`;
+    }
+  }
+
+  // 2. oklch(L C H / A) or oklch(L C H)
+  if (/^oklch\(/i.test(trimmed)) {
+    const match = trimmed.match(
+      /^oklch\(\s*([-\d.]+)(%?)\s+([-\d.]+)\s+([-\d.]+)(?:\s*[\/\,]\s*([-\d.]+)(%?))?\s*\)$/i
+    );
+    if (match) {
+      let l = parseFloat(match[1]);
+      if (match[2] === "%") l = l / 100;
+      const c = parseFloat(match[3]);
+      const h = parseFloat(match[4]);
+      let alpha = match[5] !== undefined ? parseFloat(match[5]) : 1;
+      if (match[6] === "%") alpha = alpha / 100;
+
+      const [r, g, b] = oklchToRgb(l, c, h);
+      if (alpha < 1) return `rgba(${r}, ${g}, ${b}, ${alpha.toFixed(2)})`;
+      return `rgb(${r}, ${g}, ${b})`;
+    }
+  }
+
+  // 3. color(srgb R G B / A)
+  if (/^color\(\s*srgb/i.test(trimmed)) {
+    const match = trimmed.match(
+      /^color\(\s*srgb\s+([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)(?:\s*[\/\,]\s*([-\d.]+))?\s*\)$/i
+    );
+    if (match) {
+      const r = Math.min(255, Math.max(0, Math.round(parseFloat(match[1]) * 255)));
+      const g = Math.min(255, Math.max(0, Math.round(parseFloat(match[2]) * 255)));
+      const b = Math.min(255, Math.max(0, Math.round(parseFloat(match[3]) * 255)));
+      const a = match[4] !== undefined ? parseFloat(match[4]) : 1;
+      if (a < 1) return `rgba(${r}, ${g}, ${b}, ${a.toFixed(2)})`;
+      return `rgb(${r}, ${g}, ${b})`;
+    }
+  }
+
+  // 4. light-dark(light, dark)
+  if (/^light-dark\(/i.test(trimmed)) {
+    const inner = trimmed.slice(11, -1);
+    const parts = inner.split(",");
+    if (parts[0]) return convertColorToRgb(parts[0].trim());
+  }
+
+  // 5. DOM Computed Style Resolution via temporary helper
   try {
     let helper = document.getElementById("pdf-color-convert-helper");
     if (!helper) {
       helper = document.createElement("div");
       helper.id = "pdf-color-convert-helper";
-      helper.style.position = "absolute";
+      helper.style.position = "fixed";
       helper.style.left = "-9999px";
       helper.style.top = "-9999px";
       helper.style.visibility = "hidden";
+      helper.style.pointerEvents = "none";
       document.body.appendChild(helper);
     }
 
     helper.style.color = "";
-    helper.style.color = colorStr;
-    const computed = window.getComputedStyle(helper).color;
+    helper.style.color = trimmed;
+    const comp = window.getComputedStyle(helper).color;
     if (
-      computed &&
-      !/(?:lab|oklch|oklab|lch|color|light-dark)\(/i.test(computed)
+      comp &&
+      !/(?:lab|oklch|oklab|lch|color|light-dark)\(/i.test(comp)
     ) {
-      return computed;
+      return comp;
     }
   } catch {
     // ignore
   }
 
-  // 2. Try HTML5 Canvas Context conversion
-  try {
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    if (ctx) {
-      ctx.fillStyle = "#000000";
-      ctx.fillStyle = colorStr;
-      const converted = ctx.fillStyle;
-      if (
-        converted &&
-        !/(?:lab|oklch|oklab|lch|color|light-dark)\(/i.test(converted)
-      ) {
-        return converted;
-      }
-    }
-  } catch {
-    // ignore
-  }
-
-  // 3. Fallback to a solid dark visible color (never transparent!)
-  return "#1e3a8a";
+  return "transparent";
 }
 
 function sanitizeColorString(str: string): string {
@@ -99,36 +200,6 @@ function sanitizeColorString(str: string): string {
 
   return replaceColorFunctions(str, (match) => {
     return convertColorToRgb(match);
-  });
-}
-
-function createComputedStyleProxy(
-  originalStyle: CSSStyleDeclaration
-): CSSStyleDeclaration {
-  return new Proxy(originalStyle, {
-    get(target, prop, receiver) {
-      if (prop === "getPropertyValue") {
-        return function (property: string) {
-          const val = target.getPropertyValue(property);
-          if (
-            val &&
-            /(?:lab|oklch|oklab|lch|color|light-dark)\(/i.test(val)
-          ) {
-            return sanitizeColorString(val);
-          }
-          return val;
-        };
-      }
-      const val = Reflect.get(target, prop, receiver);
-      if (
-        typeof prop === "string" &&
-        typeof val === "string" &&
-        /(?:lab|oklch|oklab|lch|color|light-dark)\(/i.test(val)
-      ) {
-        return sanitizeColorString(val);
-      }
-      return typeof val === "function" ? val.bind(target) : val;
-    },
   });
 }
 
@@ -144,6 +215,30 @@ export async function exportElementToPDF(
 
   const originalGetComputedStyle = window.getComputedStyle;
 
+  const wrapComputedStyle = (style: CSSStyleDeclaration): CSSStyleDeclaration => {
+    return new Proxy(style, {
+      get(target, prop) {
+        if (prop === "getPropertyValue") {
+          return (propertyName: string) => {
+            const val = target.getPropertyValue(propertyName);
+            if (val && /(?:lab|oklch|oklab|lch|color|light-dark)\(/i.test(val)) {
+              return sanitizeColorString(val);
+            }
+            return val;
+          };
+        }
+        const val = (target as any)[prop];
+        if (typeof val === "function") {
+          return val.bind(target);
+        }
+        if (typeof val === "string" && /(?:lab|oklch|oklab|lch|color|light-dark)\(/i.test(val)) {
+          return sanitizeColorString(val);
+        }
+        return val;
+      },
+    });
+  };
+
   try {
     const element =
       typeof elementOrId === "string"
@@ -156,16 +251,15 @@ export async function exportElementToPDF(
       return;
     }
 
-    // Override window.getComputedStyle to intercept and convert all unsupported color functions
+    // 1. Temporarily patch main window.getComputedStyle during html2canvas initialization
     window.getComputedStyle = function (
       elt: Element,
       pseudoElt?: string | null
     ): CSSStyleDeclaration {
-      const style = originalGetComputedStyle(elt, pseudoElt);
-      return createComputedStyleProxy(style);
+      const comp = originalGetComputedStyle.call(window, elt, pseudoElt);
+      return wrapComputedStyle(comp);
     };
 
-    // Capture target element canvas at 2x resolution with sanitized CSS colors & reset animations
     const canvas = await html2canvas(element as HTMLElement, {
       scale: 2,
       useCORS: true,
@@ -174,23 +268,20 @@ export async function exportElementToPDF(
       backgroundColor: "#ffffff",
       scrollX: 0,
       scrollY: 0,
-      windowWidth: document.documentElement.offsetWidth,
-      windowHeight: document.documentElement.offsetHeight,
       onclone: (clonedDoc, clonedElement) => {
-        // Override clonedDoc.defaultView.getComputedStyle as well
+        // Patch clonedDoc defaultView getComputedStyle
         if (clonedDoc.defaultView) {
-          const clonedOrigGetComputedStyle =
-            clonedDoc.defaultView.getComputedStyle;
+          const clonedOrigGetComputedStyle = clonedDoc.defaultView.getComputedStyle;
           clonedDoc.defaultView.getComputedStyle = function (
             elt: Element,
             pseudoElt?: string | null
           ): CSSStyleDeclaration {
-            const style = clonedOrigGetComputedStyle(elt, pseudoElt);
-            return createComputedStyleProxy(style);
+            const comp = clonedOrigGetComputedStyle.call(clonedDoc.defaultView, elt, pseudoElt);
+            return wrapComputedStyle(comp);
           };
         }
 
-        // 1. Sanitize all <style> tags
+        // Sanitize all style tags
         const styleTags = clonedDoc.querySelectorAll("style");
         styleTags.forEach((style) => {
           if (style.textContent) {
@@ -198,37 +289,36 @@ export async function exportElementToPDF(
           }
         });
 
-        // 2. Convert stylesheet link rules if accessible
-        const linkTags =
-          clonedDoc.querySelectorAll<HTMLLinkElement>("link[rel='stylesheet']");
-        linkTags.forEach((link) => {
-          try {
-            if (link.sheet) {
-              let rulesText = "";
-              const rules = link.sheet.cssRules || link.sheet.rules;
-              for (let i = 0; i < rules.length; i++) {
-                rulesText += rules[i].cssText + "\n";
-              }
-              if (
-                rulesText &&
-                /(?:lab|oklch|oklab|lch|color|light-dark)\(/i.test(rulesText)
-              ) {
-                const newStyle = clonedDoc.createElement("style");
-                newStyle.textContent = sanitizeColorString(rulesText);
-                link.parentNode?.insertBefore(newStyle, link);
-                link.disabled = true;
-              }
-            }
-          } catch {
-            // cross-origin sheet fallback
+        // Hide action buttons in PDF clone
+        const actionButtons = clonedDoc.querySelectorAll(".no-pdf, button");
+        actionButtons.forEach((btn) => {
+          if (
+            btn instanceof HTMLElement &&
+            (btn.innerText?.includes("Export") || btn.innerText?.includes("Save"))
+          ) {
+            btn.style.display = "none";
           }
         });
 
-        // 3. Ensure all elements are visible and disable animations/transforms that obscure content
-        const view = clonedDoc.defaultView || window;
-        const allElements =
-          clonedDoc.querySelectorAll<HTMLElement | SVGElement>("*");
+        // Force explicit inline sanitized styles on all elements
+        const colorProps = [
+          "color",
+          "background-color",
+          "border-color",
+          "border-top-color",
+          "border-right-color",
+          "border-bottom-color",
+          "border-left-color",
+          "outline-color",
+          "box-shadow",
+          "text-shadow",
+          "background",
+          "background-image",
+          "fill",
+          "stroke",
+        ];
 
+        const allElements = clonedDoc.querySelectorAll<HTMLElement | SVGElement>("*");
         allElements.forEach((el) => {
           const styleAttr = el.getAttribute("style");
           if (
@@ -239,48 +329,34 @@ export async function exportElementToPDF(
           }
 
           if (el instanceof HTMLElement) {
-            // Force animations off and ensure opacity is non-zero
             el.style.animation = "none";
             el.style.transition = "none";
 
-            const comp = view.getComputedStyle(el);
-            if (
-              comp.opacity === "0" ||
-              el.classList.contains("animate-in") ||
-              el.classList.contains("fade-in")
-            ) {
-              el.style.opacity = "1";
-              el.style.transform = "none";
-            }
-
-            try {
-              const colorProps = [
-                "color",
-                "background-color",
-                "border-color",
-                "border-top-color",
-                "border-right-color",
-                "border-bottom-color",
-                "border-left-color",
-                "outline-color",
-                "box-shadow",
-                "text-shadow",
-                "fill",
-                "stroke",
-              ];
+            const comp = clonedDoc.defaultView?.getComputedStyle(el);
+            if (comp) {
+              if (
+                comp.opacity === "0" ||
+                el.classList.contains("animate-in") ||
+                el.classList.contains("fade-in")
+              ) {
+                el.style.opacity = "1";
+                el.style.transform = "none";
+              }
 
               for (const prop of colorProps) {
-                const val = comp.getPropertyValue(prop);
-                if (
-                  val &&
-                  /(?:lab|oklch|oklab|lch|color|light-dark)\(/i.test(val)
-                ) {
-                  const sanitized = sanitizeColorString(val);
-                  el.style.setProperty(prop, sanitized, "important");
+                try {
+                  const val = comp.getPropertyValue(prop);
+                  if (
+                    val &&
+                    /(?:lab|oklch|oklab|lch|color|light-dark)\(/i.test(val)
+                  ) {
+                    const sanitized = sanitizeColorString(val);
+                    el.style.setProperty(prop, sanitized, "important");
+                  }
+                } catch {
+                  // ignore
                 }
               }
-            } catch {
-              // ignore
             }
           }
         });
@@ -309,22 +385,20 @@ export async function exportElementToPDF(
       compress: true,
     });
 
-    const pdfWidth = 210; // A4 width in mm
-    const pdfHeight = 297; // A4 height in mm
+    const pdfWidth = 210;
+    const pdfHeight = 297;
     const imgHeight = (canvas.height * pdfWidth) / canvas.width;
 
     if (imgHeight <= pdfHeight) {
-      // Single Page PDF
       pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, imgHeight, undefined, "FAST");
     } else {
-      // Multi-Page PDF: slice image without trailing blank pages
       let heightLeft = imgHeight;
       let position = 0;
 
       pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeight, undefined, "FAST");
       heightLeft -= pdfHeight;
 
-      while (heightLeft > 10) {
+      while (heightLeft > 5) {
         position -= pdfHeight;
         pdf.addPage();
         pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeight, undefined, "FAST");
@@ -332,22 +406,12 @@ export async function exportElementToPDF(
       }
     }
 
-    // Direct browser file download - NEVER opens print modal
     pdf.save(`${filename}.pdf`);
   } catch (error) {
     console.error("PDF Generation Error:", error);
   } finally {
-    // Restore original window.getComputedStyle
+    // ALWAYS restore original getComputedStyle
     window.getComputedStyle = originalGetComputedStyle;
-
-    // Clean up temporary conversion helper if present
-    const helper = document.getElementById("pdf-color-convert-helper");
-    if (helper && helper.parentNode) {
-      helper.parentNode.removeChild(helper);
-    }
     if (onComplete) onComplete();
   }
 }
-
-
-
