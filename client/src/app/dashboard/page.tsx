@@ -2442,13 +2442,13 @@ function DashboardInner() {
                     {savedMatches.length > 0 && (
                       <div className="space-y-4">
                         <div className="flex items-center justify-between px-1">
-                          <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">Your Shortlisted Matches</h3>
-                          <span className="text-xs font-bold text-[#3686FF]">{filteredShortlists.length} Saved</span>
+                          <h3 className="text-xs font-black text-slate-700 uppercase tracking-widest">Your Shortlisted Matches</h3>
+                          <span className="text-xs font-black text-[#2563EB]">{filteredShortlists.length} Saved</span>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                           {filteredShortlists.length === 0 ? (
-                            <div className="col-span-full py-12 text-center bg-white rounded-3xl border border-slate-100 text-slate-400 font-semibold text-xs">
+                            <div className="col-span-full py-12 text-center bg-white rounded-3xl border border-slate-200 text-slate-600 font-semibold text-xs shadow-xs">
                               No match profiles found matching selected filters.
                             </div>
                           ) : (
@@ -2463,12 +2463,12 @@ function DashboardInner() {
                               const isExpanded = expandedProfileId === item.id;
 
                               return (
-                                <Card key={item.id} className="rounded-3xl p-6 border border-slate-150/80 bg-white shadow-sm hover:shadow-md hover:border-blue-200 transition-all flex flex-col justify-between">
+                                <Card key={item.id} className="rounded-3xl p-6 border border-slate-250 bg-white shadow-sm hover:shadow-md hover:border-blue-400 transition-all flex flex-col justify-between">
                                   <div>
                                     <div className="flex items-center justify-between mb-3">
                                       <div className="flex items-center gap-2">
                                         <FlagIcon countryCode={countryCode} className="w-5 h-3.5 rounded object-cover shadow-2xs" />
-                                        <span className="px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider bg-blue-50 text-[#3686FF] rounded-full">
+                                        <span className="px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider bg-blue-100/90 text-blue-800 rounded-full border border-blue-200/80 shadow-2xs">
                                           {formatDegree(degree)}
                                         </span>
                                       </div>
@@ -2477,27 +2477,27 @@ function DashboardInner() {
                                           e.stopPropagation();
                                           setDeleteProfileId(item.id);
                                         }}
-                                        className="text-slate-300 hover:text-rose-500 transition-colors p-1.5 rounded-lg hover:bg-rose-50 cursor-pointer"
+                                        className="text-slate-500 hover:text-rose-600 transition-colors p-1.5 rounded-lg hover:bg-rose-50 cursor-pointer"
                                         title="Delete saved match"
                                       >
                                         <Trash2 className="w-4 h-4" />
                                       </button>
                                     </div>
 
-                                    <h4 className="font-extrabold text-slate-900 text-base leading-snug hover:text-[#3686FF] transition-colors truncate mt-2" title={univName}>
+                                    <h4 className="font-extrabold text-slate-900 text-base leading-snug hover:text-[#2563EB] transition-colors truncate mt-2" title={univName}>
                                       {univName}
                                     </h4>
 
-                                    <div className="grid grid-cols-2 gap-2 mt-4 text-xs font-semibold text-slate-600">
-                                      <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                                        <span className="text-[10px] font-bold text-slate-400 block uppercase">GPA / Test</span>
-                                        <span className="text-slate-900 font-extrabold truncate block">
+                                    <div className="grid grid-cols-2 gap-2 mt-4 text-xs font-semibold text-slate-700">
+                                      <div className="bg-slate-100/90 p-2.5 rounded-xl border border-slate-200">
+                                        <span className="text-[10px] font-extrabold text-slate-600 block uppercase tracking-wider">GPA / Test</span>
+                                        <span className="text-slate-950 font-black truncate block">
                                           GPA {gpa} {testType ? `· ${formatTestType(testType)} ${testScore}` : ""}
                                         </span>
                                       </div>
-                                      <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                                        <span className="text-[10px] font-bold text-slate-400 block uppercase">Admit Odds</span>
-                                        <span className="text-emerald-600 font-extrabold block">
+                                      <div className="bg-slate-100/90 p-2.5 rounded-xl border border-slate-200">
+                                        <span className="text-[10px] font-extrabold text-slate-600 block uppercase tracking-wider">Admit Odds</span>
+                                        <span className="text-emerald-700 font-black block">
                                           {admissionChance ?? "78"}% High Match
                                         </span>
                                       </div>
@@ -2506,7 +2506,7 @@ function DashboardInner() {
                                     {/* Collapsible Expander Button */}
                                     <button
                                       onClick={() => setExpandedProfileId(isExpanded ? null : item.id)}
-                                      className="flex items-center gap-1 text-xs font-bold text-[#3686FF] hover:underline mt-4 cursor-pointer"
+                                      className="flex items-center gap-1 text-xs font-black text-[#2563EB] hover:text-[#1D4ED8] hover:underline mt-4 cursor-pointer"
                                     >
                                       {isExpanded ? (
                                         <>Hide Full Evaluation <ChevronUp className="w-4 h-4" /></>
@@ -2525,22 +2525,22 @@ function DashboardInner() {
                                           transition={{ duration: 0.2 }}
                                           className="overflow-hidden"
                                         >
-                                          <div className="mt-4 pt-4 border-t border-slate-100 grid grid-cols-2 gap-2.5 text-xs">
-                                            <div className="bg-slate-50 p-2.5 rounded-xl">
-                                              <span className="text-[9px] font-bold text-slate-400 block uppercase">Target Intake</span>
-                                              <span className="font-bold text-slate-800">{item.formData?.intake || "Fall 2026"}</span>
+                                          <div className="mt-4 pt-4 border-t border-slate-200 grid grid-cols-2 gap-2.5 text-xs">
+                                            <div className="bg-slate-100/90 p-2.5 rounded-xl border border-slate-200">
+                                              <span className="text-[9px] font-extrabold text-slate-600 block uppercase tracking-wider">Target Intake</span>
+                                              <span className="font-extrabold text-slate-950">{item.formData?.intake || "Fall 2026"}</span>
                                             </div>
-                                            <div className="bg-slate-50 p-2.5 rounded-xl">
-                                              <span className="text-[9px] font-bold text-slate-400 block uppercase">Budget Limit</span>
-                                              <span className="font-bold text-slate-800">${parseInt(item.formData?.budget || "30000").toLocaleString()} USD/yr</span>
+                                            <div className="bg-slate-100/90 p-2.5 rounded-xl border border-slate-200">
+                                              <span className="text-[9px] font-extrabold text-slate-600 block uppercase tracking-wider">Budget Limit</span>
+                                              <span className="font-extrabold text-slate-950">${parseInt(item.formData?.budget || "30000").toLocaleString()} USD/yr</span>
                                             </div>
-                                            <div className="bg-slate-50 p-2.5 rounded-xl">
-                                              <span className="text-[9px] font-bold text-slate-400 block uppercase">Backlogs & Gap</span>
-                                              <span className="font-bold text-slate-800">{item.formData?.backlogs || "0"} backlogs · {item.formData?.studyGap || "0"} yr gap</span>
+                                            <div className="bg-slate-100/90 p-2.5 rounded-xl border border-slate-200">
+                                              <span className="text-[9px] font-extrabold text-slate-600 block uppercase tracking-wider">Backlogs & Gap</span>
+                                              <span className="font-extrabold text-slate-950">{item.formData?.backlogs || "0"} backlogs · {item.formData?.studyGap || "0"} yr gap</span>
                                             </div>
-                                            <div className="bg-slate-50 p-2.5 rounded-xl">
-                                              <span className="text-[9px] font-bold text-slate-400 block uppercase">Sponsor Source</span>
-                                              <span className="font-bold text-slate-800 truncate block">{item.formData?.sponsorType || "Self"}</span>
+                                            <div className="bg-slate-100/90 p-2.5 rounded-xl border border-slate-200">
+                                              <span className="text-[9px] font-extrabold text-slate-600 block uppercase tracking-wider">Sponsor Source</span>
+                                              <span className="font-extrabold text-slate-950 truncate block">{item.formData?.sponsorType || "Self"}</span>
                                             </div>
                                           </div>
                                         </motion.div>
@@ -2548,10 +2548,10 @@ function DashboardInner() {
                                     </AnimatePresence>
                                   </div>
 
-                                  <div className="pt-4 border-t border-slate-100 mt-4 flex items-center justify-between">
+                                  <div className="pt-4 border-t border-slate-200 mt-4 flex items-center justify-between">
                                     <button
                                       onClick={() => handleLoadSavedProfile(item)}
-                                      className="w-full bg-[#3686FF] hover:bg-blue-600 text-white font-extrabold py-3 rounded-2xl text-xs shadow-md transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+                                      className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-extrabold py-3 rounded-2xl text-xs shadow-md transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-2"
                                     >
                                       <span>Open Full Analytics</span>
                                       <ChevronRight className="w-4 h-4" />
@@ -2568,8 +2568,8 @@ function DashboardInner() {
                     {/* Section 2: Recommended Universities Grid */}
                     <div className="space-y-4">
                       <div className="flex items-center justify-between px-1">
-                        <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">Recommended Institutions for You</h3>
-                        <span className="text-xs font-bold text-slate-400">{matches.length} Total Options</span>
+                        <h3 className="text-xs font-black text-slate-700 uppercase tracking-widest">Recommended Institutions for You</h3>
+                        <span className="text-xs font-extrabold text-slate-600">{matches.length} Total Options</span>
                       </div>
 
                       {matchesLoading ? (
@@ -2588,53 +2588,53 @@ function DashboardInner() {
                                   whileHover={{ y: -4 }}
                                   transition={{ duration: 0.2 }}
                                 >
-                                  <Card className="rounded-3xl p-6 border border-slate-150 bg-white shadow-sm hover:shadow-lg transition-all flex flex-col justify-between h-full group">
+                                  <Card className="rounded-3xl p-6 border border-slate-250 bg-white shadow-sm hover:shadow-lg hover:border-blue-400 transition-all flex flex-col justify-between h-full group">
                                     <div>
                                       <div className="flex justify-between items-start mb-3">
-                                        <span className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                        <span className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100/90 text-emerald-800 border border-emerald-200/80 shadow-2xs">
                                           {m.admissionRate || 78}% Match
                                         </span>
-                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{m.institution_type || "Public"}</span>
+                                        <span className="text-[10px] font-extrabold text-slate-600 uppercase tracking-wider">{m.institution_type || "Public"}</span>
                                       </div>
 
-                                      <h3 className="font-extrabold text-slate-900 text-base leading-snug mb-1 group-hover:text-[#3686FF] transition-colors">{m.name}</h3>
-                                      <p className="text-slate-500 font-medium text-xs flex items-center gap-1 mt-1">
-                                        <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                      <h3 className="font-extrabold text-slate-900 text-base leading-snug mb-1 group-hover:text-[#2563EB] transition-colors">{m.name}</h3>
+                                      <p className="text-slate-600 font-semibold text-xs flex items-center gap-1 mt-1">
+                                        <MapPin className="w-3.5 h-3.5 text-slate-500 shrink-0" />
                                         {m.city ? `${m.city}, ` : ""}{m.countryCode || "Canada"}
                                       </p>
 
-                                      <div className="h-px bg-slate-100 my-4" />
+                                      <div className="h-px bg-slate-200 my-4" />
 
                                       <div className="space-y-2 mb-4 text-xs font-semibold">
                                         <div className="flex justify-between">
-                                          <span className="text-slate-400">Tuition:</span>
-                                          <span className="text-slate-800 font-extrabold">${(m.tuitionFee || 18000).toLocaleString()}/yr</span>
+                                          <span className="text-slate-600 font-bold">Tuition:</span>
+                                          <span className="text-slate-950 font-black">${(m.tuitionFee || 18000).toLocaleString()}/yr</span>
                                         </div>
                                         <div className="flex justify-between">
-                                          <span className="text-slate-400">Scholarship:</span>
-                                          <span className="text-emerald-600 font-extrabold">Up to $3,000</span>
+                                          <span className="text-slate-600 font-bold">Scholarship:</span>
+                                          <span className="text-emerald-700 font-black">Up to $3,000</span>
                                         </div>
                                         <div className="flex justify-between">
-                                          <span className="text-slate-400">Requirements:</span>
-                                          <span className="text-slate-800 font-extrabold">IELTS {m.englishReq || "6.5"} / GPA {(m.gpaRequirement ? (m.gpaRequirement > 4.0 ? Math.round(((m.gpaRequirement / 100) * 4.0) * 10) / 10 : m.gpaRequirement) : 3.0).toFixed(1)}</span>
+                                          <span className="text-slate-600 font-bold">Requirements:</span>
+                                          <span className="text-slate-950 font-black">IELTS {m.englishReq || "6.5"} / GPA {(m.gpaRequirement ? (m.gpaRequirement > 4.0 ? Math.round(((m.gpaRequirement / 100) * 4.0) * 10) / 10 : m.gpaRequirement) : 3.0).toFixed(1)}</span>
                                         </div>
                                       </div>
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-3 pt-4 border-t border-slate-100 mt-2">
+                                    <div className="grid grid-cols-2 gap-3 pt-4 border-t border-slate-200 mt-2">
                                       <button
                                         onClick={() => handleApplyMatch(m)}
-                                        className="bg-[#3686FF] hover:bg-blue-600 text-white font-extrabold py-3 rounded-2xl text-xs shadow-sm transition-all active:scale-95 cursor-pointer"
+                                        className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-extrabold py-3 rounded-2xl text-xs shadow-sm transition-all active:scale-95 cursor-pointer"
                                       >
                                         Apply Now
                                       </button>
                                       <button
                                         onClick={() => handleLaunchRecommendedUniversity(m)}
                                         disabled={isLaunching}
-                                        className="border border-slate-200 hover:border-[#3686FF] hover:text-[#3686FF] bg-white text-slate-700 font-extrabold py-3 rounded-2xl text-xs transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
+                                        className="border border-slate-300 hover:border-[#2563EB] hover:text-[#2563EB] bg-slate-50/80 hover:bg-white text-slate-800 font-extrabold py-3 rounded-2xl text-xs transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
                                       >
                                         {isLaunching ? (
-                                          <Loader2 className="w-3.5 h-3.5 animate-spin text-[#3686FF]" />
+                                          <Loader2 className="w-3.5 h-3.5 animate-spin text-[#2563EB]" />
                                         ) : (
                                           "View Analysis"
                                         )}
