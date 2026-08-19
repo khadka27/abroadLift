@@ -1948,29 +1948,24 @@ function GenericEngineScreen({
             />
           </svg>
 
-          {/* Central Animated Content */}
-          <div className="relative flex flex-col items-center justify-center gap-1 mt-1">
+          {/* Central Animated Content - Logo Only (Bigger) */}
+          <div className="relative flex items-center justify-center">
             {typeof config.icon === "string" ? (
               <Image
                 src={config.icon}
                 alt="Engine Icon"
-                width={48}
-                height={48}
-                className="w-12 h-12 object-contain drop-shadow-sm"
+                width={84}
+                height={84}
+                className="w-20 h-20 object-contain drop-shadow-md"
                 unoptimized
                 priority
               />
             ) : (
               <config.icon
-                className={`w-10 h-10 ${config.accent} drop-shadow-sm`}
-                strokeWidth={2.5}
+                className={`w-16 h-16 ${config.accent} drop-shadow-md`}
+                strokeWidth={2}
               />
             )}
-            <span
-              className={`text-[26px] font-black ${config.accent} tabular-nums tracking-tighter drop-shadow-sm`}
-            >
-              {Math.round(progress)}%
-            </span>
           </div>
 
           {/* Orbiting Satellite Dot */}
@@ -6178,7 +6173,7 @@ export default function AbroadLiftMatchesPage() {
             </div>
 
             {/* Step 14 Final Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 pt-4 mt-2 border-t border-slate-100">
+            <div className="flex flex-col sm:flex-row gap-3 pt-4 mt-2 border-t border-slate-100 no-pdf">
               <button
                 type="button"
                 onClick={handleSavePlan}

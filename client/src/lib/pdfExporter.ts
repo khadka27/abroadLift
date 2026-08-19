@@ -3,6 +3,41 @@
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
+function labToRgb(l: number, aComp: number, bComp: number): [number, number, number] {
+  const y = (l + 16) / 116;
+  const x = aComp / 500 + y;
+  const z = y - bComp / 200;
+
+  const x3 = x * x * x;
+  const y3 = y * y * y;
+  const z3 = z * z * z;
+
+  const xFinal = x3 > 0.008856 ? x3 : (x - 16 / 116) / 7.787;
+  const yFinal = y3 > 0.008856 ? y3 : (y - 16 / 116) / 7.787;
+  const zFinal = z3 > 0.008856 ? z3 : (z - 16 / 116) / 7.787;
+
+  const X = xFinal * 0.95047;
+  const Y = yFinal * 1.00000;
+  const Z = zFinal * 1.08883;
+
+  let rLin = X * +3.2406 + Y * -1.5372 + Z * -0.4986;
+  let gLin = X * -0.9689 + Y * +1.8758 + Z * +0.0415;
+  let bLin = X * +0.0557 + Y * -0.2040 + Z * +1.0570;
+
+  rLin = Math.max(0, rLin);
+  gLin = Math.max(0, gLin);
+  bLin = Math.max(0, bLin);
+
+  const toSrgb = (v: number) =>
+    v <= 0.0031308 ? 12.92 * v : 1.055 * Math.pow(v, 1 / 2.4) - 0.055;
+
+  const r = Math.min(255, Math.max(0, Math.round(toSrgb(rLin) * 255)));
+  const g = Math.min(255, Math.max(0, Math.round(toSrgb(gLin) * 255)));
+  const b = Math.min(255, Math.max(0, Math.round(toSrgb(bLin) * 255)));
+
+  return [r, g, b];
+}
+
 function oklchToRgb(l: number, c: number, h: number): [number, number, number] {
   const hRad = (h * Math.PI) / 180;
   const a = c * Math.cos(hRad);
@@ -65,7 +100,48 @@ function parseColorToRgb(colorStr: string, isTextProperty: boolean = false): str
   if (!colorStr) return isTextProperty ? "#0f172a" : "transparent";
   const str = colorStr.trim();
 
-  // 1. Parse oklch(...)
+  // 1. Parse lab(...)
+  const labMatch = str.match(
+    /lab\(\s*([-\d.]+)(%?)\s+([-\d.]+)\s+([-\d.]+)(?:\s*[\/\,]\s*([-\d.]+)(%?))?\s*\)/i
+  );
+  if (labMatch) {
+    let l = parseFloat(labMatch[1]);
+    if (labMatch[2] === "%") l = l;
+    const aVal = parseFloat(labMatch[3]);
+    const bVal = parseFloat(labMatch[4]);
+    let alpha = labMatch[5] !== undefined ? parseFloat(labMatch[5]) : 1;
+    if (labMatch[6] === "%") alpha = alpha / 100;
+
+    const [r, g, b] = labToRgb(l, aVal, bVal);
+    if (alpha < 1 && !isNaN(alpha)) {
+      return `rgba(${r}, ${g}, ${b}, ${alpha.toFixed(2)})`;
+    }
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+
+  // 2. Parse lch(...)
+  const lchMatch = str.match(
+    /lch\(\s*([-\d.]+)(%?)\s+([-\d.]+)\s+([-\d.]+)(?:deg|rad|turn)?(?:\s*[\/\,]\s*([-\d.]+)(%?))?\s*\)/i
+  );
+  if (lchMatch) {
+    let l = parseFloat(lchMatch[1]);
+    const c = parseFloat(lchMatch[3]);
+    const h = parseFloat(lchMatch[4]);
+    let alpha = lchMatch[5] !== undefined ? parseFloat(lchMatch[5]) : 1;
+    if (lchMatch[6] === "%") alpha = alpha / 100;
+
+    const hRad = (h * Math.PI) / 180;
+    const aVal = c * Math.cos(hRad);
+    const bVal = c * Math.sin(hRad);
+
+    const [r, g, b] = labToRgb(l, aVal, bVal);
+    if (alpha < 1 && !isNaN(alpha)) {
+      return `rgba(${r}, ${g}, ${b}, ${alpha.toFixed(2)})`;
+    }
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+
+  // 3. Parse oklch(...)
   const oklchMatch = str.match(
     /oklch\(\s*([-\d.]+)(%?)\s+([-\d.]+)\s+([-\d.]+)(?:deg|rad|turn)?(?:\s*[\/\,]\s*([-\d.]+)(%?))?\s*\)/i
   );
@@ -84,7 +160,7 @@ function parseColorToRgb(colorStr: string, isTextProperty: boolean = false): str
     return `rgb(${r}, ${g}, ${b})`;
   }
 
-  // 2. Parse oklab(...)
+  // 4. Parse oklab(...)
   const oklabMatch = str.match(
     /oklab\(\s*([-\d.]+)(%?)\s+([-\d.]+)\s+([-\d.]+)(?:\s*[\/\,]\s*([-\d.]+)(%?))?\s*\)/i
   );
@@ -103,7 +179,7 @@ function parseColorToRgb(colorStr: string, isTextProperty: boolean = false): str
     return `rgb(${r}, ${g}, ${b})`;
   }
 
-  // 3. Parse color(srgb r g b / a)
+  // 5. Parse color(srgb r g b / a)
   const colorFnMatch = str.match(
     /color\(\s*srgb\s+([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)(?:\s*[\/\,]\s*([-\d.]+))?\s*\)/i
   );
@@ -116,23 +192,19 @@ function parseColorToRgb(colorStr: string, isTextProperty: boolean = false): str
     return `rgb(${r}, ${g}, ${b})`;
   }
 
-  // 4. light-dark(light, dark)
+  // 6. light-dark(light, dark)
   if (/^light-dark\(/i.test(str)) {
     const inner = str.slice(11, -1);
     const parts = inner.split(",");
     if (parts[0]) return parseColorToRgb(parts[0].trim(), isTextProperty);
   }
 
-  // If string has no oklch/oklab syntax, return original if non-empty
-  if (!/(?:lab|oklch|oklab|lch|color|light-dark)\(/i.test(str)) {
-    return str;
+  // Mandatory fallback if string contains ANY lab/oklch/oklab syntax to prevent html2canvas crash
+  if (/(?:lab|oklch|oklab|lch|color|light-dark)\(/i.test(str)) {
+    return isTextProperty ? "#0f172a" : "transparent";
   }
 
-  // Safe fallback
-  if (isTextProperty) {
-    return "#0f172a";
-  }
-  return "transparent";
+  return str;
 }
 
 function sanitizeCssString(str: string, isTextProperty: boolean = false): string {
@@ -183,6 +255,9 @@ export async function exportElementToPDF(
 
   if (onStart) onStart();
 
+  // Allow DOM to settle after loading state change
+  await new Promise((resolve) => setTimeout(resolve, 150));
+
   try {
     const element =
       typeof elementOrId === "string"
@@ -195,14 +270,19 @@ export async function exportElementToPDF(
       return;
     }
 
+    const scrollY = window.scrollY || window.pageYOffset || 0;
+    const scrollX = window.scrollX || window.pageXOffset || 0;
+
     const canvas = await html2canvas(element as HTMLElement, {
       scale: 2,
       useCORS: true,
       allowTaint: true,
       logging: false,
       backgroundColor: "#ffffff",
-      scrollX: 0,
-      scrollY: 0,
+      scrollX: -scrollX,
+      scrollY: -scrollY,
+      windowWidth: document.documentElement.offsetWidth,
+      windowHeight: document.documentElement.offsetHeight,
       onclone: (clonedDoc, clonedElement) => {
         // 1. Sanitize all <style> tags in cloned document
         const styleTags = clonedDoc.querySelectorAll("style");
@@ -215,10 +295,7 @@ export async function exportElementToPDF(
         // 2. Hide export/save action buttons inside PDF clone
         const actionButtons = clonedDoc.querySelectorAll(".no-pdf, button");
         actionButtons.forEach((btn) => {
-          if (
-            btn instanceof HTMLElement &&
-            (btn.innerText?.includes("Export") || btn.innerText?.includes("Save"))
-          ) {
+          if (btn instanceof HTMLElement) {
             btn.style.display = "none";
           }
         });
