@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { parseGpaToFloat } from "@/lib/gpaConverter";
 
 type MatchPayload = {
   countryCode?: string;
@@ -56,8 +57,10 @@ export async function POST(req: NextRequest) {
       form.docsReady,
       form.testDone,
     ].filter(Boolean).length;
+
+    const gpaFloat = parseGpaToFloat(form.gpa) ?? 0;
     const academicBase = clamp(
-      Math.round((parseNumber(form.gpa, 0) / 4) * 100),
+      Math.round((gpaFloat / 4) * 100),
       0,
       100,
     );

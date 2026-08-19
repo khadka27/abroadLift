@@ -155,3 +155,40 @@ export function formatLiveConversionHint(
   }
 }
 
+export function getCurrencySymbol(currency?: string | null): string {
+  if (!currency) return "$";
+  const c = currency.trim().toUpperCase();
+  switch (c) {
+    case "NPR":
+      return "Rs ";
+    case "CAD":
+      return "C$";
+    case "GBP":
+      return "£";
+    case "AUD":
+      return "A$";
+    case "EUR":
+      return "€";
+    case "INR":
+      return "₹";
+    case "USD":
+    default:
+      return "$";
+  }
+}
+
+export function formatBudgetDisplay(
+  amount: number | string | null | undefined,
+  currency?: string | null
+): string {
+  if (amount === null || amount === undefined || amount === "") return "Not set";
+  const num = typeof amount === "number" ? amount : parseFloat(String(amount).replace(/,/g, ""));
+  if (isNaN(num)) return "Not set";
+
+  if (currency === "NPR" || num > 500000) {
+    return formatNPRDevanagari(num);
+  }
+  const symbol = getCurrencySymbol(currency);
+  return `${symbol}${num.toLocaleString("en-US")}`;
+}
+

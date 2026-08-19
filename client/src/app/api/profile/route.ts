@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getUserIdFromRequest } from "@/lib/api-auth";
 import prisma from "@/lib/db";
+import { parseGpaToFloat } from "@/lib/gpaConverter";
 import { abroadliftApi } from "@/lib/api/abroadlift";
 
 
@@ -236,7 +237,7 @@ export async function PUT(req: Request) {
   }
 
   // Validation: Numeric amounts and scores cannot be negative
-  const gpaNum = toFloat(gpa);
+  const gpaNum = parseGpaToFloat(gpa);
   const budgetNum = toFloat(finalYearlyBudget);
   const bankNum = toFloat(bankBalance);
   const incomeNum = toFloat(sponsorIncome);

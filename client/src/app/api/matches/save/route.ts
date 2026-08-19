@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { getUserIdFromRequest } from "@/lib/api-auth";
 import prisma from "@/lib/db";
+import { parseGpaToFloat } from "@/lib/gpaConverter";
 
 export async function POST(req: Request) {
   try {
@@ -27,7 +28,7 @@ export async function POST(req: Request) {
     }
 
     // Calculate probabilities and estimates locally for the DB
-    const gpaNum = formData.gpa ? parseFloat(formData.gpa) : 3.0;
+    const gpaNum = parseGpaToFloat(formData.gpa) ?? 3.0;
     const testScoreNum = formData.testScore ? parseFloat(formData.testScore) : 0;
     
     // Admission Chance (simplified version of frontend logic)

@@ -6,6 +6,7 @@
 
 import { CustomSelect } from "@/components/ui/CustomSelect";
 import Loading from "@/components/ui/Loading";
+import { convertGpaTo4Scale } from "@/lib/gpaConverter";
 
 import { useEffect, useMemo, useState, useRef, Suspense } from "react";
 import { signOut, useSession } from "next-auth/react";
@@ -70,7 +71,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
-import { formatNPRDevanagari, formatDualCurrencyDisplay, formatLiveConversionHint } from "@/lib/currency";
+import { formatNPRDevanagari, formatDualCurrencyDisplay, formatLiveConversionHint, formatBudgetDisplay, getCurrencySymbol } from "@/lib/currency";
 import PremiumLoader from "@/components/PremiumLoader";
 import { FlagIcon } from "@/components/matches/FlagIcon";
 
@@ -601,6 +602,7 @@ function DashboardInner() {
       visaSuccessProb: profile.visaSuccessProb || 92,
       degreeLevel: profile.degreeLevel || "Master's",
       preferredCountry: profile.preferredCountry || "Canada",
+      currency: profile.currency || "USD",
     };
 
     const presets = [
@@ -622,6 +624,7 @@ function DashboardInner() {
         visaSuccessProb: 94,
         degreeLevel: "Master's",
         preferredCountry: "USA",
+        currency: "USD",
       },
       {
         id: "preset_polytechnic",
@@ -640,6 +643,7 @@ function DashboardInner() {
         visaSuccessProb: 89,
         degreeLevel: "Postgrad Diploma",
         preferredCountry: "Canada",
+        currency: "USD",
       },
       {
         id: "preset_scholarship",
@@ -658,6 +662,7 @@ function DashboardInner() {
         visaSuccessProb: 86,
         degreeLevel: "Master's",
         preferredCountry: "Germany / Europe",
+        currency: "USD",
       },
     ];
 
@@ -679,6 +684,7 @@ function DashboardInner() {
         visaSuccessProb: item.visaSuccess || 90,
         degreeLevel: item.formData?.degree || "Master's",
         preferredCountry: item.formData?.countries?.[0] || "Canada",
+        currency: item.formData?.currency || "USD",
       });
     });
 
@@ -1690,20 +1696,27 @@ function DashboardInner() {
       return;
     }
 
+    const convertedGpa = convertGpaTo4Scale(editForm.gpa) || editForm.gpa;
+    const finalForm = {
+      ...editForm,
+      gpa: convertedGpa,
+    };
+
     try {
       const res = await fetch("/api/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...editForm,
-          countries: editForm.preferredCountry ? [editForm.preferredCountry] : [],
-          degree: editForm.degreeLevel,
-          budget: editForm.yearlyBudget,
-          dob: editForm.dateOfBirth || null,
+          ...finalForm,
+          countries: finalForm.preferredCountry ? [finalForm.preferredCountry] : [],
+          degree: finalForm.degreeLevel,
+          budget: finalForm.yearlyBudget,
+          dob: finalForm.dateOfBirth || null,
         }),
       });
       if (res.ok) {
-        setProfile(editForm);
+        setEditForm(finalForm);
+        setProfile(finalForm);
         if (exitEditMode) {
           setIsEditingProfile(false);
         }
@@ -2398,7 +2411,7 @@ function DashboardInner() {
                               {profile.testType || "IELTS"} {profile.englishScore || "7.0"}
                             </span>
                             <span className="bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200/60 text-slate-700">
-                              Budget: ${parseInt(profile.yearlyBudget || "30000").toLocaleString()}/yr
+                              Budget: {formatBudgetDisplay(profile.yearlyBudget || "30000", profile.currency)}/yr
                             </span>
                             {profile.intake && (
                               <span className="bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200/60 text-slate-700">
@@ -3706,7 +3719,7 @@ function DashboardInner() {
                                   </div>
                                   <h3 className="text-lg font-black text-slate-900 mb-1">{p1.name}</h3>
                                   <p className="text-xs text-slate-500 font-semibold">
-                                    GPA: {p1.gpa} | {p1.testType} {p1.englishScore} | Budget: ${parseInt(p1.yearlyBudget).toLocaleString()}/yr
+                                    GPA: {p1.gpa} | {p1.testType} {p1.englishScore} | Budget: {formatBudgetDisplay(p1.yearlyBudget, p1.currency)}/yr
                                   </p>
                                 </Card>
 
@@ -3721,7 +3734,7 @@ function DashboardInner() {
                                   </div>
                                   <h3 className="text-lg font-black text-slate-900 mb-1">{p2.name}</h3>
                                   <p className="text-xs text-slate-500 font-semibold">
-                                    GPA: {p2.gpa} | {p2.testType} {p2.englishScore} | Budget: ${parseInt(p2.yearlyBudget).toLocaleString()}/yr
+                                    GPA: {p2.gpa} | {p2.testType} {p2.englishScore} | Budget: {formatBudgetDisplay(p2.yearlyBudget, p2.currency)}/yr
                                   </p>
                                 </Card>
                               </div>
@@ -4197,7 +4210,7 @@ function DashboardInner() {
                 {/* 10. PROFILE EDITOR TAB */}
                 {activeTab === "profile" && (
                   <div className="space-y-6">
-                    {/* Error & Success Notification Toasts */}
+                    {/* Error Notification Toasts */}
                     {errorMsg && (
                       <div className="bg-red-50 border border-red-200 text-red-700 px-4.5 py-3.5 rounded-2xl text-xs font-bold flex items-center justify-between shadow-xs">
                         <div className="flex items-center gap-2">
@@ -4205,12 +4218,6 @@ function DashboardInner() {
                           <span>{errorMsg}</span>
                         </div>
                         <button onClick={() => setErrorMsg("")} className="text-red-500 hover:text-red-800 font-extrabold text-sm ml-4 cursor-pointer">×</button>
-                      </div>
-                    )}
-                    {savedNotify && (
-                      <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4.5 py-3.5 rounded-2xl text-xs font-bold flex items-center gap-2 shadow-xs">
-                        <span className="text-base">✅</span>
-                        <span>Profile details saved and synced to database successfully!</span>
                       </div>
                     )}
 
@@ -4773,6 +4780,19 @@ function DashboardInner() {
                                           : "border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:bg-white"
                                       }`}
                                     />
+                                    {editForm.gpa && isValidGpaValue(editForm.gpa) && !isNegativeVal(editForm.gpa) && (
+                                      (() => {
+                                        const converted = convertGpaTo4Scale(editForm.gpa);
+                                        if (converted && converted !== editForm.gpa.trim()) {
+                                          return (
+                                            <p className="text-[11px] font-extrabold text-blue-600 mt-1 flex items-center gap-1">
+                                              <span>✨ Converts to <strong>{converted} / 4.0 GPA</strong> scale upon saving.</span>
+                                            </p>
+                                          );
+                                        }
+                                        return null;
+                                      })()
+                                    )}
                                     {(!isValidGpaValue(editForm.gpa) || isNegativeVal(editForm.gpa)) && (
                                       <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1">
                                         <span>⚠️ Academic score must contain numbers only (e.g. 3.75 or 85%, letters are not allowed)</span>

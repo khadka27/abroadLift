@@ -6,6 +6,7 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { convertGpaTo4Scale, parseGpaToFloat } from "@/lib/gpaConverter";
 import {
   GraduationCap,
   BookOpen,
@@ -2445,7 +2446,15 @@ export default function AbroadLiftMatchesPage() {
     );
 
     const baselineAdmission = selectedMatch.admissionRate || 60;
-    const admissionConfidence =
+    const budgetCoverage = Math.max(
+      0,
+      Math.min(
+        190,
+        Math.round((budgetNpr / Math.max(1, yearOneNeedNpr)) * 100),
+      ),
+    );
+
+    let rawAdmission =
       admissionAnalysis?.admissionPct ??
       Math.max(
         30,
@@ -2454,14 +2463,11 @@ export default function AbroadLiftMatchesPage() {
           Math.round(baselineAdmission * 0.55 + academicReadiness * 0.45),
         ),
       );
-
-    const budgetCoverage = Math.max(
-      20,
-      Math.min(
-        190,
-        Math.round((budgetNpr / Math.max(1, yearOneNeedNpr)) * 100),
-      ),
-    );
+    // Cap admission outlook if budget coverage is critically insufficient for tuition deposit & verification
+    if (budgetCoverage < 15) {
+      rawAdmission = Math.min(65, rawAdmission);
+    }
+    const admissionConfidence = Math.max(20, Math.min(96, Math.round(rawAdmission)));
 
     const docsReadyCount = [
       !!form.passportReady,
@@ -2502,30 +2508,39 @@ export default function AbroadLiftMatchesPage() {
         : 62,
     );
 
-    const visaConfidence =
+    let rawVisa =
       visaAnalysis?.successChance ??
-      Math.max(
-        25,
-        Math.min(
-          97,
-          Math.round(
-            academicReadiness * 0.34 +
-              admissionConfidence * 0.24 +
-              Math.min(100, budgetCoverage) * 0.32 +
-              docReadiness * 0.1,
-          ),
-        ),
+      Math.round(
+        academicReadiness * 0.30 +
+          admissionConfidence * 0.20 +
+          Math.min(100, budgetCoverage) * 0.40 +
+          docReadiness * 0.10,
       );
 
+    // Hard financial & document gates for visa readiness
+    if (budgetCoverage < 25) {
+      rawVisa = Math.min(25, rawVisa);
+    } else if (budgetCoverage < 50) {
+      rawVisa = Math.min(48, rawVisa);
+    } else if (budgetCoverage < 75) {
+      rawVisa = Math.min(68, rawVisa);
+    }
+
+    if (docReadiness < 30) {
+      rawVisa = Math.min(rawVisa, 40);
+    }
+
+    const visaConfidence = Math.max(15, Math.min(96, Math.round(rawVisa)));
+
     const overallConfidence = Math.max(
-      25,
+      15,
       Math.min(
-        97,
+        95,
         Math.round(
           admissionConfidence * 0.35 +
-            visaConfidence * 0.35 +
-            Math.min(100, budgetCoverage) * 0.2 +
-            destinationFit * 0.1,
+            visaConfidence * 0.40 +
+            Math.min(100, budgetCoverage) * 0.15 +
+            destinationFit * 0.10,
         ),
       ),
     );
@@ -2536,13 +2551,15 @@ export default function AbroadLiftMatchesPage() {
         : budgetCoverage >= 85
           ? "moderate"
           : "high";
+
     const counselorVerdict =
-      admissionAnalysis?.summary ||
-      (overallConfidence >= 78 && budgetStressBand !== "high"
-        ? "Strong Proceed"
-        : overallConfidence >= 62
-          ? "Proceed With Conditions"
-          : "Refine Profile First");
+      (budgetCoverage < 50 || visaConfidence < 50)
+        ? (budgetCoverage < 25 ? "Refine Profile First" : "Proceed With Conditions")
+        : (overallConfidence >= 78 && budgetStressBand !== "high"
+          ? "Strong Proceed"
+          : overallConfidence >= 62
+            ? "Proceed With Conditions"
+            : "Refine Profile First");
 
     return {
       admissionConfidence,
@@ -2904,8 +2921,8 @@ export default function AbroadLiftMatchesPage() {
     if (!f.degree) return false;
     if (!f.field || !f.program) return false;
     if (!f.highestEducation || !f.educationStatus || !f.gpa || !f.passingYear) return false;
-    const gpa = parseFloat(f.gpa);
-    if (isNaN(gpa) || gpa < 0 || gpa > 4.0) return false;
+    const gpa = parseGpaToFloat(f.gpa);
+    if (gpa === null || gpa < 0 || gpa > 4.0) return false;
     if (f.hasEnglishTest === null) return false;
     if (f.hasEnglishTest === true) {
       if (!f.testType || !f.testScore || f.testType === "NONE") return false;
@@ -2921,8 +2938,8 @@ export default function AbroadLiftMatchesPage() {
     if (!f.degree) return 2;
     if (!f.field || !f.program) return 3;
     if (!f.highestEducation || !f.educationStatus || !f.gpa || !f.passingYear) return 4;
-    const gpa = parseFloat(f.gpa);
-    if (isNaN(gpa) || gpa < 0 || gpa > 4.0) return 4;
+    const gpa = parseGpaToFloat(f.gpa);
+    if (gpa === null || gpa < 0 || gpa > 4.0) return 4;
     if (f.hasEnglishTest === null) return 5;
     if (f.hasEnglishTest === true) {
       if (!f.testType || !f.testScore || f.testType === "NONE") return 5;
@@ -3162,8 +3179,8 @@ export default function AbroadLiftMatchesPage() {
     if (step === 4) {
       if (!form.highestEducation || !form.educationStatus || !form.gpa || !form.passingYear)
         return false;
-      const gpa = parseFloat(form.gpa);
-      return !isNaN(gpa) && gpa >= 0 && gpa <= 4.0;
+      const gpa = parseGpaToFloat(form.gpa);
+      return gpa !== null && gpa >= 0 && gpa <= 4.0;
     }
     if (step === 5) {
       if (form.hasEnglishTest === false) {
@@ -4046,22 +4063,32 @@ export default function AbroadLiftMatchesPage() {
               </label>
               <div className="relative">
                 <input
-                  type="number"
-                  min="0"
-                  max="4.0"
-                  step="0.01"
-                  placeholder={form.educationStatus === "Pursuing" ? "Expected Academics Score (eg: 3.8)" : "Academics Score (eg: 3.8)"}
-                  className={`w-full h-[50px] md:h-[60px] px-6 bg-[#f8fafc] border rounded-[22px] text-[16px] font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all shadow-sm ${form.gpa && (parseFloat(form.gpa) < 0 || parseFloat(form.gpa) > 4.0) ? "border-red-400 ring-2 ring-red-500/20" : "border-slate-200"}`}
+                  type="text"
+                  placeholder={form.educationStatus === "Pursuing" ? "Expected Score (e.g. 3.8 or 85%)" : "Academics Score (e.g. 3.8 or 85%)"}
+                  className={`w-full h-[50px] md:h-[60px] px-6 bg-[#f8fafc] border rounded-[22px] text-[16px] font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all shadow-sm ${form.gpa && (parseGpaToFloat(form.gpa) === null || (parseGpaToFloat(form.gpa) ?? 0) < 0 || (parseGpaToFloat(form.gpa) ?? 0) > 4.0) ? "border-red-400 ring-2 ring-red-500/20" : "border-slate-200"}`}
                   value={form.gpa}
                   onChange={(e) => updateForm("gpa", e.target.value)}
                 />
               </div>
-              {form.gpa &&
-                (parseFloat(form.gpa) < 0 || parseFloat(form.gpa) > 4.0) && (
-                  <p className="text-red-500 text-[11px] font-bold ml-2">
-                    Score must be between 0.0 and 4.0
-                  </p>
-                )}
+              {form.gpa && (() => {
+                const parsed = parseGpaToFloat(form.gpa);
+                if (parsed === null || parsed < 0 || parsed > 4.0) {
+                  return (
+                    <p className="text-red-500 text-[11px] font-bold ml-2">
+                      Please enter a valid GPA (0.0 - 4.0) or Percentage (e.g. 85%)
+                    </p>
+                  );
+                }
+                const converted = convertGpaTo4Scale(form.gpa);
+                if (converted && converted !== form.gpa.trim()) {
+                  return (
+                    <p className="text-blue-600 text-[11px] font-extrabold ml-2">
+                      ✨ Converts to <strong>{converted} / 4.0 GPA</strong> scale
+                    </p>
+                  );
+                }
+                return null;
+              })()}
             </div>
 
             <div className="space-y-3">

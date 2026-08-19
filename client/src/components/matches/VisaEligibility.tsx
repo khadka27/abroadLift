@@ -51,9 +51,10 @@ export function VisaEligibility({
   const visaCountry = selectedMatch.countryCode || form.countries[0] || "USA";
   const visaTitle = `${visaCountry} Student Visa (Category F-1 / Study Permit)`;
 
-  const hasFunds =
-    parseFloat(String(form.bankBalance || 0)) > 0 ||
-    parseFloat(String(form.sponsorIncome || 0)) > 0;
+  const rawBudget = parseFloat(String(form.budget || 0));
+  const rawBank = parseFloat(String(form.bankBalance || 0));
+  const rawIncome = parseFloat(String(form.sponsorIncome || 0));
+  const hasAdequateFunds = rawBank >= 500000 || rawIncome >= 500000 || rawBudget >= 5000;
   const userGpa = parseFloat(String(form.gpa || 0)) || 3.0;
 
   // Local state for interactive document checklist
@@ -67,7 +68,7 @@ export function VisaEligibility({
     return {
       passport: !!form.passportReady,
       admissionLetter: true,
-      financialProof: hasFunds,
+      financialProof: hasAdequateFunds,
       academicTranscripts: userGpa >= 2.5,
       languageReport: !!form.testScore,
       visaForm: false,
@@ -109,10 +110,12 @@ export function VisaEligibility({
   const totalDocs = Object.keys(docsStatus).length;
   const calculatedReadiness = Math.round((verifiedCount / totalDocs) * 100);
 
-  const successChance = Math.min(
-    98,
-    Math.max(45, (visaAnalysis?.successChance || 82) + (verifiedCount - 3) * 4)
-  );
+  const baseChance = visaAnalysis?.successChance ?? (hasAdequateFunds ? 75 : 25);
+  let successChance = Math.round(baseChance + (verifiedCount - 3) * 4);
+  if (!hasAdequateFunds || !docsStatus.financialProof) {
+    successChance = Math.min(30, successChance);
+  }
+  successChance = Math.max(15, Math.min(96, successChance));
 
   useEffect(() => {
     if (!onUpdateAnalysis) return;
@@ -327,8 +330,8 @@ export function VisaEligibility({
                   <Coins className="w-4 h-4 text-[#3366FF]" />
                   Financial Solvency Check
                 </h3>
-                <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase border ${hasFunds ? "bg-emerald-50 text-emerald-700 border-emerald-100" : "bg-amber-50 text-amber-700 border-amber-100"}`}>
-                  {hasFunds ? "Sufficient Funds" : "Gap Detected"}
+                <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase border ${hasAdequateFunds ? "bg-emerald-50 text-emerald-700 border-emerald-100" : "bg-amber-50 text-amber-700 border-amber-100"}`}>
+                  {hasAdequateFunds ? "Sufficient Funds" : "Gap Detected"}
                 </span>
               </div>
 

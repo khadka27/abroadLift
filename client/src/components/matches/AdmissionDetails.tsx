@@ -162,6 +162,22 @@ export function AdmissionDetails({
 
   const isEligible = admissionAnalysis?.factors ? admissionAnalysis.factors.isEligible : true;
 
+  const userTestScore = testScore;
+  const reqIeltsScore = parseFloat(String(admissionAnalysis?.factors?.requiredIelts || "7.0"));
+  const testTypeStr = form.testType || "IELTS";
+
+  const isIeltsMax = (testTypeStr === "IELTS" || !form.testType) && userTestScore >= 9.0;
+  const isToeflMax = testTypeStr === "TOEFL" && userTestScore >= 120;
+  const isPteMax = (testTypeStr === "PTE" || testTypeStr === "PTE Academic") && userTestScore >= 90;
+  const isDuolingoMax = testTypeStr === "Duolingo" && userTestScore >= 160;
+
+  const isLanguageMaxedOrExceeds =
+    isIeltsMax ||
+    isToeflMax ||
+    isPteMax ||
+    isDuolingoMax ||
+    (userTestScore > 0 && userTestScore >= reqIeltsScore);
+
   const rawProfileScore = Math.max(
     30,
     Math.min(
@@ -870,7 +886,11 @@ export function AdmissionDetails({
                     <div className="flex gap-2.5 items-start">
                       <span className="w-5 h-5 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 text-[10px] font-black text-blue-600">1</span>
                       <span className="leading-relaxed">
-                        Achieve at least <strong className="text-slate-900">{admissionAnalysis.factors.requiredIelts}</strong> IELTS score.
+                        {isLanguageMaxedOrExceeds ? (
+                          <>Highlight top <strong className="text-slate-900">{testTypeStr} {form.testScore || "9.0"}</strong> score in application file.</>
+                        ) : (
+                          <>Achieve at least <strong className="text-slate-900">{admissionAnalysis.factors.requiredIelts}</strong> {testTypeStr} score.</>
+                        )}
                       </span>
                     </div>
                     <div className="flex gap-2.5 items-start">
@@ -883,13 +903,27 @@ export function AdmissionDetails({
                     <div className="flex gap-2.5 items-start">
                       <span className="w-5 h-5 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 text-[10px] font-black text-blue-600">1</span>
                       <span className="leading-relaxed">
-                        Improve <strong className="text-slate-900">{form.testType || "Language"}</strong> score by half a band.
+                        {isLanguageMaxedOrExceeds ? (
+                          <>
+                            Leverage top-tier <strong className="text-slate-900">{testTypeStr} {form.testScore || "9.0"}</strong> score to qualify for research assistantships & merit awards.
+                          </>
+                        ) : (
+                          <>
+                            Improve <strong className="text-slate-900">{testTypeStr}</strong> score towards target program requirement ({reqIeltsScore}).
+                          </>
+                        )}
                       </span>
                     </div>
                     <div className="flex gap-2.5 items-start">
                       <span className="w-5 h-5 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 text-[10px] font-black text-blue-600">2</span>
                       <span className="leading-relaxed">Submit application early to qualify for entrance awards.</span>
                     </div>
+                    {isLanguageMaxedOrExceeds && (
+                      <div className="flex gap-2.5 items-start">
+                        <span className="w-5 h-5 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 text-[10px] font-black text-blue-600">3</span>
+                        <span className="leading-relaxed">Prepare tailored Statement of Purpose (SOP) highlighting research intent.</span>
+                      </div>
+                    )}
                   </>
                 )}
               </div>
