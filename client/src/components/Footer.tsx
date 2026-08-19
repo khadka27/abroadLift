@@ -3,10 +3,13 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Facebook, Twitter, Linkedin, Instagram } from "lucide-react";
 
 export default function Footer() {
   const pathname = usePathname();
+  const { status } = useSession();
+  const isAuthenticated = status === "authenticated";
   const year = new Date().getFullYear();
 
   // Hide footer on admin routes or full-screen wizard pages if required
@@ -66,13 +69,19 @@ export default function Footer() {
             {/* Column 1: Create free account / Quick Links */}
             <div className="space-y-4">
               <h4 className="text-white font-bold text-sm sm:text-[15px] tracking-wide">
-                Create free account
+                {isAuthenticated ? "Quick Links" : "Create free account"}
               </h4>
               <ul className="space-y-3 text-xs sm:text-sm font-medium text-white/80">
                 <li>
-                  <Link href="/login" className="hover:text-white transition-colors">
-                    Sign In
-                  </Link>
+                  {isAuthenticated ? (
+                    <Link href="/dashboard" className="hover:text-white transition-colors">
+                      Dashboard
+                    </Link>
+                  ) : (
+                    <Link href="/login" className="hover:text-white transition-colors">
+                      Sign In
+                    </Link>
+                  )}
                 </li>
                 <li>
                   <Link href="/matches" className="hover:text-white transition-colors">
@@ -99,9 +108,15 @@ export default function Footer() {
               </h4>
               <ul className="space-y-3 text-xs sm:text-sm font-medium text-white/80">
                 <li>
-                  <Link href="/dashboard" className="hover:text-white transition-colors">
-                    Student Dashboard
-                  </Link>
+                  {isAuthenticated ? (
+                    <Link href="/profile" className="hover:text-white transition-colors">
+                      My Profile
+                    </Link>
+                  ) : (
+                    <Link href="/dashboard" className="hover:text-white transition-colors">
+                      Student Dashboard
+                    </Link>
+                  )}
                 </li>
                 <li>
                   <Link href="/matches" className="hover:text-white transition-colors">
