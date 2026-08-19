@@ -268,3 +268,25 @@ model SystemSetting {
     value     Json
     updatedAt DateTime @updatedAt
 }
+
+model ArchivedUser {
+    id              String   @id @default(uuid())
+    originalUserId  String
+    name            String
+    username        String
+    email           String
+    countryDialCode String?
+    phoneNumber     String?
+    phoneE164       String?
+    role            Role     @default(STUDENT)
+
+    // Complete snapshot of user records before deletion
+    profileData      Json?
+    applicationsData Json?
+    matchesData      Json?
+    visaChecksData   Json?
+    documentsData    Json?
+
+    deletedReason String?  @default("User requested account deletion")
+    deletedAt     DateTime @default(now())
+}

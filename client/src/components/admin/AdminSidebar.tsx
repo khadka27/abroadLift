@@ -18,7 +18,8 @@ import {
   ShieldCheck,
   FileSpreadsheet,
   UserCog,
-  Crown
+  Crown,
+  UserX
 } from "lucide-react";
 import Link from "next/link";
 
@@ -121,6 +122,7 @@ export default function AdminSidebar() {
               { href: "/admin/students", label: "Student Registry", icon: Users, activeMatch: (p: string) => p.startsWith("/admin/students") },
               { href: "/admin/applications", label: "Applications", icon: GraduationCap, activeMatch: (p: string) => p.startsWith("/admin/applications") },
               { href: "/admin/visa", label: "Visa Assessments", icon: ShieldCheck, activeMatch: (p: string) => p.startsWith("/admin/visa") },
+              { href: "/admin/archived-users", label: "Archived Accounts", icon: UserX, activeMatch: (p: string) => p.startsWith("/admin/archived-users") },
             ].map((link) => {
               const Icon = link.icon;
               const isActive = link.activeMatch(pathname);

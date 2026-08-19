@@ -308,6 +308,39 @@ function DashboardInner() {
   const [profile, setProfile] = useState<ProfileState>(DEFAULT_PROFILE);
   const [errorMsg, setErrorMsg] = useState("");
 
+  const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [deleteAccountError, setDeleteAccountError] = useState("");
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText.trim().toUpperCase() !== "DELETE") {
+      setDeleteAccountError('Please type "DELETE" to confirm account deletion.');
+      return;
+    }
+
+    setDeletingAccount(true);
+    setDeleteAccountError("");
+
+    try {
+      const res = await fetch("/api/profile/delete", {
+        method: "DELETE",
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        await signOut({ callbackUrl: "/login?deleted=true" });
+      } else {
+        setDeleteAccountError(data.error || "Failed to delete account.");
+        setDeletingAccount(false);
+      }
+    } catch (err: any) {
+      setDeleteAccountError("Network error. Please try again.");
+      setDeletingAccount(false);
+    }
+  };
+
   const isNegativeVal = (val: string | number | undefined | null): boolean => {
     if (val === undefined || val === null || val === "") return false;
     const str = val.toString().trim();
@@ -5911,6 +5944,32 @@ function DashboardInner() {
                                   </span>
                                 )}
                               </div>
+
+                              {/* Danger Zone: Account Deletion */}
+                              <div className="pt-6 border-t border-slate-100 space-y-3">
+                                <h4 className="text-xs font-extrabold text-rose-600 uppercase tracking-widest flex items-center gap-1.5">
+                                  <Trash2 className="w-4 h-4 text-rose-500" /> Danger Zone
+                                </h4>
+                                <div className={`p-4 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${darkModeSimulated ? "bg-rose-950/20 border-rose-900/40" : "bg-rose-50/60 border-rose-100"}`}>
+                                  <div>
+                                    <p className={`text-xs font-black ${darkModeSimulated ? "text-rose-300" : "text-rose-950"}`}>Delete Account & Archive Data</p>
+                                    <p className={`text-[11px] font-medium mt-0.5 max-w-md ${darkModeSimulated ? "text-rose-400" : "text-rose-800/80"}`}>
+                                      Deleting your account will remove your active user credentials. A full snapshot of your profile, applications, and documents will be securely archived in background storage accessible only by platform administrators.
+                                    </p>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setShowDeleteAccountModal(true);
+                                      setDeleteConfirmText("");
+                                      setDeleteAccountError("");
+                                    }}
+                                    className="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs shadow-sm transition-all active:scale-95 cursor-pointer shrink-0"
+                                  >
+                                    Delete Account
+                                  </button>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         )}
@@ -6808,6 +6867,87 @@ function DashboardInner() {
               </button>
             </div>
           </Card>
+        </div>
+      )}
+
+      {/* Delete Account Confirmation Modal */}
+      {showDeleteAccountModal && (
+        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 sm:p-0">
+          <div
+            onClick={() => {
+              if (!deletingAccount) setShowDeleteAccountModal(false);
+            }}
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+          />
+          <div className="relative w-full max-w-md bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-100 p-6 sm:p-8 space-y-5 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between">
+              <div className="w-10 h-10 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <button
+                disabled={deletingAccount}
+                onClick={() => setShowDeleteAccountModal(false)}
+                className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-black text-slate-900 tracking-tight">
+                Are you sure you want to delete your account?
+              </h3>
+              <p className="text-xs text-slate-500 font-medium mt-1 leading-relaxed">
+                This will delete your active account and log you out. All your current profile details, applications, and documents will be moved to secure administrator archive storage.
+              </p>
+            </div>
+
+            {deleteAccountError && (
+              <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs font-bold rounded-xl flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 shrink-0 text-red-500" />
+                <span>{deleteAccountError}</span>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                Type <span className="text-rose-600 font-black">DELETE</span> to confirm
+              </label>
+              <input
+                type="text"
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                placeholder="DELETE"
+                disabled={deletingAccount}
+                className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-rose-500 focus:bg-white transition-all"
+              />
+            </div>
+
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                type="button"
+                disabled={deletingAccount}
+                onClick={() => setShowDeleteAccountModal(false)}
+                className="flex-1 h-11 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs transition-all cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={deletingAccount || deleteConfirmText.trim().toUpperCase() !== "DELETE"}
+                onClick={handleDeleteAccount}
+                className="flex-1 h-11 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs shadow-md transition-all active:scale-95 cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {deletingAccount ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" /> Archiving...
+                  </>
+                ) : (
+                  "Delete & Archive Account"
+                )}
+              </button>
+            </div>
+          </div>
         </div>
       )}
       </div>
