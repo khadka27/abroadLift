@@ -74,7 +74,15 @@ export function VisaEligibility({
     };
   });
 
+  const lastSentRef = React.useRef<string>("");
+
+  const formProfileKey = `${form.degree}-${form.field}-${form.gpa}-${form.testType}-${form.testScore}-${(form.countries || []).join(",")}-${form.bankBalance}`;
+  const selectedMatchId = String(selectedMatch?.id || selectedMatch?.name || "");
+
   useEffect(() => {
+    // If we already have initialVisaAnalysis or loaded visaAnalysis, don't refetch on every render
+    if (initialVisaAnalysis || visaAnalysis) return;
+
     let active = true;
     fetch("/api/visa-prediction", {
       method: "POST",
@@ -91,7 +99,7 @@ export function VisaEligibility({
     return () => {
       active = false;
     };
-  }, [form, selectedMatch]);
+  }, [formProfileKey, selectedMatchId, initialVisaAnalysis]);
 
   const toggleDoc = (key: string) => {
     setDocsStatus((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -107,20 +115,26 @@ export function VisaEligibility({
   );
 
   useEffect(() => {
-    if (onUpdateAnalysis) {
-      onUpdateAnalysis({
-        successChance,
-        readinessPercent: calculatedReadiness,
-        verifiedCount,
-        totalDocs,
-        docsStatus,
-        label: calculatedReadiness >= 80 ? "High Visa Readiness" : "Action Needed",
-        visaCountry,
-        visaTitle,
-        guidance: visaAnalysis?.guidance || [],
-        checklist: visaAnalysis?.checklist || [],
-      });
-    }
+    if (!onUpdateAnalysis) return;
+
+    const payload = {
+      successChance,
+      readinessPercent: calculatedReadiness,
+      verifiedCount,
+      totalDocs,
+      docsStatus,
+      label: calculatedReadiness >= 80 ? "High Visa Readiness" : "Action Needed",
+      visaCountry,
+      visaTitle,
+      guidance: visaAnalysis?.guidance || [],
+      checklist: visaAnalysis?.checklist || [],
+    };
+
+    const serialized = JSON.stringify(payload);
+    if (lastSentRef.current === serialized) return;
+    lastSentRef.current = serialized;
+
+    onUpdateAnalysis(payload);
   }, [
     successChance,
     calculatedReadiness,

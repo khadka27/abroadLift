@@ -2856,6 +2856,9 @@ export default function AbroadLiftMatchesPage() {
     }
   }, [step, selectedMatch, form.countries]);
 
+  const formProfileKey = `${form.degree}-${form.field}-${form.gpa}-${form.testType}-${form.testScore}-${(form.countries || []).join(",")}-${form.bankBalance}`;
+  const selectedMatchId = String(selectedMatch?.id || selectedMatch?.name || "");
+
   useEffect(() => {
     if (!selectedMatch || step < 7) {
       setAdmissionAnalysis(null);
@@ -2899,7 +2902,7 @@ export default function AbroadLiftMatchesPage() {
     return () => {
       active = false;
     };
-  }, [form, selectedMatch, step]);
+  }, [formProfileKey, selectedMatchId, step]);
 
   const isFormCompleteForSteps1To6 = (f: any) => {
     if (!f.countries || f.countries.length === 0) return false;
@@ -5203,14 +5206,28 @@ export default function AbroadLiftMatchesPage() {
               selectedMatch={selectedMatch}
               onBack={() => setStep(8)}
               onUpdateAnalysis={(analysis) => {
-                setVisaAnalysis(analysis);
+                setVisaAnalysis((prev: any) => {
+                  if (JSON.stringify(prev) === JSON.stringify(analysis)) return prev;
+                  return analysis;
+                });
                 if (analysis?.docsStatus) {
-                  setForm((prev) => ({
-                    ...prev,
-                    passportReady: !!analysis.docsStatus.passport,
-                    docsReady: (analysis.readinessPercent || 0) >= 80,
-                    docsStatus: analysis.docsStatus,
-                  }));
+                  setForm((prev) => {
+                    const newPassport = !!analysis.docsStatus.passport;
+                    const newDocsReady = (analysis.readinessPercent || 0) >= 80;
+                    if (
+                      prev.passportReady === newPassport &&
+                      prev.docsReady === newDocsReady &&
+                      JSON.stringify(prev.docsStatus) === JSON.stringify(analysis.docsStatus)
+                    ) {
+                      return prev;
+                    }
+                    return {
+                      ...prev,
+                      passportReady: newPassport,
+                      docsReady: newDocsReady,
+                      docsStatus: analysis.docsStatus,
+                    };
+                  });
                 }
               }}
               initialVisaAnalysis={visaAnalysis}
@@ -5218,12 +5235,23 @@ export default function AbroadLiftMatchesPage() {
                 if (analysisData) {
                   setVisaAnalysis(analysisData);
                   if (analysisData.docsStatus) {
-                    setForm((prev) => ({
-                      ...prev,
-                      passportReady: !!analysisData.docsStatus.passport,
-                      docsReady: (analysisData.readinessPercent || 0) >= 80,
-                      docsStatus: analysisData.docsStatus,
-                    }));
+                    setForm((prev) => {
+                      const newPassport = !!analysisData.docsStatus.passport;
+                      const newDocsReady = (analysisData.readinessPercent || 0) >= 80;
+                      if (
+                        prev.passportReady === newPassport &&
+                        prev.docsReady === newDocsReady &&
+                        JSON.stringify(prev.docsStatus) === JSON.stringify(analysisData.docsStatus)
+                      ) {
+                        return prev;
+                      }
+                      return {
+                        ...prev,
+                        passportReady: newPassport,
+                        docsReady: newDocsReady,
+                        docsStatus: analysisData.docsStatus,
+                      };
+                    });
                   }
                 }
                 setTransitionType("roadmap");
